@@ -258,7 +258,7 @@
                 
               
 
-              <time title="创建时间：2020-06-22 11:05:29 / 修改时间：17:51:54" itemprop="dateCreated datePublished" datetime="2020-06-22T11:05:29+08:00">2020-06-22</time>
+              <time title="创建时间：2020-06-22 11:05:29 / 修改时间：17:56:55" itemprop="dateCreated datePublished" datetime="2020-06-22T11:05:29+08:00">2020-06-22</time>
             </span>
           
             
@@ -313,6 +313,18 @@
 <h2 id="本地调试"><a href="#本地调试" class="headerlink" title="本地调试"></a>本地调试</h2><figure class="highlight shell"><table><tr><td class="gutter"><pre><span class="line">1</span><br></pre></td><td class="code"><pre><span class="line"><span class="meta">$</span> hexo s --debug</span><br></pre></td></tr></table></figure>
 
 <h2 id="发布博客"><a href="#发布博客" class="headerlink" title="发布博客"></a>发布博客</h2><figure class="highlight shell"><table><tr><td class="gutter"><pre><span class="line">1</span><br></pre></td><td class="code"><pre><span class="line"><span class="meta">$</span> hexo clean &amp;&amp; hexo deploy</span><br></pre></td></tr></table></figure>
+
+<h1 id="常见问题"><a href="#常见问题" class="headerlink" title="常见问题"></a>常见问题</h1><h2 id="there-isn’t-a-github-pages-site-here-404"><a href="#there-isn’t-a-github-pages-site-here-404" class="headerlink" title="there isn’t a github pages site here. 404"></a>there isn’t a github pages site here. 404</h2><p>换了一台电脑后，再发布博客，会报404的错误，原因是nodejs版本太高，需要改成低版本</p>
+<p>卸载nodejs</p>
+<figure class="highlight shell"><table><tr><td class="gutter"><pre><span class="line">1</span><br></pre></td><td class="code"><pre><span class="line"><span class="meta">$</span> brew uninstall node</span><br></pre></td></tr></table></figure>
+
+<p>安装旧版本的nodejs</p>
+<figure class="highlight shell"><table><tr><td class="gutter"><pre><span class="line">1</span><br></pre></td><td class="code"><pre><span class="line"><span class="meta">$</span> brew install node@12</span><br></pre></td></tr></table></figure>
+
+<p>配置环境变量：</p>
+<figure class="highlight shell"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br></pre></td><td class="code"><pre><span class="line"><span class="meta">$</span> cat ~/.zshrc</span><br><span class="line">export PATH=$PATH:/usr/local/opt/node@12/bin</span><br></pre></td></tr></table></figure>
+
+<h2 id="在另外一台电脑恢复博客"><a href="#在另外一台电脑恢复博客" class="headerlink" title="在另外一台电脑恢复博客"></a>在另外一台电脑恢复博客</h2><figure class="highlight shell"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br><span class="line">3</span><br><span class="line">4</span><br></pre></td><td class="code"><pre><span class="line"><span class="meta">$</span> git clone '仓库地址'</span><br><span class="line"><span class="meta">$</span> npm install hexo-cli</span><br><span class="line"><span class="meta">$</span> npm install</span><br><span class="line"><span class="meta">$</span> npm install hexo-deployer-git</span><br></pre></td></tr></table></figure>
 
 
         
