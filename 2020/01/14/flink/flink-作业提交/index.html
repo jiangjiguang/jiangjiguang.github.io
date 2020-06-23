@@ -55,14 +55,18 @@
   };
 </script>
 
-  <meta property="og:type" content="website">
-<meta property="og:title" content="角落之外">
-<meta property="og:url" content="http://yoursite.com/archives/2020/01/index.html">
+  <meta name="description" content="参数 参数全名 作用    -ys –yarnslots 每个taskManager的slot数量   -ytm –yarntaskManagerMemory 每个taskManager Container的内存量（MB）   -yn –yarncontainer 分配的YARN container的数量（等于taskManager）   -yjm –yarnjobManagerMemory">
+<meta property="og:type" content="article">
+<meta property="og:title" content="flink-作业提交">
+<meta property="og:url" content="http://yoursite.com/2020/01/14/flink/flink-作业提交/index.html">
 <meta property="og:site_name" content="角落之外">
+<meta property="og:description" content="参数 参数全名 作用    -ys –yarnslots 每个taskManager的slot数量   -ytm –yarntaskManagerMemory 每个taskManager Container的内存量（MB）   -yn –yarncontainer 分配的YARN container的数量（等于taskManager）   -yjm –yarnjobManagerMemory">
 <meta property="og:locale" content="zh-CN">
+<meta property="og:updated_time" content="2020-06-22T09:12:52.296Z">
 <meta name="twitter:card" content="summary">
-<meta name="twitter:title" content="角落之外">
-  <link rel="canonical" href="http://yoursite.com/archives/2020/01/">
+<meta name="twitter:title" content="flink-作业提交">
+<meta name="twitter:description" content="参数 参数全名 作用    -ys –yarnslots 每个taskManager的slot数量   -ytm –yarntaskManagerMemory 每个taskManager Container的内存量（MB）   -yn –yarncontainer 分配的YARN container的数量（等于taskManager）   -yjm –yarnjobManagerMemory">
+  <link rel="canonical" href="http://yoursite.com/2020/01/14/flink/flink-作业提交/">
 
 
 <script id="page-configurations">
@@ -70,13 +74,13 @@
   CONFIG.page = {
     sidebar: "",
     isHome: false,
-    isPost: false,
+    isPost: true,
     isPage: false,
-    isArchive: true
+    isArchive: false
   };
 </script>
 
-  <title>归档 | 角落之外</title>
+  <title>flink-作业提交 | 角落之外</title>
   
 
 
@@ -206,21 +210,6 @@
 
     
 
-  
-    
-    
-  
-    
-    
-  
-    
-    
-  
-    
-    
-  
-  
-
 </nav>
 </div>
     </header>
@@ -238,124 +227,191 @@
           <div class="content">
             
 
+  <div class="posts-expand">
+      
   
   
-  
-  <div class="post-block">
-    <div class="posts-collapse">
-      <div class="collection-title">
-        
-        
-        
+  <article itemscope itemtype="http://schema.org/Article" class="post-block " lang="zh-CN">
+    <link itemprop="mainEntityOfPage" href="http://yoursite.com/2020/01/14/flink/flink-作业提交/">
+
+    <span hidden itemprop="author" itemscope itemtype="http://schema.org/Person">
+      <meta itemprop="name" content="姜纪光">
+      <meta itemprop="description" content="">
+      <meta itemprop="image" content="/images/avatar.gif">
+    </span>
+
+    <span hidden itemprop="publisher" itemscope itemtype="http://schema.org/Organization">
+      <meta itemprop="name" content="角落之外">
+    </span>
+      <header class="post-header">
+        <h1 class="post-title" itemprop="name headline">
           
-        
-        <span class="collection-header">嗯..! 目前共计 11 篇日志。 继续努力。</span>
-      </div>
-      
+            flink-作业提交
+            
 
-      
+          
+        </h1>
 
+        <div class="post-meta">
+            <span class="post-meta-item">
+              <span class="post-meta-item-icon">
+                <i class="fa fa-calendar-o"></i>
+              </span>
+              <span class="post-meta-item-text">发表于</span>
+
+              
+                
+              
+
+              <time title="创建时间：2020-01-14 11:10:17" itemprop="dateCreated datePublished" datetime="2020-01-14T11:10:17+08:00">2020-01-14</time>
+            </span>
+          
+            
+
+            
+              <span class="post-meta-item">
+                <span class="post-meta-item-icon">
+                  <i class="fa fa-calendar-check-o"></i>
+                </span>
+                <span class="post-meta-item-text">更新于</span>
+                <time title="修改时间：2020-06-22 17:12:52" itemprop="dateModified" datetime="2020-06-22T17:12:52+08:00">2020-06-22</time>
+              </span>
+            
+          
+            <span class="post-meta-item">
+              <span class="post-meta-item-icon">
+                <i class="fa fa-folder-o"></i>
+              </span>
+              <span class="post-meta-item-text">分类于</span>
+              
+                <span itemprop="about" itemscope itemtype="http://schema.org/Thing">
+                  <a href="/categories/flink/" itemprop="url" rel="index">
+                    <span itemprop="name">flink</span>
+                  </a>
+                </span>
+
+                
+                
+              
+            </span>
+          
+
+          
+            <span id="/2020/01/14/flink/flink-作业提交/" class="post-meta-item leancloud_visitors" data-flag-title="flink-作业提交" title="阅读次数">
+              <span class="post-meta-item-icon">
+                <i class="fa fa-eye"></i>
+              </span>
+              <span class="post-meta-item-text">阅读次数：</span>
+              <span class="leancloud-visitors-count"></span>
+            </span>
+          
   
   
 
-  
+        </div>
+      </header>
+
     
-    <div class="collection-year">
-      <h1 class="collection-header">2020</h1>
-    </div>
-  
+    
+    
+    <div class="post-body" itemprop="articleBody">
 
-  <article itemscope itemtype="http://schema.org/Article">
-    <header class="post-header">
-
-      <div class="post-meta">
-        <time itemprop="dateCreated"
-              datetime="2020-01-14T17:31:25+08:00"
-              content="2020-01-14">
-          01-14
-        </time>
-      </div>
-
-      <h2 class="post-title">
-        
-          <a class="post-title-link" href="/2020/01/14/flink/flink-checkpoint/" itemprop="url">
-            <span itemprop="name">flink-checkpoint</span>
-          </a>
-        
-      </h2>
-
-    </header>
-  </article>
-
-
-
-  
-  
-
-  
-
-  <article itemscope itemtype="http://schema.org/Article">
-    <header class="post-header">
-
-      <div class="post-meta">
-        <time itemprop="dateCreated"
-              datetime="2020-01-14T11:10:17+08:00"
-              content="2020-01-14">
-          01-14
-        </time>
-      </div>
-
-      <h2 class="post-title">
-        
-          <a class="post-title-link" href="/2020/01/14/flink/flink-作业提交/" itemprop="url">
-            <span itemprop="name">flink-作业提交</span>
-          </a>
-        
-      </h2>
-
-    </header>
-  </article>
-
-
-
-  
-  
-
-  
-
-  <article itemscope itemtype="http://schema.org/Article">
-    <header class="post-header">
-
-      <div class="post-meta">
-        <time itemprop="dateCreated"
-              datetime="2020-01-14T10:23:08+08:00"
-              content="2020-01-14">
-          01-14
-        </time>
-      </div>
-
-      <h2 class="post-title">
-        
-          <a class="post-title-link" href="/2020/01/14/linux/export和source/" itemprop="url">
-            <span itemprop="name">export和source</span>
-          </a>
-        
-      </h2>
-
-    </header>
-  </article>
-
-
-
+      
+        <table>
+<thead>
+<tr>
+<th align="left">参数</th>
+<th>参数全名</th>
+<th>作用</th>
+</tr>
+</thead>
+<tbody><tr>
+<td align="left">-ys</td>
+<td>–yarnslots</td>
+<td>每个taskManager的slot数量</td>
+</tr>
+<tr>
+<td align="left">-ytm</td>
+<td>–yarntaskManagerMemory</td>
+<td>每个taskManager Container的内存量（MB）</td>
+</tr>
+<tr>
+<td align="left">-yn</td>
+<td>–yarncontainer</td>
+<td>分配的YARN container的数量（等于taskManager）</td>
+</tr>
+<tr>
+<td align="left">-yjm</td>
+<td>–yarnjobManagerMemory</td>
+<td>JobManager Container的内存（MB）</td>
+</tr>
+<tr>
+<td align="left">-p</td>
+<td>–parallelism</td>
+<td>作业的并行度，可以覆盖配置文件中的并行度<br>该参数覆盖flink配置文件的中并行度<br>可以在代码中设置并行度覆盖该参数</td>
+</tr>
+<tr>
+<td align="left">-s</td>
+<td>–fromSavepoint</td>
+<td>用来恢复作业的 savepoint路径</td>
+</tr>
+<tr>
+<td align="left">-ynm</td>
+<td>–yarnname</td>
+<td>设置作业提交到yarn上的任务的名称</td>
+</tr>
+<tr>
+<td align="left">-c</td>
+<td>–class</td>
+<td>设置jar的入口类，也可以在jar中配置入口类</td>
+</tr>
+<tr>
+<td align="left"></td>
+<td></td>
+<td></td>
+</tr>
+</tbody></table>
 
     </div>
+
+    
+    
+    
+        
+      
+
+      <footer class="post-footer">
+
+        
+
+          <div class="post-nav">
+            <div class="post-nav-next post-nav-item">
+              
+                <a href="/2020/01/14/linux/export和source/" rel="next" title="export和source">
+                  <i class="fa fa-chevron-left"></i> export和source
+                </a>
+              
+            </div>
+
+            <span class="post-nav-divider"></span>
+
+            <div class="post-nav-prev post-nav-item">
+              
+                <a href="/2020/01/14/flink/flink-checkpoint/" rel="prev" title="flink-checkpoint">
+                  flink-checkpoint <i class="fa fa-chevron-right"></i>
+                </a>
+              
+            </div>
+          </div>
+        
+      </footer>
+    
+  </article>
+  
+  
+  
+
   </div>
-  
-  
-  
-
-  
-
 
 
           </div>
@@ -372,6 +428,11 @@
 
   <aside class="sidebar">
     <div class="sidebar-inner">
+        
+        
+        
+        
+      
 
       <ul class="sidebar-nav motion-element">
         <li class="sidebar-nav-toc">

@@ -55,18 +55,18 @@
   };
 </script>
 
-  <meta name="description" content="参数 参数全名 作用    -ys –yarnslots 每个taskManager的slot数量   -ytm –yarntaskManagerMemory 每个taskManager Container的内存量（MB）   -yn –yarncontainer 分配的YARN container的数量（等于taskManager）   -yjm –yarnjobManagerMemory">
+  <meta name="description" content="HDFS的优点和缺点优点 高容错性 多副本 副本丢失，可以自动恢复  适合处理大数据 能够处理PB级别的数据 能够处理百万以上的文件数量  可构建的廉价的机器上   缺点 不适合低延迟数据访问 无法高效地对大量小文件进行存储 不支持并发写入，文件随机修改  HDFS的架构NameNode 管理HDFS的名称空间 配置副本策略 管理数据块（Block）映射信息 处理客户端读写请求  DataNode">
 <meta property="og:type" content="article">
-<meta property="og:title" content="flink-作业提交">
-<meta property="og:url" content="http://yoursite.com/2020/01/14/flink-作业提交/index.html">
+<meta property="og:title" content="HDFS架构简介">
+<meta property="og:url" content="http://yoursite.com/2020/06/23/hadoop/HDFS-Architecture/index.html">
 <meta property="og:site_name" content="角落之外">
-<meta property="og:description" content="参数 参数全名 作用    -ys –yarnslots 每个taskManager的slot数量   -ytm –yarntaskManagerMemory 每个taskManager Container的内存量（MB）   -yn –yarncontainer 分配的YARN container的数量（等于taskManager）   -yjm –yarnjobManagerMemory">
+<meta property="og:description" content="HDFS的优点和缺点优点 高容错性 多副本 副本丢失，可以自动恢复  适合处理大数据 能够处理PB级别的数据 能够处理百万以上的文件数量  可构建的廉价的机器上   缺点 不适合低延迟数据访问 无法高效地对大量小文件进行存储 不支持并发写入，文件随机修改  HDFS的架构NameNode 管理HDFS的名称空间 配置副本策略 管理数据块（Block）映射信息 处理客户端读写请求  DataNode">
 <meta property="og:locale" content="zh-CN">
-<meta property="og:updated_time" content="2020-06-22T09:12:52.296Z">
+<meta property="og:updated_time" content="2020-06-23T09:43:11.785Z">
 <meta name="twitter:card" content="summary">
-<meta name="twitter:title" content="flink-作业提交">
-<meta name="twitter:description" content="参数 参数全名 作用    -ys –yarnslots 每个taskManager的slot数量   -ytm –yarntaskManagerMemory 每个taskManager Container的内存量（MB）   -yn –yarncontainer 分配的YARN container的数量（等于taskManager）   -yjm –yarnjobManagerMemory">
-  <link rel="canonical" href="http://yoursite.com/2020/01/14/flink-作业提交/">
+<meta name="twitter:title" content="HDFS架构简介">
+<meta name="twitter:description" content="HDFS的优点和缺点优点 高容错性 多副本 副本丢失，可以自动恢复  适合处理大数据 能够处理PB级别的数据 能够处理百万以上的文件数量  可构建的廉价的机器上   缺点 不适合低延迟数据访问 无法高效地对大量小文件进行存储 不支持并发写入，文件随机修改  HDFS的架构NameNode 管理HDFS的名称空间 配置副本策略 管理数据块（Block）映射信息 处理客户端读写请求  DataNode">
+  <link rel="canonical" href="http://yoursite.com/2020/06/23/hadoop/HDFS-Architecture/">
 
 
 <script id="page-configurations">
@@ -80,7 +80,7 @@
   };
 </script>
 
-  <title>flink-作业提交 | 角落之外</title>
+  <title>HDFS架构简介 | 角落之外</title>
   
 
 
@@ -232,7 +232,7 @@
   
   
   <article itemscope itemtype="http://schema.org/Article" class="post-block " lang="zh-CN">
-    <link itemprop="mainEntityOfPage" href="http://yoursite.com/2020/01/14/flink-作业提交/">
+    <link itemprop="mainEntityOfPage" href="http://yoursite.com/2020/06/23/hadoop/HDFS-Architecture/">
 
     <span hidden itemprop="author" itemscope itemtype="http://schema.org/Person">
       <meta itemprop="name" content="姜纪光">
@@ -246,7 +246,7 @@
       <header class="post-header">
         <h1 class="post-title" itemprop="name headline">
           
-            flink-作业提交
+            HDFS架构简介
             
 
           
@@ -263,19 +263,11 @@
                 
               
 
-              <time title="创建时间：2020-01-14 11:10:17" itemprop="dateCreated datePublished" datetime="2020-01-14T11:10:17+08:00">2020-01-14</time>
+              <time title="创建时间：2020-06-23 09:27:40 / 修改时间：17:43:11" itemprop="dateCreated datePublished" datetime="2020-06-23T09:27:40+08:00">2020-06-23</time>
             </span>
           
             
 
-            
-              <span class="post-meta-item">
-                <span class="post-meta-item-icon">
-                  <i class="fa fa-calendar-check-o"></i>
-                </span>
-                <span class="post-meta-item-text">更新于</span>
-                <time title="修改时间：2020-06-22 17:12:52" itemprop="dateModified" datetime="2020-06-22T17:12:52+08:00">2020-06-22</time>
-              </span>
             
           
             <span class="post-meta-item">
@@ -285,8 +277,8 @@
               <span class="post-meta-item-text">分类于</span>
               
                 <span itemprop="about" itemscope itemtype="http://schema.org/Thing">
-                  <a href="/categories/flink/" itemprop="url" rel="index">
-                    <span itemprop="name">flink</span>
+                  <a href="/categories/hadoop/" itemprop="url" rel="index">
+                    <span itemprop="name">hadoop</span>
                   </a>
                 </span>
 
@@ -297,7 +289,7 @@
           
 
           
-            <span id="/2020/01/14/flink-作业提交/" class="post-meta-item leancloud_visitors" data-flag-title="flink-作业提交" title="阅读次数">
+            <span id="/2020/06/23/hadoop/HDFS-Architecture/" class="post-meta-item leancloud_visitors" data-flag-title="HDFS架构简介" title="阅读次数">
               <span class="post-meta-item-icon">
                 <i class="fa fa-eye"></i>
               </span>
@@ -317,60 +309,49 @@
     <div class="post-body" itemprop="articleBody">
 
       
-        <table>
-<thead>
-<tr>
-<th align="left">参数</th>
-<th>参数全名</th>
-<th>作用</th>
-</tr>
-</thead>
-<tbody><tr>
-<td align="left">-ys</td>
-<td>–yarnslots</td>
-<td>每个taskManager的slot数量</td>
-</tr>
-<tr>
-<td align="left">-ytm</td>
-<td>–yarntaskManagerMemory</td>
-<td>每个taskManager Container的内存量（MB）</td>
-</tr>
-<tr>
-<td align="left">-yn</td>
-<td>–yarncontainer</td>
-<td>分配的YARN container的数量（等于taskManager）</td>
-</tr>
-<tr>
-<td align="left">-yjm</td>
-<td>–yarnjobManagerMemory</td>
-<td>JobManager Container的内存（MB）</td>
-</tr>
-<tr>
-<td align="left">-p</td>
-<td>–parallelism</td>
-<td>作业的并行度，可以覆盖配置文件中的并行度<br>该参数覆盖flink配置文件的中并行度<br>可以在代码中设置并行度覆盖该参数</td>
-</tr>
-<tr>
-<td align="left">-s</td>
-<td>–fromSavepoint</td>
-<td>用来恢复作业的 savepoint路径</td>
-</tr>
-<tr>
-<td align="left">-ynm</td>
-<td>–yarnname</td>
-<td>设置作业提交到yarn上的任务的名称</td>
-</tr>
-<tr>
-<td align="left">-c</td>
-<td>–class</td>
-<td>设置jar的入口类，也可以在jar中配置入口类</td>
-</tr>
-<tr>
-<td align="left"></td>
-<td></td>
-<td></td>
-</tr>
-</tbody></table>
+        <h1 id="HDFS的优点和缺点"><a href="#HDFS的优点和缺点" class="headerlink" title="HDFS的优点和缺点"></a>HDFS的优点和缺点</h1><h2 id="优点"><a href="#优点" class="headerlink" title="优点"></a>优点</h2><ul>
+<li><p>高容错性</p>
+<p>多副本</p>
+<p>副本丢失，可以自动恢复</p>
+</li>
+<li><p>适合处理大数据</p>
+<p>能够处理PB级别的数据</p>
+<p>能够处理百万以上的文件数量</p>
+</li>
+<li><p>可构建的廉价的机器上</p>
+</li>
+</ul>
+<h2 id="缺点"><a href="#缺点" class="headerlink" title="缺点"></a>缺点</h2><ul>
+<li>不适合低延迟数据访问</li>
+<li>无法高效地对大量小文件进行存储</li>
+<li>不支持并发写入，文件随机修改</li>
+</ul>
+<h1 id="HDFS的架构"><a href="#HDFS的架构" class="headerlink" title="HDFS的架构"></a>HDFS的架构</h1><h2 id="NameNode"><a href="#NameNode" class="headerlink" title="NameNode"></a>NameNode</h2><ul>
+<li>管理HDFS的名称空间</li>
+<li>配置副本策略</li>
+<li>管理数据块（Block）映射信息</li>
+<li>处理客户端读写请求</li>
+</ul>
+<h2 id="DataNode"><a href="#DataNode" class="headerlink" title="DataNode"></a>DataNode</h2><p>  NameNode下达命令，DataNode负责执行实际的操作</p>
+<ul>
+<li>存储实际的数据块</li>
+<li>执行数据块的读写操作</li>
+</ul>
+<h2 id="Client客户端"><a href="#Client客户端" class="headerlink" title="Client客户端"></a>Client客户端</h2><ul>
+<li>文件切分  文件上传到HDFS的时候，Client将文件切分成一个个的Block，然后进行上传</li>
+<li>与NameNode交互，获取文件的位置信息</li>
+<li>与DataNode交互，读取或者写入数据</li>
+<li>通过命令管理HDFS，比如NameNode格式化等</li>
+<li>通过命令访问HDFS，比如对HDFS进行增删查改等操作 </li>
+</ul>
+<h2 id="Secondary-NameNode"><a href="#Secondary-NameNode" class="headerlink" title="Secondary NameNode"></a>Secondary NameNode</h2><p>  不是NameNode的热备，当NameNode挂掉时并不能替换NameNode</p>
+<ul>
+<li><p>辅助NameNode，分担其工作量，比如定期合并fsimage和edits文件，并推送给NameNode</p>
+</li>
+<li><p>辅助恢复NameNode</p>
+<p>​</p>
+</li>
+</ul>
 
     </div>
 
@@ -387,8 +368,8 @@
           <div class="post-nav">
             <div class="post-nav-next post-nav-item">
               
-                <a href="/2020/01/14/linux/export和source/" rel="next" title="export和source">
-                  <i class="fa fa-chevron-left"></i> export和source
+                <a href="/2020/06/23/hadoop/HDFS-Small-File/" rel="next" title="HDFS小文件">
+                  <i class="fa fa-chevron-left"></i> HDFS小文件
                 </a>
               
             </div>
@@ -397,8 +378,8 @@
 
             <div class="post-nav-prev post-nav-item">
               
-                <a href="/2020/01/14/flink-checkpoint/" rel="prev" title="flink-checkpoint">
-                  flink-checkpoint <i class="fa fa-chevron-right"></i>
+                <a href="/2020/06/23/hadoop/HDFS-Shell/" rel="prev" title="HDFS Shell操作">
+                  HDFS Shell操作 <i class="fa fa-chevron-right"></i>
                 </a>
               
             </div>
@@ -445,6 +426,8 @@
 
       <!--noindex-->
       <div class="post-toc-wrap sidebar-panel">
+          <div class="post-toc motion-element"><ol class="nav"><li class="nav-item nav-level-1"><a class="nav-link" href="#HDFS的优点和缺点"><span class="nav-number">1.</span> <span class="nav-text">HDFS的优点和缺点</span></a><ol class="nav-child"><li class="nav-item nav-level-2"><a class="nav-link" href="#优点"><span class="nav-number">1.1.</span> <span class="nav-text">优点</span></a></li><li class="nav-item nav-level-2"><a class="nav-link" href="#缺点"><span class="nav-number">1.2.</span> <span class="nav-text">缺点</span></a></li></ol></li><li class="nav-item nav-level-1"><a class="nav-link" href="#HDFS的架构"><span class="nav-number">2.</span> <span class="nav-text">HDFS的架构</span></a><ol class="nav-child"><li class="nav-item nav-level-2"><a class="nav-link" href="#NameNode"><span class="nav-number">2.1.</span> <span class="nav-text">NameNode</span></a></li><li class="nav-item nav-level-2"><a class="nav-link" href="#DataNode"><span class="nav-number">2.2.</span> <span class="nav-text">DataNode</span></a></li><li class="nav-item nav-level-2"><a class="nav-link" href="#Client客户端"><span class="nav-number">2.3.</span> <span class="nav-text">Client客户端</span></a></li><li class="nav-item nav-level-2"><a class="nav-link" href="#Secondary-NameNode"><span class="nav-number">2.4.</span> <span class="nav-text">Secondary NameNode</span></a></li></ol></li></ol></div>
+        
       </div>
       <!--/noindex-->
 
@@ -459,7 +442,7 @@
         
           <a href="/archives/">
         
-          <span class="site-state-item-count">6</span>
+          <span class="site-state-item-count">11</span>
           <span class="site-state-item-name">日志</span>
         </a>
       </div>
