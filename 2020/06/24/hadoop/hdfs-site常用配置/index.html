@@ -55,19 +55,18 @@
   };
 </script>
 
-  <meta name="description" content="安装Git自行安装 安装完成后，还需要最后一步设置，在命令行输入 $ git config –global user.name “name” $ git config –global user.email “email” 安装Node.js下载地址：https://nodejs.org/en/ 部署HexoHexo官网：https://hexo.io/zh-cn/docs/writing 安装He">
-<meta name="keywords" content="blog">
+  <meta name="description" content="说明本文基于CDH5.16.1介绍常用的配置参数的意义以及最佳使用。 配置示例12">
 <meta property="og:type" content="article">
-<meta property="og:title" content="博客环境搭建">
-<meta property="og:url" content="http://yoursite.com/2019/12/21/blog-hexo-env/index.html">
+<meta property="og:title" content="hdfs-site常用配置">
+<meta property="og:url" content="http://yoursite.com/2020/06/24/hadoop/hdfs-site常用配置/index.html">
 <meta property="og:site_name" content="角落之外">
-<meta property="og:description" content="安装Git自行安装 安装完成后，还需要最后一步设置，在命令行输入 $ git config –global user.name “name” $ git config –global user.email “email” 安装Node.js下载地址：https://nodejs.org/en/ 部署HexoHexo官网：https://hexo.io/zh-cn/docs/writing 安装He">
+<meta property="og:description" content="说明本文基于CDH5.16.1介绍常用的配置参数的意义以及最佳使用。 配置示例12">
 <meta property="og:locale" content="zh-CN">
-<meta property="og:updated_time" content="2020-06-22T09:12:52.296Z">
+<meta property="og:updated_time" content="2020-06-24T06:35:22.522Z">
 <meta name="twitter:card" content="summary">
-<meta name="twitter:title" content="博客环境搭建">
-<meta name="twitter:description" content="安装Git自行安装 安装完成后，还需要最后一步设置，在命令行输入 $ git config –global user.name “name” $ git config –global user.email “email” 安装Node.js下载地址：https://nodejs.org/en/ 部署HexoHexo官网：https://hexo.io/zh-cn/docs/writing 安装He">
-  <link rel="canonical" href="http://yoursite.com/2019/12/21/blog-hexo-env/">
+<meta name="twitter:title" content="hdfs-site常用配置">
+<meta name="twitter:description" content="说明本文基于CDH5.16.1介绍常用的配置参数的意义以及最佳使用。 配置示例12">
+  <link rel="canonical" href="http://yoursite.com/2020/06/24/hadoop/hdfs-site常用配置/">
 
 
 <script id="page-configurations">
@@ -81,7 +80,7 @@
   };
 </script>
 
-  <title>博客环境搭建 | 角落之外</title>
+  <title>hdfs-site常用配置 | 角落之外</title>
   
 
 
@@ -233,7 +232,7 @@
   
   
   <article itemscope itemtype="http://schema.org/Article" class="post-block " lang="zh-CN">
-    <link itemprop="mainEntityOfPage" href="http://yoursite.com/2019/12/21/blog-hexo-env/">
+    <link itemprop="mainEntityOfPage" href="http://yoursite.com/2020/06/24/hadoop/hdfs-site常用配置/">
 
     <span hidden itemprop="author" itemscope itemtype="http://schema.org/Person">
       <meta itemprop="name" content="姜纪光">
@@ -247,7 +246,7 @@
       <header class="post-header">
         <h1 class="post-title" itemprop="name headline">
           
-            博客环境搭建
+            hdfs-site常用配置
             
 
           
@@ -264,19 +263,11 @@
                 
               
 
-              <time title="创建时间：2019-12-21 17:25:00" itemprop="dateCreated datePublished" datetime="2019-12-21T17:25:00+08:00">2019-12-21</time>
+              <time title="创建时间：2020-06-24 14:08:59 / 修改时间：14:35:22" itemprop="dateCreated datePublished" datetime="2020-06-24T14:08:59+08:00">2020-06-24</time>
             </span>
           
             
 
-            
-              <span class="post-meta-item">
-                <span class="post-meta-item-icon">
-                  <i class="fa fa-calendar-check-o"></i>
-                </span>
-                <span class="post-meta-item-text">更新于</span>
-                <time title="修改时间：2020-06-22 17:12:52" itemprop="dateModified" datetime="2020-06-22T17:12:52+08:00">2020-06-22</time>
-              </span>
             
           
             <span class="post-meta-item">
@@ -286,8 +277,8 @@
               <span class="post-meta-item-text">分类于</span>
               
                 <span itemprop="about" itemscope itemtype="http://schema.org/Thing">
-                  <a href="/categories/blog/" itemprop="url" rel="index">
-                    <span itemprop="name">blog</span>
+                  <a href="/categories/hadoop/" itemprop="url" rel="index">
+                    <span itemprop="name">hadoop</span>
                   </a>
                 </span>
 
@@ -298,7 +289,7 @@
           
 
           
-            <span id="/2019/12/21/blog-hexo-env/" class="post-meta-item leancloud_visitors" data-flag-title="博客环境搭建" title="阅读次数">
+            <span id="/2020/06/24/hadoop/hdfs-site常用配置/" class="post-meta-item leancloud_visitors" data-flag-title="hdfs-site常用配置" title="阅读次数">
               <span class="post-meta-item-icon">
                 <i class="fa fa-eye"></i>
               </span>
@@ -318,82 +309,9 @@
     <div class="post-body" itemprop="articleBody">
 
       
-        <h1 id="安装Git"><a href="#安装Git" class="headerlink" title="安装Git"></a>安装Git</h1><p>自行安装</p>
-<p>安装完成后，还需要最后一步设置，在命令行输入</p>
-<p>$ git config –global <a href="http://user.name/" target="_blank" rel="noopener">user.name</a> “name”</p>
-<p>$ git config –global user.email “email”</p>
-<h1 id="安装Node-js"><a href="#安装Node-js" class="headerlink" title="安装Node.js"></a>安装Node.js</h1><p>下载地址：<a href="https://nodejs.org/en/" target="_blank" rel="noopener">https://nodejs.org/en/</a></p>
-<h1 id="部署Hexo"><a href="#部署Hexo" class="headerlink" title="部署Hexo"></a>部署Hexo</h1><p>Hexo官网：<a href="https://hexo.io/zh-cn/docs/writing" target="_blank" rel="noopener">https://hexo.io/zh-cn/docs/writing</a></p>
-<h2 id="安装Hexo"><a href="#安装Hexo" class="headerlink" title="安装Hexo"></a>安装Hexo</h2><p>打开终端，运行以下命令完成安装</p>
-<p>npm install -g hexo-cli</p>
-<p>安装Hexo的Git部署插件hexo-deployer-git：<a href="https://github.com/hexojs/hexo-deployer-git" target="_blank" rel="noopener">https://github.com/hexojs/hexo-deployer-git</a></p>
-<p>打开终端运行以下命令：</p>
-<p>npm install hexo-deployer-git -save</p>
-<h2 id="部署Hexo-1"><a href="#部署Hexo-1" class="headerlink" title="部署Hexo"></a>部署Hexo</h2><p>打开终端</p>
-<p>hexo init blog //会在当前目录新建blog目录，用于存放博客内容</p>
-<p>cd blog</p>
-<p>npm install</p>
-<p>输入hexo s 启动博客</p>
-<p>打开浏览器输入 <a href="http://localhost:4000/" target="_blank" rel="noopener">http://localhost:4000/</a> 即可访问</p>
-<h2 id="主题设置"><a href="#主题设置" class="headerlink" title="主题设置"></a>主题设置</h2><p><a href="https://theme-next.iissnan.com/getting-started.html" target="_blank" rel="noopener">https://theme-next.iissnan.com/getting-started.html</a></p>
-<h1 id="托管博客"><a href="#托管博客" class="headerlink" title="托管博客"></a>托管博客</h1><h2 id="托管到github"><a href="#托管到github" class="headerlink" title="托管到github"></a>托管到github</h2><p>首先需要在github建立两个repository：</p>
-<ul>
-<li><p>一个用来放置博客文件，用来备份博客的原始内容，以及用来在多台电脑上编辑和更新博客</p>
-</li>
-<li><p>一个用来放置博客被发布的生成好的内容，该repository的名字必须为 你的github用户名.<a href="http://github.io/" target="_blank" rel="noopener">github.io</a></p>
-</li>
-</ul>
-<p>回到博客根目录：</p>
-<p>找到文件 _config.yml 在deploy处增加三行：</p>
-<p>deploy:</p>
-<p> type: git</p>
-<p> repository: 你的仓库地址</p>
-<p> branch: master</p>
-<p>生成站点文件并推送到远程库</p>
-<p>hexo clean &amp;&amp; hexo deploy</p>
-<p>当执行 hexo deploy 时，Hexo 会将 public 目录中的文件和目录推送至 _config.yml 中指定的远端仓库和分支中，并且<strong>完全覆盖</strong>该分支下的已有内容。</p>
-<p>打开网站，可以看到博客内容：</p>
-<p>https://你的仓库名称</p>
-<h2 id="仓库1的-gitignore配置"><a href="#仓库1的-gitignore配置" class="headerlink" title="仓库1的.gitignore配置"></a>仓库1的.gitignore配置</h2><p>$ cat .gitignore</p>
-<p>.DS_Store</p>
-<p>Thumbs.db</p>
-<p>db.json</p>
-<p>*.log</p>
-<p>node_modules/</p>
-<p>public/</p>
-<p>.deploy*/</p>
-<h1 id="绑定域名"><a href="#绑定域名" class="headerlink" title="绑定域名"></a>绑定域名</h1><p>有没有觉得使用自己的域名会更酷？</p>
-<ul>
-<li>首先需要购买域名：<a href="https://sg.godaddy.com/zh" target="_blank" rel="noopener">https://sg.godaddy.com/zh</a></li>
-</ul>
-<p>在source目录下新建CNAME文件，写入域名，如：jiangjiguang.me</p>
-<p>最后执行：hexo deploy</p>
-<ul>
-<li>在github中设置域名：</li>
-</ul>
-<p>git的repository，点击Settings 往下滑到 GitHub Pages 点击 Change theme （不设置这一步骤会报404）</p>
-<p>添加域名解析：</p>
-<p>ping 你的仓库名称</p>
-<p>得到一个ip：185.199.109.153</p>
-<ul>
-<li>配置DSN：</li>
-</ul>
-<p>DNS服务商选的dnspod：<a href="https://support.dnspod.cn/" target="_blank" rel="noopener">https://support.dnspod.cn/</a></p>
-<p>配置文档：</p>
-<p><a href="https://support.dnspod.cn/Kb/showarticle/tsid/177/" target="_blank" rel="noopener">https://support.dnspod.cn/Kb/showarticle/tsid/177/</a></p>
-<p><a href="https://support.dnspod.cn/Kb/showarticle/tsid/30/" target="_blank" rel="noopener">https://support.dnspod.cn/Kb/showarticle/tsid/30/</a></p>
-<ul>
-<li>最后再到godaddy修改域名服务器：</li>
-</ul>
-<p><a href="http://f1g1ns1.dnspod.net/" target="_blank" rel="noopener">f1g1ns1.dnspod.net</a></p>
-<p><a href="http://f1g1ns2.dnspod.net/" target="_blank" rel="noopener">f1g1ns2.dnspod.net</a></p>
-<h1 id="参考文档"><a href="#参考文档" class="headerlink" title="参考文档"></a>参考文档</h1><p><a href="https://shenshanlaoyuan.com/2016/03/28/Hexo/Hexo搭建独立博客，托管到Github和Coding教程/" target="_blank" rel="noopener">深山老袁</a></p>
-<p><a href="https://wizardforcel.gitbooks.io/markdown-simple-world/index.html" target="_blank" rel="noopener">Markdown 简单的世界</a></p>
-<p><a href="https://dearb.me/archive/2014-07-28/use-github-and-gitcafe-hosting-octopress/" target="_blank" rel="noopener">同时托管到Github和Gitcafe</a></p>
-<p><a href="https://xhuyq.me/2017/09/16/github-domainName/" target="_blank" rel="noopener">Github pages绑定个人域名</a></p>
-<p><a href="https://blog.csdn.net/github_39611196/article/details/83591616" target="_blank" rel="noopener">解决404</a></p>
-<p><a href="https://lrscy.github.io/2018/01/26/Hexo-Github-Backup/" target="_blank" rel="noopener">异地同时编辑博客</a></p>
-<p><a href="https://segmentfault.com/a/1190000012002151" target="_blank" rel="noopener">子仓库</a></p>
+        <h1 id="说明"><a href="#说明" class="headerlink" title="说明"></a>说明</h1><p>本文基于CDH5.16.1介绍常用的配置参数的意义以及最佳使用。</p>
+<h1 id="配置示例"><a href="#配置示例" class="headerlink" title="配置示例"></a>配置示例</h1><figure class="highlight xml"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br></pre></td><td class="code"><pre><span class="line"></span><br><span class="line"></span><br></pre></td></tr></table></figure>
+
 
     </div>
 
@@ -404,20 +322,15 @@
       
 
       <footer class="post-footer">
-          
-            
-          
-          <div class="post-tags">
-            
-              <a href="/tags/blog/" rel="tag"># blog</a>
-            
-          </div>
-        
 
         
 
           <div class="post-nav">
             <div class="post-nav-next post-nav-item">
+              
+                <a href="/2020/06/23/hadoop/HDFS-Client/" rel="next" title="HDFS Client">
+                  <i class="fa fa-chevron-left"></i> HDFS Client
+                </a>
               
             </div>
 
@@ -425,8 +338,8 @@
 
             <div class="post-nav-prev post-nav-item">
               
-                <a href="/2020/01/14/linux/export和source/" rel="prev" title="export和source">
-                  export和source <i class="fa fa-chevron-right"></i>
+                <a href="/2020/06/24/hadoop/core-site常用配置/" rel="prev" title="core-site常用配置">
+                  core-site常用配置 <i class="fa fa-chevron-right"></i>
                 </a>
               
             </div>
@@ -473,7 +386,7 @@
 
       <!--noindex-->
       <div class="post-toc-wrap sidebar-panel">
-          <div class="post-toc motion-element"><ol class="nav"><li class="nav-item nav-level-1"><a class="nav-link" href="#安装Git"><span class="nav-number">1.</span> <span class="nav-text">安装Git</span></a></li><li class="nav-item nav-level-1"><a class="nav-link" href="#安装Node-js"><span class="nav-number">2.</span> <span class="nav-text">安装Node.js</span></a></li><li class="nav-item nav-level-1"><a class="nav-link" href="#部署Hexo"><span class="nav-number">3.</span> <span class="nav-text">部署Hexo</span></a><ol class="nav-child"><li class="nav-item nav-level-2"><a class="nav-link" href="#安装Hexo"><span class="nav-number">3.1.</span> <span class="nav-text">安装Hexo</span></a></li><li class="nav-item nav-level-2"><a class="nav-link" href="#部署Hexo-1"><span class="nav-number">3.2.</span> <span class="nav-text">部署Hexo</span></a></li><li class="nav-item nav-level-2"><a class="nav-link" href="#主题设置"><span class="nav-number">3.3.</span> <span class="nav-text">主题设置</span></a></li></ol></li><li class="nav-item nav-level-1"><a class="nav-link" href="#托管博客"><span class="nav-number">4.</span> <span class="nav-text">托管博客</span></a><ol class="nav-child"><li class="nav-item nav-level-2"><a class="nav-link" href="#托管到github"><span class="nav-number">4.1.</span> <span class="nav-text">托管到github</span></a></li><li class="nav-item nav-level-2"><a class="nav-link" href="#仓库1的-gitignore配置"><span class="nav-number">4.2.</span> <span class="nav-text">仓库1的.gitignore配置</span></a></li></ol></li><li class="nav-item nav-level-1"><a class="nav-link" href="#绑定域名"><span class="nav-number">5.</span> <span class="nav-text">绑定域名</span></a></li><li class="nav-item nav-level-1"><a class="nav-link" href="#参考文档"><span class="nav-number">6.</span> <span class="nav-text">参考文档</span></a></li></ol></div>
+          <div class="post-toc motion-element"><ol class="nav"><li class="nav-item nav-level-1"><a class="nav-link" href="#说明"><span class="nav-number">1.</span> <span class="nav-text">说明</span></a></li><li class="nav-item nav-level-1"><a class="nav-link" href="#配置示例"><span class="nav-number">2.</span> <span class="nav-text">配置示例</span></a></li></ol></div>
         
       </div>
       <!--/noindex-->

@@ -55,21 +55,15 @@
   };
 </script>
 
-  <meta name="description" content="参数优先级 代码中的优先级最高 代码中资源目录下配置文件的优先级次之 服务中的配置文件的优先级再次之 服务中的默认配置文件的优先级最低  HDFS的写数据流程 写数据流程：  Client通过Distributed FileSystem向NameNode请求上传文件，NameNode检查父目录、文件是否已经存在 NameNode返回可以上传 Client向NameNode请求Block的存储位置">
-<meta property="og:type" content="article">
-<meta property="og:title" content="HDFS Client">
-<meta property="og:url" content="http://yoursite.com/2020/06/23/hadoop/HDFS-Client-1/index.html">
+  <meta property="og:type" content="article">
+<meta property="og:title" content="core-site常用配置">
+<meta property="og:url" content="http://yoursite.com/2020/06/24/hadoop/core-site常用配置/index.html">
 <meta property="og:site_name" content="角落之外">
-<meta property="og:description" content="参数优先级 代码中的优先级最高 代码中资源目录下配置文件的优先级次之 服务中的配置文件的优先级再次之 服务中的默认配置文件的优先级最低  HDFS的写数据流程 写数据流程：  Client通过Distributed FileSystem向NameNode请求上传文件，NameNode检查父目录、文件是否已经存在 NameNode返回可以上传 Client向NameNode请求Block的存储位置">
 <meta property="og:locale" content="zh-CN">
-<meta property="og:image" content="http://yoursite.com/images/hadoop/HDFS%E5%86%99%E6%B5%81%E7%A8%8B.png">
-<meta property="og:image" content="http://yoursite.com/images/hadoop/HDFS%E8%AF%BB%E6%B5%81%E7%A8%8B.png">
-<meta property="og:updated_time" content="2020-06-23T09:46:18.709Z">
+<meta property="og:updated_time" content="2020-06-24T06:44:23.961Z">
 <meta name="twitter:card" content="summary">
-<meta name="twitter:title" content="HDFS Client">
-<meta name="twitter:description" content="参数优先级 代码中的优先级最高 代码中资源目录下配置文件的优先级次之 服务中的配置文件的优先级再次之 服务中的默认配置文件的优先级最低  HDFS的写数据流程 写数据流程：  Client通过Distributed FileSystem向NameNode请求上传文件，NameNode检查父目录、文件是否已经存在 NameNode返回可以上传 Client向NameNode请求Block的存储位置">
-<meta name="twitter:image" content="http://yoursite.com/images/hadoop/HDFS%E5%86%99%E6%B5%81%E7%A8%8B.png">
-  <link rel="canonical" href="http://yoursite.com/2020/06/23/hadoop/HDFS-Client-1/">
+<meta name="twitter:title" content="core-site常用配置">
+  <link rel="canonical" href="http://yoursite.com/2020/06/24/hadoop/core-site常用配置/">
 
 
 <script id="page-configurations">
@@ -83,7 +77,7 @@
   };
 </script>
 
-  <title>HDFS Client | 角落之外</title>
+  <title>core-site常用配置 | 角落之外</title>
   
 
 
@@ -235,7 +229,7 @@
   
   
   <article itemscope itemtype="http://schema.org/Article" class="post-block " lang="zh-CN">
-    <link itemprop="mainEntityOfPage" href="http://yoursite.com/2020/06/23/hadoop/HDFS-Client-1/">
+    <link itemprop="mainEntityOfPage" href="http://yoursite.com/2020/06/24/hadoop/core-site常用配置/">
 
     <span hidden itemprop="author" itemscope itemtype="http://schema.org/Person">
       <meta itemprop="name" content="姜纪光">
@@ -249,7 +243,7 @@
       <header class="post-header">
         <h1 class="post-title" itemprop="name headline">
           
-            HDFS Client
+            core-site常用配置
             
 
           
@@ -266,33 +260,16 @@
                 
               
 
-              <time title="创建时间：2020-06-23 10:47:44 / 修改时间：17:46:18" itemprop="dateCreated datePublished" datetime="2020-06-23T10:47:44+08:00">2020-06-23</time>
+              <time title="创建时间：2020-06-24 14:25:57 / 修改时间：14:44:23" itemprop="dateCreated datePublished" datetime="2020-06-24T14:25:57+08:00">2020-06-24</time>
             </span>
           
             
 
             
           
-            <span class="post-meta-item">
-              <span class="post-meta-item-icon">
-                <i class="fa fa-folder-o"></i>
-              </span>
-              <span class="post-meta-item-text">分类于</span>
-              
-                <span itemprop="about" itemscope itemtype="http://schema.org/Thing">
-                  <a href="/categories/hadoop/" itemprop="url" rel="index">
-                    <span itemprop="name">hadoop</span>
-                  </a>
-                </span>
-
-                
-                
-              
-            </span>
-          
 
           
-            <span id="/2020/06/23/hadoop/HDFS-Client-1/" class="post-meta-item leancloud_visitors" data-flag-title="HDFS Client" title="阅读次数">
+            <span id="/2020/06/24/hadoop/core-site常用配置/" class="post-meta-item leancloud_visitors" data-flag-title="core-site常用配置" title="阅读次数">
               <span class="post-meta-item-icon">
                 <i class="fa fa-eye"></i>
               </span>
@@ -312,38 +289,7 @@
     <div class="post-body" itemprop="articleBody">
 
       
-        <h1 id="参数优先级"><a href="#参数优先级" class="headerlink" title="参数优先级"></a>参数优先级</h1><ul>
-<li>代码中的优先级最高</li>
-<li>代码中资源目录下配置文件的优先级次之</li>
-<li>服务中的配置文件的优先级再次之</li>
-<li>服务中的默认配置文件的优先级最低</li>
-</ul>
-<h1 id="HDFS的写数据流程"><a href="#HDFS的写数据流程" class="headerlink" title="HDFS的写数据流程"></a>HDFS的写数据流程</h1><p><img src="/images/hadoop/HDFS%E5%86%99%E6%B5%81%E7%A8%8B.png" alt></p>
-<p>写数据流程：</p>
-<ul>
-<li>Client通过Distributed FileSystem向NameNode请求上传文件，NameNode检查父目录、文件是否已经存在</li>
-<li>NameNode返回可以上传</li>
-<li>Client向NameNode请求Block的存储位置</li>
-<li>NameNode通过计算选择距离近的节点，返回给Client</li>
-<li>Client通过FSDataOutputStream和相关的DataNode建立通讯管道</li>
-<li>DataNode应答Client</li>
-<li>Client以Packet为单位向DataNode1传递Block，DataNode1收到后放到本地内存，然后传给DataNode2、DataNode2传递给DataNode3，DataNode1每传递一个Packet就会放到应答队列等待应答。</li>
-</ul>
-<p>DataNode是先写入内存然后在落盘。</p>
-<h2 id="节点距离计算"><a href="#节点距离计算" class="headerlink" title="节点距离计算"></a>节点距离计算</h2><p>NameNode选择DataNode的因素：</p>
-<ul>
-<li>距离近</li>
-<li>负载低</li>
-</ul>
-<p>节点距离：两个节点到达最近的共同祖先的距离总和。</p>
-<h2 id="副本存储节点选择"><a href="#副本存储节点选择" class="headerlink" title="副本存储节点选择"></a>副本存储节点选择</h2><ul>
-<li>第一个副本在Client所在的节点上，如果Client在集群外，则随机选一个节点</li>
-<li>第二个副本和第一个副本位于相同机架，随机节点</li>
-<li>第三个副本位于不同机架，随机节点</li>
-</ul>
-<h1 id="HDFS的读数据流程"><a href="#HDFS的读数据流程" class="headerlink" title="HDFS的读数据流程"></a>HDFS的读数据流程</h1><p><img src="/images/hadoop/HDFS%E8%AF%BB%E6%B5%81%E7%A8%8B.png" alt></p>
-<p>当Client读取不同DataNode上的数据块时，时穿行读取的。</p>
-
+        
     </div>
 
     
@@ -359,8 +305,8 @@
           <div class="post-nav">
             <div class="post-nav-next post-nav-item">
               
-                <a href="/2020/06/23/hadoop/HDFS-Client/" rel="next" title="HDFS Client">
-                  <i class="fa fa-chevron-left"></i> HDFS Client
+                <a href="/2020/06/24/hadoop/hdfs-site常用配置/" rel="next" title="hdfs-site常用配置">
+                  <i class="fa fa-chevron-left"></i> hdfs-site常用配置
                 </a>
               
             </div>
@@ -368,6 +314,10 @@
             <span class="post-nav-divider"></span>
 
             <div class="post-nav-prev post-nav-item">
+              
+                <a href="/2020/06/24/hadoop/yarn-site常用配置/" rel="prev" title="yarn-site常用配置">
+                  yarn-site常用配置 <i class="fa fa-chevron-right"></i>
+                </a>
               
             </div>
           </div>
@@ -413,8 +363,6 @@
 
       <!--noindex-->
       <div class="post-toc-wrap sidebar-panel">
-          <div class="post-toc motion-element"><ol class="nav"><li class="nav-item nav-level-1"><a class="nav-link" href="#参数优先级"><span class="nav-number">1.</span> <span class="nav-text">参数优先级</span></a></li><li class="nav-item nav-level-1"><a class="nav-link" href="#HDFS的写数据流程"><span class="nav-number">2.</span> <span class="nav-text">HDFS的写数据流程</span></a><ol class="nav-child"><li class="nav-item nav-level-2"><a class="nav-link" href="#节点距离计算"><span class="nav-number">2.1.</span> <span class="nav-text">节点距离计算</span></a></li><li class="nav-item nav-level-2"><a class="nav-link" href="#副本存储节点选择"><span class="nav-number">2.2.</span> <span class="nav-text">副本存储节点选择</span></a></li></ol></li><li class="nav-item nav-level-1"><a class="nav-link" href="#HDFS的读数据流程"><span class="nav-number">3.</span> <span class="nav-text">HDFS的读数据流程</span></a></li></ol></div>
-        
       </div>
       <!--/noindex-->
 
@@ -429,7 +377,7 @@
         
           <a href="/archives/">
         
-          <span class="site-state-item-count">11</span>
+          <span class="site-state-item-count">14</span>
           <span class="site-state-item-name">日志</span>
         </a>
       </div>
