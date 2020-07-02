@@ -62,7 +62,7 @@
 <meta property="og:site_name" content="角落之外">
 <meta property="og:description" content="常用参数说明：本文基于CDH5.16.1介绍常用的配置参数的意义以及最佳使用。 基础配置 dfs.replication  block的副本数 创建文件时可以指定实际的复制数量。 如果未在创建时指定复制，则使用默认值。   dfs.nameservices  逗号分隔的dfs.nameservices   dfs.internal.nameservices  逗号分隔的本集群的nameservic">
 <meta property="og:locale" content="zh-CN">
-<meta property="og:updated_time" content="2020-07-02T12:26:25.252Z">
+<meta property="og:updated_time" content="2020-07-02T12:29:44.617Z">
 <meta name="twitter:card" content="summary">
 <meta name="twitter:title" content="hdfs-site常用配置">
 <meta name="twitter:description" content="常用参数说明：本文基于CDH5.16.1介绍常用的配置参数的意义以及最佳使用。 基础配置 dfs.replication  block的副本数 创建文件时可以指定实际的复制数量。 如果未在创建时指定复制，则使用默认值。   dfs.nameservices  逗号分隔的dfs.nameservices   dfs.internal.nameservices  逗号分隔的本集群的nameservic">
@@ -274,7 +274,7 @@
                   <i class="fa fa-calendar-check-o"></i>
                 </span>
                 <span class="post-meta-item-text">更新于</span>
-                <time title="修改时间：2020-07-02 20:26:25" itemprop="dateModified" datetime="2020-07-02T20:26:25+08:00">2020-07-02</time>
+                <time title="修改时间：2020-07-02 20:29:44" itemprop="dateModified" datetime="2020-07-02T20:29:44+08:00">2020-07-02</time>
               </span>
             
           
@@ -372,11 +372,6 @@
 <p>默认值与dfs.namenode.name.dir相同</p>
 </blockquote>
 </li>
-<li><p>dfs.journalnode.edits.dir</p>
-<blockquote>
-<p>journalnode的edits的地址</p>
-</blockquote>
-</li>
 <li><p>dfs.datanode.data.dir</p>
 <blockquote>
 <p>确定DFS数据节点应在本地文件系统上的哪个位置存储其块。 如果这是逗号分隔的目录列表，则数据将存储在所有命名的目录中，通常在不同的设备上。 对于HDFS存储策略，应使用相应的存储类型（[SSD] / [DISK] / [ARCHIVE] / [RAM_DISK]）标记目录。 如果目录没有显式标记的存储类型，则默认存储类型将为DISK。 如果本地文件系统权限允许，将创建不存在的目录。</p>
@@ -465,28 +460,6 @@
 <p>HTTPS服务器将绑定到的实际地址。 如果设置了此可选地址，则它将仅覆盖dfs.namenode.https-address的主机名部分。 也可以为HA / Federation的每个名称节点或名称服务指定它。 通过将名称节点HTTPS服务器设置为0.0.0.0，可以使名称节点HTTPS服务器在所有接口上进行侦听。</p>
 </blockquote>
 </li>
-<li><p>dfs.namenode.support.allow.format</p>
-<blockquote>
-<p>HDFS名称节点是否允许其自身格式化。</p>
-<p>您可以考虑将任何生产群集的此参数设置为false，以避免格式化正在运行的DFS的任何可能性。</p>
-</blockquote>
-</li>
-<li><p>dfs.ha.automatic-failover.enabled</p>
-<blockquote>
-<p>开启failover</p>
-</blockquote>
-</li>
-<li><p>dfs.ha.fencing.methods</p>
-<blockquote>
-<p>故障转移期间将用于隔离Active NameNode的脚本或Java类的列表。 </p>
-<p>有关自动HA配置的详细信息，请参见HDFS高可用性文档。</p>
-</blockquote>
-</li>
-<li><p>dfs.client.failover.proxy.provider</p>
-<blockquote>
-<p>为主机配置的故障转移代理提供程序的类名称的前缀（加上必需的名称服务ID）</p>
-</blockquote>
-</li>
 <li><p>dfs.support.append</p>
 <blockquote>
 <p>HDFS是否允许追加文件</p>
@@ -496,8 +469,6 @@
 <blockquote>
 <p>Enable WebHDFS (REST API) in Namenodes and Datanodes</p>
 </blockquote>
-</li>
-<li><p>​</p>
 </li>
 <li><p>dfs.namenode.resource.du.reserved</p>
 <blockquote>
@@ -543,6 +514,11 @@
 <p>zk的连接地址</p>
 </blockquote>
 </li>
+<li><p>dfs.journalnode.edits.dir</p>
+<blockquote>
+<p>journalnode的edits的地址</p>
+</blockquote>
+</li>
 <li><p>dfs.qjournal.write-txns.timeout.ms</p>
 <blockquote>
 <p>NameNode写入journalNode的超时时间</p>
@@ -554,7 +530,30 @@
 <p>该目录将由主目录写入，由备用数据库读取，以使命名空间保持同步。 </p>
 <p>该目录不需要在上面的dfs.namenode.edits.dir中列出。 在非HA群集中，应将其保留为空。</p>
 </blockquote>
-<p>​</p>
+</li>
+</ul>
+<ul>
+<li><p>dfs.namenode.support.allow.format</p>
+<blockquote>
+<p>HDFS名称节点是否允许其自身格式化。</p>
+<p>您可以考虑将任何生产群集的此参数设置为false，以避免格式化正在运行的DFS的任何可能性。</p>
+</blockquote>
+</li>
+<li><p>dfs.ha.automatic-failover.enabled</p>
+<blockquote>
+<p>开启failover</p>
+</blockquote>
+</li>
+<li><p>dfs.ha.fencing.methods</p>
+<blockquote>
+<p>故障转移期间将用于隔离Active NameNode的脚本或Java类的列表。 </p>
+<p>有关自动HA配置的详细信息，请参见HDFS高可用性文档。</p>
+</blockquote>
+</li>
+<li><p>dfs.client.failover.proxy.provider</p>
+<blockquote>
+<p>为主机配置的故障转移代理提供程序的类名称的前缀（加上必需的名称服务ID）</p>
+</blockquote>
 </li>
 </ul>
 <h2 id="性能优化"><a href="#性能优化" class="headerlink" title="性能优化"></a>性能优化</h2><ul>
