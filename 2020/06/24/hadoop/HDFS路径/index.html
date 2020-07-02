@@ -55,14 +55,18 @@
   };
 </script>
 
-  <meta property="og:type" content="website">
-<meta property="og:title" content="角落之外">
-<meta property="og:url" content="http://yoursite.com/categories/flink/index.html">
+  <meta name="description" content="一直搞不清下面的这几个路径的具体区别 1234$ hdfs dfs /path$ hdfs dfs hdfs:///path$ hdfs dfs path$ hdfs dfs hdfs://path  总结如下：  hdfs dfs /path：等同于hdfs:///path hdfs dfs hdfs:///path： Hdfs dfs path：等同于/user/${HADOOP_USER">
+<meta property="og:type" content="article">
+<meta property="og:title" content="HDFS路径">
+<meta property="og:url" content="http://yoursite.com/2020/06/24/hadoop/HDFS路径/index.html">
 <meta property="og:site_name" content="角落之外">
+<meta property="og:description" content="一直搞不清下面的这几个路径的具体区别 1234$ hdfs dfs /path$ hdfs dfs hdfs:///path$ hdfs dfs path$ hdfs dfs hdfs://path  总结如下：  hdfs dfs /path：等同于hdfs:///path hdfs dfs hdfs:///path： Hdfs dfs path：等同于/user/${HADOOP_USER">
 <meta property="og:locale" content="zh-CN">
+<meta property="og:updated_time" content="2020-06-24T09:59:55.974Z">
 <meta name="twitter:card" content="summary">
-<meta name="twitter:title" content="角落之外">
-  <link rel="canonical" href="http://yoursite.com/categories/flink/">
+<meta name="twitter:title" content="HDFS路径">
+<meta name="twitter:description" content="一直搞不清下面的这几个路径的具体区别 1234$ hdfs dfs /path$ hdfs dfs hdfs:///path$ hdfs dfs path$ hdfs dfs hdfs://path  总结如下：  hdfs dfs /path：等同于hdfs:///path hdfs dfs hdfs:///path： Hdfs dfs path：等同于/user/${HADOOP_USER">
+  <link rel="canonical" href="http://yoursite.com/2020/06/24/hadoop/HDFS路径/">
 
 
 <script id="page-configurations">
@@ -70,13 +74,13 @@
   CONFIG.page = {
     sidebar: "",
     isHome: false,
-    isPost: false,
+    isPost: true,
     isPage: false,
     isArchive: false
   };
 </script>
 
-  <title>分类: flink | 角落之外</title>
+  <title>HDFS路径 | 角落之外</title>
   
 
 
@@ -206,21 +210,6 @@
 
     
 
-  
-    
-    
-  
-    
-    
-  
-    
-    
-  
-    
-    
-  
-  
-
 </nav>
 </div>
     </header>
@@ -238,119 +227,139 @@
           <div class="content">
             
 
+  <div class="posts-expand">
+      
   
   
-  
-  <div class="post-block">
-    <div class="posts-collapse">
-      <div class="collection-title">
-        <h1 class="collection-header">flink
-          <small>分类</small>
+  <article itemscope itemtype="http://schema.org/Article" class="post-block " lang="zh-CN">
+    <link itemprop="mainEntityOfPage" href="http://yoursite.com/2020/06/24/hadoop/HDFS路径/">
+
+    <span hidden itemprop="author" itemscope itemtype="http://schema.org/Person">
+      <meta itemprop="name" content="姜纪光">
+      <meta itemprop="description" content="">
+      <meta itemprop="image" content="/images/avatar.gif">
+    </span>
+
+    <span hidden itemprop="publisher" itemscope itemtype="http://schema.org/Organization">
+      <meta itemprop="name" content="角落之外">
+    </span>
+      <header class="post-header">
+        <h1 class="post-title" itemprop="name headline">
+          
+            HDFS路径
+            
+
+          
         </h1>
-      </div>
+
+        <div class="post-meta">
+            <span class="post-meta-item">
+              <span class="post-meta-item-icon">
+                <i class="fa fa-calendar-o"></i>
+              </span>
+              <span class="post-meta-item-text">发表于</span>
+
+              
+                
+              
+
+              <time title="创建时间：2020-06-24 17:44:03 / 修改时间：17:59:55" itemprop="dateCreated datePublished" datetime="2020-06-24T17:44:03+08:00">2020-06-24</time>
+            </span>
+          
+            
+
+            
+          
+            <span class="post-meta-item">
+              <span class="post-meta-item-icon">
+                <i class="fa fa-folder-o"></i>
+              </span>
+              <span class="post-meta-item-text">分类于</span>
+              
+                <span itemprop="about" itemscope itemtype="http://schema.org/Thing">
+                  <a href="/categories/hadoop/" itemprop="url" rel="index">
+                    <span itemprop="name">hadoop</span>
+                  </a>
+                </span>
+
+                
+                
+              
+            </span>
+          
+
+          
+            <span id="/2020/06/24/hadoop/HDFS路径/" class="post-meta-item leancloud_visitors" data-flag-title="HDFS路径" title="阅读次数">
+              <span class="post-meta-item-icon">
+                <i class="fa fa-eye"></i>
+              </span>
+              <span class="post-meta-item-text">阅读次数：</span>
+              <span class="leancloud-visitors-count"></span>
+            </span>
+          
+  
+  
+
+        </div>
+      </header>
+
+    
+    
+    
+    <div class="post-body" itemprop="articleBody">
 
       
+        <p>  一直搞不清下面的这几个路径的具体区别</p>
+<figure class="highlight shell"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br><span class="line">3</span><br><span class="line">4</span><br></pre></td><td class="code"><pre><span class="line"><span class="meta">$</span> hdfs dfs /path</span><br><span class="line"><span class="meta">$</span> hdfs dfs hdfs:///path</span><br><span class="line"><span class="meta">$</span> hdfs dfs path</span><br><span class="line"><span class="meta">$</span> hdfs dfs hdfs://path</span><br></pre></td></tr></table></figure>
 
-  
-  
+<p>总结如下：</p>
+<ul>
+<li>hdfs dfs /path：等同于hdfs:///path</li>
+<li>hdfs dfs hdfs:///path：</li>
+<li>Hdfs dfs path：等同于/user/${HADOOP_USER_NAME}/path</li>
+<li>hdfs dfs hdfs://path：</li>
+</ul>
+<p>疑问：</p>
+<p>双斜杠和三斜杠的区别</p>
+<p>双斜杠在什么情况下使用</p>
+<p>三斜杠中默认到哪个HDFS系统</p>
 
-  
+    </div>
+
     
-    <div class="collection-year">
-      <h1 class="collection-header">2020</h1>
-    </div>
-  
-
-  <article itemscope itemtype="http://schema.org/Article">
-    <header class="post-header">
-
-      <div class="post-meta">
-        <time itemprop="dateCreated"
-              datetime="2020-06-24T14:42:57+08:00"
-              content="2020-06-24">
-          06-24
-        </time>
-      </div>
-
-      <h2 class="post-title">
+    
+    
         
-          <a class="post-title-link" href="/2020/06/24/flink/flink-conf常用配置/" itemprop="url">
-            <span itemprop="name">flink-conf常用配置</span>
-          </a>
-        
-      </h2>
+      
 
-    </header>
+      <footer class="post-footer">
+
+        
+
+          <div class="post-nav">
+            <div class="post-nav-next post-nav-item">
+              
+                <a href="/2020/06/24/flink/flink-conf常用配置/" rel="next" title="flink-conf常用配置">
+                  <i class="fa fa-chevron-left"></i> flink-conf常用配置
+                </a>
+              
+            </div>
+
+            <span class="post-nav-divider"></span>
+
+            <div class="post-nav-prev post-nav-item">
+              
+            </div>
+          </div>
+        
+      </footer>
+    
   </article>
-
-
-
+  
   
   
 
-  
-
-  <article itemscope itemtype="http://schema.org/Article">
-    <header class="post-header">
-
-      <div class="post-meta">
-        <time itemprop="dateCreated"
-              datetime="2020-01-14T17:31:25+08:00"
-              content="2020-01-14">
-          01-14
-        </time>
-      </div>
-
-      <h2 class="post-title">
-        
-          <a class="post-title-link" href="/2020/01/14/flink/flink-checkpoint/" itemprop="url">
-            <span itemprop="name">flink-checkpoint</span>
-          </a>
-        
-      </h2>
-
-    </header>
-  </article>
-
-
-
-  
-  
-
-  
-
-  <article itemscope itemtype="http://schema.org/Article">
-    <header class="post-header">
-
-      <div class="post-meta">
-        <time itemprop="dateCreated"
-              datetime="2020-01-14T11:10:17+08:00"
-              content="2020-01-14">
-          01-14
-        </time>
-      </div>
-
-      <h2 class="post-title">
-        
-          <a class="post-title-link" href="/2020/01/14/flink/flink-作业提交/" itemprop="url">
-            <span itemprop="name">flink-作业提交</span>
-          </a>
-        
-      </h2>
-
-    </header>
-  </article>
-
-
-
-    </div>
   </div>
-  
-  
-  
-
-  
-
 
 
           </div>
@@ -367,6 +376,11 @@
 
   <aside class="sidebar">
     <div class="sidebar-inner">
+        
+        
+        
+        
+      
 
       <ul class="sidebar-nav motion-element">
         <li class="sidebar-nav-toc">
