@@ -55,17 +55,17 @@
   };
 </script>
 
-  <meta name="description" content="说明本文基于CDH5.16.1介绍常用的配置参数的意义以及最佳使用。 配置示例12">
+  <meta name="description" content="常用参数说明：本文基于CDH5.16.1介绍常用的配置参数的意义以及最佳使用。  dfs.blocksize  Hdfs文件的块大小。 可以使用后缀配置 (case insensitive): k(kilo), m(mega), g(giga), t(tera), p(peta), e(exa) to specify the size (such as 128k, 512m, 1g, etc.),">
 <meta property="og:type" content="article">
 <meta property="og:title" content="hdfs-site常用配置">
 <meta property="og:url" content="http://yoursite.com/2020/06/24/hadoop/hdfs-site常用配置/index.html">
 <meta property="og:site_name" content="角落之外">
-<meta property="og:description" content="说明本文基于CDH5.16.1介绍常用的配置参数的意义以及最佳使用。 配置示例12">
+<meta property="og:description" content="常用参数说明：本文基于CDH5.16.1介绍常用的配置参数的意义以及最佳使用。  dfs.blocksize  Hdfs文件的块大小。 可以使用后缀配置 (case insensitive): k(kilo), m(mega), g(giga), t(tera), p(peta), e(exa) to specify the size (such as 128k, 512m, 1g, etc.),">
 <meta property="og:locale" content="zh-CN">
-<meta property="og:updated_time" content="2020-06-24T06:35:22.522Z">
+<meta property="og:updated_time" content="2020-07-02T04:10:18.603Z">
 <meta name="twitter:card" content="summary">
 <meta name="twitter:title" content="hdfs-site常用配置">
-<meta name="twitter:description" content="说明本文基于CDH5.16.1介绍常用的配置参数的意义以及最佳使用。 配置示例12">
+<meta name="twitter:description" content="常用参数说明：本文基于CDH5.16.1介绍常用的配置参数的意义以及最佳使用。  dfs.blocksize  Hdfs文件的块大小。 可以使用后缀配置 (case insensitive): k(kilo), m(mega), g(giga), t(tera), p(peta), e(exa) to specify the size (such as 128k, 512m, 1g, etc.),">
   <link rel="canonical" href="http://yoursite.com/2020/06/24/hadoop/hdfs-site常用配置/">
 
 
@@ -263,11 +263,19 @@
                 
               
 
-              <time title="创建时间：2020-06-24 14:08:59 / 修改时间：14:35:22" itemprop="dateCreated datePublished" datetime="2020-06-24T14:08:59+08:00">2020-06-24</time>
+              <time title="创建时间：2020-06-24 14:08:59" itemprop="dateCreated datePublished" datetime="2020-06-24T14:08:59+08:00">2020-06-24</time>
             </span>
           
             
 
+            
+              <span class="post-meta-item">
+                <span class="post-meta-item-icon">
+                  <i class="fa fa-calendar-check-o"></i>
+                </span>
+                <span class="post-meta-item-text">更新于</span>
+                <time title="修改时间：2020-07-02 12:10:18" itemprop="dateModified" datetime="2020-07-02T12:10:18+08:00">2020-07-02</time>
+              </span>
             
           
             <span class="post-meta-item">
@@ -309,9 +317,47 @@
     <div class="post-body" itemprop="articleBody">
 
       
-        <h1 id="说明"><a href="#说明" class="headerlink" title="说明"></a>说明</h1><p>本文基于CDH5.16.1介绍常用的配置参数的意义以及最佳使用。</p>
-<h1 id="配置示例"><a href="#配置示例" class="headerlink" title="配置示例"></a>配置示例</h1><figure class="highlight xml"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br></pre></td><td class="code"><pre><span class="line"></span><br><span class="line"></span><br></pre></td></tr></table></figure>
+        <h1 id="常用参数"><a href="#常用参数" class="headerlink" title="常用参数"></a>常用参数</h1><p>说明：本文基于CDH5.16.1介绍常用的配置参数的意义以及最佳使用。</p>
+<ul>
+<li><p>dfs.blocksize</p>
+<blockquote>
+<p>Hdfs文件的块大小。</p>
+<p>可以使用后缀配置 (case insensitive): k(kilo), m(mega), g(giga), t(tera), p(peta), e(exa) to specify the size (such as 128k, 512m, 1g, etc.), </p>
+<p>Or provide complete size in bytes (such as 134217728 for 128 MB)</p>
+<p>最佳配置：块大小=1s * 磁盘传输速率</p>
+</blockquote>
+</li>
+<li><p>dfs.block.access.token.enable</p>
+<blockquote>
+<p>如果为“ true”，则将访问令牌用作访问数据节点的功能。 </p>
+<p>如果为“ false”，则在访问数据节点时不检查访问令牌。</p>
+<p>建议设置为false</p>
+</blockquote>
+</li>
+<li><p>dfs.blockreport.incremental.intervalMsec</p>
+<blockquote>
+<p>当 datanode 上新写完一个块，默认会立即汇报给 namenode。</p>
+<p>在一个大规模 Hadoop 集群上，每时每刻都在写数据，datanode 上随时都会有写完数据块然后汇报给 namenode 的情况。因此 namenode 会频繁处理 datanode 这种快汇报请求，会频繁地持有锁，其实非常影响其他 rpc 的处理和响应时间。</p>
+<p>通过延迟一次性汇报配置可以减少 datanode 写完块后的块汇报次数，提高 namenode 处理 rpc 的响应时间和处理速度。</p>
+</blockquote>
+</li>
+<li><p>dfs.blockreport.initialDelay</p>
+<blockquote>
+<p>Delay for first block report in seconds</p>
+<p>和上一个参数一起使用的，datanode启动后第一次报告自己的block信息的时间是在(0,$(dfs.blockreport.initialDelay ))之间的一个随机数 initTime，然后从initTime（不同datanode上的这个随即肯定是不一样的）开始每隔dfs.blockreport.intervalMsec ，该datanode会向namenode报告自己的所有block的信息。</p>
+<p>如果没有initTime，多有datanode都从启动的那一刻开始发，这样会造成大量数据发往nn，造成堵塞 。是以用此参数来控制 。</p>
+</blockquote>
+</li>
+<li><p>dfs.blockreport.intervalMsec</p>
+<blockquote>
+<p>Datanode会定期将当前该结点上所有的BLOCK信息报告给Namenode的时间间隔（毫秒）</p>
+</blockquote>
+</li>
+</ul>
+<h1 id="配置示例"><a href="#配置示例" class="headerlink" title="配置示例"></a>配置示例</h1><figure class="highlight xml"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br><span class="line">3</span><br><span class="line">4</span><br><span class="line">5</span><br><span class="line">6</span><br><span class="line">7</span><br><span class="line">8</span><br><span class="line">9</span><br><span class="line">10</span><br><span class="line">11</span><br><span class="line">12</span><br><span class="line">13</span><br><span class="line">14</span><br><span class="line">15</span><br><span class="line">16</span><br><span class="line">17</span><br><span class="line">18</span><br><span class="line">19</span><br><span class="line">20</span><br><span class="line">21</span><br><span class="line">22</span><br><span class="line">23</span><br><span class="line">24</span><br><span class="line">25</span><br><span class="line">26</span><br><span class="line">27</span><br><span class="line">28</span><br><span class="line">29</span><br><span class="line">30</span><br><span class="line">31</span><br><span class="line">32</span><br><span class="line">33</span><br><span class="line">34</span><br></pre></td><td class="code"><pre><span class="line"><span class="tag">&lt;<span class="name">configuration</span>&gt;</span></span><br><span class="line">  <span class="comment">&lt;!-------基础配置-------&gt;</span></span><br><span class="line">  <span class="tag">&lt;<span class="name">property</span>&gt;</span></span><br><span class="line">    <span class="tag">&lt;<span class="name">name</span>&gt;</span>dfs.blocksize<span class="tag">&lt;/<span class="name">name</span>&gt;</span></span><br><span class="line">    <span class="tag">&lt;<span class="name">value</span>&gt;</span>268435456<span class="tag">&lt;/<span class="name">value</span>&gt;</span></span><br><span class="line">  <span class="tag">&lt;/<span class="name">property</span>&gt;</span></span><br><span class="line">  <span class="comment">&lt;!-------权限配置-------&gt;</span></span><br><span class="line">  <span class="tag">&lt;<span class="name">property</span>&gt;</span></span><br><span class="line">    <span class="tag">&lt;<span class="name">name</span>&gt;</span>dfs.block.access.token.enable<span class="tag">&lt;/<span class="name">name</span>&gt;</span></span><br><span class="line">    <span class="tag">&lt;<span class="name">value</span>&gt;</span>false<span class="tag">&lt;/<span class="name">value</span>&gt;</span></span><br><span class="line">  <span class="tag">&lt;/<span class="name">property</span>&gt;</span></span><br><span class="line">  <span class="comment">&lt;!-------性能优化-------&gt;</span></span><br><span class="line">  <span class="tag">&lt;<span class="name">property</span>&gt;</span></span><br><span class="line">    <span class="tag">&lt;<span class="name">name</span>&gt;</span>dfs.blockreport.incremental.intervalMsec<span class="tag">&lt;/<span class="name">name</span>&gt;</span></span><br><span class="line">    <span class="tag">&lt;<span class="name">value</span>&gt;</span>300<span class="tag">&lt;/<span class="name">value</span>&gt;</span></span><br><span class="line">  <span class="tag">&lt;/<span class="name">property</span>&gt;</span></span><br><span class="line">  <span class="tag">&lt;<span class="name">property</span>&gt;</span></span><br><span class="line">    <span class="tag">&lt;<span class="name">name</span>&gt;</span>dfs.namenode.block.deletion.increment<span class="tag">&lt;/<span class="name">name</span>&gt;</span></span><br><span class="line">    <span class="tag">&lt;<span class="name">value</span>&gt;</span>200<span class="tag">&lt;/<span class="name">value</span>&gt;</span></span><br><span class="line">  <span class="tag">&lt;/<span class="name">property</span>&gt;</span></span><br><span class="line">  <span class="tag">&lt;<span class="name">property</span>&gt;</span></span><br><span class="line">    <span class="tag">&lt;<span class="name">name</span>&gt;</span>dfs.blockreport.initialDelay<span class="tag">&lt;/<span class="name">name</span>&gt;</span></span><br><span class="line">    <span class="tag">&lt;<span class="name">value</span>&gt;</span>60<span class="tag">&lt;/<span class="name">value</span>&gt;</span></span><br><span class="line">  <span class="tag">&lt;/<span class="name">property</span>&gt;</span></span><br><span class="line">  <span class="tag">&lt;<span class="name">property</span>&gt;</span></span><br><span class="line">    <span class="tag">&lt;<span class="name">name</span>&gt;</span>dfs.blockreport.intervalMsec<span class="tag">&lt;/<span class="name">name</span>&gt;</span></span><br><span class="line">    <span class="tag">&lt;<span class="name">value</span>&gt;</span>43200000<span class="tag">&lt;/<span class="name">value</span>&gt;</span></span><br><span class="line">  <span class="tag">&lt;/<span class="name">property</span>&gt;</span></span><br><span class="line">  <span class="comment">&lt;!-------分割线---------&gt;</span></span><br><span class="line">  <span class="tag">&lt;<span class="name">property</span>&gt;</span></span><br><span class="line">    <span class="tag">&lt;<span class="name">name</span>&gt;</span>dfs.block.replicator.default.local.rack<span class="tag">&lt;/<span class="name">name</span>&gt;</span></span><br><span class="line">    <span class="tag">&lt;<span class="name">value</span>&gt;</span>false<span class="tag">&lt;/<span class="name">value</span>&gt;</span></span><br><span class="line">  <span class="tag">&lt;/<span class="name">property</span>&gt;</span></span><br><span class="line"><span class="tag">&lt;/<span class="name">configuration</span>&gt;</span></span><br></pre></td></tr></table></figure>
 
+<h1 id="参考文档"><a href="#参考文档" class="headerlink" title="参考文档"></a>参考文档</h1><p><a href="https://www.infoq.cn/article/7o96tvJwNelq4xp-7Puh" target="_blank" rel="noopener">唯品会 HDFS 性能挑战和优化实践</a></p>
+<p><a href="https://www.cnblogs.com/serendipity/archive/2011/08/23/2151031.html" target="_blank" rel="noopener">Hadoop配置含义</a></p>
 
     </div>
 
@@ -386,7 +432,7 @@
 
       <!--noindex-->
       <div class="post-toc-wrap sidebar-panel">
-          <div class="post-toc motion-element"><ol class="nav"><li class="nav-item nav-level-1"><a class="nav-link" href="#说明"><span class="nav-number">1.</span> <span class="nav-text">说明</span></a></li><li class="nav-item nav-level-1"><a class="nav-link" href="#配置示例"><span class="nav-number">2.</span> <span class="nav-text">配置示例</span></a></li></ol></div>
+          <div class="post-toc motion-element"><ol class="nav"><li class="nav-item nav-level-1"><a class="nav-link" href="#常用参数"><span class="nav-number">1.</span> <span class="nav-text">常用参数</span></a></li><li class="nav-item nav-level-1"><a class="nav-link" href="#配置示例"><span class="nav-number">2.</span> <span class="nav-text">配置示例</span></a></li><li class="nav-item nav-level-1"><a class="nav-link" href="#参考文档"><span class="nav-number">3.</span> <span class="nav-text">参考文档</span></a></li></ol></div>
         
       </div>
       <!--/noindex-->
