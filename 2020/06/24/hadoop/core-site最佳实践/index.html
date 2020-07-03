@@ -55,18 +55,18 @@
   };
 </script>
 
-  <meta name="description" content="常用参数 fs.defaultFS：  这个属性用来指定namenode的hdfs协议的文件系统通信地址 可以指定一个主机+端口，也可以指定为一个namenode服务 这个服务内部可以有多台namenode实现ha的namenode服务。 同时也是java代码访问的时候的路径，需要配置在java代码中要用 其URL的scheme决定了文件系统的实现 HA方式，这里设置服务名，例如：hdfs://m">
+  <meta name="description" content="常用参数说明：本文基于CDH5.16.1介绍常用的配置参数的意义以及最佳使用。 基础配置 fs.defaultFS：  这个属性用来指定namenode的hdfs协议的文件系统通信地址 可以指定一个主机+端口，也可以指定为一个namenode服务 这个服务内部可以有多台namenode实现ha的namenode服务。 同时也是java代码访问的时候的路径，需要配置在java代码中要用 其URL的s">
 <meta property="og:type" content="article">
-<meta property="og:title" content="core-site常用配置">
-<meta property="og:url" content="http://yoursite.com/2020/06/24/hadoop/core-site常用配置/index.html">
+<meta property="og:title" content="core-site最佳实践">
+<meta property="og:url" content="http://yoursite.com/2020/06/24/hadoop/core-site最佳实践/index.html">
 <meta property="og:site_name" content="角落之外">
-<meta property="og:description" content="常用参数 fs.defaultFS：  这个属性用来指定namenode的hdfs协议的文件系统通信地址 可以指定一个主机+端口，也可以指定为一个namenode服务 这个服务内部可以有多台namenode实现ha的namenode服务。 同时也是java代码访问的时候的路径，需要配置在java代码中要用 其URL的scheme决定了文件系统的实现 HA方式，这里设置服务名，例如：hdfs://m">
+<meta property="og:description" content="常用参数说明：本文基于CDH5.16.1介绍常用的配置参数的意义以及最佳使用。 基础配置 fs.defaultFS：  这个属性用来指定namenode的hdfs协议的文件系统通信地址 可以指定一个主机+端口，也可以指定为一个namenode服务 这个服务内部可以有多台namenode实现ha的namenode服务。 同时也是java代码访问的时候的路径，需要配置在java代码中要用 其URL的s">
 <meta property="og:locale" content="zh-CN">
-<meta property="og:updated_time" content="2020-07-02T03:38:44.746Z">
+<meta property="og:updated_time" content="2020-07-03T01:08:42.088Z">
 <meta name="twitter:card" content="summary">
-<meta name="twitter:title" content="core-site常用配置">
-<meta name="twitter:description" content="常用参数 fs.defaultFS：  这个属性用来指定namenode的hdfs协议的文件系统通信地址 可以指定一个主机+端口，也可以指定为一个namenode服务 这个服务内部可以有多台namenode实现ha的namenode服务。 同时也是java代码访问的时候的路径，需要配置在java代码中要用 其URL的scheme决定了文件系统的实现 HA方式，这里设置服务名，例如：hdfs://m">
-  <link rel="canonical" href="http://yoursite.com/2020/06/24/hadoop/core-site常用配置/">
+<meta name="twitter:title" content="core-site最佳实践">
+<meta name="twitter:description" content="常用参数说明：本文基于CDH5.16.1介绍常用的配置参数的意义以及最佳使用。 基础配置 fs.defaultFS：  这个属性用来指定namenode的hdfs协议的文件系统通信地址 可以指定一个主机+端口，也可以指定为一个namenode服务 这个服务内部可以有多台namenode实现ha的namenode服务。 同时也是java代码访问的时候的路径，需要配置在java代码中要用 其URL的s">
+  <link rel="canonical" href="http://yoursite.com/2020/06/24/hadoop/core-site最佳实践/">
 
 
 <script id="page-configurations">
@@ -80,7 +80,7 @@
   };
 </script>
 
-  <title>core-site常用配置 | 角落之外</title>
+  <title>core-site最佳实践 | 角落之外</title>
   
 
 
@@ -232,7 +232,7 @@
   
   
   <article itemscope itemtype="http://schema.org/Article" class="post-block " lang="zh-CN">
-    <link itemprop="mainEntityOfPage" href="http://yoursite.com/2020/06/24/hadoop/core-site常用配置/">
+    <link itemprop="mainEntityOfPage" href="http://yoursite.com/2020/06/24/hadoop/core-site最佳实践/">
 
     <span hidden itemprop="author" itemscope itemtype="http://schema.org/Person">
       <meta itemprop="name" content="姜纪光">
@@ -246,7 +246,7 @@
       <header class="post-header">
         <h1 class="post-title" itemprop="name headline">
           
-            core-site常用配置
+            core-site最佳实践
             
 
           
@@ -274,7 +274,7 @@
                   <i class="fa fa-calendar-check-o"></i>
                 </span>
                 <span class="post-meta-item-text">更新于</span>
-                <time title="修改时间：2020-07-02 11:38:44" itemprop="dateModified" datetime="2020-07-02T11:38:44+08:00">2020-07-02</time>
+                <time title="修改时间：2020-07-03 09:08:42" itemprop="dateModified" datetime="2020-07-03T09:08:42+08:00">2020-07-03</time>
               </span>
             
           
@@ -297,7 +297,7 @@
           
 
           
-            <span id="/2020/06/24/hadoop/core-site常用配置/" class="post-meta-item leancloud_visitors" data-flag-title="core-site常用配置" title="阅读次数">
+            <span id="/2020/06/24/hadoop/core-site最佳实践/" class="post-meta-item leancloud_visitors" data-flag-title="core-site最佳实践" title="阅读次数">
               <span class="post-meta-item-icon">
                 <i class="fa fa-eye"></i>
               </span>
@@ -317,7 +317,8 @@
     <div class="post-body" itemprop="articleBody">
 
       
-        <h1 id="常用参数"><a href="#常用参数" class="headerlink" title="常用参数"></a>常用参数</h1><ul>
+        <h1 id="常用参数"><a href="#常用参数" class="headerlink" title="常用参数"></a>常用参数</h1><p>说明：本文基于CDH5.16.1介绍常用的配置参数的意义以及最佳使用。</p>
+<h2 id="基础配置"><a href="#基础配置" class="headerlink" title="基础配置"></a>基础配置</h2><ul>
 <li><p>fs.defaultFS：</p>
 <blockquote>
 <p>这个属性用来指定namenode的hdfs协议的文件系统通信地址</p>
@@ -334,31 +335,23 @@
 <p>例如”022” (octal for u=rwx,g=r-x,o=r-x in symbolic), or “u=rwx,g=rwx,o=” (symbolic for 007 in octal).</p>
 </blockquote>
 </li>
-<li><p>fs.trash.checkpoint.interval：</p>
-<blockquote>
-<p>以分钟为单位的垃圾回收检查间隔。应该小于或等于fs.trash.interval。</p>
-<p>如果是0，值等同于fs.trash.interval。每次检查器运行，会创建新的检查点。</p>
-<p>建议设置为60（1小时）</p>
-</blockquote>
-</li>
-<li><p>fs.trash.interval：</p>
-<blockquote>
-<p>以分钟为单位的垃圾回收时间，垃圾站中数据超过此时间，会被删除。如果是0，垃圾回收机制关闭。</p>
-<p>可以配置在服务器端和客户端。如果在服务器端配置trash无效，会检查客户端配置。如果服务器端配置有效，客户端配置会忽略。</p>
-<p>建议开启，建议4320（3天）<br>垃圾回收站，如有同名文件被删除，会给文件顺序编号，例如：a.txt,a.txt(1)</p>
-</blockquote>
-</li>
-<li><p>io.file.buffer.size</p>
-<blockquote>
-<p>读写文件缓存大小。</p>
-<p> 该缓冲区的大小可能应该是硬件页面大小的倍数（在Intel x86上为4096）</p>
-</blockquote>
-</li>
 <li><p>net.topology.script.file.name</p>
 <blockquote>
 <p>配合ScriptBasedMapping使用。脚本文件。此脚本文件，输入是ip地址，输出是机架路径。</p>
 </blockquote>
 </li>
+<li><p>hadoop.tmp.dir：</p>
+<blockquote>
+<p>其它临时目录的基础目录，此目录很重要，应该显示配置</p>
+</blockquote>
+</li>
+<li><p>hadoop.http.staticuser.user：</p>
+<blockquote>
+<p>在网页界面访问数据使用的用户名。默认值是一个不真实存在的用户，此用户权限很小，不能访问不同用户的数据。这保证了数据安全。也可以设置为hdfs和hadoop等具有较高权限的用户，但会导致能够登陆网页界面的人能看到其它用户数据。实际设置请综合考虑。如无特殊需求。使用默认值就好</p>
+</blockquote>
+</li>
+</ul>
+<h2 id="安全配置"><a href="#安全配置" class="headerlink" title="安全配置"></a>安全配置</h2><ul>
 <li><p>hadoop.security.authentication：</p>
 <blockquote>
 <p>安全验证规则，可以是simple和kerberos。simple意味着不验证。</p>
@@ -383,14 +376,28 @@
 <p><strong>修改此配置需要重启hadoop</strong></p>
 </blockquote>
 </li>
-<li><p>hadoop.tmp.dir：</p>
+<li><p>​</p>
+</li>
+</ul>
+<h2 id="性能优化"><a href="#性能优化" class="headerlink" title="性能优化"></a>性能优化</h2><ul>
+<li><p>fs.trash.checkpoint.interval：</p>
 <blockquote>
-<p>其它临时目录的基础目录，此目录很重要，应该显示配置</p>
+<p>以分钟为单位的垃圾回收检查间隔。应该小于或等于fs.trash.interval。</p>
+<p>如果是0，值等同于fs.trash.interval。每次检查器运行，会创建新的检查点。</p>
+<p>建议设置为60（1小时）</p>
 </blockquote>
 </li>
-<li><p>hadoop.http.staticuser.user：</p>
+<li><p>fs.trash.interval：</p>
 <blockquote>
-<p>在网页界面访问数据使用的用户名。默认值是一个不真实存在的用户，此用户权限很小，不能访问不同用户的数据。这保证了数据安全。也可以设置为hdfs和hadoop等具有较高权限的用户，但会导致能够登陆网页界面的人能看到其它用户数据。实际设置请综合考虑。如无特殊需求。使用默认值就好</p>
+<p>以分钟为单位的垃圾回收时间，垃圾站中数据超过此时间，会被删除。如果是0，垃圾回收机制关闭。</p>
+<p>可以配置在服务器端和客户端。如果在服务器端配置trash无效，会检查客户端配置。如果服务器端配置有效，客户端配置会忽略。</p>
+<p>建议开启，建议4320（3天）<br>垃圾回收站，如有同名文件被删除，会给文件顺序编号，例如：a.txt,a.txt(1)</p>
+</blockquote>
+</li>
+<li><p>io.file.buffer.size</p>
+<blockquote>
+<p>读写文件缓存大小。</p>
+<p> 该缓冲区的大小可能应该是硬件页面大小的倍数（在Intel x86上为4096）</p>
 </blockquote>
 </li>
 <li><p>io.compression.codecs：</p>
@@ -433,8 +440,8 @@
           <div class="post-nav">
             <div class="post-nav-next post-nav-item">
               
-                <a href="/2020/06/24/hadoop/hdfs-site常用配置/" rel="next" title="hdfs-site常用配置">
-                  <i class="fa fa-chevron-left"></i> hdfs-site常用配置
+                <a href="/2020/06/24/hadoop/hdfs-site最佳实践/" rel="next" title="hdfs-site最佳实践">
+                  <i class="fa fa-chevron-left"></i> hdfs-site最佳实践
                 </a>
               
             </div>
@@ -491,7 +498,7 @@
 
       <!--noindex-->
       <div class="post-toc-wrap sidebar-panel">
-          <div class="post-toc motion-element"><ol class="nav"><li class="nav-item nav-level-1"><a class="nav-link" href="#常用参数"><span class="nav-number">1.</span> <span class="nav-text">常用参数</span></a></li><li class="nav-item nav-level-1"><a class="nav-link" href="#配置示例"><span class="nav-number">2.</span> <span class="nav-text">配置示例</span></a></li><li class="nav-item nav-level-1"><a class="nav-link" href="#参考文档"><span class="nav-number">3.</span> <span class="nav-text">参考文档</span></a></li></ol></div>
+          <div class="post-toc motion-element"><ol class="nav"><li class="nav-item nav-level-1"><a class="nav-link" href="#常用参数"><span class="nav-number">1.</span> <span class="nav-text">常用参数</span></a><ol class="nav-child"><li class="nav-item nav-level-2"><a class="nav-link" href="#基础配置"><span class="nav-number">1.1.</span> <span class="nav-text">基础配置</span></a></li><li class="nav-item nav-level-2"><a class="nav-link" href="#安全配置"><span class="nav-number">1.2.</span> <span class="nav-text">安全配置</span></a></li><li class="nav-item nav-level-2"><a class="nav-link" href="#性能优化"><span class="nav-number">1.3.</span> <span class="nav-text">性能优化</span></a></li></ol></li><li class="nav-item nav-level-1"><a class="nav-link" href="#配置示例"><span class="nav-number">2.</span> <span class="nav-text">配置示例</span></a></li><li class="nav-item nav-level-1"><a class="nav-link" href="#参考文档"><span class="nav-number">3.</span> <span class="nav-text">参考文档</span></a></li></ol></div>
         
       </div>
       <!--/noindex-->
