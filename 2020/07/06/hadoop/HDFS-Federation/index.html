@@ -55,14 +55,17 @@
   };
 </script>
 
-  <meta property="og:type" content="article">
+  <meta name="description" content="面临的问题 HDFS中Datanode本身是可以横向扩展的，当存储不够的时候，可以扩展Datanode的数目达到物理存储的横向扩展。 但是Namenode存在无法横向扩展，存在两个单点的问题。Namenode的内存主要是Namespace元数据，目录树和块映射信息  什么是HDFS Federation HDFS Federation更应该是NameNode Federation，就是NameNo">
+<meta property="og:type" content="article">
 <meta property="og:title" content="HDFS Federation">
 <meta property="og:url" content="http://yoursite.com/2020/07/06/hadoop/HDFS-Federation/index.html">
 <meta property="og:site_name" content="角落之外">
+<meta property="og:description" content="面临的问题 HDFS中Datanode本身是可以横向扩展的，当存储不够的时候，可以扩展Datanode的数目达到物理存储的横向扩展。 但是Namenode存在无法横向扩展，存在两个单点的问题。Namenode的内存主要是Namespace元数据，目录树和块映射信息  什么是HDFS Federation HDFS Federation更应该是NameNode Federation，就是NameNo">
 <meta property="og:locale" content="zh-CN">
-<meta property="og:updated_time" content="2020-07-06T03:37:06.584Z">
+<meta property="og:updated_time" content="2020-07-06T07:23:40.877Z">
 <meta name="twitter:card" content="summary">
 <meta name="twitter:title" content="HDFS Federation">
+<meta name="twitter:description" content="面临的问题 HDFS中Datanode本身是可以横向扩展的，当存储不够的时候，可以扩展Datanode的数目达到物理存储的横向扩展。 但是Namenode存在无法横向扩展，存在两个单点的问题。Namenode的内存主要是Namespace元数据，目录树和块映射信息  什么是HDFS Federation HDFS Federation更应该是NameNode Federation，就是NameNo">
   <link rel="canonical" href="http://yoursite.com/2020/07/06/hadoop/HDFS-Federation/">
 
 
@@ -260,7 +263,7 @@
                 
               
 
-              <time title="创建时间：2020-07-06 11:36:07 / 修改时间：11:37:06" itemprop="dateCreated datePublished" datetime="2020-07-06T11:36:07+08:00">2020-07-06</time>
+              <time title="创建时间：2020-07-06 11:36:07 / 修改时间：15:23:40" itemprop="dateCreated datePublished" datetime="2020-07-06T11:36:07+08:00">2020-07-06</time>
             </span>
           
             
@@ -306,7 +309,21 @@
     <div class="post-body" itemprop="articleBody">
 
       
-        
+        <h1 id="面临的问题"><a href="#面临的问题" class="headerlink" title="面临的问题"></a>面临的问题</h1><ul>
+<li>HDFS中Datanode本身是可以横向扩展的，当存储不够的时候，可以扩展Datanode的数目达到物理存储的横向扩展。</li>
+<li>但是Namenode存在无法横向扩展，存在两个单点的问题。Namenode的内存主要是Namespace元数据，目录树和块映射信息</li>
+</ul>
+<h1 id="什么是HDFS-Federation"><a href="#什么是HDFS-Federation" class="headerlink" title="什么是HDFS Federation"></a>什么是HDFS Federation</h1><ul>
+<li>HDFS Federation更应该是NameNode Federation，就是NameNode有多个namespace。</li>
+<li>一个namespace对应一个block pool。Block Pool是同一个namespace下的block的集合。</li>
+</ul>
+<h1 id="HDFS-Federation的优势"><a href="#HDFS-Federation的优势" class="headerlink" title="HDFS Federation的优势"></a>HDFS Federation的优势</h1><ul>
+<li>HDFS Federation解决了Namenode的横向扩展（内存元数据的扩展，访问和块汇报的RPC压力的扩展分离）。</li>
+<li>多namespace的方式可以直接减轻单一NameNode的压力。</li>
+<li>在HDFS Federation的情况下,只有元数据的管理与存放被分隔开了,但真实数据的存储还是共用的</li>
+</ul>
+<h1 id="参考文档"><a href="#参考文档" class="headerlink" title="参考文档"></a>参考文档</h1><p><a href="https://blog.csdn.net/Androidlushangderen/article/details/52135506" target="_blank" rel="noopener">HDFS Federation机制</a></p>
+
     </div>
 
     
@@ -376,6 +393,8 @@
 
       <!--noindex-->
       <div class="post-toc-wrap sidebar-panel">
+          <div class="post-toc motion-element"><ol class="nav"><li class="nav-item nav-level-1"><a class="nav-link" href="#面临的问题"><span class="nav-number">1.</span> <span class="nav-text">面临的问题</span></a></li><li class="nav-item nav-level-1"><a class="nav-link" href="#什么是HDFS-Federation"><span class="nav-number">2.</span> <span class="nav-text">什么是HDFS Federation</span></a></li><li class="nav-item nav-level-1"><a class="nav-link" href="#HDFS-Federation的优势"><span class="nav-number">3.</span> <span class="nav-text">HDFS Federation的优势</span></a></li><li class="nav-item nav-level-1"><a class="nav-link" href="#参考文档"><span class="nav-number">4.</span> <span class="nav-text">参考文档</span></a></li></ol></div>
+        
       </div>
       <!--/noindex-->
 
