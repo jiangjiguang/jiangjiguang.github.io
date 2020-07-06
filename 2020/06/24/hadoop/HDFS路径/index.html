@@ -55,17 +55,17 @@
   };
 </script>
 
-  <meta name="description" content="一直搞不清下面的这几个路径的具体区别 1234$ hdfs dfs /path$ hdfs dfs hdfs:///path$ hdfs dfs path$ hdfs dfs hdfs://path  总结如下：  hdfs dfs /path：等同于hdfs:///path hdfs dfs hdfs:///path： Hdfs dfs path：等同于/user/${HADOOP_USER">
+  <meta name="description" content="一直搞不清下面的这几个路径的具体区别 1234$ hdfs dfs /path$ hdfs dfs hdfs:///path$ hdfs dfs path$ hdfs dfs hdfs://path  首先看hdfs-site.xml文件中的两个配置参数：  dfs.internal.nameservices  逗号分隔的本集群的nameservices，Datanode将要向该值报告 默认是df">
 <meta property="og:type" content="article">
-<meta property="og:title" content="HDFS路径">
+<meta property="og:title" content="HDFS路径傻傻分不清">
 <meta property="og:url" content="http://yoursite.com/2020/06/24/hadoop/HDFS路径/index.html">
 <meta property="og:site_name" content="角落之外">
-<meta property="og:description" content="一直搞不清下面的这几个路径的具体区别 1234$ hdfs dfs /path$ hdfs dfs hdfs:///path$ hdfs dfs path$ hdfs dfs hdfs://path  总结如下：  hdfs dfs /path：等同于hdfs:///path hdfs dfs hdfs:///path： Hdfs dfs path：等同于/user/${HADOOP_USER">
+<meta property="og:description" content="一直搞不清下面的这几个路径的具体区别 1234$ hdfs dfs /path$ hdfs dfs hdfs:///path$ hdfs dfs path$ hdfs dfs hdfs://path  首先看hdfs-site.xml文件中的两个配置参数：  dfs.internal.nameservices  逗号分隔的本集群的nameservices，Datanode将要向该值报告 默认是df">
 <meta property="og:locale" content="zh-CN">
-<meta property="og:updated_time" content="2020-06-24T09:59:55.974Z">
+<meta property="og:updated_time" content="2020-07-06T06:17:07.743Z">
 <meta name="twitter:card" content="summary">
-<meta name="twitter:title" content="HDFS路径">
-<meta name="twitter:description" content="一直搞不清下面的这几个路径的具体区别 1234$ hdfs dfs /path$ hdfs dfs hdfs:///path$ hdfs dfs path$ hdfs dfs hdfs://path  总结如下：  hdfs dfs /path：等同于hdfs:///path hdfs dfs hdfs:///path： Hdfs dfs path：等同于/user/${HADOOP_USER">
+<meta name="twitter:title" content="HDFS路径傻傻分不清">
+<meta name="twitter:description" content="一直搞不清下面的这几个路径的具体区别 1234$ hdfs dfs /path$ hdfs dfs hdfs:///path$ hdfs dfs path$ hdfs dfs hdfs://path  首先看hdfs-site.xml文件中的两个配置参数：  dfs.internal.nameservices  逗号分隔的本集群的nameservices，Datanode将要向该值报告 默认是df">
   <link rel="canonical" href="http://yoursite.com/2020/06/24/hadoop/HDFS路径/">
 
 
@@ -80,7 +80,7 @@
   };
 </script>
 
-  <title>HDFS路径 | 角落之外</title>
+  <title>HDFS路径傻傻分不清 | 角落之外</title>
   
 
 
@@ -246,7 +246,7 @@
       <header class="post-header">
         <h1 class="post-title" itemprop="name headline">
           
-            HDFS路径
+            HDFS路径傻傻分不清
             
 
           
@@ -263,11 +263,19 @@
                 
               
 
-              <time title="创建时间：2020-06-24 17:44:03 / 修改时间：17:59:55" itemprop="dateCreated datePublished" datetime="2020-06-24T17:44:03+08:00">2020-06-24</time>
+              <time title="创建时间：2020-06-24 17:44:03" itemprop="dateCreated datePublished" datetime="2020-06-24T17:44:03+08:00">2020-06-24</time>
             </span>
           
             
 
+            
+              <span class="post-meta-item">
+                <span class="post-meta-item-icon">
+                  <i class="fa fa-calendar-check-o"></i>
+                </span>
+                <span class="post-meta-item-text">更新于</span>
+                <time title="修改时间：2020-07-06 14:17:07" itemprop="dateModified" datetime="2020-07-06T14:17:07+08:00">2020-07-06</time>
+              </span>
             
           
             <span class="post-meta-item">
@@ -289,7 +297,7 @@
           
 
           
-            <span id="/2020/06/24/hadoop/HDFS路径/" class="post-meta-item leancloud_visitors" data-flag-title="HDFS路径" title="阅读次数">
+            <span id="/2020/06/24/hadoop/HDFS路径/" class="post-meta-item leancloud_visitors" data-flag-title="HDFS路径傻傻分不清" title="阅读次数">
               <span class="post-meta-item-icon">
                 <i class="fa fa-eye"></i>
               </span>
@@ -309,20 +317,30 @@
     <div class="post-body" itemprop="articleBody">
 
       
-        <p>  一直搞不清下面的这几个路径的具体区别</p>
+        <p>一直搞不清下面的这几个路径的具体区别</p>
 <figure class="highlight shell"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br><span class="line">3</span><br><span class="line">4</span><br></pre></td><td class="code"><pre><span class="line"><span class="meta">$</span> hdfs dfs /path</span><br><span class="line"><span class="meta">$</span> hdfs dfs hdfs:///path</span><br><span class="line"><span class="meta">$</span> hdfs dfs path</span><br><span class="line"><span class="meta">$</span> hdfs dfs hdfs://path</span><br></pre></td></tr></table></figure>
 
+<p>首先看hdfs-site.xml文件中的两个配置参数：</p>
+<ul>
+<li><p>dfs.internal.nameservices</p>
+<blockquote>
+<p>逗号分隔的本集群的nameservices，Datanode将要向该值报告</p>
+<p>默认是dfs.nameservices中设置的值</p>
+</blockquote>
+</li>
+<li><p>dfs.nameservices</p>
+<blockquote>
+<p>逗号分隔的dfs.nameservices</p>
+</blockquote>
+</li>
+</ul>
 <p>总结如下：</p>
 <ul>
-<li>hdfs dfs /path：等同于hdfs:///path</li>
-<li>hdfs dfs hdfs:///path：</li>
-<li>Hdfs dfs path：等同于/user/${HADOOP_USER_NAME}/path</li>
-<li>hdfs dfs hdfs://path：</li>
+<li>hdfs dfs /path：默认是本集群下的路径，即dfs.internal.nameservices指向的nameservice</li>
+<li>hdfs dfs hdfs:///path：与/path相同，也是默认是本集群下的路径</li>
+<li>Hdfs dfs path：同样也是本集群下的路径，但是会根据当前登录名解析成 /user/${whoami}/path   </li>
+<li>hdfs dfs hdfs://path：指定了nameservice</li>
 </ul>
-<p>疑问：</p>
-<p>双斜杠和三斜杠的区别</p>
-<p>双斜杠在什么情况下使用</p>
-<p>三斜杠中默认到哪个HDFS系统</p>
 
     </div>
 
@@ -348,6 +366,10 @@
             <span class="post-nav-divider"></span>
 
             <div class="post-nav-prev post-nav-item">
+              
+                <a href="/2020/07/06/hadoop/HDFS-Federation/" rel="prev" title="HDFS Federation">
+                  HDFS Federation <i class="fa fa-chevron-right"></i>
+                </a>
               
             </div>
           </div>
@@ -407,7 +429,7 @@
         
           <a href="/archives/">
         
-          <span class="site-state-item-count">15</span>
+          <span class="site-state-item-count">16</span>
           <span class="site-state-item-name">日志</span>
         </a>
       </div>
