@@ -62,7 +62,7 @@
 <meta property="og:site_name" content="角落之外">
 <meta property="og:description" content="一直搞不清下面的这几个路径的具体区别 1234$ hdfs dfs /path$ hdfs dfs hdfs:///path$ hdfs dfs path$ hdfs dfs hdfs://path  首先看core-site.xml文件中的两个配置参数：  fs.defaultFS  默认文件系统名称    总结如下：  hdfs dfs /path：默认是本集群下的路径，即fs.default">
 <meta property="og:locale" content="zh-CN">
-<meta property="og:updated_time" content="2020-07-07T02:39:17.677Z">
+<meta property="og:updated_time" content="2020-07-08T01:23:47.896Z">
 <meta name="twitter:card" content="summary">
 <meta name="twitter:title" content="HDFS路径傻傻分不清">
 <meta name="twitter:description" content="一直搞不清下面的这几个路径的具体区别 1234$ hdfs dfs /path$ hdfs dfs hdfs:///path$ hdfs dfs path$ hdfs dfs hdfs://path  首先看core-site.xml文件中的两个配置参数：  fs.defaultFS  默认文件系统名称    总结如下：  hdfs dfs /path：默认是本集群下的路径，即fs.default">
@@ -274,7 +274,7 @@
                   <i class="fa fa-calendar-check-o"></i>
                 </span>
                 <span class="post-meta-item-text">更新于</span>
-                <time title="修改时间：2020-07-07 10:39:17" itemprop="dateModified" datetime="2020-07-07T10:39:17+08:00">2020-07-07</time>
+                <time title="修改时间：2020-07-08 09:23:47" itemprop="dateModified" datetime="2020-07-08T09:23:47+08:00">2020-07-08</time>
               </span>
             
           
@@ -330,10 +330,16 @@
 </ul>
 <p>总结如下：</p>
 <ul>
-<li>hdfs dfs /path：默认是本集群下的路径，即fs.defaultFS指向的nameservice</li>
-<li>hdfs dfs hdfs:///path：与/path相同，也是默认是本集群下的路径</li>
-<li>Hdfs dfs path：同样也是本集群下的路径，但是会根据当前登录名解析成 /user/${whoami}/path   </li>
-<li>hdfs dfs hdfs://path：指定了nameservice</li>
+<li><p>hdfs dfs /path：默认是本集群下的路径，即fs.defaultFS指向的nameservice</p>
+</li>
+<li><p>hdfs dfs hdfs:///path：与/path相同，也是默认是本集群下的路径</p>
+</li>
+<li><p>Hdfs dfs path：同样也是本集群下的路径，</p>
+<p>但是会根据当前登录名解析成 /user/${HADOOP_USER_NAME}|${whoami}/path</p>
+<p>HADOOP_USER_NAME优先级大于whoami</p>
+</li>
+<li><p>hdfs dfs hdfs://path：指定了nameservice</p>
+</li>
 </ul>
 
     </div>
