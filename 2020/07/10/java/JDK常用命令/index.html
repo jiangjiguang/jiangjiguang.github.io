@@ -55,14 +55,18 @@
   };
 </script>
 
-  <meta property="og:type" content="website">
-<meta property="og:title" content="角落之外">
-<meta property="og:url" content="http://yoursite.com/archives/2019/index.html">
+  <meta name="description" content="jstack用来显示虚拟机的线程快照  线程快照就是当前虚拟机内每一条线程正在执行的方法堆栈集合 用来定位线程出现长时间停顿的原因、如线程间死锁、死循环等  使用方式  jstack option pid  option选项  -F 强制输出线程堆栈 -l 除线程栈外，显示关于锁的附加信息 -m 如果调用本次方法的话，可以显示C/C++的堆栈  最佳使用  强制打印线程栈：jstack -F PI">
+<meta property="og:type" content="article">
+<meta property="og:title" content="JDK常用命令">
+<meta property="og:url" content="http://yoursite.com/2020/07/10/java/JDK常用命令/index.html">
 <meta property="og:site_name" content="角落之外">
+<meta property="og:description" content="jstack用来显示虚拟机的线程快照  线程快照就是当前虚拟机内每一条线程正在执行的方法堆栈集合 用来定位线程出现长时间停顿的原因、如线程间死锁、死循环等  使用方式  jstack option pid  option选项  -F 强制输出线程堆栈 -l 除线程栈外，显示关于锁的附加信息 -m 如果调用本次方法的话，可以显示C/C++的堆栈  最佳使用  强制打印线程栈：jstack -F PI">
 <meta property="og:locale" content="zh-CN">
+<meta property="og:updated_time" content="2020-07-10T07:42:46.364Z">
 <meta name="twitter:card" content="summary">
-<meta name="twitter:title" content="角落之外">
-  <link rel="canonical" href="http://yoursite.com/archives/2019/">
+<meta name="twitter:title" content="JDK常用命令">
+<meta name="twitter:description" content="jstack用来显示虚拟机的线程快照  线程快照就是当前虚拟机内每一条线程正在执行的方法堆栈集合 用来定位线程出现长时间停顿的原因、如线程间死锁、死循环等  使用方式  jstack option pid  option选项  -F 强制输出线程堆栈 -l 除线程栈外，显示关于锁的附加信息 -m 如果调用本次方法的话，可以显示C/C++的堆栈  最佳使用  强制打印线程栈：jstack -F PI">
+  <link rel="canonical" href="http://yoursite.com/2020/07/10/java/JDK常用命令/">
 
 
 <script id="page-configurations">
@@ -70,13 +74,13 @@
   CONFIG.page = {
     sidebar: "",
     isHome: false,
-    isPost: false,
+    isPost: true,
     isPage: false,
-    isArchive: true
+    isArchive: false
   };
 </script>
 
-  <title>归档 | 角落之外</title>
+  <title>JDK常用命令 | 角落之外</title>
   
 
 
@@ -206,21 +210,6 @@
 
     
 
-  
-    
-    
-  
-    
-    
-  
-    
-    
-  
-    
-    
-  
-  
-
 </nav>
 </div>
     </header>
@@ -238,66 +227,145 @@
           <div class="content">
             
 
+  <div class="posts-expand">
+      
   
   
-  
-  <div class="post-block">
-    <div class="posts-collapse">
-      <div class="collection-title">
-        
-        
-        
+  <article itemscope itemtype="http://schema.org/Article" class="post-block " lang="zh-CN">
+    <link itemprop="mainEntityOfPage" href="http://yoursite.com/2020/07/10/java/JDK常用命令/">
+
+    <span hidden itemprop="author" itemscope itemtype="http://schema.org/Person">
+      <meta itemprop="name" content="姜纪光">
+      <meta itemprop="description" content="">
+      <meta itemprop="image" content="/images/avatar.gif">
+    </span>
+
+    <span hidden itemprop="publisher" itemscope itemtype="http://schema.org/Organization">
+      <meta itemprop="name" content="角落之外">
+    </span>
+      <header class="post-header">
+        <h1 class="post-title" itemprop="name headline">
           
-        
-        <span class="collection-header">嗯..! 目前共计 22 篇日志。 继续努力。</span>
-      </div>
-      
+            JDK常用命令
+            
 
-      
+          
+        </h1>
 
+        <div class="post-meta">
+            <span class="post-meta-item">
+              <span class="post-meta-item-icon">
+                <i class="fa fa-calendar-o"></i>
+              </span>
+              <span class="post-meta-item-text">发表于</span>
+
+              
+                
+              
+
+              <time title="创建时间：2020-07-10 15:19:25 / 修改时间：15:42:46" itemprop="dateCreated datePublished" datetime="2020-07-10T15:19:25+08:00">2020-07-10</time>
+            </span>
+          
+            
+
+            
+          
+            <span class="post-meta-item">
+              <span class="post-meta-item-icon">
+                <i class="fa fa-folder-o"></i>
+              </span>
+              <span class="post-meta-item-text">分类于</span>
+              
+                <span itemprop="about" itemscope itemtype="http://schema.org/Thing">
+                  <a href="/categories/java/" itemprop="url" rel="index">
+                    <span itemprop="name">java</span>
+                  </a>
+                </span>
+
+                
+                
+              
+            </span>
+          
+
+          
+            <span id="/2020/07/10/java/JDK常用命令/" class="post-meta-item leancloud_visitors" data-flag-title="JDK常用命令" title="阅读次数">
+              <span class="post-meta-item-icon">
+                <i class="fa fa-eye"></i>
+              </span>
+              <span class="post-meta-item-text">阅读次数：</span>
+              <span class="leancloud-visitors-count"></span>
+            </span>
+          
   
   
 
-  
+        </div>
+      </header>
+
     
-    <div class="collection-year">
-      <h1 class="collection-header">2019</h1>
+    
+    
+    <div class="post-body" itemprop="articleBody">
+
+      
+        <h1 id="jstack"><a href="#jstack" class="headerlink" title="jstack"></a>jstack</h1><p>用来显示虚拟机的线程快照</p>
+<ul>
+<li>线程快照就是当前虚拟机内每一条线程正在执行的方法堆栈集合</li>
+<li>用来定位线程出现长时间停顿的原因、如线程间死锁、死循环等</li>
+</ul>
+<p>使用方式</p>
+<blockquote>
+<p>jstack option pid</p>
+</blockquote>
+<p>option选项</p>
+<blockquote>
+<p>-F 强制输出线程堆栈</p>
+<p>-l 除线程栈外，显示关于锁的附加信息</p>
+<p>-m 如果调用本次方法的话，可以显示C/C++的堆栈</p>
+</blockquote>
+<p>最佳使用</p>
+<blockquote>
+<p>强制打印线程栈：jstack -F PID &gt; threads.txt</p>
+</blockquote>
+<h1 id="参考文档"><a href="#参考文档" class="headerlink" title="参考文档"></a>参考文档</h1><p><a href="https://0000-bigtree.github.io/blog/2017/03/05/get-java-process-stack.html" target="_blank" rel="noopener">获取 JVM 进程的线程堆栈 dump 和堆 dump</a></p>
+
     </div>
-  
 
-  <article itemscope itemtype="http://schema.org/Article">
-    <header class="post-header">
-
-      <div class="post-meta">
-        <time itemprop="dateCreated"
-              datetime="2019-12-21T17:25:00+08:00"
-              content="2019-12-21">
-          12-21
-        </time>
-      </div>
-
-      <h2 class="post-title">
+    
+    
+    
         
-          <a class="post-title-link" href="/2019/12/21/blog-hexo-env/" itemprop="url">
-            <span itemprop="name">博客环境搭建</span>
-          </a>
-        
-      </h2>
+      
 
-    </header>
+      <footer class="post-footer">
+
+        
+
+          <div class="post-nav">
+            <div class="post-nav-next post-nav-item">
+              
+                <a href="/2020/07/10/linux/工具实践-printf/" rel="next" title="工具实践-printf">
+                  <i class="fa fa-chevron-left"></i> 工具实践-printf
+                </a>
+              
+            </div>
+
+            <span class="post-nav-divider"></span>
+
+            <div class="post-nav-prev post-nav-item">
+              
+            </div>
+          </div>
+        
+      </footer>
+    
   </article>
+  
+  
+  
 
-
-
-
-    </div>
   </div>
-  
-  
-  
-
-  
-
 
 
           </div>
@@ -314,6 +382,11 @@
 
   <aside class="sidebar">
     <div class="sidebar-inner">
+        
+        
+        
+        
+      
 
       <ul class="sidebar-nav motion-element">
         <li class="sidebar-nav-toc">
@@ -326,6 +399,8 @@
 
       <!--noindex-->
       <div class="post-toc-wrap sidebar-panel">
+          <div class="post-toc motion-element"><ol class="nav"><li class="nav-item nav-level-1"><a class="nav-link" href="#jstack"><span class="nav-number">1.</span> <span class="nav-text">jstack</span></a></li><li class="nav-item nav-level-1"><a class="nav-link" href="#参考文档"><span class="nav-number">2.</span> <span class="nav-text">参考文档</span></a></li></ol></div>
+        
       </div>
       <!--/noindex-->
 

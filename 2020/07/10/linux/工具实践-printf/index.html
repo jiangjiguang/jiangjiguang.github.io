@@ -55,14 +55,18 @@
   };
 </script>
 
-  <meta property="og:type" content="website">
-<meta property="og:title" content="角落之外">
-<meta property="og:url" content="http://yoursite.com/archives/2019/index.html">
+  <meta name="description" content="最佳使用 打印基本输出 printf “hello,world\n” 十进制转16进制 printf “%x\n” 27 16进制转十进制 printf “%d\n” 0x1b  %x 十六进制 %d 十进制 %o 八进制 参考文档总结linux下printf命令的用法 Linux printf command">
+<meta property="og:type" content="article">
+<meta property="og:title" content="工具实践-printf">
+<meta property="og:url" content="http://yoursite.com/2020/07/10/linux/工具实践-printf/index.html">
 <meta property="og:site_name" content="角落之外">
+<meta property="og:description" content="最佳使用 打印基本输出 printf “hello,world\n” 十进制转16进制 printf “%x\n” 27 16进制转十进制 printf “%d\n” 0x1b  %x 十六进制 %d 十进制 %o 八进制 参考文档总结linux下printf命令的用法 Linux printf command">
 <meta property="og:locale" content="zh-CN">
+<meta property="og:updated_time" content="2020-07-10T06:34:04.812Z">
 <meta name="twitter:card" content="summary">
-<meta name="twitter:title" content="角落之外">
-  <link rel="canonical" href="http://yoursite.com/archives/2019/">
+<meta name="twitter:title" content="工具实践-printf">
+<meta name="twitter:description" content="最佳使用 打印基本输出 printf “hello,world\n” 十进制转16进制 printf “%x\n” 27 16进制转十进制 printf “%d\n” 0x1b  %x 十六进制 %d 十进制 %o 八进制 参考文档总结linux下printf命令的用法 Linux printf command">
+  <link rel="canonical" href="http://yoursite.com/2020/07/10/linux/工具实践-printf/">
 
 
 <script id="page-configurations">
@@ -70,13 +74,13 @@
   CONFIG.page = {
     sidebar: "",
     isHome: false,
-    isPost: false,
+    isPost: true,
     isPage: false,
-    isArchive: true
+    isArchive: false
   };
 </script>
 
-  <title>归档 | 角落之外</title>
+  <title>工具实践-printf | 角落之外</title>
   
 
 
@@ -206,21 +210,6 @@
 
     
 
-  
-    
-    
-  
-    
-    
-  
-    
-    
-  
-    
-    
-  
-  
-
 </nav>
 </div>
     </header>
@@ -238,66 +227,139 @@
           <div class="content">
             
 
+  <div class="posts-expand">
+      
   
   
-  
-  <div class="post-block">
-    <div class="posts-collapse">
-      <div class="collection-title">
-        
-        
-        
+  <article itemscope itemtype="http://schema.org/Article" class="post-block " lang="zh-CN">
+    <link itemprop="mainEntityOfPage" href="http://yoursite.com/2020/07/10/linux/工具实践-printf/">
+
+    <span hidden itemprop="author" itemscope itemtype="http://schema.org/Person">
+      <meta itemprop="name" content="姜纪光">
+      <meta itemprop="description" content="">
+      <meta itemprop="image" content="/images/avatar.gif">
+    </span>
+
+    <span hidden itemprop="publisher" itemscope itemtype="http://schema.org/Organization">
+      <meta itemprop="name" content="角落之外">
+    </span>
+      <header class="post-header">
+        <h1 class="post-title" itemprop="name headline">
           
-        
-        <span class="collection-header">嗯..! 目前共计 22 篇日志。 继续努力。</span>
-      </div>
-      
+            工具实践-printf
+            
 
-      
+          
+        </h1>
 
+        <div class="post-meta">
+            <span class="post-meta-item">
+              <span class="post-meta-item-icon">
+                <i class="fa fa-calendar-o"></i>
+              </span>
+              <span class="post-meta-item-text">发表于</span>
+
+              
+                
+              
+
+              <time title="创建时间：2020-07-10 14:26:09 / 修改时间：14:34:04" itemprop="dateCreated datePublished" datetime="2020-07-10T14:26:09+08:00">2020-07-10</time>
+            </span>
+          
+            
+
+            
+          
+            <span class="post-meta-item">
+              <span class="post-meta-item-icon">
+                <i class="fa fa-folder-o"></i>
+              </span>
+              <span class="post-meta-item-text">分类于</span>
+              
+                <span itemprop="about" itemscope itemtype="http://schema.org/Thing">
+                  <a href="/categories/hadoop/" itemprop="url" rel="index">
+                    <span itemprop="name">hadoop</span>
+                  </a>
+                </span>
+
+                
+                
+              
+            </span>
+          
+
+          
+            <span id="/2020/07/10/linux/工具实践-printf/" class="post-meta-item leancloud_visitors" data-flag-title="工具实践-printf" title="阅读次数">
+              <span class="post-meta-item-icon">
+                <i class="fa fa-eye"></i>
+              </span>
+              <span class="post-meta-item-text">阅读次数：</span>
+              <span class="leancloud-visitors-count"></span>
+            </span>
+          
   
   
 
-  
+        </div>
+      </header>
+
     
-    <div class="collection-year">
-      <h1 class="collection-header">2019</h1>
+    
+    
+    <div class="post-body" itemprop="articleBody">
+
+      
+        <h1 id="最佳使用"><a href="#最佳使用" class="headerlink" title="最佳使用"></a>最佳使用</h1><blockquote>
+<p>打印基本输出 printf “hello,world\n”</p>
+<p>十进制转16进制 printf “%x\n” 27</p>
+<p>16进制转十进制 printf “%d\n” 0x1b</p>
+</blockquote>
+<p>%x 十六进制</p>
+<p>%d 十进制</p>
+<p>%o 八进制</p>
+<h1 id="参考文档"><a href="#参考文档" class="headerlink" title="参考文档"></a>参考文档</h1><p><a href="https://blog.51cto.com/cuidehua/1890139" target="_blank" rel="noopener">总结linux下printf命令的用法</a></p>
+<p><a href="https://www.computerhope.com/unix/uprintf.htm" target="_blank" rel="noopener">Linux printf command</a></p>
+
     </div>
-  
 
-  <article itemscope itemtype="http://schema.org/Article">
-    <header class="post-header">
-
-      <div class="post-meta">
-        <time itemprop="dateCreated"
-              datetime="2019-12-21T17:25:00+08:00"
-              content="2019-12-21">
-          12-21
-        </time>
-      </div>
-
-      <h2 class="post-title">
+    
+    
+    
         
-          <a class="post-title-link" href="/2019/12/21/blog-hexo-env/" itemprop="url">
-            <span itemprop="name">博客环境搭建</span>
-          </a>
-        
-      </h2>
+      
 
-    </header>
+      <footer class="post-footer">
+
+        
+
+          <div class="post-nav">
+            <div class="post-nav-next post-nav-item">
+              
+                <a href="/2020/07/10/linux/工具实践-top/" rel="next" title="工具实践-top">
+                  <i class="fa fa-chevron-left"></i> 工具实践-top
+                </a>
+              
+            </div>
+
+            <span class="post-nav-divider"></span>
+
+            <div class="post-nav-prev post-nav-item">
+              
+                <a href="/2020/07/10/java/JDK常用命令/" rel="prev" title="JDK常用命令">
+                  JDK常用命令 <i class="fa fa-chevron-right"></i>
+                </a>
+              
+            </div>
+          </div>
+        
+      </footer>
+    
   </article>
+  
+  
+  
 
-
-
-
-    </div>
   </div>
-  
-  
-  
-
-  
-
 
 
           </div>
@@ -314,6 +376,11 @@
 
   <aside class="sidebar">
     <div class="sidebar-inner">
+        
+        
+        
+        
+      
 
       <ul class="sidebar-nav motion-element">
         <li class="sidebar-nav-toc">
@@ -326,6 +393,8 @@
 
       <!--noindex-->
       <div class="post-toc-wrap sidebar-panel">
+          <div class="post-toc motion-element"><ol class="nav"><li class="nav-item nav-level-1"><a class="nav-link" href="#最佳使用"><span class="nav-number">1.</span> <span class="nav-text">最佳使用</span></a></li><li class="nav-item nav-level-1"><a class="nav-link" href="#参考文档"><span class="nav-number">2.</span> <span class="nav-text">参考文档</span></a></li></ol></div>
+        
       </div>
       <!--/noindex-->
 
