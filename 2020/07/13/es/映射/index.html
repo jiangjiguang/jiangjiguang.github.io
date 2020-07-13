@@ -55,18 +55,18 @@
   };
 </script>
 
-  <meta name="description" content="本文用来收藏常用的网站  find great things to read https://medium.com">
+  <meta name="description" content="映射操作获取映射 1http://localhost:9200/get-together/_mapping  定义映射 1http://localhost:9200/get-together/_mapping/group?include_type_name=true   无法改变现有字段的数据类型 无法改变一个字段被索引的方式 删除数据也将删除映射  字段类型核心类型 字符串 可以在映射中指定许多">
 <meta property="og:type" content="article">
-<meta property="og:title" content="interesting site">
-<meta property="og:url" content="http://yoursite.com/2020/07/10/life/interesting-site/index.html">
+<meta property="og:title" content="映射">
+<meta property="og:url" content="http://yoursite.com/2020/07/13/es/映射/index.html">
 <meta property="og:site_name" content="角落之外">
-<meta property="og:description" content="本文用来收藏常用的网站  find great things to read https://medium.com">
+<meta property="og:description" content="映射操作获取映射 1http://localhost:9200/get-together/_mapping  定义映射 1http://localhost:9200/get-together/_mapping/group?include_type_name=true   无法改变现有字段的数据类型 无法改变一个字段被索引的方式 删除数据也将删除映射  字段类型核心类型 字符串 可以在映射中指定许多">
 <meta property="og:locale" content="zh-CN">
-<meta property="og:updated_time" content="2020-07-10T09:08:55.268Z">
+<meta property="og:updated_time" content="2020-07-13T02:44:06.057Z">
 <meta name="twitter:card" content="summary">
-<meta name="twitter:title" content="interesting site">
-<meta name="twitter:description" content="本文用来收藏常用的网站  find great things to read https://medium.com">
-  <link rel="canonical" href="http://yoursite.com/2020/07/10/life/interesting-site/">
+<meta name="twitter:title" content="映射">
+<meta name="twitter:description" content="映射操作获取映射 1http://localhost:9200/get-together/_mapping  定义映射 1http://localhost:9200/get-together/_mapping/group?include_type_name=true   无法改变现有字段的数据类型 无法改变一个字段被索引的方式 删除数据也将删除映射  字段类型核心类型 字符串 可以在映射中指定许多">
+  <link rel="canonical" href="http://yoursite.com/2020/07/13/es/映射/">
 
 
 <script id="page-configurations">
@@ -80,7 +80,7 @@
   };
 </script>
 
-  <title>interesting site | 角落之外</title>
+  <title>映射 | 角落之外</title>
   
 
 
@@ -232,7 +232,7 @@
   
   
   <article itemscope itemtype="http://schema.org/Article" class="post-block " lang="zh-CN">
-    <link itemprop="mainEntityOfPage" href="http://yoursite.com/2020/07/10/life/interesting-site/">
+    <link itemprop="mainEntityOfPage" href="http://yoursite.com/2020/07/13/es/映射/">
 
     <span hidden itemprop="author" itemscope itemtype="http://schema.org/Person">
       <meta itemprop="name" content="姜纪光">
@@ -246,7 +246,7 @@
       <header class="post-header">
         <h1 class="post-title" itemprop="name headline">
           
-            interesting site
+            映射
             
 
           
@@ -263,7 +263,7 @@
                 
               
 
-              <time title="创建时间：2020-07-10 16:58:54 / 修改时间：17:08:55" itemprop="dateCreated datePublished" datetime="2020-07-10T16:58:54+08:00">2020-07-10</time>
+              <time title="创建时间：2020-07-13 09:13:46 / 修改时间：10:44:06" itemprop="dateCreated datePublished" datetime="2020-07-13T09:13:46+08:00">2020-07-13</time>
             </span>
           
             
@@ -277,8 +277,8 @@
               <span class="post-meta-item-text">分类于</span>
               
                 <span itemprop="about" itemscope itemtype="http://schema.org/Thing">
-                  <a href="/categories/life/" itemprop="url" rel="index">
-                    <span itemprop="name">life</span>
+                  <a href="/categories/es/" itemprop="url" rel="index">
+                    <span itemprop="name">es</span>
                   </a>
                 </span>
 
@@ -289,7 +289,7 @@
           
 
           
-            <span id="/2020/07/10/life/interesting-site/" class="post-meta-item leancloud_visitors" data-flag-title="interesting site" title="阅读次数">
+            <span id="/2020/07/13/es/映射/" class="post-meta-item leancloud_visitors" data-flag-title="映射" title="阅读次数">
               <span class="post-meta-item-icon">
                 <i class="fa fa-eye"></i>
               </span>
@@ -309,12 +309,61 @@
     <div class="post-body" itemprop="articleBody">
 
       
-        <p>本文用来收藏常用的网站</p>
+        <h1 id="映射操作"><a href="#映射操作" class="headerlink" title="映射操作"></a>映射操作</h1><p>获取映射</p>
+<figure class="highlight plain"><table><tr><td class="gutter"><pre><span class="line">1</span><br></pre></td><td class="code"><pre><span class="line">http://localhost:9200/get-together/_mapping</span><br></pre></td></tr></table></figure>
+
+<p>定义映射</p>
+<figure class="highlight plain"><table><tr><td class="gutter"><pre><span class="line">1</span><br></pre></td><td class="code"><pre><span class="line">http://localhost:9200/get-together/_mapping/group?include_type_name=true</span><br></pre></td></tr></table></figure>
+
 <ul>
-<li><p>find great things to read</p>
-<p><a href="https://medium.com" target="_blank" rel="noopener">https://medium.com</a></p>
+<li>无法改变现有字段的数据类型</li>
+<li>无法改变一个字段被索引的方式</li>
+<li>删除数据也将删除映射</li>
+</ul>
+<h1 id="字段类型"><a href="#字段类型" class="headerlink" title="字段类型"></a>字段类型</h1><h2 id="核心类型"><a href="#核心类型" class="headerlink" title="核心类型"></a>核心类型</h2><ul>
+<li><p>字符串</p>
+<p>可以在映射中指定许多分析选项</p>
+<figure class="highlight plain"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br><span class="line">3</span><br><span class="line">4</span><br></pre></td><td class="code"><pre><span class="line">index选项可以被设置为：</span><br><span class="line">analyzed(默认):分析器将多有字符转为小写，并将字符串分解为单词</span><br><span class="line">net_analyzed:分析过程被略过，整个字符串被当做单独的词条进行索引</span><br><span class="line">no:索引被忽略，即无法在该字段索引</span><br></pre></td></tr></table></figure>
+</li>
+<li><p>数值</p>
+<figure class="highlight plain"><table><tr><td class="gutter"><pre><span class="line">1</span><br></pre></td><td class="code"><pre><span class="line">包括byte、short、int、long、float、double</span><br></pre></td></tr></table></figure>
+</li>
+<li><p>日期</p>
+<figure class="highlight plain"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br><span class="line">3</span><br></pre></td><td class="code"><pre><span class="line">通常提供一个表示日期的字符串，es解析这个字符串，将其作为long的数值存储在lucene的索引</span><br><span class="line">是从1970年1月1日到所提供时间的毫秒数</span><br><span class="line">使用format选项指定日期格式</span><br></pre></td></tr></table></figure>
+</li>
+<li><p>布尔</p>
+<figure class="highlight plain"><table><tr><td class="gutter"><pre><span class="line">1</span><br></pre></td><td class="code"><pre><span class="line">在lucene索引中将T代表true，F代表false</span><br></pre></td></tr></table></figure>
+</li>
+<li><p>数组</p>
+<figure class="highlight plain"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br></pre></td><td class="code"><pre><span class="line">如果要索引拥有多个值的字段，将这些值放入到方括号中。</span><br><span class="line">映射将标签字段定义为字符串型，和单个值同样处理</span><br></pre></td></tr></table></figure>
+</li>
+<li><p>多字段</p>
+<figure class="highlight plain"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br><span class="line">3</span><br></pre></td><td class="code"><pre><span class="line">多字段允许使用不同的设置，对同一项数据索引多次</span><br><span class="line">analyzed针对每个单词进行匹配</span><br><span class="line">not_analyed针对完整标签名称的精确匹配</span><br></pre></td></tr></table></figure>
+
 </li>
 </ul>
+<h2 id="预定义字段"><a href="#预定义字段" class="headerlink" title="预定义字段"></a>预定义字段</h2><ul>
+<li>通常，不用部署预定义字段</li>
+<li>揭示了字段的相关的功能，如_ttl</li>
+<li>预定义的字段总是以下划线开头</li>
+</ul>
+<p>预定义字段类型：</p>
+<ul>
+<li><p>控制如何存储和搜索你的文档</p>
+<figure class="highlight plain"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br><span class="line">3</span><br></pre></td><td class="code"><pre><span class="line">_source在索引文档的时候，存储原始的JSON文档，_all将所有的字段一起索引</span><br><span class="line">_source设置为true或false来指定是否想要存储原始文档：强烈建议开启</span><br><span class="line">_include_in_all控制哪些字段包_all包含，哪些字段不被_all包含</span><br></pre></td></tr></table></figure>
+</li>
+<li><p>唯一识别文档</p>
+<figure class="highlight plain"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br></pre></td><td class="code"><pre><span class="line">有些特别的字段，包含了文档索引位置的数据：_uid、_id、_type和_index</span><br><span class="line">可以依靠es生成唯一的ID</span><br></pre></td></tr></table></figure>
+</li>
+<li><p>为文档增加新的属性</p>
+<figure class="highlight plain"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br></pre></td><td class="code"><pre><span class="line">_size索引原始JSON内容的大小</span><br><span class="line">_timestamp索引文档索引的时间</span><br></pre></td></tr></table></figure>
+</li>
+<li><p>控制文档路由到哪些分片</p>
+<figure class="highlight plain"><table><tr><td class="gutter"><pre><span class="line">1</span><br></pre></td><td class="code"><pre><span class="line">_routing和_parent</span><br></pre></td></tr></table></figure>
+
+</li>
+</ul>
+<h1 id="更新现有文档"><a href="#更新现有文档" class="headerlink" title="更新现有文档"></a>更新现有文档</h1><p>文档的更新包括检索文档、处理文档、并重新索引文档，直至先前的文档被覆盖</p>
 
     </div>
 
@@ -331,8 +380,8 @@
           <div class="post-nav">
             <div class="post-nav-next post-nav-item">
               
-                <a href="/2020/07/10/java/JDK常用命令/" rel="next" title="JDK常用命令">
-                  <i class="fa fa-chevron-left"></i> JDK常用命令
+                <a href="/2020/07/10/es/es概览/" rel="next" title="es概览">
+                  <i class="fa fa-chevron-left"></i> es概览
                 </a>
               
             </div>
@@ -340,10 +389,6 @@
             <span class="post-nav-divider"></span>
 
             <div class="post-nav-prev post-nav-item">
-              
-                <a href="/2020/07/10/es/es概览/" rel="prev" title="es概览">
-                  es概览 <i class="fa fa-chevron-right"></i>
-                </a>
               
             </div>
           </div>
@@ -389,6 +434,8 @@
 
       <!--noindex-->
       <div class="post-toc-wrap sidebar-panel">
+          <div class="post-toc motion-element"><ol class="nav"><li class="nav-item nav-level-1"><a class="nav-link" href="#映射操作"><span class="nav-number">1.</span> <span class="nav-text">映射操作</span></a></li><li class="nav-item nav-level-1"><a class="nav-link" href="#字段类型"><span class="nav-number">2.</span> <span class="nav-text">字段类型</span></a><ol class="nav-child"><li class="nav-item nav-level-2"><a class="nav-link" href="#核心类型"><span class="nav-number">2.1.</span> <span class="nav-text">核心类型</span></a></li><li class="nav-item nav-level-2"><a class="nav-link" href="#预定义字段"><span class="nav-number">2.2.</span> <span class="nav-text">预定义字段</span></a></li></ol></li><li class="nav-item nav-level-1"><a class="nav-link" href="#更新现有文档"><span class="nav-number">3.</span> <span class="nav-text">更新现有文档</span></a></li></ol></div>
+        
       </div>
       <!--/noindex-->
 
