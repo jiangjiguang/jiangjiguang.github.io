@@ -62,7 +62,7 @@
 <meta property="og:site_name" content="角落之外">
 <meta property="og:description" content="映射操作获取映射 1http://localhost:9200/get-together/_mapping  定义映射 1http://localhost:9200/get-together/_mapping/group?include_type_name=true   无法改变现有字段的数据类型 无法改变一个字段被索引的方式 删除数据也将删除映射  字段类型核心类型 字符串 可以在映射中指定许多">
 <meta property="og:locale" content="zh-CN">
-<meta property="og:updated_time" content="2020-07-13T02:44:06.057Z">
+<meta property="og:updated_time" content="2020-07-13T06:07:34.609Z">
 <meta name="twitter:card" content="summary">
 <meta name="twitter:title" content="映射">
 <meta name="twitter:description" content="映射操作获取映射 1http://localhost:9200/get-together/_mapping  定义映射 1http://localhost:9200/get-together/_mapping/group?include_type_name=true   无法改变现有字段的数据类型 无法改变一个字段被索引的方式 删除数据也将删除映射  字段类型核心类型 字符串 可以在映射中指定许多">
@@ -263,7 +263,7 @@
                 
               
 
-              <time title="创建时间：2020-07-13 09:13:46 / 修改时间：10:44:06" itemprop="dateCreated datePublished" datetime="2020-07-13T09:13:46+08:00">2020-07-13</time>
+              <time title="创建时间：2020-07-13 09:13:46 / 修改时间：14:07:34" itemprop="dateCreated datePublished" datetime="2020-07-13T09:13:46+08:00">2020-07-13</time>
             </span>
           
             
@@ -364,6 +364,44 @@
 </li>
 </ul>
 <h1 id="更新现有文档"><a href="#更新现有文档" class="headerlink" title="更新现有文档"></a>更新现有文档</h1><p>文档的更新包括检索文档、处理文档、并重新索引文档，直至先前的文档被覆盖</p>
+<ul>
+<li><p>es自动重试</p>
+<figure class="highlight plain"><table><tr><td class="gutter"><pre><span class="line">1</span><br></pre></td><td class="code"><pre><span class="line">retry_on_conflict</span><br></pre></td></tr></table></figure>
+</li>
+<li><p>并发版本控制</p>
+<figure class="highlight plain"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br></pre></td><td class="code"><pre><span class="line">http://localhost:9200/get-together/group/4/_update?if_seq_no=25&amp;if_primary_term=2</span><br><span class="line">不支持upsert模式</span><br></pre></td></tr></table></figure>
+
+</li>
+</ul>
+<h1 id="删除文档"><a href="#删除文档" class="headerlink" title="删除文档"></a>删除文档</h1><ul>
+<li><p>删除单个文档或一组文档</p>
+<blockquote>
+<p>es只是标记为删除，只是不会出现在搜索结果中，稍后es通过异步的方式彻底地从索引中移除</p>
+<p>删除文档可能的问题是，删除文档后，再通过更新添加文档，为了防止这一问题的发生，通过index.gc_deletes设置删除文档的保留时间</p>
+</blockquote>
+</li>
+<li><p>删除整个索引</p>
+<blockquote>
+<p>性能更好，主要工作就是移除和那个索引相关的文件</p>
+<p>文件只是被标记为已删除，在分段进行合并时，才被真正删除</p>
+<p>合并是指将多个lucene小分段组合为一个更大的分段的过程</p>
+</blockquote>
+</li>
+<li><p>关闭索引</p>
+<blockquote>
+<p>关闭的索引不允许读取或者写入操作，数据也不会加载到内存，还是会保留到磁盘上，只需要打开索引即可恢复</p>
+</blockquote>
+</li>
+<li><p>删除类型</p>
+<blockquote>
+<p>类型名称只是文档中的另一个字段。</p>
+<p>索引中的所有文档，无论它们属于哪个映射类型，都存放在同一分片中。</p>
+<p>es只能查询属于那个类型的文档，然后删除它们</p>
+<p>因此，删除类型通常要耗费更长的时间和更多的资源</p>
+</blockquote>
+</li>
+</ul>
+<h1 id="分段与合并"><a href="#分段与合并" class="headerlink" title="分段与合并"></a>分段与合并</h1><p>分段就是建立索引的时候所创建的一块lucene索引（es成为分片）。</p>
 
     </div>
 
@@ -389,6 +427,10 @@
             <span class="post-nav-divider"></span>
 
             <div class="post-nav-prev post-nav-item">
+              
+                <a href="/2020/07/13/数据库/图数据库概览/" rel="prev" title="图数据库概览">
+                  图数据库概览 <i class="fa fa-chevron-right"></i>
+                </a>
               
             </div>
           </div>
@@ -434,7 +476,7 @@
 
       <!--noindex-->
       <div class="post-toc-wrap sidebar-panel">
-          <div class="post-toc motion-element"><ol class="nav"><li class="nav-item nav-level-1"><a class="nav-link" href="#映射操作"><span class="nav-number">1.</span> <span class="nav-text">映射操作</span></a></li><li class="nav-item nav-level-1"><a class="nav-link" href="#字段类型"><span class="nav-number">2.</span> <span class="nav-text">字段类型</span></a><ol class="nav-child"><li class="nav-item nav-level-2"><a class="nav-link" href="#核心类型"><span class="nav-number">2.1.</span> <span class="nav-text">核心类型</span></a></li><li class="nav-item nav-level-2"><a class="nav-link" href="#预定义字段"><span class="nav-number">2.2.</span> <span class="nav-text">预定义字段</span></a></li></ol></li><li class="nav-item nav-level-1"><a class="nav-link" href="#更新现有文档"><span class="nav-number">3.</span> <span class="nav-text">更新现有文档</span></a></li></ol></div>
+          <div class="post-toc motion-element"><ol class="nav"><li class="nav-item nav-level-1"><a class="nav-link" href="#映射操作"><span class="nav-number">1.</span> <span class="nav-text">映射操作</span></a></li><li class="nav-item nav-level-1"><a class="nav-link" href="#字段类型"><span class="nav-number">2.</span> <span class="nav-text">字段类型</span></a><ol class="nav-child"><li class="nav-item nav-level-2"><a class="nav-link" href="#核心类型"><span class="nav-number">2.1.</span> <span class="nav-text">核心类型</span></a></li><li class="nav-item nav-level-2"><a class="nav-link" href="#预定义字段"><span class="nav-number">2.2.</span> <span class="nav-text">预定义字段</span></a></li></ol></li><li class="nav-item nav-level-1"><a class="nav-link" href="#更新现有文档"><span class="nav-number">3.</span> <span class="nav-text">更新现有文档</span></a></li><li class="nav-item nav-level-1"><a class="nav-link" href="#删除文档"><span class="nav-number">4.</span> <span class="nav-text">删除文档</span></a></li><li class="nav-item nav-level-1"><a class="nav-link" href="#分段与合并"><span class="nav-number">5.</span> <span class="nav-text">分段与合并</span></a></li></ol></div>
         
       </div>
       <!--/noindex-->
@@ -450,7 +492,7 @@
         
           <a href="/archives/">
         
-          <span class="site-state-item-count">25</span>
+          <span class="site-state-item-count">29</span>
           <span class="site-state-item-name">日志</span>
         </a>
       </div>
@@ -463,7 +505,7 @@
             <a href="/categories/">
           
         
-        <span class="site-state-item-count">7</span>
+        <span class="site-state-item-count">9</span>
         <span class="site-state-item-name">分类</span>
         </a>
       </div>
