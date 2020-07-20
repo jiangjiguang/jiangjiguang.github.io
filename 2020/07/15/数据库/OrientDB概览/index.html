@@ -62,7 +62,7 @@
 <meta property="og:site_name" content="角落之外">
 <meta property="og:description" content="概览 OrientDB 是一款 NoSQL 数据库。是一种文档-图数据库。既具有文档数据库的特性，又具有图数据库的功能。  端口  2424  OrientDB 监听 二进制 访问的的端口 （即：通过程序访问） 2480  OrientDB 监听 HTTP 访问的端口。（即通过web）存储模式    存储模式 Graph 图模式  顶点 边缘   Document 文档模式  类或集群 文档 文档">
 <meta property="og:locale" content="zh-CN">
-<meta property="og:updated_time" content="2020-07-15T06:13:23.533Z">
+<meta property="og:updated_time" content="2020-07-15T07:56:54.510Z">
 <meta name="twitter:card" content="summary">
 <meta name="twitter:title" content="OrientDB学习笔记">
 <meta name="twitter:description" content="概览 OrientDB 是一款 NoSQL 数据库。是一种文档-图数据库。既具有文档数据库的特性，又具有图数据库的功能。  端口  2424  OrientDB 监听 二进制 访问的的端口 （即：通过程序访问） 2480  OrientDB 监听 HTTP 访问的端口。（即通过web）存储模式    存储模式 Graph 图模式  顶点 边缘   Document 文档模式  类或集群 文档 文档">
@@ -263,7 +263,7 @@
                 
               
 
-              <time title="创建时间：2020-07-15 09:54:53 / 修改时间：14:13:23" itemprop="dateCreated datePublished" datetime="2020-07-15T09:54:53+08:00">2020-07-15</time>
+              <time title="创建时间：2020-07-15 09:54:53 / 修改时间：15:56:54" itemprop="dateCreated datePublished" datetime="2020-07-15T09:54:53+08:00">2020-07-15</time>
             </span>
           
             
@@ -433,8 +433,11 @@
 <li>OrientDB中所有的Edges都是双向的</li>
 </ul>
 <h1 id="使用"><a href="#使用" class="headerlink" title="使用"></a>使用</h1><h2 id="Tutorial-Clusters"><a href="#Tutorial-Clusters" class="headerlink" title="Tutorial-Clusters"></a>Tutorial-Clusters</h2><p>参考文档：<a href="http://www.orientdb.com/docs/last/gettingstarted/Tutorial-Clusters.md" target="_blank" rel="noopener">Tutorial-Clusters</a></p>
+<h1 id="集群模式安装"><a href="#集群模式安装" class="headerlink" title="集群模式安装"></a>集群模式安装</h1><p>##</p>
 <h1 id="参考文档"><a href="#参考文档" class="headerlink" title="参考文档"></a>参考文档</h1><p><a href="http://www.orientdb.com/docs/last/datamodeling/Concepts.html" target="_blank" rel="noopener">官网</a></p>
 <p><a href="https://www.cnblogs.com/jijizhazha/p/6656049.html" target="_blank" rel="noopener">orientdb 学习</a></p>
+<p><a href="https://www.howtoing.com/how-to-configure-an-orientdb-cluster-on-ubuntu-16-04" target="_blank" rel="noopener">如何在Ubuntu 16.04上配置OrientDB群集</a></p>
+<p><a href="https://orientdb.org/docs/3.0.x/distributed/Distributed-Architecture.html" target="_blank" rel="noopener">Distributed Architecture</a></p>
 
     </div>
 
@@ -460,6 +463,10 @@
             <span class="post-nav-divider"></span>
 
             <div class="post-nav-prev post-nav-item">
+              
+                <a href="/2020/07/15/运维/salt实践/" rel="prev" title="salt实践">
+                  salt实践 <i class="fa fa-chevron-right"></i>
+                </a>
               
             </div>
           </div>
@@ -505,7 +512,7 @@
 
       <!--noindex-->
       <div class="post-toc-wrap sidebar-panel">
-          <div class="post-toc motion-element"><ol class="nav"><li class="nav-item nav-level-1"><a class="nav-link" href="#概览"><span class="nav-number">1.</span> <span class="nav-text">概览</span></a><ol class="nav-child"><li class="nav-item nav-level-2"><a class="nav-link" href="#存储模式"><span class="nav-number">1.1.</span> <span class="nav-text">存储模式</span></a></li></ol></li><li class="nav-item nav-level-1"><a class="nav-link" href="#基本概念"><span class="nav-number">2.</span> <span class="nav-text">基本概念</span></a><ol class="nav-child"><li class="nav-item nav-level-2"><a class="nav-link" href="#记录（Record）"><span class="nav-number">2.1.</span> <span class="nav-text">记录（Record）</span></a><ol class="nav-child"><li class="nav-item nav-level-3"><a class="nav-link" href="#顶点（Vertex）"><span class="nav-number">2.1.1.</span> <span class="nav-text">顶点（Vertex）</span></a></li><li class="nav-item nav-level-3"><a class="nav-link" href="#边（Edge）"><span class="nav-number">2.1.2.</span> <span class="nav-text">边（Edge）</span></a></li></ol></li><li class="nav-item nav-level-2"><a class="nav-link" href="#Record-ID"><span class="nav-number">2.2.</span> <span class="nav-text">Record ID</span></a></li><li class="nav-item nav-level-2"><a class="nav-link" href="#Record-Version"><span class="nav-number">2.3.</span> <span class="nav-text">Record Version</span></a><ol class="nav-child"><li class="nav-item nav-level-3"><a class="nav-link" href="#Abstract-Class"><span class="nav-number">2.3.1.</span> <span class="nav-text">Abstract Class</span></a></li></ol></li><li class="nav-item nav-level-2"><a class="nav-link" href="#Cluster"><span class="nav-number">2.4.</span> <span class="nav-text">Cluster</span></a></li><li class="nav-item nav-level-2"><a class="nav-link" href="#Materialized-View"><span class="nav-number">2.5.</span> <span class="nav-text">Materialized View</span></a><ol class="nav-child"><li class="nav-item nav-level-3"><a class="nav-link" href="#Embedded-Relationships"><span class="nav-number">2.5.1.</span> <span class="nav-text">Embedded Relationships</span></a></li><li class="nav-item nav-level-3"><a class="nav-link" href="#Inverse-Relationships"><span class="nav-number">2.5.2.</span> <span class="nav-text">Inverse Relationships</span></a></li></ol></li></ol></li><li class="nav-item nav-level-1"><a class="nav-link" href="#使用"><span class="nav-number">3.</span> <span class="nav-text">使用</span></a><ol class="nav-child"><li class="nav-item nav-level-2"><a class="nav-link" href="#Tutorial-Clusters"><span class="nav-number">3.1.</span> <span class="nav-text">Tutorial-Clusters</span></a></li></ol></li><li class="nav-item nav-level-1"><a class="nav-link" href="#参考文档"><span class="nav-number">4.</span> <span class="nav-text">参考文档</span></a></li></ol></div>
+          <div class="post-toc motion-element"><ol class="nav"><li class="nav-item nav-level-1"><a class="nav-link" href="#概览"><span class="nav-number">1.</span> <span class="nav-text">概览</span></a><ol class="nav-child"><li class="nav-item nav-level-2"><a class="nav-link" href="#存储模式"><span class="nav-number">1.1.</span> <span class="nav-text">存储模式</span></a></li></ol></li><li class="nav-item nav-level-1"><a class="nav-link" href="#基本概念"><span class="nav-number">2.</span> <span class="nav-text">基本概念</span></a><ol class="nav-child"><li class="nav-item nav-level-2"><a class="nav-link" href="#记录（Record）"><span class="nav-number">2.1.</span> <span class="nav-text">记录（Record）</span></a><ol class="nav-child"><li class="nav-item nav-level-3"><a class="nav-link" href="#顶点（Vertex）"><span class="nav-number">2.1.1.</span> <span class="nav-text">顶点（Vertex）</span></a></li><li class="nav-item nav-level-3"><a class="nav-link" href="#边（Edge）"><span class="nav-number">2.1.2.</span> <span class="nav-text">边（Edge）</span></a></li></ol></li><li class="nav-item nav-level-2"><a class="nav-link" href="#Record-ID"><span class="nav-number">2.2.</span> <span class="nav-text">Record ID</span></a></li><li class="nav-item nav-level-2"><a class="nav-link" href="#Record-Version"><span class="nav-number">2.3.</span> <span class="nav-text">Record Version</span></a><ol class="nav-child"><li class="nav-item nav-level-3"><a class="nav-link" href="#Abstract-Class"><span class="nav-number">2.3.1.</span> <span class="nav-text">Abstract Class</span></a></li></ol></li><li class="nav-item nav-level-2"><a class="nav-link" href="#Cluster"><span class="nav-number">2.4.</span> <span class="nav-text">Cluster</span></a></li><li class="nav-item nav-level-2"><a class="nav-link" href="#Materialized-View"><span class="nav-number">2.5.</span> <span class="nav-text">Materialized View</span></a><ol class="nav-child"><li class="nav-item nav-level-3"><a class="nav-link" href="#Embedded-Relationships"><span class="nav-number">2.5.1.</span> <span class="nav-text">Embedded Relationships</span></a></li><li class="nav-item nav-level-3"><a class="nav-link" href="#Inverse-Relationships"><span class="nav-number">2.5.2.</span> <span class="nav-text">Inverse Relationships</span></a></li></ol></li></ol></li><li class="nav-item nav-level-1"><a class="nav-link" href="#使用"><span class="nav-number">3.</span> <span class="nav-text">使用</span></a><ol class="nav-child"><li class="nav-item nav-level-2"><a class="nav-link" href="#Tutorial-Clusters"><span class="nav-number">3.1.</span> <span class="nav-text">Tutorial-Clusters</span></a></li></ol></li><li class="nav-item nav-level-1"><a class="nav-link" href="#集群模式安装"><span class="nav-number">4.</span> <span class="nav-text">集群模式安装</span></a></li><li class="nav-item nav-level-1"><a class="nav-link" href="#参考文档"><span class="nav-number">5.</span> <span class="nav-text">参考文档</span></a></li></ol></div>
         
       </div>
       <!--/noindex-->
@@ -521,7 +528,7 @@
         
           <a href="/archives/">
         
-          <span class="site-state-item-count">29</span>
+          <span class="site-state-item-count">32</span>
           <span class="site-state-item-name">日志</span>
         </a>
       </div>
@@ -534,7 +541,7 @@
             <a href="/categories/">
           
         
-        <span class="site-state-item-count">9</span>
+        <span class="site-state-item-count">10</span>
         <span class="site-state-item-name">分类</span>
         </a>
       </div>
