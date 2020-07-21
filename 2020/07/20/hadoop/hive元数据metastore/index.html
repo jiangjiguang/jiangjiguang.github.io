@@ -55,14 +55,18 @@
   };
 </script>
 
-  <meta property="og:type" content="website">
-<meta property="og:title" content="角落之外">
-<meta property="og:url" content="http://yoursite.com/archives/index.html">
+  <meta name="description" content="Hive数据模型Hive中的所有数据都存储在HDFS中，包含以下数据模型：  Table  一个表就是hdfs中的一个目录   Partition  表内的一个分区就是表的一个子目录   Bucket  如果有分区，那么桶就是分区下的一个单位，如果表内没有分区，那么桶直接就是表下的单位，桶一般是文件的形式   External Table  Hive 创建内部表时，会将数据移动到数据仓库指向的路径">
+<meta property="og:type" content="article">
+<meta property="og:title" content="hive元数据metastore">
+<meta property="og:url" content="http://yoursite.com/2020/07/20/hadoop/hive元数据metastore/index.html">
 <meta property="og:site_name" content="角落之外">
+<meta property="og:description" content="Hive数据模型Hive中的所有数据都存储在HDFS中，包含以下数据模型：  Table  一个表就是hdfs中的一个目录   Partition  表内的一个分区就是表的一个子目录   Bucket  如果有分区，那么桶就是分区下的一个单位，如果表内没有分区，那么桶直接就是表下的单位，桶一般是文件的形式   External Table  Hive 创建内部表时，会将数据移动到数据仓库指向的路径">
 <meta property="og:locale" content="zh-CN">
+<meta property="og:updated_time" content="2020-07-20T12:31:33.423Z">
 <meta name="twitter:card" content="summary">
-<meta name="twitter:title" content="角落之外">
-  <link rel="canonical" href="http://yoursite.com/archives/">
+<meta name="twitter:title" content="hive元数据metastore">
+<meta name="twitter:description" content="Hive数据模型Hive中的所有数据都存储在HDFS中，包含以下数据模型：  Table  一个表就是hdfs中的一个目录   Partition  表内的一个分区就是表的一个子目录   Bucket  如果有分区，那么桶就是分区下的一个单位，如果表内没有分区，那么桶直接就是表下的单位，桶一般是文件的形式   External Table  Hive 创建内部表时，会将数据移动到数据仓库指向的路径">
+  <link rel="canonical" href="http://yoursite.com/2020/07/20/hadoop/hive元数据metastore/">
 
 
 <script id="page-configurations">
@@ -70,13 +74,13 @@
   CONFIG.page = {
     sidebar: "",
     isHome: false,
-    isPost: false,
+    isPost: true,
     isPage: false,
-    isArchive: true
+    isArchive: false
   };
 </script>
 
-  <title>归档 | 角落之外</title>
+  <title>hive元数据metastore | 角落之外</title>
   
 
 
@@ -206,21 +210,6 @@
 
     
 
-  
-    
-    
-  
-    
-    
-  
-    
-    
-  
-    
-    
-  
-  
-
 </nav>
 </div>
     </header>
@@ -238,329 +227,157 @@
           <div class="content">
             
 
-  
-  
-  
-  <div class="post-block">
-    <div class="posts-collapse">
-      <div class="collection-title">
-        
-        
-         
-        
-        <span class="collection-header">还行! 目前共计 34 篇日志。 继续努力。</span>
-      </div>
+  <div class="posts-expand">
       
+  
+  
+  <article itemscope itemtype="http://schema.org/Article" class="post-block " lang="zh-CN">
+    <link itemprop="mainEntityOfPage" href="http://yoursite.com/2020/07/20/hadoop/hive元数据metastore/">
 
-      
+    <span hidden itemprop="author" itemscope itemtype="http://schema.org/Person">
+      <meta itemprop="name" content="姜纪光">
+      <meta itemprop="description" content="">
+      <meta itemprop="image" content="/images/avatar.gif">
+    </span>
 
+    <span hidden itemprop="publisher" itemscope itemtype="http://schema.org/Organization">
+      <meta itemprop="name" content="角落之外">
+    </span>
+      <header class="post-header">
+        <h1 class="post-title" itemprop="name headline">
+          
+            hive元数据metastore
+            
+
+          
+        </h1>
+
+        <div class="post-meta">
+            <span class="post-meta-item">
+              <span class="post-meta-item-icon">
+                <i class="fa fa-calendar-o"></i>
+              </span>
+              <span class="post-meta-item-text">发表于</span>
+
+              
+                
+              
+
+              <time title="创建时间：2020-07-20 17:43:21 / 修改时间：20:31:33" itemprop="dateCreated datePublished" datetime="2020-07-20T17:43:21+08:00">2020-07-20</time>
+            </span>
+          
+            
+
+            
+          
+            <span class="post-meta-item">
+              <span class="post-meta-item-icon">
+                <i class="fa fa-folder-o"></i>
+              </span>
+              <span class="post-meta-item-text">分类于</span>
+              
+                <span itemprop="about" itemscope itemtype="http://schema.org/Thing">
+                  <a href="/categories/hadoop/" itemprop="url" rel="index">
+                    <span itemprop="name">hadoop</span>
+                  </a>
+                </span>
+
+                
+                
+              
+            </span>
+          
+
+          
+            <span id="/2020/07/20/hadoop/hive元数据metastore/" class="post-meta-item leancloud_visitors" data-flag-title="hive元数据metastore" title="阅读次数">
+              <span class="post-meta-item-icon">
+                <i class="fa fa-eye"></i>
+              </span>
+              <span class="post-meta-item-text">阅读次数：</span>
+              <span class="leancloud-visitors-count"></span>
+            </span>
+          
   
   
 
-  
+        </div>
+      </header>
+
     
-    <div class="collection-year">
-      <h1 class="collection-header">2020</h1>
-    </div>
-  
-
-  <article itemscope itemtype="http://schema.org/Article">
-    <header class="post-header">
-
-      <div class="post-meta">
-        <time itemprop="dateCreated"
-              datetime="2020-07-20T17:43:21+08:00"
-              content="2020-07-20">
-          07-20
-        </time>
-      </div>
-
-      <h2 class="post-title">
-        
-          <a class="post-title-link" href="/2020/07/20/hadoop/hive元数据metastore/" itemprop="url">
-            <span itemprop="name">hive元数据metastore</span>
-          </a>
-        
-      </h2>
-
-    </header>
-  </article>
-
-
-
-  
-  
-
-  
-
-  <article itemscope itemtype="http://schema.org/Article">
-    <header class="post-header">
-
-      <div class="post-meta">
-        <time itemprop="dateCreated"
-              datetime="2020-07-20T11:33:38+08:00"
-              content="2020-07-20">
-          07-20
-        </time>
-      </div>
-
-      <h2 class="post-title">
-        
-          <a class="post-title-link" href="/2020/07/20/运维/github使用/" itemprop="url">
-            <span itemprop="name">github使用</span>
-          </a>
-        
-      </h2>
-
-    </header>
-  </article>
-
-
-
-  
-  
-
-  
-
-  <article itemscope itemtype="http://schema.org/Article">
-    <header class="post-header">
-
-      <div class="post-meta">
-        <time itemprop="dateCreated"
-              datetime="2020-07-20T09:10:54+08:00"
-              content="2020-07-20">
-          07-20
-        </time>
-      </div>
-
-      <h2 class="post-title">
-        
-          <a class="post-title-link" href="/2020/07/20/flink/flink为什么不能使用prometheus-pushgateway/" itemprop="url">
-            <span itemprop="name">flink为什么不能使用prometheus pushgateway</span>
-          </a>
-        
-      </h2>
-
-    </header>
-  </article>
-
-
-
-  
-  
-
-  
-
-  <article itemscope itemtype="http://schema.org/Article">
-    <header class="post-header">
-
-      <div class="post-meta">
-        <time itemprop="dateCreated"
-              datetime="2020-07-15T15:25:06+08:00"
-              content="2020-07-15">
-          07-15
-        </time>
-      </div>
-
-      <h2 class="post-title">
-        
-          <a class="post-title-link" href="/2020/07/15/linux/salt实践-SSH免密码登录/" itemprop="url">
-            <span itemprop="name">salt实践-SSH免密码登录</span>
-          </a>
-        
-      </h2>
-
-    </header>
-  </article>
-
-
-
-  
-  
-
-  
-
-  <article itemscope itemtype="http://schema.org/Article">
-    <header class="post-header">
-
-      <div class="post-meta">
-        <time itemprop="dateCreated"
-              datetime="2020-07-15T15:10:59+08:00"
-              content="2020-07-15">
-          07-15
-        </time>
-      </div>
-
-      <h2 class="post-title">
-        
-          <a class="post-title-link" href="/2020/07/15/运维/salt实践/" itemprop="url">
-            <span itemprop="name">salt实践</span>
-          </a>
-        
-      </h2>
-
-    </header>
-  </article>
-
-
-
-  
-  
-
-  
-
-  <article itemscope itemtype="http://schema.org/Article">
-    <header class="post-header">
-
-      <div class="post-meta">
-        <time itemprop="dateCreated"
-              datetime="2020-07-15T09:54:53+08:00"
-              content="2020-07-15">
-          07-15
-        </time>
-      </div>
-
-      <h2 class="post-title">
-        
-          <a class="post-title-link" href="/2020/07/15/数据库/OrientDB概览/" itemprop="url">
-            <span itemprop="name">OrientDB学习笔记</span>
-          </a>
-        
-      </h2>
-
-    </header>
-  </article>
-
-
-
-  
-  
-
-  
-
-  <article itemscope itemtype="http://schema.org/Article">
-    <header class="post-header">
-
-      <div class="post-meta">
-        <time itemprop="dateCreated"
-              datetime="2020-07-13T18:53:49+08:00"
-              content="2020-07-13">
-          07-13
-        </time>
-      </div>
-
-      <h2 class="post-title">
-        
-          <a class="post-title-link" href="/2020/07/13/数据库/Neo4j学习笔记/" itemprop="url">
-            <span itemprop="name">Neo4j学习笔记</span>
-          </a>
-        
-      </h2>
-
-    </header>
-  </article>
-
-
-
-  
-  
-
-  
-
-  <article itemscope itemtype="http://schema.org/Article">
-    <header class="post-header">
-
-      <div class="post-meta">
-        <time itemprop="dateCreated"
-              datetime="2020-07-13T14:25:33+08:00"
-              content="2020-07-13">
-          07-13
-        </time>
-      </div>
-
-      <h2 class="post-title">
-        
-          <a class="post-title-link" href="/2020/07/13/es/搜索数据/" itemprop="url">
-            <span itemprop="name">搜索数据</span>
-          </a>
-        
-      </h2>
-
-    </header>
-  </article>
-
-
-
-  
-  
-
-  
-
-  <article itemscope itemtype="http://schema.org/Article">
-    <header class="post-header">
-
-      <div class="post-meta">
-        <time itemprop="dateCreated"
-              datetime="2020-07-13T14:24:32+08:00"
-              content="2020-07-13">
-          07-13
-        </time>
-      </div>
-
-      <h2 class="post-title">
-        
-          <a class="post-title-link" href="/2020/07/13/数据库/图数据库概览/" itemprop="url">
-            <span itemprop="name">图数据库概览</span>
-          </a>
-        
-      </h2>
-
-    </header>
-  </article>
-
-
-
-  
-  
-
-  
-
-  <article itemscope itemtype="http://schema.org/Article">
-    <header class="post-header">
-
-      <div class="post-meta">
-        <time itemprop="dateCreated"
-              datetime="2020-07-13T09:13:46+08:00"
-              content="2020-07-13">
-          07-13
-        </time>
-      </div>
-
-      <h2 class="post-title">
-        
-          <a class="post-title-link" href="/2020/07/13/es/映射/" itemprop="url">
-            <span itemprop="name">映射</span>
-          </a>
-        
-      </h2>
-
-    </header>
-  </article>
-
-
-
+    
+    
+    <div class="post-body" itemprop="articleBody">
+
+      
+        <h1 id="Hive数据模型"><a href="#Hive数据模型" class="headerlink" title="Hive数据模型"></a>Hive数据模型</h1><p>Hive中的所有数据都存储在HDFS中，包含以下数据模型：</p>
+<ul>
+<li><p>Table</p>
+<blockquote>
+<p>一个表就是hdfs中的一个目录</p>
+</blockquote>
+</li>
+<li><p>Partition</p>
+<blockquote>
+<p>表内的一个分区就是表的一个子目录</p>
+</blockquote>
+</li>
+<li><p>Bucket</p>
+<blockquote>
+<p>如果有分区，那么桶就是分区下的一个单位，如果表内没有分区，那么桶直接就是表下的单位，桶一般是文件的形式</p>
+</blockquote>
+</li>
+<li><p>External Table</p>
+<blockquote>
+<p>Hive 创建内部表时，会将数据移动到数据仓库指向的路径</p>
+</blockquote>
+</li>
+</ul>
+<h1 id="元数据表结构"><a href="#元数据表结构" class="headerlink" title="元数据表结构"></a>元数据表结构</h1><h2 id="VERSION"><a href="#VERSION" class="headerlink" title="VERSION"></a>VERSION</h2><p>存储Hive版本的元数据表，该表比较简单，但是很重要。如果该表出现问题，根本进入不了Hive-Cli。比如该表不存在，当启动Hive-Cli时候，就会报错”Table ‘hive.version’ doesn’t exist”。</p>
+<h2 id="DBS"><a href="#DBS" class="headerlink" title="DBS"></a>DBS</h2><p>该表存储Hive中所有数据库的基本信息。</p>
+<h2 id="DATABASE-PARAMS"><a href="#DATABASE-PARAMS" class="headerlink" title="DATABASE_PARAMS"></a>DATABASE_PARAMS</h2><p>该表存储数据库的相关参数，</p>
+<p>在CREATE DATABASE时候用WITH DBPROPERTIES(property_name=property_value, …)指定的参数</p>
+<h2 id="TBLS"><a href="#TBLS" class="headerlink" title="TBLS"></a>TBLS</h2><p>该表中存储Hive表，视图，索引表的基本信息</p>
+<h1 id="参考文档"><a href="#参考文档" class="headerlink" title="参考文档"></a>参考文档</h1><p><a href="https://mp.weixin.qq.com/s?__biz=MzA3ODUxMzQxMA==&mid=2663993556&idx=1&sn=0e5291bd63426d747f32a7fd05128caa&scene=21#wechat_redirect" target="_blank" rel="noopener">Hive元数据表结构详解</a></p>
+<p><a href="https://www.cnblogs.com/bonelee/p/12441622.html" target="_blank" rel="noopener">Hive基本架构和原理</a></p>
+<p><a href="https://blog.csdn.net/qq_40990732/article/details/80914873" target="_blank" rel="noopener">Hive Metastore原理及配置</a></p>
+<p><a href="https://cloud.tencent.com/developer/news/362488" target="_blank" rel="noopener">Hive架构和工作原理</a></p>
 
     </div>
+
+    
+    
+    
+        
+      
+
+      <footer class="post-footer">
+
+        
+
+          <div class="post-nav">
+            <div class="post-nav-next post-nav-item">
+              
+                <a href="/2020/07/20/运维/github使用/" rel="next" title="github使用">
+                  <i class="fa fa-chevron-left"></i> github使用
+                </a>
+              
+            </div>
+
+            <span class="post-nav-divider"></span>
+
+            <div class="post-nav-prev post-nav-item">
+              
+            </div>
+          </div>
+        
+      </footer>
+    
+  </article>
+  
+  
+  
+
   </div>
-  
-  
-  
-
-  
-  <nav class="pagination">
-    <span class="page-number current">1</span><a class="page-number" href="/archives/page/2/">2</a><span class="space">&hellip;</span><a class="page-number" href="/archives/page/4/">4</a><a class="extend next" rel="next" href="/archives/page/2/"><i class="fa fa-angle-right" aria-label="下一页"></i></a>
-  </nav>
-
 
 
           </div>
@@ -577,6 +394,11 @@
 
   <aside class="sidebar">
     <div class="sidebar-inner">
+        
+        
+        
+        
+      
 
       <ul class="sidebar-nav motion-element">
         <li class="sidebar-nav-toc">
@@ -589,6 +411,8 @@
 
       <!--noindex-->
       <div class="post-toc-wrap sidebar-panel">
+          <div class="post-toc motion-element"><ol class="nav"><li class="nav-item nav-level-1"><a class="nav-link" href="#Hive数据模型"><span class="nav-number">1.</span> <span class="nav-text">Hive数据模型</span></a></li><li class="nav-item nav-level-1"><a class="nav-link" href="#元数据表结构"><span class="nav-number">2.</span> <span class="nav-text">元数据表结构</span></a><ol class="nav-child"><li class="nav-item nav-level-2"><a class="nav-link" href="#VERSION"><span class="nav-number">2.1.</span> <span class="nav-text">VERSION</span></a></li><li class="nav-item nav-level-2"><a class="nav-link" href="#DBS"><span class="nav-number">2.2.</span> <span class="nav-text">DBS</span></a></li><li class="nav-item nav-level-2"><a class="nav-link" href="#DATABASE-PARAMS"><span class="nav-number">2.3.</span> <span class="nav-text">DATABASE_PARAMS</span></a></li><li class="nav-item nav-level-2"><a class="nav-link" href="#TBLS"><span class="nav-number">2.4.</span> <span class="nav-text">TBLS</span></a></li></ol></li><li class="nav-item nav-level-1"><a class="nav-link" href="#参考文档"><span class="nav-number">3.</span> <span class="nav-text">参考文档</span></a></li></ol></div>
+        
       </div>
       <!--/noindex-->
 
