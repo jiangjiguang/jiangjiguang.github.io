@@ -55,17 +55,17 @@
   };
 </script>
 
-  <meta name="description" content="参考文档如何用好 github 中的 watch、star、fork 如何正确接收 GitHub 的消息邮件">
+  <meta name="description" content="Pull Request  是一种代码合作开发方式，将修改过得代码合并到主干的一种流程。这个过程中，还可以进行讨论、审核和修改代码。  fork是指克隆别人的代码到自己的仓库 Base 是你希望提交变更的目标 Head 是目前包含你的变更的那个分支或仓库  fork其它项目后，同步更新别人的提交图文操作 打开自己的仓库，进入code下面 点击new pull request base fork是指">
 <meta property="og:type" content="article">
 <meta property="og:title" content="github使用">
 <meta property="og:url" content="http://yoursite.com/2020/07/20/运维/github使用/index.html">
 <meta property="og:site_name" content="角落之外">
-<meta property="og:description" content="参考文档如何用好 github 中的 watch、star、fork 如何正确接收 GitHub 的消息邮件">
+<meta property="og:description" content="Pull Request  是一种代码合作开发方式，将修改过得代码合并到主干的一种流程。这个过程中，还可以进行讨论、审核和修改代码。  fork是指克隆别人的代码到自己的仓库 Base 是你希望提交变更的目标 Head 是目前包含你的变更的那个分支或仓库  fork其它项目后，同步更新别人的提交图文操作 打开自己的仓库，进入code下面 点击new pull request base fork是指">
 <meta property="og:locale" content="zh-CN">
-<meta property="og:updated_time" content="2020-07-20T03:54:14.977Z">
+<meta property="og:updated_time" content="2020-07-21T06:08:12.792Z">
 <meta name="twitter:card" content="summary">
 <meta name="twitter:title" content="github使用">
-<meta name="twitter:description" content="参考文档如何用好 github 中的 watch、star、fork 如何正确接收 GitHub 的消息邮件">
+<meta name="twitter:description" content="Pull Request  是一种代码合作开发方式，将修改过得代码合并到主干的一种流程。这个过程中，还可以进行讨论、审核和修改代码。  fork是指克隆别人的代码到自己的仓库 Base 是你希望提交变更的目标 Head 是目前包含你的变更的那个分支或仓库  fork其它项目后，同步更新别人的提交图文操作 打开自己的仓库，进入code下面 点击new pull request base fork是指">
   <link rel="canonical" href="http://yoursite.com/2020/07/20/运维/github使用/">
 
 
@@ -263,11 +263,19 @@
                 
               
 
-              <time title="创建时间：2020-07-20 11:33:38 / 修改时间：11:54:14" itemprop="dateCreated datePublished" datetime="2020-07-20T11:33:38+08:00">2020-07-20</time>
+              <time title="创建时间：2020-07-20 11:33:38" itemprop="dateCreated datePublished" datetime="2020-07-20T11:33:38+08:00">2020-07-20</time>
             </span>
           
             
 
+            
+              <span class="post-meta-item">
+                <span class="post-meta-item-icon">
+                  <i class="fa fa-calendar-check-o"></i>
+                </span>
+                <span class="post-meta-item-text">更新于</span>
+                <time title="修改时间：2020-07-21 14:08:12" itemprop="dateModified" datetime="2020-07-21T14:08:12+08:00">2020-07-21</time>
+              </span>
             
           
             <span class="post-meta-item">
@@ -309,8 +317,27 @@
     <div class="post-body" itemprop="articleBody">
 
       
-        <h1 id="参考文档"><a href="#参考文档" class="headerlink" title="参考文档"></a>参考文档</h1><p><a href="https://www.jianshu.com/p/6c366b53ea41" target="_blank" rel="noopener">如何用好 github 中的 watch、star、fork</a></p>
+        <h2 id="Pull-Request"><a href="#Pull-Request" class="headerlink" title="Pull Request"></a>Pull Request</h2><p>  是一种代码合作开发方式，将修改过得代码合并到主干的一种流程。这个过程中，还可以进行讨论、审核和修改代码。</p>
+<ul>
+<li>fork是指克隆别人的代码到自己的仓库</li>
+<li>Base 是你希望提交变更的目标</li>
+<li>Head 是目前包含你的变更的那个分支或仓库</li>
+</ul>
+<h1 id="fork其它项目后，同步更新别人的提交"><a href="#fork其它项目后，同步更新别人的提交" class="headerlink" title="fork其它项目后，同步更新别人的提交"></a>fork其它项目后，同步更新别人的提交</h1><h2 id="图文操作"><a href="#图文操作" class="headerlink" title="图文操作"></a>图文操作</h2><ul>
+<li>打开自己的仓库，进入code下面</li>
+<li>点击new pull request</li>
+<li>base fork是指变更的目标</li>
+<li>head fork是指变更的来源</li>
+<li>点击Merge pull request 合并从源fork来的代码。</li>
+</ul>
+<h1 id="命令操作"><a href="#命令操作" class="headerlink" title="命令操作"></a>命令操作</h1><figure class="highlight shell"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br><span class="line">3</span><br><span class="line">4</span><br><span class="line">5</span><br><span class="line">6</span><br><span class="line">7</span><br><span class="line">8</span><br><span class="line">9</span><br><span class="line">10</span><br><span class="line">11</span><br><span class="line">12</span><br><span class="line">13</span><br><span class="line">14</span><br><span class="line">15</span><br></pre></td><td class="code"><pre><span class="line"><span class="meta">#</span>查看远程主机状态</span><br><span class="line"><span class="meta">$</span> git remote -v </span><br><span class="line"><span class="meta">#</span>添加远程仓库</span><br><span class="line"><span class="meta">$</span> git remote add upstream git@github.com:xxx/xxx.git</span><br><span class="line"><span class="meta">$</span> git remote -v </span><br><span class="line"><span class="meta">#</span>删除远程仓库</span><br><span class="line"><span class="meta">$</span> git remote remove upstream</span><br><span class="line"><span class="meta">#</span>从源仓库更新同步代码</span><br><span class="line"><span class="meta">$</span> git fetch upstream</span><br><span class="line"><span class="meta">#</span>合并到本地代码</span><br><span class="line"><span class="meta">$</span> git merge upstream/master</span><br><span class="line"><span class="meta">#</span>更新并合并自己远程仓库的代码</span><br><span class="line"><span class="meta">$</span> git pull origin master</span><br><span class="line"><span class="meta">#</span>向自己远程仓库推送刚才同步源仓库后的代码</span><br><span class="line"><span class="meta">$</span> git push</span><br></pre></td></tr></table></figure>
+
+<h1 id="参考文档"><a href="#参考文档" class="headerlink" title="参考文档"></a>参考文档</h1><p><a href="https://www.jianshu.com/p/6c366b53ea41" target="_blank" rel="noopener">如何用好 github 中的 watch、star、fork</a></p>
 <p><a href="https://github.com/cssmagic/blog/issues/49" target="_blank" rel="noopener">如何正确接收 GitHub 的消息邮件</a></p>
+<p><a href="https://blog.csdn.net/qq1332479771/article/details/56087333" target="_blank" rel="noopener">github上fork了别人的项目后，再同步更新别人的提交</a></p>
+<p><a href="https://zhuanlan.zhihu.com/p/34693871" target="_blank" rel="noopener">Github初级教程</a></p>
+<p><a href="https://www.cnblogs.com/lsgxeva/p/8540624.html" target="_blank" rel="noopener">Pull Request的正确打开方式（如何在GitHub上贡献开源项目</a></p>
+<p><a href="https://docs.github.com/cn/github/collaborating-with-issues-and-pull-requests/proposing-changes-to-your-work-with-pull-requests" target="_blank" rel="noopener">Github Docs</a></p>
 
     </div>
 
@@ -385,7 +412,7 @@
 
       <!--noindex-->
       <div class="post-toc-wrap sidebar-panel">
-          <div class="post-toc motion-element"><ol class="nav"><li class="nav-item nav-level-1"><a class="nav-link" href="#参考文档"><span class="nav-number">1.</span> <span class="nav-text">参考文档</span></a></li></ol></div>
+          <div class="post-toc motion-element"><ol class="nav"><li class="nav-item nav-level-2"><a class="nav-link" href="#Pull-Request"><span class="nav-number">1.</span> <span class="nav-text">Pull Request</span></a></li></ol></li><li class="nav-item nav-level-1"><a class="nav-link" href="#fork其它项目后，同步更新别人的提交"><span class="nav-number"></span> <span class="nav-text">fork其它项目后，同步更新别人的提交</span></a><ol class="nav-child"><li class="nav-item nav-level-2"><a class="nav-link" href="#图文操作"><span class="nav-number">1.</span> <span class="nav-text">图文操作</span></a></li></ol></li><li class="nav-item nav-level-1"><a class="nav-link" href="#命令操作"><span class="nav-number"></span> <span class="nav-text">命令操作</span></a></li><li class="nav-item nav-level-1"><a class="nav-link" href="#参考文档"><span class="nav-number"></span> <span class="nav-text">参考文档</span></a></div>
         
       </div>
       <!--/noindex-->
@@ -401,7 +428,7 @@
         
           <a href="/archives/">
         
-          <span class="site-state-item-count">37</span>
+          <span class="site-state-item-count">38</span>
           <span class="site-state-item-name">日志</span>
         </a>
       </div>
