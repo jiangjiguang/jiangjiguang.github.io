@@ -228,6 +228,1547 @@
   
   
   <article itemscope itemtype="http://schema.org/Article" class="post-block home" lang="zh-CN">
+    <link itemprop="mainEntityOfPage" href="http://yoursite.com/2020/06/24/hadoop/core-site最佳实践/">
+
+    <span hidden itemprop="author" itemscope itemtype="http://schema.org/Person">
+      <meta itemprop="name" content="姜纪光">
+      <meta itemprop="description" content="">
+      <meta itemprop="image" content="/images/avatar.gif">
+    </span>
+
+    <span hidden itemprop="publisher" itemscope itemtype="http://schema.org/Organization">
+      <meta itemprop="name" content="角落之外">
+    </span>
+      <header class="post-header">
+        <h1 class="post-title" itemprop="name headline">
+          
+            
+            <a href="/2020/06/24/hadoop/core-site最佳实践/" class="post-title-link" itemprop="url">core-site最佳实践</a>
+          
+        </h1>
+
+        <div class="post-meta">
+            <span class="post-meta-item">
+              <span class="post-meta-item-icon">
+                <i class="fa fa-calendar-o"></i>
+              </span>
+              <span class="post-meta-item-text">发表于</span>
+
+              
+                
+              
+
+              <time title="创建时间：2020-06-24 14:25:57" itemprop="dateCreated datePublished" datetime="2020-06-24T14:25:57+08:00">2020-06-24</time>
+            </span>
+          
+            
+
+            
+              <span class="post-meta-item">
+                <span class="post-meta-item-icon">
+                  <i class="fa fa-calendar-check-o"></i>
+                </span>
+                <span class="post-meta-item-text">更新于</span>
+                <time title="修改时间：2020-07-03 09:08:42" itemprop="dateModified" datetime="2020-07-03T09:08:42+08:00">2020-07-03</time>
+              </span>
+            
+          
+            <span class="post-meta-item">
+              <span class="post-meta-item-icon">
+                <i class="fa fa-folder-o"></i>
+              </span>
+              <span class="post-meta-item-text">分类于</span>
+              
+                <span itemprop="about" itemscope itemtype="http://schema.org/Thing">
+                  <a href="/categories/hadoop/" itemprop="url" rel="index">
+                    <span itemprop="name">hadoop</span>
+                  </a>
+                </span>
+
+                
+                
+              
+            </span>
+          
+
+          
+            <span id="/2020/06/24/hadoop/core-site最佳实践/" class="post-meta-item leancloud_visitors" data-flag-title="core-site最佳实践" title="阅读次数">
+              <span class="post-meta-item-icon">
+                <i class="fa fa-eye"></i>
+              </span>
+              <span class="post-meta-item-text">阅读次数：</span>
+              <span class="leancloud-visitors-count"></span>
+            </span>
+          
+  
+  
+
+        </div>
+      </header>
+
+    
+    
+    
+    <div class="post-body" itemprop="articleBody">
+
+      
+          <h1 id="常用参数"><a href="#常用参数" class="headerlink" title="常用参数"></a>常用参数</h1><p>说明：本文基于CDH5.16.1介绍常用的配置参数的意义以及最佳使用。</p>
+<h2 id="基础配置"><a href="#基础配置" class="headerlink" title="基础配置"></a>基础配置</h2><ul>
+<li><p>fs.defaultFS：</p>
+<blockquote>
+<p>这个属性用来指定namenode的hdfs协议的文件系统通信地址</p>
+<p>可以指定一个主机+端口，也可以指定为一个namenode服务</p>
+<p>这个服务内部可以有多台namenode实现ha的namenode服务。</p>
+<p>同时也是java代码访问的时候的路径，需要配置在java代码中要用</p>
+<p>其URL的scheme决定了文件系统的实现</p>
+<p>HA方式，这里设置服务名，例如：hdfs://mycluster1<br>HDFS的客户端访问HDFS需要此参数。</p>
+</blockquote>
+</li>
+<li><p>fs.permissions.umask-mode：</p>
+<blockquote>
+<p>创建目录和文件时用于控制权限，可以使八进制或者符号。</p>
+<p>例如”022” (octal for u=rwx,g=r-x,o=r-x in symbolic), or “u=rwx,g=rwx,o=” (symbolic for 007 in octal).</p>
+</blockquote>
+</li>
+<li><p>net.topology.script.file.name</p>
+<blockquote>
+<p>配合ScriptBasedMapping使用。脚本文件。此脚本文件，输入是ip地址，输出是机架路径。</p>
+</blockquote>
+</li>
+<li><p>hadoop.tmp.dir：</p>
+<blockquote>
+<p>其它临时目录的基础目录，此目录很重要，应该显示配置</p>
+</blockquote>
+</li>
+<li><p>hadoop.http.staticuser.user：</p>
+<blockquote>
+<p>在网页界面访问数据使用的用户名。默认值是一个不真实存在的用户，此用户权限很小，不能访问不同用户的数据。这保证了数据安全。也可以设置为hdfs和hadoop等具有较高权限的用户，但会导致能够登陆网页界面的人能看到其它用户数据。实际设置请综合考虑。如无特殊需求。使用默认值就好</p>
+</blockquote>
+</li>
+</ul>
+<h2 id="安全配置"><a href="#安全配置" class="headerlink" title="安全配置"></a>安全配置</h2><ul>
+<li><p>hadoop.security.authentication：</p>
+<blockquote>
+<p>安全验证规则，可以是simple和kerberos。simple意味着不验证。</p>
+</blockquote>
+</li>
+<li><p>hadoop.proxyuser.<proxy user>.groups</proxy></p>
+<blockquote>
+<p>配置该superUser允许代理的用户所属组</p>
+</blockquote>
+</li>
+<li><p>hadoop.proxyuser.<proxy user>.hosts</proxy></p>
+<blockquote>
+<p>配置该superUser允许通过代理访问的主机节点</p>
+<p><strong>修改后配置并不会自动更新到服务器（这与fair- scheduler.xml配置会自动更新不同）</strong></p>
+<p><strong>修改配置后需要执行以下命令进行同步，分别将信息更新到namenode和 resourcemananger上</strong></p>
+<figure class="highlight shell"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br><span class="line">3</span><br></pre></td><td class="code"><pre><span class="line"><span class="meta">&gt;</span> $ hdfs dfsadmin –refreshSuperUserGroupsConfiguration</span><br><span class="line"><span class="meta">&gt;</span> $ yarn rmadmin –refreshSuperUserGroupsConfiguration</span><br><span class="line"><span class="meta">&gt;</span></span><br></pre></td></tr></table></figure>
+</blockquote>
+</li>
+<li><p>hadoop.security.authorization：</p>
+<blockquote>
+<p>true则开启ServiceLevel Authorization，若为false则不经过任何验证，所有用户拥有全部权限，</p>
+<p><strong>修改此配置需要重启hadoop</strong></p>
+</blockquote>
+</li>
+<li><p>​</p>
+</li>
+</ul>
+<h2 id="性能优化"><a href="#性能优化" class="headerlink" title="性能优化"></a>性能优化</h2><ul>
+<li><p>fs.trash.checkpoint.interval：</p>
+<blockquote>
+<p>以分钟为单位的垃圾回收检查间隔。应该小于或等于fs.trash.interval。</p>
+<p>如果是0，值等同于fs.trash.interval。每次检查器运行，会创建新的检查点。</p>
+<p>建议设置为60（1小时）</p>
+</blockquote>
+</li>
+<li><p>fs.trash.interval：</p>
+<blockquote>
+<p>以分钟为单位的垃圾回收时间，垃圾站中数据超过此时间，会被删除。如果是0，垃圾回收机制关闭。</p>
+<p>可以配置在服务器端和客户端。如果在服务器端配置trash无效，会检查客户端配置。如果服务器端配置有效，客户端配置会忽略。</p>
+<p>建议开启，建议4320（3天）<br>垃圾回收站，如有同名文件被删除，会给文件顺序编号，例如：a.txt,a.txt(1)</p>
+</blockquote>
+</li>
+<li><p>io.file.buffer.size</p>
+<blockquote>
+<p>读写文件缓存大小。</p>
+<p> 该缓冲区的大小可能应该是硬件页面大小的倍数（在Intel x86上为4096）</p>
+</blockquote>
+</li>
+<li><p>io.compression.codecs：</p>
+<blockquote>
+<p>压缩和解压缩编码类列表，用逗号分隔。这些类是使用Java ServiceLoader加载。</p>
+</blockquote>
+</li>
+<li><p>net.topology.script.number.args：</p>
+<blockquote>
+<p>机架感知脚本文件的参数最大数量。脚本每次运行被传递的参数，每个参数是一个ip地址</p>
+</blockquote>
+</li>
+<li><p>ha.zookeeper.session-timeout.ms：</p>
+<blockquote>
+<p>ZK连接超时。ZKFC连接ZK时用。设置一个小值可以更快的探测到服务器崩溃（crash),但也会更频繁的触发失效备援，在传输错误或者网络不畅时。建议10s-30s</p>
+</blockquote>
+</li>
+</ul>
+<h1 id="配置示例"><a href="#配置示例" class="headerlink" title="配置示例"></a>配置示例</h1><figure class="highlight xml"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br><span class="line">3</span><br><span class="line">4</span><br><span class="line">5</span><br><span class="line">6</span><br><span class="line">7</span><br><span class="line">8</span><br><span class="line">9</span><br><span class="line">10</span><br><span class="line">11</span><br><span class="line">12</span><br><span class="line">13</span><br><span class="line">14</span><br><span class="line">15</span><br><span class="line">16</span><br><span class="line">17</span><br><span class="line">18</span><br><span class="line">19</span><br><span class="line">20</span><br><span class="line">21</span><br><span class="line">22</span><br><span class="line">23</span><br><span class="line">24</span><br><span class="line">25</span><br><span class="line">26</span><br><span class="line">27</span><br><span class="line">28</span><br><span class="line">29</span><br><span class="line">30</span><br><span class="line">31</span><br><span class="line">32</span><br><span class="line">33</span><br><span class="line">34</span><br><span class="line">35</span><br><span class="line">36</span><br><span class="line">37</span><br><span class="line">38</span><br><span class="line">39</span><br><span class="line">40</span><br><span class="line">41</span><br><span class="line">42</span><br><span class="line">43</span><br><span class="line">44</span><br><span class="line">45</span><br><span class="line">46</span><br><span class="line">47</span><br><span class="line">48</span><br><span class="line">49</span><br><span class="line">50</span><br><span class="line">51</span><br><span class="line">52</span><br><span class="line">53</span><br><span class="line">54</span><br><span class="line">55</span><br><span class="line">56</span><br><span class="line">57</span><br><span class="line">58</span><br><span class="line">59</span><br><span class="line">60</span><br><span class="line">61</span><br><span class="line">62</span><br><span class="line">63</span><br><span class="line">64</span><br><span class="line">65</span><br><span class="line">66</span><br><span class="line">67</span><br><span class="line">68</span><br><span class="line">69</span><br><span class="line">70</span><br><span class="line">71</span><br><span class="line">72</span><br><span class="line">73</span><br><span class="line">74</span><br><span class="line">75</span><br><span class="line">76</span><br><span class="line">77</span><br><span class="line">78</span><br><span class="line">79</span><br><span class="line">80</span><br><span class="line">81</span><br><span class="line">82</span><br><span class="line">83</span><br><span class="line">84</span><br><span class="line">85</span><br><span class="line">86</span><br><span class="line">87</span><br><span class="line">88</span><br></pre></td><td class="code"><pre><span class="line"><span class="tag">&lt;<span class="name">configuration</span>&gt;</span></span><br><span class="line">  <span class="tag">&lt;<span class="name">property</span>&gt;</span></span><br><span class="line">    <span class="tag">&lt;<span class="name">name</span>&gt;</span>fs.defaultFS<span class="tag">&lt;/<span class="name">name</span>&gt;</span></span><br><span class="line">    <span class="tag">&lt;<span class="name">value</span>&gt;</span>hdfs://rt1<span class="tag">&lt;/<span class="name">value</span>&gt;</span></span><br><span class="line">    <span class="tag">&lt;<span class="name">description</span>&gt;</span>The name of the default file system<span class="tag">&lt;/<span class="name">description</span>&gt;</span></span><br><span class="line">  <span class="tag">&lt;/<span class="name">property</span>&gt;</span></span><br><span class="line">  <span class="tag">&lt;<span class="name">property</span>&gt;</span></span><br><span class="line">    <span class="tag">&lt;<span class="name">name</span>&gt;</span>fs.permissions.umask-mode<span class="tag">&lt;/<span class="name">name</span>&gt;</span></span><br><span class="line">    <span class="tag">&lt;<span class="name">value</span>&gt;</span>022<span class="tag">&lt;/<span class="name">value</span>&gt;</span></span><br><span class="line">    <span class="tag">&lt;<span class="name">description</span>&gt;</span>The umask used when creating files and directories<span class="tag">&lt;/<span class="name">description</span>&gt;</span></span><br><span class="line">  <span class="tag">&lt;/<span class="name">property</span>&gt;</span></span><br><span class="line">  <span class="tag">&lt;<span class="name">property</span>&gt;</span></span><br><span class="line">    <span class="tag">&lt;<span class="name">name</span>&gt;</span>fs.trash.checkpoint.interval<span class="tag">&lt;/<span class="name">name</span>&gt;</span></span><br><span class="line">    <span class="tag">&lt;<span class="name">value</span>&gt;</span>30<span class="tag">&lt;/<span class="name">value</span>&gt;</span></span><br><span class="line">  <span class="tag">&lt;/<span class="name">property</span>&gt;</span></span><br><span class="line">  <span class="tag">&lt;<span class="name">property</span>&gt;</span></span><br><span class="line">    <span class="tag">&lt;<span class="name">name</span>&gt;</span>fs.trash.interval<span class="tag">&lt;/<span class="name">name</span>&gt;</span></span><br><span class="line">    <span class="tag">&lt;<span class="name">value</span>&gt;</span>1440<span class="tag">&lt;/<span class="name">value</span>&gt;</span></span><br><span class="line">  <span class="tag">&lt;/<span class="name">property</span>&gt;</span></span><br><span class="line">  <span class="tag">&lt;<span class="name">property</span>&gt;</span></span><br><span class="line">    <span class="tag">&lt;<span class="name">name</span>&gt;</span>io.file.buffer.size<span class="tag">&lt;/<span class="name">name</span>&gt;</span></span><br><span class="line">    <span class="tag">&lt;<span class="name">value</span>&gt;</span>131072<span class="tag">&lt;/<span class="name">value</span>&gt;</span></span><br><span class="line">  <span class="tag">&lt;/<span class="name">property</span>&gt;</span></span><br><span class="line">  <span class="tag">&lt;<span class="name">property</span>&gt;</span></span><br><span class="line">    <span class="tag">&lt;<span class="name">name</span>&gt;</span>hadoop.http.staticuser.user<span class="tag">&lt;/<span class="name">name</span>&gt;</span></span><br><span class="line">    <span class="tag">&lt;<span class="name">value</span>&gt;</span>hadoop<span class="tag">&lt;/<span class="name">value</span>&gt;</span></span><br><span class="line">    <span class="tag">&lt;<span class="name">description</span>&gt;</span>The user name to filter as, on static web filters while rendering content<span class="tag">&lt;/<span class="name">description</span>&gt;</span></span><br><span class="line">  <span class="tag">&lt;/<span class="name">property</span>&gt;</span></span><br><span class="line">  <span class="tag">&lt;<span class="name">property</span>&gt;</span> </span><br><span class="line">     <span class="tag">&lt;<span class="name">name</span>&gt;</span>hadoop.security.authentication<span class="tag">&lt;/<span class="name">name</span>&gt;</span> </span><br><span class="line">     <span class="tag">&lt;<span class="name">value</span>&gt;</span>kerberos<span class="tag">&lt;/<span class="name">value</span>&gt;</span> </span><br><span class="line">     <span class="tag">&lt;<span class="name">description</span>&gt;</span> Set the authentication for the cluster. </span><br><span class="line">     Valid values are: simple or kerberos.<span class="tag">&lt;/<span class="name">description</span>&gt;</span> </span><br><span class="line">  <span class="tag">&lt;/<span class="name">property</span>&gt;</span></span><br><span class="line">  <span class="tag">&lt;<span class="name">property</span>&gt;</span></span><br><span class="line">    <span class="tag">&lt;<span class="name">name</span>&gt;</span>hadoop.proxyuser.hadoop.groups<span class="tag">&lt;/<span class="name">name</span>&gt;</span></span><br><span class="line">    <span class="tag">&lt;<span class="name">value</span>&gt;</span>*<span class="tag">&lt;/<span class="name">value</span>&gt;</span></span><br><span class="line">  <span class="tag">&lt;/<span class="name">property</span>&gt;</span></span><br><span class="line">  <span class="tag">&lt;<span class="name">property</span>&gt;</span></span><br><span class="line">    <span class="tag">&lt;<span class="name">name</span>&gt;</span>hadoop.proxyuser.hadoop.hosts<span class="tag">&lt;/<span class="name">name</span>&gt;</span></span><br><span class="line">    <span class="tag">&lt;<span class="name">value</span>&gt;</span>*<span class="tag">&lt;/<span class="name">value</span>&gt;</span></span><br><span class="line">  <span class="tag">&lt;/<span class="name">property</span>&gt;</span></span><br><span class="line">  <span class="tag">&lt;<span class="name">property</span>&gt;</span></span><br><span class="line">    <span class="tag">&lt;<span class="name">name</span>&gt;</span>hadoop.proxyuser.hdfs.groups<span class="tag">&lt;/<span class="name">name</span>&gt;</span></span><br><span class="line">    <span class="tag">&lt;<span class="name">value</span>&gt;</span>*<span class="tag">&lt;/<span class="name">value</span>&gt;</span></span><br><span class="line">  <span class="tag">&lt;/<span class="name">property</span>&gt;</span></span><br><span class="line">  <span class="tag">&lt;<span class="name">property</span>&gt;</span></span><br><span class="line">    <span class="tag">&lt;<span class="name">name</span>&gt;</span>hadoop.proxyuser.hdfs.hosts<span class="tag">&lt;/<span class="name">name</span>&gt;</span></span><br><span class="line">    <span class="tag">&lt;<span class="name">value</span>&gt;</span>*<span class="tag">&lt;/<span class="name">value</span>&gt;</span></span><br><span class="line">  <span class="tag">&lt;/<span class="name">property</span>&gt;</span></span><br><span class="line">  <span class="tag">&lt;<span class="name">property</span>&gt;</span> </span><br><span class="line">     <span class="tag">&lt;<span class="name">name</span>&gt;</span>hadoop.security.authorization<span class="tag">&lt;/<span class="name">name</span>&gt;</span> </span><br><span class="line">     <span class="tag">&lt;<span class="name">value</span>&gt;</span>true<span class="tag">&lt;/<span class="name">value</span>&gt;</span> </span><br><span class="line">     <span class="tag">&lt;<span class="name">description</span>&gt;</span>Enable authorization for different protocols.<span class="tag">&lt;/<span class="name">description</span>&gt;</span> </span><br><span class="line">  <span class="tag">&lt;/<span class="name">property</span>&gt;</span></span><br><span class="line">  <span class="tag">&lt;<span class="name">property</span>&gt;</span></span><br><span class="line">    <span class="tag">&lt;<span class="name">name</span>&gt;</span>hadoop.tmp.dir<span class="tag">&lt;/<span class="name">name</span>&gt;</span></span><br><span class="line">    <span class="tag">&lt;<span class="name">value</span>&gt;</span>/data1/hadoop/tmp<span class="tag">&lt;/<span class="name">value</span>&gt;</span></span><br><span class="line">    <span class="tag">&lt;<span class="name">description</span>&gt;</span>A base for other temporary directories.<span class="tag">&lt;/<span class="name">description</span>&gt;</span></span><br><span class="line">  <span class="tag">&lt;/<span class="name">property</span>&gt;</span></span><br><span class="line">  <span class="tag">&lt;<span class="name">property</span>&gt;</span></span><br><span class="line">    <span class="tag">&lt;<span class="name">name</span>&gt;</span>ha.zookeeper.session-timeout.ms<span class="tag">&lt;/<span class="name">name</span>&gt;</span></span><br><span class="line">    <span class="tag">&lt;<span class="name">value</span>&gt;</span>60000<span class="tag">&lt;/<span class="name">value</span>&gt;</span></span><br><span class="line">    <span class="tag">&lt;<span class="name">description</span>&gt;</span>The session timeout to use when the ZKFC connects to ZooKeeper.  <span class="tag">&lt;/<span class="name">description</span>&gt;</span></span><br><span class="line">  <span class="tag">&lt;/<span class="name">property</span>&gt;</span></span><br><span class="line">  <span class="tag">&lt;<span class="name">property</span>&gt;</span></span><br><span class="line">    <span class="tag">&lt;<span class="name">name</span>&gt;</span>io.compression.codecs<span class="tag">&lt;/<span class="name">name</span>&gt;</span></span><br><span class="line"> <span class="tag">&lt;<span class="name">value</span>&gt;</span>org.apache.hadoop.io.compress.DefaultCodec,org.apache.hadoop.io.compress.GzipCodec,org.apache.hadoop.io.compress.BZip2Codec,org.apache.hadoop.io.compress.DeflateCodec,org.apache.hadoop.io.compress.SnappyCodec,org.apache.hadoop.io.compress.Lz4Codec<span class="tag">&lt;/<span class="name">value</span>&gt;</span></span><br><span class="line">    <span class="tag">&lt;<span class="name">description</span>&gt;</span><span class="tag">&lt;/<span class="name">description</span>&gt;</span></span><br><span class="line">  <span class="tag">&lt;/<span class="name">property</span>&gt;</span></span><br><span class="line">  <span class="tag">&lt;<span class="name">property</span>&gt;</span></span><br><span class="line">    <span class="tag">&lt;<span class="name">name</span>&gt;</span>net.topology.script.number.args<span class="tag">&lt;/<span class="name">name</span>&gt;</span></span><br><span class="line">    <span class="tag">&lt;<span class="name">value</span>&gt;</span>1000<span class="tag">&lt;/<span class="name">value</span>&gt;</span></span><br><span class="line">  <span class="tag">&lt;/<span class="name">property</span>&gt;</span></span><br><span class="line">  <span class="comment">&lt;!-------分割线------&gt;</span></span><br><span class="line">  <span class="tag">&lt;<span class="name">property</span>&gt;</span></span><br><span class="line">    <span class="tag">&lt;<span class="name">name</span>&gt;</span>hadoop.home<span class="tag">&lt;/<span class="name">name</span>&gt;</span></span><br><span class="line">    <span class="tag">&lt;<span class="name">value</span>&gt;</span>/opt/apps/hadoop<span class="tag">&lt;/<span class="name">value</span>&gt;</span></span><br><span class="line">  <span class="tag">&lt;/<span class="name">property</span>&gt;</span></span><br><span class="line">  <span class="tag">&lt;<span class="name">property</span>&gt;</span></span><br><span class="line">    <span class="tag">&lt;<span class="name">name</span>&gt;</span>job.output.oss.redirect<span class="tag">&lt;/<span class="name">name</span>&gt;</span></span><br><span class="line">    <span class="tag">&lt;<span class="name">value</span>&gt;</span>false<span class="tag">&lt;/<span class="name">value</span>&gt;</span></span><br><span class="line">  <span class="tag">&lt;/<span class="name">property</span>&gt;</span></span><br><span class="line">  <span class="tag">&lt;<span class="name">property</span>&gt;</span></span><br><span class="line">    <span class="tag">&lt;<span class="name">name</span>&gt;</span>hadoop.security.authentication.use.has<span class="tag">&lt;/<span class="name">name</span>&gt;</span></span><br><span class="line">    <span class="tag">&lt;<span class="name">value</span>&gt;</span>true<span class="tag">&lt;/<span class="name">value</span>&gt;</span></span><br><span class="line">  <span class="tag">&lt;/<span class="name">property</span>&gt;</span></span><br><span class="line"><span class="tag">&lt;/<span class="name">configuration</span>&gt;</span></span><br></pre></td></tr></table></figure>
+
+<h1 id="参考文档"><a href="#参考文档" class="headerlink" title="参考文档"></a>参考文档</h1><p><a href="https://hadoop.apache.org/docs/r2.9.2/hadoop-project-dist/hadoop-common/core-default.xml" target="_blank" rel="noopener">Hadoop官网</a></p>
+<p><a href="https://docs.cloudera.com/HDPDocuments/HDP3/HDP-3.1.5/security-reference/content/kerberos_nonambari_core_site_xml.html" target="_blank" rel="noopener">CDH官网权限控制</a></p>
+<p><a href="https://docs.informatica.com/big-data-management/big-data-management/10-2-hotfix-1/hadoop-integration-guide/cloudera-cdh-integration-tasks/prepare-for-cluster-import-from-cloudera-cdh/configure---site-xml-files-for-cloudera-cdh.html" target="_blank" rel="noopener">CDH Hadoop集成入门</a></p>
+<p><a href="https://www.cnblogs.com/ggjucheng/archive/2013/01/31/2886981.html" target="_blank" rel="noopener">Hadoop权限管理</a></p>
+<p><a href="https://www.cnblogs.com/jishilei/archive/2012/12/27/2835188.html" target="_blank" rel="noopener">HDFS文件权限</a></p>
+<p><a href="https://segmentfault.com/a/1190000000709725" target="_blank" rel="noopener">参考配置</a></p>
+
+        
+      
+    </div>
+
+    
+    
+    
+      <footer class="post-footer">
+        <div class="post-eof"></div>
+      </footer>
+  </article>
+  
+  
+  
+
+    
+        
+  
+  
+  <article itemscope itemtype="http://schema.org/Article" class="post-block home" lang="zh-CN">
+    <link itemprop="mainEntityOfPage" href="http://yoursite.com/2020/06/24/hadoop/hdfs-site最佳实践/">
+
+    <span hidden itemprop="author" itemscope itemtype="http://schema.org/Person">
+      <meta itemprop="name" content="姜纪光">
+      <meta itemprop="description" content="">
+      <meta itemprop="image" content="/images/avatar.gif">
+    </span>
+
+    <span hidden itemprop="publisher" itemscope itemtype="http://schema.org/Organization">
+      <meta itemprop="name" content="角落之外">
+    </span>
+      <header class="post-header">
+        <h1 class="post-title" itemprop="name headline">
+          
+            
+            <a href="/2020/06/24/hadoop/hdfs-site最佳实践/" class="post-title-link" itemprop="url">hdfs-site最佳实践</a>
+          
+        </h1>
+
+        <div class="post-meta">
+            <span class="post-meta-item">
+              <span class="post-meta-item-icon">
+                <i class="fa fa-calendar-o"></i>
+              </span>
+              <span class="post-meta-item-text">发表于</span>
+
+              
+                
+              
+
+              <time title="创建时间：2020-06-24 14:08:59" itemprop="dateCreated datePublished" datetime="2020-06-24T14:08:59+08:00">2020-06-24</time>
+            </span>
+          
+            
+
+            
+              <span class="post-meta-item">
+                <span class="post-meta-item-icon">
+                  <i class="fa fa-calendar-check-o"></i>
+                </span>
+                <span class="post-meta-item-text">更新于</span>
+                <time title="修改时间：2020-07-03 09:27:09" itemprop="dateModified" datetime="2020-07-03T09:27:09+08:00">2020-07-03</time>
+              </span>
+            
+          
+            <span class="post-meta-item">
+              <span class="post-meta-item-icon">
+                <i class="fa fa-folder-o"></i>
+              </span>
+              <span class="post-meta-item-text">分类于</span>
+              
+                <span itemprop="about" itemscope itemtype="http://schema.org/Thing">
+                  <a href="/categories/hadoop/" itemprop="url" rel="index">
+                    <span itemprop="name">hadoop</span>
+                  </a>
+                </span>
+
+                
+                
+              
+            </span>
+          
+
+          
+            <span id="/2020/06/24/hadoop/hdfs-site最佳实践/" class="post-meta-item leancloud_visitors" data-flag-title="hdfs-site最佳实践" title="阅读次数">
+              <span class="post-meta-item-icon">
+                <i class="fa fa-eye"></i>
+              </span>
+              <span class="post-meta-item-text">阅读次数：</span>
+              <span class="leancloud-visitors-count"></span>
+            </span>
+          
+  
+  
+
+        </div>
+      </header>
+
+    
+    
+    
+    <div class="post-body" itemprop="articleBody">
+
+      
+          <h1 id="常用参数"><a href="#常用参数" class="headerlink" title="常用参数"></a>常用参数</h1><p>说明：本文基于CDH5.16.1介绍常用的配置参数的意义以及最佳使用。</p>
+<h2 id="基础配置"><a href="#基础配置" class="headerlink" title="基础配置"></a>基础配置</h2><ul>
+<li><p>dfs.replication</p>
+<blockquote>
+<p>block的副本数</p>
+<p>创建文件时可以指定实际的复制数量。 如果未在创建时指定复制，则使用默认值。</p>
+</blockquote>
+</li>
+<li><p>dfs.nameservices</p>
+<blockquote>
+<p>逗号分隔的dfs.nameservices</p>
+</blockquote>
+</li>
+<li><p>dfs.internal.nameservices</p>
+<blockquote>
+<p>逗号分隔的本集群的nameservices，Datanode将要向该值报告</p>
+<p>默认是dfs.nameservices中设置的值</p>
+</blockquote>
+</li>
+<li><p>dfs.nameservice.id</p>
+<blockquote>
+<p>此名称服务的ID。 如果未配置名称服务ID或为dfs.nameservices配置了多个名称服务，则通过将本地节点的地址与配置的地址进行匹配来自动确定。</p>
+</blockquote>
+</li>
+<li><p>dfs.namenode.checkpoint.dir</p>
+<blockquote>
+<p>checkpoint存储要合并的临时影响的位置</p>
+</blockquote>
+</li>
+<li><p>dfs.namenode.checkpoint.period</p>
+<blockquote>
+<p>checkpoint的周期，单位秒</p>
+</blockquote>
+</li>
+<li><p>dfs.namenode.checkpoint.txns</p>
+<blockquote>
+<p>触发checkpoint的阈值，新生成的edit log中积累的事务数量达到了阈值</p>
+</blockquote>
+</li>
+<li><p>dfs.namenode.datanode.registration.ip-hostname-check</p>
+<blockquote>
+<p>如果为true（默认值），则namenode要求必须将连接数据节点的地址解析为主机名。 如有必要，将执行反向DNS查找。 从无法解析的地址注册数据节点的所有尝试均被拒绝。 建议保留此设置，以防止在DNS中断期间意外注册排除文件中主机名列出的数据节点。 仅在没有基础结构支持反向DNS查找的环境中，将此选项设置为false。</p>
+</blockquote>
+</li>
+<li><p>dfs.namenode.name.dir</p>
+<blockquote>
+<p>本地文件系统，namenode保存fsimage文件的地址</p>
+</blockquote>
+</li>
+<li><p>dfs.namenode.edits.dir</p>
+<blockquote>
+<p>本地文件系统，保存namenode的edits文件的地址</p>
+<p>默认值与dfs.namenode.name.dir相同</p>
+</blockquote>
+</li>
+<li><p>dfs.datanode.data.dir</p>
+<blockquote>
+<p>确定DFS数据节点应在本地文件系统上的哪个位置存储其块。 如果这是逗号分隔的目录列表，则数据将存储在所有命名的目录中，通常在不同的设备上。 对于HDFS存储策略，应使用相应的存储类型（[SSD] / [DISK] / [ARCHIVE] / [RAM_DISK]）标记目录。 如果目录没有显式标记的存储类型，则默认存储类型将为DISK。 如果本地文件系统权限允许，将创建不存在的目录。</p>
+</blockquote>
+</li>
+<li><p>dfs.datanode.data.dir.perm</p>
+<blockquote>
+<p>DFS数据节点存储其块的本地文件系统上目录的权限。 权限可以是八进制或符号。</p>
+</blockquote>
+</li>
+<li><p>dfs.datanode.du.reserved</p>
+<blockquote>
+<p>每个卷的保留空间（以字节为单位）。 始终为非dfs使用留出足够的空间。</p>
+</blockquote>
+</li>
+<li><p>dfs.datanode.failed.volumes.tolerated</p>
+<blockquote>
+<p>数据节点停止提供服务之前允许失败的卷数。 默认情况下，任何卷故障都将导致数据节点关闭。</p>
+</blockquote>
+</li>
+<li><p>dfs.blocksize</p>
+<blockquote>
+<p>Hdfs文件的块大小。</p>
+<p>可以使用后缀配置 (case insensitive): k(kilo), m(mega), g(giga), t(tera), p(peta), e(exa) to specify the size (such as 128k, 512m, 1g, etc.), </p>
+<p>Or provide complete size in bytes (such as 134217728 for 128 MB)</p>
+<p>最佳配置：块大小=1s * 磁盘传输速率</p>
+</blockquote>
+</li>
+<li><p>dfs.datanode.address</p>
+<blockquote>
+<p>用于数据传输的datanode服务器地址和端口。</p>
+</blockquote>
+</li>
+<li><p>dfs.datanode.http.address</p>
+<blockquote>
+<p>datanode http服务器地址和端口。</p>
+</blockquote>
+</li>
+<li><p>dfs.hosts.exclude</p>
+<blockquote>
+<p>命名一个文件，其中包含不允许连接到名称节点的主机列表。</p>
+<p> 必须指定文件的完整路径名。 如果值为空，则不排除任何主机。</p>
+</blockquote>
+</li>
+<li><p>dfs.ha.namenodes.rt1</p>
+<blockquote>
+<p>nameservice的前缀，值是逗号分隔的nameservice的namenodes</p>
+<p>DataNode将使用它来确定集群中的所有NameNode。</p>
+</blockquote>
+</li>
+<li><p>dfs.namenode.http-address.rt1.nn1</p>
+<blockquote>
+<p>dfs namenode Web ui监听的地址和基本端口。</p>
+</blockquote>
+</li>
+<li><p>dfs.namenode.rpc-address.rt1.nn1</p>
+<blockquote>
+<p>处理所有客户端请求的RPC地址。 </p>
+<p>对于存在多个名称节点的HA / Federation，将名称服务ID添加到名称中，</p>
+</blockquote>
+</li>
+<li><p>dfs.namenode.servicerpc-address.rt1.nn1</p>
+<blockquote>
+<p>HDFS服务通信的RPC地址。</p>
+</blockquote>
+</li>
+<li><p>dfs.namenode.servicerpc-bind-host</p>
+<blockquote>
+<p>服务RPC服务器将绑定到的实际地址。 如果设置了此可选地址，则它将仅覆盖dfs.namenode.servicerpc-address的主机名部分。 也可以为HA / Federation的每个名称节点或名称服务指定它。 通过将其设置为0.0.0.0，可以使名称节点在所有接口上侦听，这很有用。</p>
+</blockquote>
+</li>
+<li><p>dfs.namenode.http-bind-host</p>
+<blockquote>
+<p>HTTP服务器将绑定的实际地址。 </p>
+<p>如果设置了此可选地址，则它将仅覆盖dfs.namenode.http-address的主机名部分。 也可以为HA / Federation的每个名称节点或名称服务指定它。 </p>
+<p>通过将名称节点HTTP服务器设置为0.0.0.0，可以使名称节点HTTP服务器在所有接口上进行侦听。</p>
+</blockquote>
+</li>
+<li><p>dfs.namenode.rpc-bind-host</p>
+<blockquote>
+<p>RPC服务器将绑定到的实际地址。 如果设置了此可选地址，则它将仅覆盖dfs.namenode.rpc地址的主机名部分。 也可以为HA / Federation的每个名称节点或名称服务指定它。 通过将其设置为0.0.0.0，可以使名称节点在所有接口上侦听，这很有用。</p>
+</blockquote>
+</li>
+<li><p>dfs.namenode.https-bind-host</p>
+<blockquote>
+<p>HTTPS服务器将绑定到的实际地址。 如果设置了此可选地址，则它将仅覆盖dfs.namenode.https-address的主机名部分。 也可以为HA / Federation的每个名称节点或名称服务指定它。 通过将名称节点HTTPS服务器设置为0.0.0.0，可以使名称节点HTTPS服务器在所有接口上进行侦听。</p>
+</blockquote>
+</li>
+<li><p>dfs.support.append</p>
+<blockquote>
+<p>HDFS是否允许追加文件</p>
+</blockquote>
+</li>
+<li><p>dfs.webhdfs.enabled</p>
+<blockquote>
+<p>Enable WebHDFS (REST API) in Namenodes and Datanodes</p>
+</blockquote>
+</li>
+<li><p>dfs.namenode.resource.du.reserved</p>
+<blockquote>
+<p>要为NameNode存储目录保留/要求的空间量（以字节为单位）。 默认值为100MB。</p>
+</blockquote>
+</li>
+</ul>
+<h2 id="权限配置"><a href="#权限配置" class="headerlink" title="权限配置"></a>权限配置</h2><ul>
+<li><p>dfs.block.access.token.enable</p>
+<blockquote>
+<p>如果为“ true”，则将访问令牌用作访问数据节点的功能。 </p>
+<p>如果为“ false”，则在访问数据节点时不检查访问令牌。</p>
+<p>建议设置为false</p>
+</blockquote>
+</li>
+<li><p>dfs.namenode.acls.enabled</p>
+<blockquote>
+<p>设置为true以启用对HDFS ACL（访问控制列表）的支持。</p>
+<p>默认情况下，禁用ACL。 禁用ACL时，NameNode拒绝与设置或获取ACL相关的所有RPC。</p>
+</blockquote>
+</li>
+<li><p>dfs.permissions.enabled</p>
+<blockquote>
+<p>如果为“ true”，请在HDFS中启用权限检查。</p>
+<p> 如果为“ false”，则禁用权限检查，但其他所有行为均不变。 </p>
+<p>从一个参数值切换到另一个参数值不会更改模式，所有者或文件或目录组。</p>
+</blockquote>
+</li>
+<li><p>dfs.permissions.superusergroup</p>
+<blockquote>
+<p>HDFS的超级用户组</p>
+</blockquote>
+</li>
+<li><p>dfs.data.transfer.protection</p>
+<blockquote>
+<p>逗号分隔的SASL保护值列表，用于在读取或写入块数据时与DataNode进行安全连接。</p>
+</blockquote>
+</li>
+</ul>
+<h2 id="HA配置"><a href="#HA配置" class="headerlink" title="HA配置"></a>HA配置</h2><ul>
+<li><p>ha.zookeeper.quorum</p>
+<blockquote>
+<p>zk的连接地址</p>
+</blockquote>
+</li>
+<li><p>dfs.journalnode.edits.dir</p>
+<blockquote>
+<p>journalnode的edits的地址</p>
+</blockquote>
+</li>
+<li><p>dfs.qjournal.write-txns.timeout.ms</p>
+<blockquote>
+<p>写Journal Node的超时时间，尽量设置大一点，一旦超时会导致namenode直接进程退出。</p>
+</blockquote>
+</li>
+<li><p>dfs.namenode.shared.edits.dir</p>
+<blockquote>
+<p>HA群集中多个名称节点之间的共享存储上的目录。</p>
+<p>该目录将由主目录写入，由备用数据库读取，以使命名空间保持同步。 </p>
+<p>该目录不需要在上面的dfs.namenode.edits.dir中列出。 在非HA群集中，应将其保留为空。</p>
+</blockquote>
+</li>
+</ul>
+<ul>
+<li><p>dfs.namenode.support.allow.format</p>
+<blockquote>
+<p>HDFS名称节点是否允许其自身格式化。</p>
+<p>您可以考虑将任何生产群集的此参数设置为false，以避免格式化正在运行的DFS的任何可能性。</p>
+</blockquote>
+</li>
+<li><p>dfs.ha.automatic-failover.enabled</p>
+<blockquote>
+<p>开启failover</p>
+</blockquote>
+</li>
+<li><p>dfs.ha.fencing.methods</p>
+<blockquote>
+<p>故障转移期间将用于隔离Active NameNode的脚本或Java类的列表。 </p>
+<p>有关自动HA配置的详细信息，请参见HDFS高可用性文档。</p>
+</blockquote>
+</li>
+<li><p>dfs.client.failover.proxy.provider</p>
+<blockquote>
+<p>为主机配置的故障转移代理提供程序的类名称的前缀（加上必需的名称服务ID）</p>
+</blockquote>
+</li>
+</ul>
+<h2 id="性能优化"><a href="#性能优化" class="headerlink" title="性能优化"></a>性能优化</h2><ul>
+<li><p>dfs.blockreport.incremental.intervalMsec</p>
+<blockquote>
+<p>当 datanode 上新写完一个块，默认会立即汇报给 namenode。</p>
+<p>在一个大规模 Hadoop 集群上，每时每刻都在写数据，datanode 上随时都会有写完数据块然后汇报给 namenode 的情况。因此 namenode 会频繁处理 datanode 这种快汇报请求，会频繁地持有锁，其实非常影响其他 rpc 的处理和响应时间。</p>
+<p>通过延迟一次性汇报配置可以减少 datanode 写完块后的块汇报次数，提高 namenode 处理 rpc 的响应时间和处理速度。</p>
+<p>建议值：300</p>
+</blockquote>
+</li>
+<li><p>dfs.blockreport.initialDelay</p>
+<blockquote>
+<p>Delay for first block report in seconds</p>
+<p>和上一个参数一起使用的，datanode启动后第一次报告自己的block信息的时间是在(0,$(dfs.blockreport.initialDelay ))之间的一个随机数 initTime，然后从initTime（不同datanode上的这个随即肯定是不一样的）开始每隔dfs.blockreport.intervalMsec ，该datanode会向namenode报告自己的所有block的信息。</p>
+<p>如果没有initTime，多有datanode都从启动的那一刻开始发，这样会造成大量数据发往nn，造成堵塞 。是以用此参数来控制 。</p>
+<p>建议值：60</p>
+</blockquote>
+</li>
+<li><p>dfs.blockreport.intervalMsec</p>
+<blockquote>
+<p>每个datanode在initialDelay之后，每隔intervalMsec(毫秒)进行一次全量块汇报。</p>
+<p>建议值：43200000</p>
+</blockquote>
+</li>
+<li><p>dfs.client.hedged.read.threadpool.size</p>
+<blockquote>
+<p>在DFSClient中支持“对冲”读取。 要启用此功能，请将参数设置为正数。 </p>
+<p>线程池大小是客户端中用于运行这些“对冲”并发读取的线程数。</p>
+</blockquote>
+</li>
+<li><p>dfs.client.hedged.read.threshold.millis</p>
+<blockquote>
+<p>在DFSClient中配置“对冲”读取。 这是开始“对冲”读取之前要等待的毫秒数。</p>
+<p>一般来说，每个读请求都会由生成的一个线程处理。在Hedged reads 启用后，客户但可以等待一个预配置的时间，如果read没有返回，则客户端会生成第二个读请求，访问同一份数据的另一个block replica。之后，其中任意一个read 先返回的话，则另一个read请求则被丢弃。</p>
+<p>Hedged reads使用的场景是：解决少概率的slow read（可能由瞬时错误导致，例如磁盘错误或是网络抖动等）。</p>
+</blockquote>
+</li>
+<li><p>dfs.client.read.shortcircuit</p>
+<blockquote>
+<p>它可以完全绕过RPC栈，通过本地clients直接从底层文件系统读数据。</p>
+<p>使得数据交换全部发生在OS kernel层。相较于之前的实现会更快，更高效。</p>
+<p>使得多个进程在同一个实例上进行高效地交互。</p>
+<p>​</p>
+</blockquote>
+</li>
+<li><p>dfs.datanode.balance.bandwidthPerSec</p>
+<blockquote>
+<p>指定datanode用于balancer的带宽，取决于交换机的性能，性能好，设个几百M没有问题。</p>
+<p>建议值：104857600</p>
+</blockquote>
+</li>
+<li><p>dfs.datanode.balance.max.concurrent.moves</p>
+<blockquote>
+<p>datanode用于balancer操作进行block移动的线程数目</p>
+<p>也可以使用该命令配置：dfsadmin -reconfig</p>
+<p>建议值：100</p>
+</blockquote>
+</li>
+<li><p>fs.du.interval</p>
+<blockquote>
+<p>du的时间间隔设置为1天</p>
+<p>建议值：86400000</p>
+</blockquote>
+</li>
+<li><p>fs.getspaceused.jitterMillis</p>
+<blockquote>
+<p>建议值：3600000</p>
+</blockquote>
+</li>
+<li><p>dfs.datanode.cached-dfsused.check.interval.ms</p>
+<blockquote>
+<p>在每个卷中加载DU_CACHE_FILE的间隔检查时间。 当集群执行滚动升级操作时，通常会导致每个卷的dfsUsed缓存文件过期，并在datanode中重做du操作，这会使datanode缓慢启动。 调整此属性可以使缓存文件在您想要的时间可用。</p>
+<p>建议值：14400000</p>
+</blockquote>
+</li>
+<li><p>dfs.namenode.service.handler.count</p>
+<blockquote>
+<p>在默认情况下，service RPC端口是没有使用的，client和DataNode汇报，zkfc的健康检查都会公用RPC Server，当client的请求量比较大或者DataNode的汇报量很大，会导致他们之间相互影响，导致访问非常缓慢，开启之后，DN的汇报和健康检查请求都会走Service RPC端口，避免了因为client的大量访问影响，影响服务之间的请求。</p>
+<p>端口分离后：namenode处理datanode发起的rpc请求的线程数，</p>
+<p>计算方法：20logN 其中N为集群节点个数</p>
+</blockquote>
+</li>
+<li><p>dfs.namenode.handler.count</p>
+<blockquote>
+<p>namenode服务线程个数，应该调大一些</p>
+<p>一般原则是将其设置为集群大小的自然对数乘以20，即20logN，N为集群大小</p>
+</blockquote>
+</li>
+<li><p>dfs.datanode.handler.count</p>
+<blockquote>
+<p>该属性默认值为10，datanode处理rpc请求的线程数</p>
+<p>如果HDFS客户端程序读写请求比较多，可以调高到15~20，设置的值越大，内存消耗越多，</p>
+<p>建议值：24</p>
+</blockquote>
+</li>
+<li><p>dfs.datanode.max.transfer.threads</p>
+<blockquote>
+<p>指定用于将数据传入和传出DN的最大线程数。</p>
+</blockquote>
+</li>
+<li><p>dfs.datanode.max.xcievers</p>
+<blockquote>
+<p>datanode用于block移动的最大线程数</p>
+<p>建议值：8192</p>
+</blockquote>
+</li>
+<li><p>dfs.datanode.readahead.bytes</p>
+<blockquote>
+<p>在读取块文件时，如果Hadoop本机库可用，则datanode可以使用posix_fadvise系统调用将数据显式分页到当前读取器位置之前的操作系统缓冲区高速缓存中。 这可以提高性能，尤其是在磁盘竞争激烈的情况下。 此配置指定datanode将尝试提前读取的当前读取位置之前的字节数。 可以通过将此属性配置为0来禁用此功能。如果本机库不可用，则此配置无效。</p>
+</blockquote>
+</li>
+<li><p>dfs.domain.socket.path</p>
+<blockquote>
+<p>可选的。 这是UNIX域套接字的路径，该套接字将用于DataNode与本地HDFS客户端之间的通信。 如果此路径中存在字符串“ _PORT”，它将被DataNode的TCP端口替换。</p>
+<p>本地unix socket路径，提前创建/var/lib/hadoop-hdfs/</p>
+<p>建议值：/var/lib/hadoop-hdfs/dn_socket</p>
+</blockquote>
+</li>
+<li><p>dfs.namenode.audit.log.async</p>
+<blockquote>
+<p>使用异步的log4j appender可以提升NameNode的性能，尤其是请求量在10000 requests/second</p>
+</blockquote>
+</li>
+<li><p>dfs.namenode.balancer.request.standby</p>
+<blockquote>
+<p>将hdfs balancer获取存储信息的请求发送到standby namenode以及忽略小的数据块</p>
+<p>需要二次开发</p>
+</blockquote>
+</li>
+<li><p>ipc.8020.backoff.enable</p>
+<blockquote>
+<p>开启RPC拥塞控制，主要针对client rpc（hadoop-10597）</p>
+</blockquote>
+</li>
+<li><p>ipc.8020.callqueue.impl</p>
+<blockquote>
+<p>将单独的rpc queue 改为 多优先级队列 （hadoop-10282）</p>
+<p>RPC FairCallQueue替换了之前的单一的RPC queue的模式，RPC Server会维护并按照请求的用户进行分组，Handler会按照队列的优先级去消费queue里面的RPC Call,这个功能它可以防止因为某个用户的cleint的大量请求导致NN无法响应，整个集群瘫痪的状态，开启了之后，请求多的用户请求会被降级，这样不会造成多租户下，影响他用户的访问。</p>
+<p>注意：不能对DataNode和NN通信的端口8021进行开启</p>
+<p>建议值：org.apache.hadoop.ipc.FairCallQueue</p>
+</blockquote>
+</li>
+<li><p>ipc.server.listen.queue.size</p>
+<blockquote>
+<p>ipc server的listener的队列大小</p>
+<p>建议把这个参数调的大一些，</p>
+<p>例如：20480，一定要远大于默认的128，集群机器上千台的时候，这个参数太小会导致客户端出现time out 问题</p>
+<p>建议值：2000</p>
+</blockquote>
+</li>
+<li><p>ipc.server.log.slow.rpc</p>
+<blockquote>
+<p>添加了一项功能，当启用ipc.server.log.slow.rpc时，可以在NN日志中记录“慢速” RPC。</p>
+</blockquote>
+</li>
+</ul>
+<h1 id="配置示例"><a href="#配置示例" class="headerlink" title="配置示例"></a>配置示例</h1><figure class="highlight xml"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br><span class="line">3</span><br><span class="line">4</span><br><span class="line">5</span><br><span class="line">6</span><br><span class="line">7</span><br><span class="line">8</span><br><span class="line">9</span><br><span class="line">10</span><br><span class="line">11</span><br><span class="line">12</span><br><span class="line">13</span><br><span class="line">14</span><br><span class="line">15</span><br><span class="line">16</span><br><span class="line">17</span><br><span class="line">18</span><br><span class="line">19</span><br><span class="line">20</span><br><span class="line">21</span><br><span class="line">22</span><br><span class="line">23</span><br><span class="line">24</span><br><span class="line">25</span><br><span class="line">26</span><br><span class="line">27</span><br><span class="line">28</span><br><span class="line">29</span><br><span class="line">30</span><br><span class="line">31</span><br><span class="line">32</span><br><span class="line">33</span><br><span class="line">34</span><br><span class="line">35</span><br><span class="line">36</span><br><span class="line">37</span><br><span class="line">38</span><br><span class="line">39</span><br><span class="line">40</span><br><span class="line">41</span><br><span class="line">42</span><br><span class="line">43</span><br><span class="line">44</span><br><span class="line">45</span><br><span class="line">46</span><br><span class="line">47</span><br><span class="line">48</span><br><span class="line">49</span><br><span class="line">50</span><br><span class="line">51</span><br><span class="line">52</span><br><span class="line">53</span><br><span class="line">54</span><br><span class="line">55</span><br><span class="line">56</span><br><span class="line">57</span><br><span class="line">58</span><br><span class="line">59</span><br><span class="line">60</span><br><span class="line">61</span><br><span class="line">62</span><br><span class="line">63</span><br><span class="line">64</span><br><span class="line">65</span><br><span class="line">66</span><br><span class="line">67</span><br><span class="line">68</span><br><span class="line">69</span><br><span class="line">70</span><br><span class="line">71</span><br><span class="line">72</span><br><span class="line">73</span><br><span class="line">74</span><br><span class="line">75</span><br><span class="line">76</span><br><span class="line">77</span><br><span class="line">78</span><br><span class="line">79</span><br><span class="line">80</span><br><span class="line">81</span><br><span class="line">82</span><br><span class="line">83</span><br><span class="line">84</span><br><span class="line">85</span><br><span class="line">86</span><br><span class="line">87</span><br><span class="line">88</span><br><span class="line">89</span><br><span class="line">90</span><br><span class="line">91</span><br><span class="line">92</span><br><span class="line">93</span><br><span class="line">94</span><br><span class="line">95</span><br><span class="line">96</span><br><span class="line">97</span><br><span class="line">98</span><br><span class="line">99</span><br><span class="line">100</span><br><span class="line">101</span><br><span class="line">102</span><br><span class="line">103</span><br><span class="line">104</span><br><span class="line">105</span><br><span class="line">106</span><br><span class="line">107</span><br><span class="line">108</span><br><span class="line">109</span><br><span class="line">110</span><br><span class="line">111</span><br><span class="line">112</span><br><span class="line">113</span><br><span class="line">114</span><br><span class="line">115</span><br><span class="line">116</span><br><span class="line">117</span><br><span class="line">118</span><br><span class="line">119</span><br><span class="line">120</span><br><span class="line">121</span><br><span class="line">122</span><br><span class="line">123</span><br><span class="line">124</span><br><span class="line">125</span><br><span class="line">126</span><br><span class="line">127</span><br><span class="line">128</span><br><span class="line">129</span><br><span class="line">130</span><br><span class="line">131</span><br><span class="line">132</span><br><span class="line">133</span><br><span class="line">134</span><br><span class="line">135</span><br><span class="line">136</span><br><span class="line">137</span><br><span class="line">138</span><br><span class="line">139</span><br><span class="line">140</span><br><span class="line">141</span><br><span class="line">142</span><br><span class="line">143</span><br><span class="line">144</span><br><span class="line">145</span><br><span class="line">146</span><br><span class="line">147</span><br><span class="line">148</span><br><span class="line">149</span><br><span class="line">150</span><br><span class="line">151</span><br><span class="line">152</span><br><span class="line">153</span><br><span class="line">154</span><br><span class="line">155</span><br><span class="line">156</span><br><span class="line">157</span><br><span class="line">158</span><br><span class="line">159</span><br><span class="line">160</span><br><span class="line">161</span><br><span class="line">162</span><br><span class="line">163</span><br><span class="line">164</span><br><span class="line">165</span><br><span class="line">166</span><br><span class="line">167</span><br><span class="line">168</span><br><span class="line">169</span><br><span class="line">170</span><br><span class="line">171</span><br><span class="line">172</span><br><span class="line">173</span><br><span class="line">174</span><br><span class="line">175</span><br><span class="line">176</span><br><span class="line">177</span><br><span class="line">178</span><br><span class="line">179</span><br><span class="line">180</span><br><span class="line">181</span><br><span class="line">182</span><br><span class="line">183</span><br><span class="line">184</span><br><span class="line">185</span><br><span class="line">186</span><br><span class="line">187</span><br><span class="line">188</span><br><span class="line">189</span><br><span class="line">190</span><br><span class="line">191</span><br><span class="line">192</span><br><span class="line">193</span><br><span class="line">194</span><br><span class="line">195</span><br><span class="line">196</span><br><span class="line">197</span><br><span class="line">198</span><br><span class="line">199</span><br><span class="line">200</span><br><span class="line">201</span><br><span class="line">202</span><br><span class="line">203</span><br><span class="line">204</span><br><span class="line">205</span><br><span class="line">206</span><br><span class="line">207</span><br><span class="line">208</span><br><span class="line">209</span><br><span class="line">210</span><br><span class="line">211</span><br><span class="line">212</span><br><span class="line">213</span><br><span class="line">214</span><br><span class="line">215</span><br><span class="line">216</span><br><span class="line">217</span><br><span class="line">218</span><br><span class="line">219</span><br><span class="line">220</span><br><span class="line">221</span><br><span class="line">222</span><br><span class="line">223</span><br><span class="line">224</span><br><span class="line">225</span><br><span class="line">226</span><br><span class="line">227</span><br><span class="line">228</span><br><span class="line">229</span><br><span class="line">230</span><br><span class="line">231</span><br><span class="line">232</span><br><span class="line">233</span><br><span class="line">234</span><br><span class="line">235</span><br><span class="line">236</span><br><span class="line">237</span><br><span class="line">238</span><br><span class="line">239</span><br><span class="line">240</span><br><span class="line">241</span><br><span class="line">242</span><br><span class="line">243</span><br><span class="line">244</span><br><span class="line">245</span><br><span class="line">246</span><br><span class="line">247</span><br><span class="line">248</span><br><span class="line">249</span><br><span class="line">250</span><br><span class="line">251</span><br><span class="line">252</span><br><span class="line">253</span><br><span class="line">254</span><br><span class="line">255</span><br><span class="line">256</span><br><span class="line">257</span><br><span class="line">258</span><br><span class="line">259</span><br><span class="line">260</span><br><span class="line">261</span><br><span class="line">262</span><br><span class="line">263</span><br><span class="line">264</span><br><span class="line">265</span><br><span class="line">266</span><br><span class="line">267</span><br><span class="line">268</span><br><span class="line">269</span><br><span class="line">270</span><br><span class="line">271</span><br><span class="line">272</span><br><span class="line">273</span><br><span class="line">274</span><br><span class="line">275</span><br><span class="line">276</span><br><span class="line">277</span><br><span class="line">278</span><br><span class="line">279</span><br><span class="line">280</span><br><span class="line">281</span><br><span class="line">282</span><br><span class="line">283</span><br><span class="line">284</span><br><span class="line">285</span><br><span class="line">286</span><br><span class="line">287</span><br><span class="line">288</span><br><span class="line">289</span><br><span class="line">290</span><br><span class="line">291</span><br><span class="line">292</span><br><span class="line">293</span><br><span class="line">294</span><br><span class="line">295</span><br><span class="line">296</span><br><span class="line">297</span><br><span class="line">298</span><br><span class="line">299</span><br><span class="line">300</span><br><span class="line">301</span><br><span class="line">302</span><br><span class="line">303</span><br><span class="line">304</span><br></pre></td><td class="code"><pre><span class="line"><span class="tag">&lt;<span class="name">configuration</span>&gt;</span></span><br><span class="line">  <span class="comment">&lt;!-------基础配置-------&gt;</span></span><br><span class="line">  <span class="tag">&lt;<span class="name">property</span>&gt;</span></span><br><span class="line">    <span class="tag">&lt;<span class="name">name</span>&gt;</span>dfs.replication<span class="tag">&lt;/<span class="name">name</span>&gt;</span></span><br><span class="line">    <span class="tag">&lt;<span class="name">value</span>&gt;</span>3<span class="tag">&lt;/<span class="name">value</span>&gt;</span></span><br><span class="line">  <span class="tag">&lt;/<span class="name">property</span>&gt;</span></span><br><span class="line">  <span class="tag">&lt;<span class="name">property</span>&gt;</span></span><br><span class="line">    <span class="tag">&lt;<span class="name">name</span>&gt;</span>dfs.nameservices<span class="tag">&lt;/<span class="name">name</span>&gt;</span></span><br><span class="line">    <span class="tag">&lt;<span class="name">value</span>&gt;</span>rt1,data1<span class="tag">&lt;/<span class="name">value</span>&gt;</span></span><br><span class="line">  <span class="tag">&lt;/<span class="name">property</span>&gt;</span></span><br><span class="line">  <span class="tag">&lt;<span class="name">property</span>&gt;</span></span><br><span class="line">    <span class="tag">&lt;<span class="name">name</span>&gt;</span>dfs.internal.nameservices<span class="tag">&lt;/<span class="name">name</span>&gt;</span></span><br><span class="line">    <span class="tag">&lt;<span class="name">value</span>&gt;</span>rt1<span class="tag">&lt;/<span class="name">value</span>&gt;</span></span><br><span class="line">  <span class="tag">&lt;/<span class="name">property</span>&gt;</span></span><br><span class="line">  <span class="tag">&lt;<span class="name">property</span>&gt;</span></span><br><span class="line">    <span class="tag">&lt;<span class="name">name</span>&gt;</span>dfs.nameservice.id<span class="tag">&lt;/<span class="name">name</span>&gt;</span></span><br><span class="line">    <span class="tag">&lt;<span class="name">value</span>&gt;</span>rt1<span class="tag">&lt;/<span class="name">value</span>&gt;</span></span><br><span class="line">  <span class="tag">&lt;/<span class="name">property</span>&gt;</span></span><br><span class="line">  <span class="tag">&lt;<span class="name">property</span>&gt;</span></span><br><span class="line">    <span class="tag">&lt;<span class="name">name</span>&gt;</span>dfs.journalnode.edits.dir<span class="tag">&lt;/<span class="name">name</span>&gt;</span></span><br><span class="line">    <span class="tag">&lt;<span class="name">value</span>&gt;</span>/data1/hdfs/journal<span class="tag">&lt;/<span class="name">value</span>&gt;</span></span><br><span class="line">  <span class="tag">&lt;/<span class="name">property</span>&gt;</span></span><br><span class="line">  <span class="tag">&lt;<span class="name">property</span>&gt;</span></span><br><span class="line">    <span class="tag">&lt;<span class="name">name</span>&gt;</span>dfs.namenode.checkpoint.dir<span class="tag">&lt;/<span class="name">name</span>&gt;</span></span><br><span class="line">    <span class="tag">&lt;<span class="name">value</span>&gt;</span>file:///data2/hdfs/namesecondary<span class="tag">&lt;/<span class="name">value</span>&gt;</span></span><br><span class="line">  <span class="tag">&lt;/<span class="name">property</span>&gt;</span></span><br><span class="line">   <span class="tag">&lt;<span class="name">property</span>&gt;</span></span><br><span class="line">    <span class="tag">&lt;<span class="name">name</span>&gt;</span>dfs.namenode.checkpoint.period<span class="tag">&lt;/<span class="name">name</span>&gt;</span></span><br><span class="line">    <span class="tag">&lt;<span class="name">value</span>&gt;</span>10800<span class="tag">&lt;/<span class="name">value</span>&gt;</span></span><br><span class="line">  <span class="tag">&lt;/<span class="name">property</span>&gt;</span></span><br><span class="line">  <span class="tag">&lt;<span class="name">property</span>&gt;</span></span><br><span class="line">    <span class="tag">&lt;<span class="name">name</span>&gt;</span>dfs.namenode.checkpoint.txns<span class="tag">&lt;/<span class="name">name</span>&gt;</span></span><br><span class="line">    <span class="tag">&lt;<span class="name">value</span>&gt;</span>10000000<span class="tag">&lt;/<span class="name">value</span>&gt;</span></span><br><span class="line">  <span class="tag">&lt;/<span class="name">property</span>&gt;</span></span><br><span class="line">  <span class="tag">&lt;<span class="name">property</span>&gt;</span></span><br><span class="line">    <span class="tag">&lt;<span class="name">name</span>&gt;</span>dfs.namenode.datanode.registration.ip-hostname-check<span class="tag">&lt;/<span class="name">name</span>&gt;</span></span><br><span class="line">    <span class="tag">&lt;<span class="name">value</span>&gt;</span>false<span class="tag">&lt;/<span class="name">value</span>&gt;</span></span><br><span class="line">  <span class="tag">&lt;/<span class="name">property</span>&gt;</span></span><br><span class="line">  <span class="tag">&lt;<span class="name">property</span>&gt;</span></span><br><span class="line">    <span class="tag">&lt;<span class="name">name</span>&gt;</span>dfs.namenode.name.dir<span class="tag">&lt;/<span class="name">name</span>&gt;</span></span><br><span class="line">    <span class="tag">&lt;<span class="name">value</span>&gt;</span>file:///data1/hdfs/name<span class="tag">&lt;/<span class="name">value</span>&gt;</span></span><br><span class="line">  <span class="tag">&lt;/<span class="name">property</span>&gt;</span></span><br><span class="line">  <span class="tag">&lt;<span class="name">property</span>&gt;</span></span><br><span class="line">    <span class="tag">&lt;<span class="name">name</span>&gt;</span>dfs.namenode.edits.dir<span class="tag">&lt;/<span class="name">name</span>&gt;</span></span><br><span class="line">    <span class="tag">&lt;<span class="name">value</span>&gt;</span>file:///data1/hdfs/edits<span class="tag">&lt;/<span class="name">value</span>&gt;</span></span><br><span class="line">  <span class="tag">&lt;/<span class="name">property</span>&gt;</span></span><br><span class="line">  <span class="tag">&lt;<span class="name">property</span>&gt;</span></span><br><span class="line">    <span class="tag">&lt;<span class="name">name</span>&gt;</span>dfs.blocksize<span class="tag">&lt;/<span class="name">name</span>&gt;</span></span><br><span class="line">    <span class="tag">&lt;<span class="name">value</span>&gt;</span>268435456<span class="tag">&lt;/<span class="name">value</span>&gt;</span></span><br><span class="line">  <span class="tag">&lt;/<span class="name">property</span>&gt;</span></span><br><span class="line">  <span class="tag">&lt;<span class="name">property</span>&gt;</span></span><br><span class="line">    <span class="tag">&lt;<span class="name">name</span>&gt;</span>dfs.datanode.data.dir<span class="tag">&lt;/<span class="name">name</span>&gt;</span></span><br><span class="line">    <span class="tag">&lt;<span class="name">value</span>&gt;</span>file:///data1/hdfs,file:///data2/hdfs<span class="tag">&lt;/<span class="name">value</span>&gt;</span></span><br><span class="line">  <span class="tag">&lt;/<span class="name">property</span>&gt;</span></span><br><span class="line">  <span class="tag">&lt;<span class="name">property</span>&gt;</span></span><br><span class="line">    <span class="tag">&lt;<span class="name">name</span>&gt;</span>dfs.datanode.data.dir.perm<span class="tag">&lt;/<span class="name">name</span>&gt;</span></span><br><span class="line">    <span class="tag">&lt;<span class="name">value</span>&gt;</span>700<span class="tag">&lt;/<span class="name">value</span>&gt;</span></span><br><span class="line">  <span class="tag">&lt;/<span class="name">property</span>&gt;</span></span><br><span class="line">  <span class="tag">&lt;<span class="name">property</span>&gt;</span></span><br><span class="line">    <span class="tag">&lt;<span class="name">name</span>&gt;</span>dfs.datanode.du.reserved<span class="tag">&lt;/<span class="name">name</span>&gt;</span></span><br><span class="line">    <span class="tag">&lt;<span class="name">value</span>&gt;</span>107374182400<span class="tag">&lt;/<span class="name">value</span>&gt;</span></span><br><span class="line">  <span class="tag">&lt;/<span class="name">property</span>&gt;</span></span><br><span class="line">  <span class="tag">&lt;<span class="name">property</span>&gt;</span></span><br><span class="line">    <span class="tag">&lt;<span class="name">name</span>&gt;</span>dfs.datanode.failed.volumes.tolerated<span class="tag">&lt;/<span class="name">name</span>&gt;</span></span><br><span class="line">    <span class="tag">&lt;<span class="name">value</span>&gt;</span>1<span class="tag">&lt;/<span class="name">value</span>&gt;</span></span><br><span class="line">  <span class="tag">&lt;/<span class="name">property</span>&gt;</span></span><br><span class="line">  <span class="tag">&lt;<span class="name">property</span>&gt;</span></span><br><span class="line">    <span class="tag">&lt;<span class="name">name</span>&gt;</span>dfs.datanode.address<span class="tag">&lt;/<span class="name">name</span>&gt;</span></span><br><span class="line">    <span class="tag">&lt;<span class="name">value</span>&gt;</span>0.0.0.0:61004<span class="tag">&lt;/<span class="name">value</span>&gt;</span></span><br><span class="line">  <span class="tag">&lt;/<span class="name">property</span>&gt;</span></span><br><span class="line">  <span class="tag">&lt;<span class="name">property</span>&gt;</span></span><br><span class="line">    <span class="tag">&lt;<span class="name">name</span>&gt;</span>dfs.datanode.http.address<span class="tag">&lt;/<span class="name">name</span>&gt;</span></span><br><span class="line">    <span class="tag">&lt;<span class="name">value</span>&gt;</span>0.0.0.0:61006<span class="tag">&lt;/<span class="name">value</span>&gt;</span></span><br><span class="line">  <span class="tag">&lt;/<span class="name">property</span>&gt;</span></span><br><span class="line">  <span class="tag">&lt;<span class="name">property</span>&gt;</span></span><br><span class="line">    <span class="tag">&lt;<span class="name">name</span>&gt;</span>dfs.hosts.exclude<span class="tag">&lt;/<span class="name">name</span>&gt;</span></span><br><span class="line">    <span class="tag">&lt;<span class="name">value</span>&gt;</span>/etc/apps/hadoop-conf/dfs.exclude<span class="tag">&lt;/<span class="name">value</span>&gt;</span></span><br><span class="line">  <span class="tag">&lt;/<span class="name">property</span>&gt;</span></span><br><span class="line">  <span class="tag">&lt;<span class="name">property</span>&gt;</span></span><br><span class="line">    <span class="tag">&lt;<span class="name">name</span>&gt;</span>dfs.ha.namenodes.rt1<span class="tag">&lt;/<span class="name">name</span>&gt;</span></span><br><span class="line">    <span class="tag">&lt;<span class="name">value</span>&gt;</span>nn1,nn2<span class="tag">&lt;/<span class="name">value</span>&gt;</span></span><br><span class="line">  <span class="tag">&lt;/<span class="name">property</span>&gt;</span></span><br><span class="line">  <span class="tag">&lt;<span class="name">property</span>&gt;</span></span><br><span class="line">    <span class="tag">&lt;<span class="name">name</span>&gt;</span>dfs.namenode.http-address.rt1.nn1<span class="tag">&lt;/<span class="name">name</span>&gt;</span></span><br><span class="line">    <span class="tag">&lt;<span class="name">value</span>&gt;</span>di-h3-nn-01.net:50070<span class="tag">&lt;/<span class="name">value</span>&gt;</span></span><br><span class="line">  <span class="tag">&lt;/<span class="name">property</span>&gt;</span></span><br><span class="line">  <span class="tag">&lt;<span class="name">property</span>&gt;</span></span><br><span class="line">    <span class="tag">&lt;<span class="name">name</span>&gt;</span>dfs.namenode.http-address.rt1.nn2<span class="tag">&lt;/<span class="name">name</span>&gt;</span></span><br><span class="line">    <span class="tag">&lt;<span class="name">value</span>&gt;</span>di-h3-nn-02.net:50070<span class="tag">&lt;/<span class="name">value</span>&gt;</span></span><br><span class="line">  <span class="tag">&lt;/<span class="name">property</span>&gt;</span></span><br><span class="line">  <span class="tag">&lt;<span class="name">property</span>&gt;</span></span><br><span class="line">    <span class="tag">&lt;<span class="name">name</span>&gt;</span>dfs.namenode.rpc-address.rt1.nn1<span class="tag">&lt;/<span class="name">name</span>&gt;</span></span><br><span class="line">    <span class="tag">&lt;<span class="name">value</span>&gt;</span>di-h3-nn-01.net:8020<span class="tag">&lt;/<span class="name">value</span>&gt;</span></span><br><span class="line">  <span class="tag">&lt;/<span class="name">property</span>&gt;</span></span><br><span class="line">  <span class="tag">&lt;<span class="name">property</span>&gt;</span></span><br><span class="line">    <span class="tag">&lt;<span class="name">name</span>&gt;</span>dfs.namenode.rpc-address.rt1.nn2<span class="tag">&lt;/<span class="name">name</span>&gt;</span></span><br><span class="line">    <span class="tag">&lt;<span class="name">value</span>&gt;</span>di-h3-nn-02.net:8020<span class="tag">&lt;/<span class="name">value</span>&gt;</span></span><br><span class="line">  <span class="tag">&lt;/<span class="name">property</span>&gt;</span></span><br><span class="line">  <span class="tag">&lt;<span class="name">property</span>&gt;</span></span><br><span class="line">    <span class="tag">&lt;<span class="name">name</span>&gt;</span>dfs.namenode.servicerpc-address.rt1.nn1<span class="tag">&lt;/<span class="name">name</span>&gt;</span></span><br><span class="line">    <span class="tag">&lt;<span class="name">value</span>&gt;</span>di-h3-nn-01.net:8021<span class="tag">&lt;/<span class="name">value</span>&gt;</span></span><br><span class="line">  <span class="tag">&lt;/<span class="name">property</span>&gt;</span></span><br><span class="line">  <span class="tag">&lt;<span class="name">property</span>&gt;</span></span><br><span class="line">    <span class="tag">&lt;<span class="name">name</span>&gt;</span>dfs.namenode.servicerpc-address.rt1.nn2<span class="tag">&lt;/<span class="name">name</span>&gt;</span></span><br><span class="line">    <span class="tag">&lt;<span class="name">value</span>&gt;</span>di-h3-nn-02.net:8021<span class="tag">&lt;/<span class="name">value</span>&gt;</span></span><br><span class="line">  <span class="tag">&lt;/<span class="name">property</span>&gt;</span></span><br><span class="line">  <span class="tag">&lt;<span class="name">property</span>&gt;</span></span><br><span class="line">    <span class="tag">&lt;<span class="name">name</span>&gt;</span>dfs.namenode.servicerpc-bind-host<span class="tag">&lt;/<span class="name">name</span>&gt;</span></span><br><span class="line">    <span class="tag">&lt;<span class="name">value</span>&gt;</span>0.0.0.0<span class="tag">&lt;/<span class="name">value</span>&gt;</span></span><br><span class="line">  <span class="tag">&lt;/<span class="name">property</span>&gt;</span></span><br><span class="line">   <span class="tag">&lt;<span class="name">property</span>&gt;</span></span><br><span class="line">    <span class="tag">&lt;<span class="name">name</span>&gt;</span>dfs.namenode.http-bind-host<span class="tag">&lt;/<span class="name">name</span>&gt;</span></span><br><span class="line">    <span class="tag">&lt;<span class="name">value</span>&gt;</span>0.0.0.0<span class="tag">&lt;/<span class="name">value</span>&gt;</span></span><br><span class="line">  <span class="tag">&lt;/<span class="name">property</span>&gt;</span></span><br><span class="line">  <span class="tag">&lt;<span class="name">property</span>&gt;</span></span><br><span class="line">    <span class="tag">&lt;<span class="name">name</span>&gt;</span>dfs.namenode.https-bind-host<span class="tag">&lt;/<span class="name">name</span>&gt;</span></span><br><span class="line">    <span class="tag">&lt;<span class="name">value</span>&gt;</span>0.0.0.0<span class="tag">&lt;/<span class="name">value</span>&gt;</span></span><br><span class="line">  <span class="tag">&lt;/<span class="name">property</span>&gt;</span></span><br><span class="line">  <span class="tag">&lt;<span class="name">property</span>&gt;</span></span><br><span class="line">    <span class="tag">&lt;<span class="name">name</span>&gt;</span>dfs.namenode.rpc-bind-host<span class="tag">&lt;/<span class="name">name</span>&gt;</span></span><br><span class="line">    <span class="tag">&lt;<span class="name">value</span>&gt;</span>0.0.0.0<span class="tag">&lt;/<span class="name">value</span>&gt;</span></span><br><span class="line">  <span class="tag">&lt;/<span class="name">property</span>&gt;</span></span><br><span class="line">  <span class="tag">&lt;<span class="name">property</span>&gt;</span></span><br><span class="line">    <span class="tag">&lt;<span class="name">name</span>&gt;</span>dfs.namenode.service.handler.count<span class="tag">&lt;/<span class="name">name</span>&gt;</span></span><br><span class="line">    <span class="tag">&lt;<span class="name">value</span>&gt;</span>200<span class="tag">&lt;/<span class="name">value</span>&gt;</span></span><br><span class="line">  <span class="tag">&lt;/<span class="name">property</span>&gt;</span></span><br><span class="line">  <span class="tag">&lt;<span class="name">property</span>&gt;</span></span><br><span class="line">    <span class="tag">&lt;<span class="name">name</span>&gt;</span>dfs.ha.automatic-failover.enabled<span class="tag">&lt;/<span class="name">name</span>&gt;</span></span><br><span class="line">    <span class="tag">&lt;<span class="name">value</span>&gt;</span>true<span class="tag">&lt;/<span class="name">value</span>&gt;</span></span><br><span class="line">  <span class="tag">&lt;/<span class="name">property</span>&gt;</span></span><br><span class="line">  <span class="tag">&lt;<span class="name">property</span>&gt;</span></span><br><span class="line">    <span class="tag">&lt;<span class="name">name</span>&gt;</span>dfs.ha.fencing.methods<span class="tag">&lt;/<span class="name">name</span>&gt;</span></span><br><span class="line">    <span class="tag">&lt;<span class="name">value</span>&gt;</span>shell(/bin/true)<span class="tag">&lt;/<span class="name">value</span>&gt;</span></span><br><span class="line">  <span class="tag">&lt;/<span class="name">property</span>&gt;</span></span><br><span class="line">  <span class="tag">&lt;<span class="name">property</span>&gt;</span></span><br><span class="line">    <span class="tag">&lt;<span class="name">name</span>&gt;</span>dfs.client.failover.proxy.provider.rt1<span class="tag">&lt;/<span class="name">name</span>&gt;</span></span><br><span class="line">    <span class="tag">&lt;<span class="name">value</span>&gt;</span>org.apache.hadoop.hdfs.server.namenode.ha.ConfiguredFailoverProxyProvider</span><br><span class="line">    <span class="tag">&lt;/<span class="name">value</span>&gt;</span></span><br><span class="line">  <span class="tag">&lt;/<span class="name">property</span>&gt;</span></span><br><span class="line">  <span class="tag">&lt;<span class="name">property</span>&gt;</span></span><br><span class="line">    <span class="tag">&lt;<span class="name">name</span>&gt;</span>dfs.namenode.resource.du.reserved<span class="tag">&lt;/<span class="name">name</span>&gt;</span></span><br><span class="line">    <span class="tag">&lt;<span class="name">value</span>&gt;</span>50737418240<span class="tag">&lt;/<span class="name">value</span>&gt;</span></span><br><span class="line">  <span class="tag">&lt;/<span class="name">property</span>&gt;</span></span><br><span class="line">  <span class="tag">&lt;<span class="name">property</span>&gt;</span></span><br><span class="line">    <span class="tag">&lt;<span class="name">name</span>&gt;</span>dfs.namenode.support.allow.format<span class="tag">&lt;/<span class="name">name</span>&gt;</span></span><br><span class="line">    <span class="tag">&lt;<span class="name">value</span>&gt;</span>false<span class="tag">&lt;/<span class="name">value</span>&gt;</span></span><br><span class="line">  <span class="tag">&lt;/<span class="name">property</span>&gt;</span></span><br><span class="line">  <span class="tag">&lt;<span class="name">property</span>&gt;</span></span><br><span class="line">    <span class="tag">&lt;<span class="name">name</span>&gt;</span>dfs.support.append<span class="tag">&lt;/<span class="name">name</span>&gt;</span></span><br><span class="line">    <span class="tag">&lt;<span class="name">value</span>&gt;</span>true<span class="tag">&lt;/<span class="name">value</span>&gt;</span></span><br><span class="line">  <span class="tag">&lt;/<span class="name">property</span>&gt;</span></span><br><span class="line">  <span class="tag">&lt;<span class="name">property</span>&gt;</span></span><br><span class="line">    <span class="tag">&lt;<span class="name">name</span>&gt;</span>dfs.webhdfs.enabled<span class="tag">&lt;/<span class="name">name</span>&gt;</span></span><br><span class="line">    <span class="tag">&lt;<span class="name">value</span>&gt;</span>true<span class="tag">&lt;/<span class="name">value</span>&gt;</span></span><br><span class="line">  <span class="tag">&lt;/<span class="name">property</span>&gt;</span></span><br><span class="line">  <span class="comment">&lt;!-------权限配置-------&gt;</span></span><br><span class="line">  <span class="tag">&lt;<span class="name">property</span>&gt;</span></span><br><span class="line">    <span class="tag">&lt;<span class="name">name</span>&gt;</span>dfs.block.access.token.enable<span class="tag">&lt;/<span class="name">name</span>&gt;</span></span><br><span class="line">    <span class="tag">&lt;<span class="name">value</span>&gt;</span>false<span class="tag">&lt;/<span class="name">value</span>&gt;</span></span><br><span class="line">  <span class="tag">&lt;/<span class="name">property</span>&gt;</span></span><br><span class="line">  <span class="tag">&lt;<span class="name">property</span>&gt;</span></span><br><span class="line">    <span class="tag">&lt;<span class="name">name</span>&gt;</span>dfs.data.transfer.protection<span class="tag">&lt;/<span class="name">name</span>&gt;</span></span><br><span class="line">    <span class="tag">&lt;<span class="name">value</span>&gt;</span>integrity<span class="tag">&lt;/<span class="name">value</span>&gt;</span></span><br><span class="line">  <span class="tag">&lt;/<span class="name">property</span>&gt;</span></span><br><span class="line">  <span class="tag">&lt;<span class="name">property</span>&gt;</span></span><br><span class="line">    <span class="tag">&lt;<span class="name">name</span>&gt;</span>dfs.namenode.acls.enabled<span class="tag">&lt;/<span class="name">name</span>&gt;</span></span><br><span class="line">    <span class="tag">&lt;<span class="name">value</span>&gt;</span>true<span class="tag">&lt;/<span class="name">value</span>&gt;</span></span><br><span class="line">  <span class="tag">&lt;/<span class="name">property</span>&gt;</span></span><br><span class="line">  <span class="tag">&lt;<span class="name">property</span>&gt;</span></span><br><span class="line">    <span class="tag">&lt;<span class="name">name</span>&gt;</span>dfs.permissions.enabled<span class="tag">&lt;/<span class="name">name</span>&gt;</span></span><br><span class="line">    <span class="tag">&lt;<span class="name">value</span>&gt;</span>true<span class="tag">&lt;/<span class="name">value</span>&gt;</span></span><br><span class="line">  <span class="tag">&lt;/<span class="name">property</span>&gt;</span></span><br><span class="line">  <span class="tag">&lt;<span class="name">property</span>&gt;</span></span><br><span class="line">    <span class="tag">&lt;<span class="name">name</span>&gt;</span>dfs.permissions.superusergroup<span class="tag">&lt;/<span class="name">name</span>&gt;</span></span><br><span class="line">    <span class="tag">&lt;<span class="name">value</span>&gt;</span>hadoop<span class="tag">&lt;/<span class="name">value</span>&gt;</span></span><br><span class="line">  <span class="tag">&lt;/<span class="name">property</span>&gt;</span></span><br><span class="line">  <span class="comment">&lt;!-------HA配置--------&gt;</span></span><br><span class="line">    <span class="tag">&lt;<span class="name">property</span>&gt;</span></span><br><span class="line">    <span class="tag">&lt;<span class="name">name</span>&gt;</span>ha.zookeeper.quorum<span class="tag">&lt;/<span class="name">name</span>&gt;</span></span><br><span class="line">    <span class="tag">&lt;<span class="name">value</span>&gt;</span>di-h3-zk-01.net,di-h3-zk-02.net,di-h3-zk-03.net<span class="tag">&lt;/<span class="name">value</span>&gt;</span></span><br><span class="line">  <span class="tag">&lt;/<span class="name">property</span>&gt;</span></span><br><span class="line">  <span class="tag">&lt;<span class="name">property</span>&gt;</span></span><br><span class="line">    <span class="tag">&lt;<span class="name">name</span>&gt;</span>dfs.namenode.shared.edits.dir<span class="tag">&lt;/<span class="name">name</span>&gt;</span></span><br><span class="line">    <span class="tag">&lt;<span class="name">value</span>&gt;</span>qjournal://q1.net:8485;q2.net:8485;q3.net:8485/rt1<span class="tag">&lt;/<span class="name">value</span>&gt;</span></span><br><span class="line">  <span class="tag">&lt;/<span class="name">property</span>&gt;</span></span><br><span class="line">  <span class="tag">&lt;<span class="name">property</span>&gt;</span></span><br><span class="line">    <span class="tag">&lt;<span class="name">name</span>&gt;</span>dfs.qjournal.write-txns.timeout.ms<span class="tag">&lt;/<span class="name">name</span>&gt;</span></span><br><span class="line">    <span class="tag">&lt;<span class="name">value</span>&gt;</span>90000<span class="tag">&lt;/<span class="name">value</span>&gt;</span></span><br><span class="line">  <span class="tag">&lt;/<span class="name">property</span>&gt;</span></span><br><span class="line">  <span class="comment">&lt;!-------性能优化-------&gt;</span></span><br><span class="line">  <span class="tag">&lt;<span class="name">property</span>&gt;</span></span><br><span class="line">    <span class="tag">&lt;<span class="name">name</span>&gt;</span>dfs.blockreport.incremental.intervalMsec<span class="tag">&lt;/<span class="name">name</span>&gt;</span></span><br><span class="line">    <span class="tag">&lt;<span class="name">value</span>&gt;</span>300<span class="tag">&lt;/<span class="name">value</span>&gt;</span></span><br><span class="line">  <span class="tag">&lt;/<span class="name">property</span>&gt;</span></span><br><span class="line">  <span class="tag">&lt;<span class="name">property</span>&gt;</span></span><br><span class="line">    <span class="tag">&lt;<span class="name">name</span>&gt;</span>dfs.namenode.block.deletion.increment<span class="tag">&lt;/<span class="name">name</span>&gt;</span></span><br><span class="line">    <span class="tag">&lt;<span class="name">value</span>&gt;</span>200<span class="tag">&lt;/<span class="name">value</span>&gt;</span></span><br><span class="line">  <span class="tag">&lt;/<span class="name">property</span>&gt;</span></span><br><span class="line">  <span class="tag">&lt;<span class="name">property</span>&gt;</span></span><br><span class="line">    <span class="tag">&lt;<span class="name">name</span>&gt;</span>dfs.blockreport.initialDelay<span class="tag">&lt;/<span class="name">name</span>&gt;</span></span><br><span class="line">    <span class="tag">&lt;<span class="name">value</span>&gt;</span>60<span class="tag">&lt;/<span class="name">value</span>&gt;</span></span><br><span class="line">  <span class="tag">&lt;/<span class="name">property</span>&gt;</span></span><br><span class="line">  <span class="tag">&lt;<span class="name">property</span>&gt;</span></span><br><span class="line">    <span class="tag">&lt;<span class="name">name</span>&gt;</span>dfs.blockreport.intervalMsec<span class="tag">&lt;/<span class="name">name</span>&gt;</span></span><br><span class="line">    <span class="tag">&lt;<span class="name">value</span>&gt;</span>43200000<span class="tag">&lt;/<span class="name">value</span>&gt;</span></span><br><span class="line">  <span class="tag">&lt;/<span class="name">property</span>&gt;</span></span><br><span class="line">  <span class="tag">&lt;<span class="name">property</span>&gt;</span></span><br><span class="line">    <span class="tag">&lt;<span class="name">name</span>&gt;</span>dfs.client.hedged.read.threadpool.size<span class="tag">&lt;/<span class="name">name</span>&gt;</span></span><br><span class="line">    <span class="tag">&lt;<span class="name">value</span>&gt;</span>50<span class="tag">&lt;/<span class="name">value</span>&gt;</span></span><br><span class="line">  <span class="tag">&lt;/<span class="name">property</span>&gt;</span></span><br><span class="line">  <span class="tag">&lt;<span class="name">property</span>&gt;</span></span><br><span class="line">    <span class="tag">&lt;<span class="name">name</span>&gt;</span>dfs.client.hedged.read.threshold.millis<span class="tag">&lt;/<span class="name">name</span>&gt;</span></span><br><span class="line">    <span class="tag">&lt;<span class="name">value</span>&gt;</span>100<span class="tag">&lt;/<span class="name">value</span>&gt;</span></span><br><span class="line">  <span class="tag">&lt;/<span class="name">property</span>&gt;</span></span><br><span class="line">  <span class="tag">&lt;<span class="name">property</span>&gt;</span></span><br><span class="line">    <span class="tag">&lt;<span class="name">name</span>&gt;</span>dfs.client.read.shortcircuit<span class="tag">&lt;/<span class="name">name</span>&gt;</span></span><br><span class="line">    <span class="tag">&lt;<span class="name">value</span>&gt;</span>true<span class="tag">&lt;/<span class="name">value</span>&gt;</span></span><br><span class="line">  <span class="tag">&lt;/<span class="name">property</span>&gt;</span></span><br><span class="line">  <span class="tag">&lt;<span class="name">property</span>&gt;</span></span><br><span class="line">    <span class="tag">&lt;<span class="name">name</span>&gt;</span>dfs.datanode.balance.bandwidthPerSec<span class="tag">&lt;/<span class="name">name</span>&gt;</span></span><br><span class="line">    <span class="tag">&lt;<span class="name">value</span>&gt;</span>104857600<span class="tag">&lt;/<span class="name">value</span>&gt;</span></span><br><span class="line">  <span class="tag">&lt;/<span class="name">property</span>&gt;</span></span><br><span class="line">  <span class="tag">&lt;<span class="name">property</span>&gt;</span></span><br><span class="line">    <span class="tag">&lt;<span class="name">name</span>&gt;</span>dfs.datanode.balance.max.concurrent.moves<span class="tag">&lt;/<span class="name">name</span>&gt;</span></span><br><span class="line">    <span class="tag">&lt;<span class="name">value</span>&gt;</span>112<span class="tag">&lt;/<span class="name">value</span>&gt;</span></span><br><span class="line">  <span class="tag">&lt;/<span class="name">property</span>&gt;</span></span><br><span class="line">  <span class="tag">&lt;<span class="name">property</span>&gt;</span></span><br><span class="line">    <span class="tag">&lt;<span class="name">name</span>&gt;</span>fs.du.interval<span class="tag">&lt;/<span class="name">name</span>&gt;</span></span><br><span class="line">    <span class="tag">&lt;<span class="name">value</span>&gt;</span>86400000<span class="tag">&lt;/<span class="name">value</span>&gt;</span></span><br><span class="line">  <span class="tag">&lt;/<span class="name">property</span>&gt;</span></span><br><span class="line">  <span class="tag">&lt;<span class="name">property</span>&gt;</span></span><br><span class="line">    <span class="tag">&lt;<span class="name">name</span>&gt;</span>fs.getspaceused.jitterMillis<span class="tag">&lt;/<span class="name">name</span>&gt;</span></span><br><span class="line">    <span class="tag">&lt;<span class="name">value</span>&gt;</span>3600000<span class="tag">&lt;/<span class="name">value</span>&gt;</span></span><br><span class="line">  <span class="tag">&lt;/<span class="name">property</span>&gt;</span></span><br><span class="line">  <span class="tag">&lt;<span class="name">property</span>&gt;</span></span><br><span class="line">    <span class="tag">&lt;<span class="name">name</span>&gt;</span>dfs.datanode.cached-dfsused.check.interval.ms<span class="tag">&lt;/<span class="name">name</span>&gt;</span></span><br><span class="line">    <span class="tag">&lt;<span class="name">value</span>&gt;</span>14400000<span class="tag">&lt;/<span class="name">value</span>&gt;</span></span><br><span class="line">  <span class="tag">&lt;/<span class="name">property</span>&gt;</span></span><br><span class="line">  <span class="tag">&lt;<span class="name">property</span>&gt;</span></span><br><span class="line">    <span class="tag">&lt;<span class="name">name</span>&gt;</span>dfs.namenode.handler.count<span class="tag">&lt;/<span class="name">name</span>&gt;</span></span><br><span class="line">    <span class="tag">&lt;<span class="name">value</span>&gt;</span>200<span class="tag">&lt;/<span class="name">value</span>&gt;</span></span><br><span class="line">  <span class="tag">&lt;/<span class="name">property</span>&gt;</span></span><br><span class="line">  <span class="tag">&lt;<span class="name">property</span>&gt;</span></span><br><span class="line">    <span class="tag">&lt;<span class="name">name</span>&gt;</span>dfs.datanode.handler.count<span class="tag">&lt;/<span class="name">name</span>&gt;</span></span><br><span class="line">    <span class="tag">&lt;<span class="name">value</span>&gt;</span>30<span class="tag">&lt;/<span class="name">value</span>&gt;</span></span><br><span class="line">  <span class="tag">&lt;/<span class="name">property</span>&gt;</span></span><br><span class="line">  <span class="tag">&lt;<span class="name">property</span>&gt;</span></span><br><span class="line">    <span class="tag">&lt;<span class="name">name</span>&gt;</span>dfs.datanode.max.transfer.threads<span class="tag">&lt;/<span class="name">name</span>&gt;</span></span><br><span class="line">    <span class="tag">&lt;<span class="name">value</span>&gt;</span>16384<span class="tag">&lt;/<span class="name">value</span>&gt;</span></span><br><span class="line">  <span class="tag">&lt;/<span class="name">property</span>&gt;</span></span><br><span class="line">  <span class="tag">&lt;<span class="name">property</span>&gt;</span></span><br><span class="line">    <span class="tag">&lt;<span class="name">name</span>&gt;</span>dfs.datanode.max.xcievers<span class="tag">&lt;/<span class="name">name</span>&gt;</span></span><br><span class="line">    <span class="tag">&lt;<span class="name">value</span>&gt;</span>16384<span class="tag">&lt;/<span class="name">value</span>&gt;</span></span><br><span class="line">  <span class="tag">&lt;/<span class="name">property</span>&gt;</span></span><br><span class="line">  <span class="tag">&lt;<span class="name">property</span>&gt;</span></span><br><span class="line">    <span class="tag">&lt;<span class="name">name</span>&gt;</span>dfs.datanode.readahead.bytes<span class="tag">&lt;/<span class="name">name</span>&gt;</span></span><br><span class="line">    <span class="tag">&lt;<span class="name">value</span>&gt;</span>67108864<span class="tag">&lt;/<span class="name">value</span>&gt;</span></span><br><span class="line">  <span class="tag">&lt;/<span class="name">property</span>&gt;</span></span><br><span class="line">  <span class="tag">&lt;<span class="name">property</span>&gt;</span></span><br><span class="line">    <span class="tag">&lt;<span class="name">name</span>&gt;</span>dfs.domain.socket.path<span class="tag">&lt;/<span class="name">name</span>&gt;</span></span><br><span class="line">    <span class="tag">&lt;<span class="name">value</span>&gt;</span>/var/lib/hadoop-hdfs/dn_socket<span class="tag">&lt;/<span class="name">value</span>&gt;</span></span><br><span class="line">  <span class="tag">&lt;/<span class="name">property</span>&gt;</span></span><br><span class="line">  <span class="tag">&lt;<span class="name">property</span>&gt;</span></span><br><span class="line">    <span class="tag">&lt;<span class="name">name</span>&gt;</span>dfs.namenode.audit.log.async<span class="tag">&lt;/<span class="name">name</span>&gt;</span></span><br><span class="line">    <span class="tag">&lt;<span class="name">value</span>&gt;</span>true<span class="tag">&lt;/<span class="name">value</span>&gt;</span></span><br><span class="line">  <span class="tag">&lt;/<span class="name">property</span>&gt;</span></span><br><span class="line">  <span class="tag">&lt;<span class="name">property</span>&gt;</span></span><br><span class="line">    <span class="tag">&lt;<span class="name">name</span>&gt;</span>dfs.namenode.balancer.request.standby<span class="tag">&lt;/<span class="name">name</span>&gt;</span></span><br><span class="line">    <span class="tag">&lt;<span class="name">value</span>&gt;</span>true<span class="tag">&lt;/<span class="name">value</span>&gt;</span></span><br><span class="line">  <span class="tag">&lt;/<span class="name">property</span>&gt;</span></span><br><span class="line">  <span class="tag">&lt;<span class="name">property</span>&gt;</span></span><br><span class="line">    <span class="tag">&lt;<span class="name">name</span>&gt;</span>ipc.8020.backoff.enable<span class="tag">&lt;/<span class="name">name</span>&gt;</span></span><br><span class="line">    <span class="tag">&lt;<span class="name">value</span>&gt;</span>true<span class="tag">&lt;/<span class="name">value</span>&gt;</span></span><br><span class="line">  <span class="tag">&lt;/<span class="name">property</span>&gt;</span></span><br><span class="line">  <span class="tag">&lt;<span class="name">property</span>&gt;</span></span><br><span class="line">    <span class="tag">&lt;<span class="name">name</span>&gt;</span>ipc.8020.callqueue.impl<span class="tag">&lt;/<span class="name">name</span>&gt;</span></span><br><span class="line">    <span class="tag">&lt;<span class="name">value</span>&gt;</span>org.apache.hadoop.ipc.FairCallQueue<span class="tag">&lt;/<span class="name">value</span>&gt;</span></span><br><span class="line">  <span class="tag">&lt;/<span class="name">property</span>&gt;</span></span><br><span class="line">  <span class="tag">&lt;<span class="name">property</span>&gt;</span></span><br><span class="line">    <span class="tag">&lt;<span class="name">name</span>&gt;</span>ipc.server.listen.queue.size<span class="tag">&lt;/<span class="name">name</span>&gt;</span></span><br><span class="line">    <span class="tag">&lt;<span class="name">value</span>&gt;</span>1200<span class="tag">&lt;/<span class="name">value</span>&gt;</span></span><br><span class="line">  <span class="tag">&lt;/<span class="name">property</span>&gt;</span></span><br><span class="line">  <span class="tag">&lt;<span class="name">property</span>&gt;</span></span><br><span class="line">    <span class="tag">&lt;<span class="name">name</span>&gt;</span>ipc.server.log.slow.rpc<span class="tag">&lt;/<span class="name">name</span>&gt;</span></span><br><span class="line">    <span class="tag">&lt;<span class="name">value</span>&gt;</span>false<span class="tag">&lt;/<span class="name">value</span>&gt;</span></span><br><span class="line">  <span class="tag">&lt;/<span class="name">property</span>&gt;</span></span><br><span class="line">  <span class="tag">&lt;<span class="name">property</span>&gt;</span></span><br><span class="line">    <span class="tag">&lt;<span class="name">name</span>&gt;</span>mapreduce.job.acl-view-job<span class="tag">&lt;/<span class="name">name</span>&gt;</span></span><br><span class="line">    <span class="tag">&lt;<span class="name">value</span>&gt;</span>*<span class="tag">&lt;/<span class="name">value</span>&gt;</span></span><br><span class="line">  <span class="tag">&lt;/<span class="name">property</span>&gt;</span></span><br><span class="line">  <span class="comment">&lt;!-------分割线---------&gt;</span></span><br><span class="line">  <span class="tag">&lt;<span class="name">property</span>&gt;</span></span><br><span class="line">    <span class="tag">&lt;<span class="name">name</span>&gt;</span>dfs.block.replicator.default.local.rack<span class="tag">&lt;/<span class="name">name</span>&gt;</span></span><br><span class="line">    <span class="tag">&lt;<span class="name">value</span>&gt;</span>false<span class="tag">&lt;/<span class="name">value</span>&gt;</span></span><br><span class="line">  <span class="tag">&lt;/<span class="name">property</span>&gt;</span></span><br><span class="line">  <span class="tag">&lt;<span class="name">property</span>&gt;</span></span><br><span class="line">    <span class="tag">&lt;<span class="name">name</span>&gt;</span>fs.oss.impl.disable.cache<span class="tag">&lt;/<span class="name">name</span>&gt;</span></span><br><span class="line">    <span class="tag">&lt;<span class="name">value</span>&gt;</span>true<span class="tag">&lt;/<span class="name">value</span>&gt;</span></span><br><span class="line">  <span class="tag">&lt;/<span class="name">property</span>&gt;</span></span><br><span class="line">  <span class="tag">&lt;<span class="name">property</span>&gt;</span></span><br><span class="line">    <span class="tag">&lt;<span class="name">name</span>&gt;</span>ignore.secure.ports.for.testing<span class="tag">&lt;/<span class="name">name</span>&gt;</span></span><br><span class="line">    <span class="tag">&lt;<span class="name">value</span>&gt;</span>true<span class="tag">&lt;/<span class="name">value</span>&gt;</span></span><br><span class="line">  <span class="tag">&lt;/<span class="name">property</span>&gt;</span></span><br><span class="line"><span class="tag">&lt;/<span class="name">configuration</span>&gt;</span></span><br></pre></td></tr></table></figure>
+
+<h1 id="参考文档"><a href="#参考文档" class="headerlink" title="参考文档"></a>参考文档</h1><p><a href="https://www.infoq.cn/article/7o96tvJwNelq4xp-7Puh" target="_blank" rel="noopener">唯品会 HDFS 性能挑战和优化实践</a></p>
+<p><a href="https://www.cnblogs.com/serendipity/archive/2011/08/23/2151031.html" target="_blank" rel="noopener">Hadoop配置含义</a></p>
+<p><a href="https://www.cnblogs.com/serendipity/archive/2011/08/23/2151031.html" target="_blank" rel="noopener">HDFS里的Hedged Read源码以及局限性分析</a></p>
+<p><a href="https://www.cnblogs.com/zackstang/p/11721377.html" target="_blank" rel="noopener">HBase 中读 HDFS 调优</a></p>
+<p><a href="https://www.aboutyun.com/thread-16570-1-1.html" target="_blank" rel="noopener">Hadoop安全</a></p>
+<p><a href="http://www.hainiubl.com/topics/17" target="_blank" rel="noopener">Hadoop集群调优实战总结</a></p>
+<p><a href="https://www.cnblogs.com/yjt1993/p/11205972.html" target="_blank" rel="noopener">namenode 优化 mv慢的问题</a></p>
+<p><a href="https://blog.csdn.net/Androidlushangderen/article/details/52135506" target="_blank" rel="noopener">HDFS Federation机制</a></p>
+<p><a href="https://www.cnblogs.com/skyrim/p/7455590.html" target="_blank" rel="noopener">HDFS Permissions Guide 权限</a></p>
+<p><a href="http://hackershell.cn/?p=1382" target="_blank" rel="noopener">HDFS调优笔记</a></p>
+<p><a href="https://www.cnblogs.com/moonypog/p/11008161.html" target="_blank" rel="noopener">Hadoop优化</a></p>
+<p><a href="https://blog.csdn.net/baiyangfu/article/details/78346222" target="_blank" rel="noopener">hadoop ipc server 分析</a></p>
+
+        
+      
+    </div>
+
+    
+    
+    
+      <footer class="post-footer">
+        <div class="post-eof"></div>
+      </footer>
+  </article>
+  
+  
+  
+
+    
+        
+  
+  
+  <article itemscope itemtype="http://schema.org/Article" class="post-block home" lang="zh-CN">
+    <link itemprop="mainEntityOfPage" href="http://yoursite.com/2020/06/23/hadoop/HDFS-Client/">
+
+    <span hidden itemprop="author" itemscope itemtype="http://schema.org/Person">
+      <meta itemprop="name" content="姜纪光">
+      <meta itemprop="description" content="">
+      <meta itemprop="image" content="/images/avatar.gif">
+    </span>
+
+    <span hidden itemprop="publisher" itemscope itemtype="http://schema.org/Organization">
+      <meta itemprop="name" content="角落之外">
+    </span>
+      <header class="post-header">
+        <h1 class="post-title" itemprop="name headline">
+          
+            
+            <a href="/2020/06/23/hadoop/HDFS-Client/" class="post-title-link" itemprop="url">HDFS Client</a>
+          
+        </h1>
+
+        <div class="post-meta">
+            <span class="post-meta-item">
+              <span class="post-meta-item-icon">
+                <i class="fa fa-calendar-o"></i>
+              </span>
+              <span class="post-meta-item-text">发表于</span>
+
+              
+                
+              
+
+              <time title="创建时间：2020-06-23 10:47:44 / 修改时间：17:58:49" itemprop="dateCreated datePublished" datetime="2020-06-23T10:47:44+08:00">2020-06-23</time>
+            </span>
+          
+            
+
+            
+          
+            <span class="post-meta-item">
+              <span class="post-meta-item-icon">
+                <i class="fa fa-folder-o"></i>
+              </span>
+              <span class="post-meta-item-text">分类于</span>
+              
+                <span itemprop="about" itemscope itemtype="http://schema.org/Thing">
+                  <a href="/categories/hadoop/" itemprop="url" rel="index">
+                    <span itemprop="name">hadoop</span>
+                  </a>
+                </span>
+
+                
+                
+              
+            </span>
+          
+
+          
+            <span id="/2020/06/23/hadoop/HDFS-Client/" class="post-meta-item leancloud_visitors" data-flag-title="HDFS Client" title="阅读次数">
+              <span class="post-meta-item-icon">
+                <i class="fa fa-eye"></i>
+              </span>
+              <span class="post-meta-item-text">阅读次数：</span>
+              <span class="leancloud-visitors-count"></span>
+            </span>
+          
+  
+  
+
+        </div>
+      </header>
+
+    
+    
+    
+    <div class="post-body" itemprop="articleBody">
+
+      
+          <h1 id="参数优先级"><a href="#参数优先级" class="headerlink" title="参数优先级"></a>参数优先级</h1><ul>
+<li>代码中的优先级最高</li>
+<li>代码中资源目录下配置文件的优先级次之</li>
+<li>服务中的配置文件的优先级再次之</li>
+<li>服务中的默认配置文件的优先级最低</li>
+</ul>
+<h1 id="HDFS的写数据流程"><a href="#HDFS的写数据流程" class="headerlink" title="HDFS的写数据流程"></a>HDFS的写数据流程</h1><p><img src="/images/hadoop/HDFS%E5%86%99%E6%B5%81%E7%A8%8B.png" alt></p>
+<p>写数据流程：</p>
+<ul>
+<li>Client通过Distributed FileSystem向NameNode请求上传文件，NameNode检查父目录、文件是否已经存在</li>
+<li>NameNode返回可以上传</li>
+<li>Client向NameNode请求Block的存储位置</li>
+<li>NameNode通过计算选择距离近的节点，返回给Client</li>
+<li>Client通过FSDataOutputStream和相关的DataNode建立通讯管道</li>
+<li>DataNode应答Client</li>
+<li>Client以Packet为单位向DataNode1传递Block，DataNode1收到后放到本地内存，然后传给DataNode2、DataNode2传递给DataNode3，DataNode1每传递一个Packet就会放到应答队列等待应答。</li>
+</ul>
+<p>DataNode是先写入内存然后在落盘。</p>
+<h2 id="节点距离计算"><a href="#节点距离计算" class="headerlink" title="节点距离计算"></a>节点距离计算</h2><p>NameNode选择DataNode的因素：</p>
+<ul>
+<li>距离近</li>
+<li>负载低</li>
+</ul>
+<p>节点距离：两个节点到达最近的共同祖先的距离总和。</p>
+<h2 id="副本存储节点选择"><a href="#副本存储节点选择" class="headerlink" title="副本存储节点选择"></a>副本存储节点选择</h2><ul>
+<li>第一个副本在Client所在的节点上，如果Client在集群外，则随机选一个节点</li>
+<li>第二个副本和第一个副本位于相同机架，随机节点</li>
+<li>第三个副本位于不同机架，随机节点</li>
+</ul>
+<h1 id="HDFS的读数据流程"><a href="#HDFS的读数据流程" class="headerlink" title="HDFS的读数据流程"></a>HDFS的读数据流程</h1><p><img src="/images/hadoop/HDFS%E8%AF%BB%E6%B5%81%E7%A8%8B.png" alt></p>
+<p>当Client读取不同DataNode上的数据块时，时穿行读取的。</p>
+
+        
+      
+    </div>
+
+    
+    
+    
+      <footer class="post-footer">
+        <div class="post-eof"></div>
+      </footer>
+  </article>
+  
+  
+  
+
+    
+        
+  
+  
+  <article itemscope itemtype="http://schema.org/Article" class="post-block home" lang="zh-CN">
+    <link itemprop="mainEntityOfPage" href="http://yoursite.com/2020/06/23/hadoop/HDFS-Shell/">
+
+    <span hidden itemprop="author" itemscope itemtype="http://schema.org/Person">
+      <meta itemprop="name" content="姜纪光">
+      <meta itemprop="description" content="">
+      <meta itemprop="image" content="/images/avatar.gif">
+    </span>
+
+    <span hidden itemprop="publisher" itemscope itemtype="http://schema.org/Organization">
+      <meta itemprop="name" content="角落之外">
+    </span>
+      <header class="post-header">
+        <h1 class="post-title" itemprop="name headline">
+          
+            
+            <a href="/2020/06/23/hadoop/HDFS-Shell/" class="post-title-link" itemprop="url">HDFS Shell操作</a>
+          
+        </h1>
+
+        <div class="post-meta">
+            <span class="post-meta-item">
+              <span class="post-meta-item-icon">
+                <i class="fa fa-calendar-o"></i>
+              </span>
+              <span class="post-meta-item-text">发表于</span>
+
+              
+                
+              
+
+              <time title="创建时间：2020-06-23 09:59:56 / 修改时间：17:46:09" itemprop="dateCreated datePublished" datetime="2020-06-23T09:59:56+08:00">2020-06-23</time>
+            </span>
+          
+            
+
+            
+          
+            <span class="post-meta-item">
+              <span class="post-meta-item-icon">
+                <i class="fa fa-folder-o"></i>
+              </span>
+              <span class="post-meta-item-text">分类于</span>
+              
+                <span itemprop="about" itemscope itemtype="http://schema.org/Thing">
+                  <a href="/categories/hadoop/" itemprop="url" rel="index">
+                    <span itemprop="name">hadoop</span>
+                  </a>
+                </span>
+
+                
+                
+              
+            </span>
+          
+
+          
+            <span id="/2020/06/23/hadoop/HDFS-Shell/" class="post-meta-item leancloud_visitors" data-flag-title="HDFS Shell操作" title="阅读次数">
+              <span class="post-meta-item-icon">
+                <i class="fa fa-eye"></i>
+              </span>
+              <span class="post-meta-item-text">阅读次数：</span>
+              <span class="leancloud-visitors-count"></span>
+            </span>
+          
+  
+  
+
+        </div>
+      </header>
+
+    
+    
+    
+    <div class="post-body" itemprop="articleBody">
+
+      
+          <h1 id="基本语法"><a href="#基本语法" class="headerlink" title="基本语法"></a>基本语法</h1><p>Hadoop fs  具体命令 OR hdfs dfs 具体命令</p>
+<p>dfs时fs的实现类</p>
+<p>帮助命令：</p>
+<figure class="highlight shell"><table><tr><td class="gutter"><pre><span class="line">1</span><br></pre></td><td class="code"><pre><span class="line"><span class="meta">$</span> hdfs dfs -help rm</span><br></pre></td></tr></table></figure>
+
+<h1 id="集群命令"><a href="#集群命令" class="headerlink" title="集群命令"></a>集群命令</h1><h1 id="操作命令"><a href="#操作命令" class="headerlink" title="操作命令"></a>操作命令</h1><figure class="highlight shell"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br><span class="line">3</span><br><span class="line">4</span><br><span class="line">5</span><br><span class="line">6</span><br><span class="line">7</span><br><span class="line">8</span><br><span class="line">9</span><br><span class="line">10</span><br><span class="line">11</span><br><span class="line">12</span><br><span class="line">13</span><br></pre></td><td class="code"><pre><span class="line"><span class="meta">$</span> hdfs dfs -lsR /    #递归查看</span><br><span class="line"><span class="meta">$</span> hdfs dfs -mkdir -p /dir1/dir2  #创建多级目录</span><br><span class="line"><span class="meta">$</span> hdfs dfs -copyFromLocal localpath hdfspath</span><br><span class="line"><span class="meta">$</span> hdfs dfs -copyToLocal hdfspath localpath</span><br><span class="line"><span class="meta">$</span> hdfs dfs -get hdfspath localpath</span><br><span class="line"><span class="meta">$</span> hdfs dfs -appendToFile src dest </span><br><span class="line"><span class="meta">$</span> hdfs dfs -chgrp destgroup file</span><br><span class="line"><span class="meta">$</span> hdfs dfs -getmerge /hdfs/* ./merge.txt  #合并下载多个文件</span><br><span class="line"><span class="meta">$</span> hdfs dfs -tail /hdfs/file.txt  #显示文件的末尾</span><br><span class="line"><span class="meta">$</span> hdfs dfs -rm /hdfs/file.txt #删除文件</span><br><span class="line"><span class="meta">$</span> hdfs dfs -rm -r /hdfs/path #删除文件夹</span><br><span class="line"><span class="meta">$</span> hdfs dfs -rmdir /test #删除空目录</span><br><span class="line"><span class="meta">$</span> hdfs dfs -du /   #统计文件大小 -h 添加单位  -s 统计总的大小</span><br></pre></td></tr></table></figure>
+
+
+        
+      
+    </div>
+
+    
+    
+    
+      <footer class="post-footer">
+        <div class="post-eof"></div>
+      </footer>
+  </article>
+  
+  
+  
+
+    
+        
+  
+  
+  <article itemscope itemtype="http://schema.org/Article" class="post-block home" lang="zh-CN">
+    <link itemprop="mainEntityOfPage" href="http://yoursite.com/2020/06/23/hadoop/HDFS-Architecture/">
+
+    <span hidden itemprop="author" itemscope itemtype="http://schema.org/Person">
+      <meta itemprop="name" content="姜纪光">
+      <meta itemprop="description" content="">
+      <meta itemprop="image" content="/images/avatar.gif">
+    </span>
+
+    <span hidden itemprop="publisher" itemscope itemtype="http://schema.org/Organization">
+      <meta itemprop="name" content="角落之外">
+    </span>
+      <header class="post-header">
+        <h1 class="post-title" itemprop="name headline">
+          
+            
+            <a href="/2020/06/23/hadoop/HDFS-Architecture/" class="post-title-link" itemprop="url">HDFS架构简介</a>
+          
+        </h1>
+
+        <div class="post-meta">
+            <span class="post-meta-item">
+              <span class="post-meta-item-icon">
+                <i class="fa fa-calendar-o"></i>
+              </span>
+              <span class="post-meta-item-text">发表于</span>
+
+              
+                
+              
+
+              <time title="创建时间：2020-06-23 09:27:40" itemprop="dateCreated datePublished" datetime="2020-06-23T09:27:40+08:00">2020-06-23</time>
+            </span>
+          
+            
+
+            
+              <span class="post-meta-item">
+                <span class="post-meta-item-icon">
+                  <i class="fa fa-calendar-check-o"></i>
+                </span>
+                <span class="post-meta-item-text">更新于</span>
+                <time title="修改时间：2020-06-24 14:40:01" itemprop="dateModified" datetime="2020-06-24T14:40:01+08:00">2020-06-24</time>
+              </span>
+            
+          
+            <span class="post-meta-item">
+              <span class="post-meta-item-icon">
+                <i class="fa fa-folder-o"></i>
+              </span>
+              <span class="post-meta-item-text">分类于</span>
+              
+                <span itemprop="about" itemscope itemtype="http://schema.org/Thing">
+                  <a href="/categories/hadoop/" itemprop="url" rel="index">
+                    <span itemprop="name">hadoop</span>
+                  </a>
+                </span>
+
+                
+                
+              
+            </span>
+          
+
+          
+            <span id="/2020/06/23/hadoop/HDFS-Architecture/" class="post-meta-item leancloud_visitors" data-flag-title="HDFS架构简介" title="阅读次数">
+              <span class="post-meta-item-icon">
+                <i class="fa fa-eye"></i>
+              </span>
+              <span class="post-meta-item-text">阅读次数：</span>
+              <span class="leancloud-visitors-count"></span>
+            </span>
+          
+  
+  
+
+        </div>
+      </header>
+
+    
+    
+    
+    <div class="post-body" itemprop="articleBody">
+
+      
+          <h1 id="HDFS的优点和缺点"><a href="#HDFS的优点和缺点" class="headerlink" title="HDFS的优点和缺点"></a>HDFS的优点和缺点</h1><h2 id="优点"><a href="#优点" class="headerlink" title="优点"></a>优点</h2><ul>
+<li><p>高容错性</p>
+<p>多副本</p>
+<p>副本丢失，可以自动恢复</p>
+</li>
+<li><p>适合处理大数据</p>
+<p>能够处理PB级别的数据</p>
+<p>能够处理百万以上的文件数量</p>
+</li>
+<li><p>可构建的廉价的机器上</p>
+</li>
+</ul>
+<h2 id="缺点"><a href="#缺点" class="headerlink" title="缺点"></a>缺点</h2><ul>
+<li>不适合低延迟数据访问</li>
+<li>无法高效地对大量小文件进行存储</li>
+<li>不支持并发写入，文件随机修改</li>
+</ul>
+<h1 id="HDFS的架构"><a href="#HDFS的架构" class="headerlink" title="HDFS的架构"></a>HDFS的架构</h1><h2 id="NameNode"><a href="#NameNode" class="headerlink" title="NameNode"></a>NameNode</h2><ul>
+<li>管理HDFS的名称空间，集群配置信息和存储块的复制</li>
+<li>配置副本策略</li>
+<li>管理数据块（Block）映射信息</li>
+<li>处理客户端读写请求</li>
+</ul>
+<h2 id="DataNode"><a href="#DataNode" class="headerlink" title="DataNode"></a>DataNode</h2><p>  NameNode下达命令，DataNode负责执行实际的操作</p>
+<ul>
+<li>存储实际的数据块</li>
+<li>执行数据块的读写操作</li>
+</ul>
+<h2 id="Client客户端"><a href="#Client客户端" class="headerlink" title="Client客户端"></a>Client客户端</h2><ul>
+<li>文件切分  文件上传到HDFS的时候，Client将文件切分成一个个的Block，然后进行上传</li>
+<li>与NameNode交互，获取文件的位置信息</li>
+<li>与DataNode交互，读取或者写入数据</li>
+<li>通过命令管理HDFS，比如NameNode格式化等</li>
+<li>通过命令访问HDFS，比如对HDFS进行增删查改等操作 </li>
+</ul>
+<h2 id="Secondary-NameNode"><a href="#Secondary-NameNode" class="headerlink" title="Secondary NameNode"></a>Secondary NameNode</h2><p>  不是NameNode的热备，当NameNode挂掉时并不能替换NameNode</p>
+<ul>
+<li><p>辅助NameNode，分担其工作量，比如定期合并fsimage和edits文件，并推送给NameNode</p>
+</li>
+<li><p>辅助恢复NameNode</p>
+</li>
+</ul>
+<h1 id="NameNode工作机制"><a href="#NameNode工作机制" class="headerlink" title="NameNode工作机制"></a>NameNode工作机制</h1><p><img src="/images/hadoop/NameNode%E5%B7%A5%E4%BD%9C%E6%9C%BA%E5%88%B6.png" alt></p>
+<p>hdfs-site.xml中edit文件和fsimage文件的配置如下：</p>
+<figure class="highlight xml"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br><span class="line">3</span><br><span class="line">4</span><br><span class="line">5</span><br><span class="line">6</span><br><span class="line">7</span><br><span class="line">8</span><br></pre></td><td class="code"><pre><span class="line"><span class="tag">&lt;<span class="name">property</span>&gt;</span></span><br><span class="line">  <span class="tag">&lt;<span class="name">name</span>&gt;</span>dfs.namenode.edits.dir<span class="tag">&lt;/<span class="name">name</span>&gt;</span></span><br><span class="line">  <span class="tag">&lt;<span class="name">value</span>&gt;</span>file:///data1/hdfs/edits<span class="tag">&lt;/<span class="name">value</span>&gt;</span></span><br><span class="line"><span class="tag">&lt;/<span class="name">property</span>&gt;</span></span><br><span class="line"><span class="tag">&lt;<span class="name">property</span>&gt;</span></span><br><span class="line">  <span class="tag">&lt;<span class="name">name</span>&gt;</span>dfs.namenode.name.dir<span class="tag">&lt;/<span class="name">name</span>&gt;</span></span><br><span class="line">  <span class="tag">&lt;<span class="name">value</span>&gt;</span>file:///data1/hdfs/name<span class="tag">&lt;/<span class="name">value</span>&gt;</span></span><br><span class="line"><span class="tag">&lt;/<span class="name">property</span>&gt;</span></span><br></pre></td></tr></table></figure>
+
+<p>上述配置可以配置多个目录，使用英文逗号分隔。各个目录存储的文件结构和内容都完全一样，相当于备份，这</p>
+<p>做的好处是当其中一个目录损坏了，也不会影响到 HDFS 的元数据。</p>
+<h2 id="NameNode启动流程"><a href="#NameNode启动流程" class="headerlink" title="NameNode启动流程"></a>NameNode启动流程</h2><ul>
+<li>Loading fsimage：从fsimage 文件中读取最新的文件系统的元数据快照(最近生成的fsimage_xx)</li>
+<li>Loading edits：读取包含fsimage_xx之后的所有tx的edit logs并将edit logs中的操作从新操作一遍更新到元数据中，则此时NN更新到上次停止时的状态。</li>
+<li>checkpoint：将当前状态写入新的checkpoint中，即产生一个新的fsimage_xx文件</li>
+<li>Safe mode：等待各个<em>datanodes report</em>各自的block信息，形成blockMap，然后退出安全模式</li>
+</ul>
+<h2 id="NameNode元数据"><a href="#NameNode元数据" class="headerlink" title="NameNode元数据"></a>NameNode元数据</h2><p>​    NameNode的所有操作及整个集群的状态都存储在<em>元数据</em>中。NN的元数据存储是由fsimage和edits文件组成。</p>
+<p>​    fsimage存放上次checkpoint生成的文件系统元数据。</p>
+<p>​    edits存放文件系操作日志。</p>
+<p>​    checkpoint的过程，就是合并fsimage和Edits文件，然后生成最新的fsimage的过程。</p>
+<h2 id="edits文件"><a href="#edits文件" class="headerlink" title="edits文件"></a>edits文件</h2><ul>
+<li>NameNode在执行HDFS客户端提交的创建文件或者移动文件这样的<em>写操作</em>的时候，会首先把这些操作记录在</li>
+</ul>
+<p>Edit Log 文件之中，然后再更新内存中的文件系统镜像。</p>
+<ul>
+<li><p>内存中的<em>文件系统镜像</em>用于NameNode向客户端提供读服务，</p>
+</li>
+<li><p>而 EditLog仅仅只是在数据恢复的时候起作用。</p>
+</li>
+<li><p>记录在 EditLog之中的每一个操作又称为一个事务，每个事务有一个整数形式的事务id作为编号。</p>
+</li>
+<li><p>EditLog会被切割为很多段，每一段称为一个Segment。</p>
+</li>
+<li><p>正在写入的EditLog Segment处于in-progress状态，其文件名形如edits_inprogress_${start_txid}，其中${start_txid}表示这个segment的起始事务id。_</p>
+</li>
+<li><p><em>已经写入完成的EditLog Segment处于finalized状态，其文件名形如edits</em>${start_txid}-${end_txid}，其中${start_txid}表示这个segment的起始事务id，${end_txid}表示这个segment 的结束事务id。</p>
+</li>
+<li><p>VERSION文件：同fsimage的VERSION文件</p>
+<figure class="highlight plain"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br><span class="line">3</span><br><span class="line">4</span><br><span class="line">5</span><br><span class="line">6</span><br><span class="line">7</span><br><span class="line">8</span><br></pre></td><td class="code"><pre><span class="line"># cat VERSION </span><br><span class="line">#Thu May 07 15:37:35 CST 2020</span><br><span class="line">namespaceID=311185149</span><br><span class="line">clusterID=CID-16c92849-13d3-4148-af0c-efbd46ebee69</span><br><span class="line">cTime=0</span><br><span class="line">storageType=NAME_NODE</span><br><span class="line">blockpoolID=BP-1844235958-172.16.189.127-1588837055138</span><br><span class="line">layoutVersion=-60</span><br></pre></td></tr></table></figure>
+</li>
+<li><p>seen_txid：同fsimage的seen_txid文件</p>
+</li>
+</ul>
+<h2 id="fsimage文件"><a href="#fsimage文件" class="headerlink" title="fsimage文件"></a>fsimage文件</h2><ul>
+<li>NameNode会定期对内存中的文件系统镜像进行checkpoint操作，在磁盘上生成FSImage文件</li>
+<li>FSImage文件的文件名形如fsimage_${end_txid}，其中${end_txid}表示这个fsimage文件的结束事务id。</li>
+<li>在NameNode启动的时候会进行数据恢复，首先把FSImage文件加载到内存中形成文件系统镜像，然后再把EditLog之中<strong>FsImage的结束事务id之后的EditLog</strong>回放到这个文件系统镜像上。</li>
+</ul>
+<h3 id="fsimage文件解析"><a href="#fsimage文件解析" class="headerlink" title="fsimage文件解析"></a>fsimage文件解析</h3><ul>
+<li><p>in_use.lock 存储的是 NameNode进程ID@本NameNode主机名 如：<a href="mailto:28695@di-h3-nn-01.net" target="_blank" rel="noopener">28695@di-h3-nn-01.net</a></p>
+</li>
+<li><p>VERSION文件：</p>
+<figure class="highlight plain"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br><span class="line">3</span><br><span class="line">4</span><br><span class="line">5</span><br><span class="line">6</span><br><span class="line">7</span><br><span class="line">8</span><br><span class="line">9</span><br><span class="line">10</span><br><span class="line">11</span><br><span class="line">12</span><br><span class="line">13</span><br><span class="line">14</span><br><span class="line">15</span><br><span class="line">16</span><br></pre></td><td class="code"><pre><span class="line"># cat VERSION </span><br><span class="line">#Thu May 07 15:37:35 CST 2020</span><br><span class="line">#文件系统的唯一标识符，在文件系统首次格式化之后生成的</span><br><span class="line">namespaceID=311185149</span><br><span class="line">#系统生成或手动指定的集群ID</span><br><span class="line">clusterID=CID-16c92849-13d3-4148-af0c-efbd46ebee69</span><br><span class="line">#文件系统创建的时间，随着HDFS的升级而改变。(这里没有对HDFS升级，则记录值为0)</span><br><span class="line">cTime=0</span><br><span class="line">#说明这个文件存储的是什么进程的数据结构信息</span><br><span class="line">#(NAME_NODE或者JOURNAL_NODE，JOURNAL_NODE是JouranlNode的元数据，在DataNode中是DATA_NODE)</span><br><span class="line">storageType=NAME_NODE</span><br><span class="line">#是针对每一个Namespace所对应的blockpool的ID</span><br><span class="line">blockpoolID=BP-1844235958-172.16.189.127-1588837055138</span><br><span class="line">#表示HDFS永久性数据结构的版本信息,只要数据结构变更,版本号也要递减,此时的HDFS也需要升级,否则</span><br><span class="line">#磁盘仍旧是使用旧版本的数据结构,这会导致新版本的NameNode无法使用</span><br><span class="line">layoutVersion=-60</span><br></pre></td></tr></table></figure>
+
+</li>
+</ul>
+<p>​       namespaceID/clusterID/blockpoolID – 这些都唯一标识了HDFS集群。这些标识主要是用来防止DataNode注        册到别的其它集群的NameNode中。这些标识符在联邦部署中尤其重要。在联邦模式下，每个NameSpace都唯一的namespaceID，管理着对应的唯一blockpoolID，而clusterID则是整个联邦集群的唯一逻辑单元，集群中所有的节点都相同。</p>
+<ul>
+<li><p>seen_txid</p>
+<figure class="highlight plain"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br></pre></td><td class="code"><pre><span class="line"># cat seen_txid </span><br><span class="line">778162658</span><br></pre></td></tr></table></figure>
+
+<p> 存储的是edits_inprogress_* 文件的尾数。即edits已经结束文件的下一个transactionID。</p>
+</li>
+</ul>
+<ul>
+<li><p>查看fsimage文件的内容</p>
+<p>fsimage_*文件是经过序列化的，因此直接查看是乱码。必须使用hdfs进行转换。</p>
+<figure class="highlight shell"><table><tr><td class="gutter"><pre><span class="line">1</span><br></pre></td><td class="code"><pre><span class="line"><span class="meta">$</span> hdfs oiv -p XML -i fsimage_ -o myfsimage.xml</span><br></pre></td></tr></table></figure>
+
+</li>
+</ul>
+<h2 id="Checkpoint"><a href="#Checkpoint" class="headerlink" title="Checkpoint"></a>Checkpoint</h2><p>​    Checkpoint主要是将fsimage和edit log的内容进行合并生成一个新的fsimage。这样在NN启动的时候就不用将巨大的edits里的事务再次执行一遍了，而是直接加载合并之后的新fsimage，然后重新执行未被合并的edits文件就可以了。</p>
+<p>​    创建新fsimage的过程需要大量的I/O、内存等资源，而且namesystem在Checkpoint的时候会限制用户的访问。则NN将Checkpoint过程放在SecondaryNameNode或者StandbyNameNode中。</p>
+<p>  Checkpoint的触发条件有两个，满足其中一个即可，间隔周期是由<code>dfs.namenode.checkpoint.check.period</code>控制的，默认是60s：</p>
+<ul>
+<li>两次checkpoint的时间间隔达到阈值，由属性<code>dfs.namenode.checkpoint.period</code>控制，默认是3600s</li>
+<li>新生成的edit log中积累的事务数量达到了阈值，由属性<code>dfs.namenode.checkpoint.txns</code>控制，默认1000000</li>
+</ul>
+<p>​    Fsimage回滚条件由由属性<code>dfs.namenode.num.checkpoints.retained</code>控制，默认保存2个：</p>
+<ul>
+<li>fsimage会在每次checkpoint时生成一个新的fsimage</li>
+<li>NN重启的时候也会生成一个新的fsimage</li>
+</ul>
+<p>​    Edits log回滚条件：</p>
+<ul>
+<li>NameNode(active)周期性的检查当前的事务数是否超过了edits回滚阈值。<br>间隔周期是由<code>dfs.namenode.edit.log.autoroll.check.interval.ms</code>控制，默认是300000ms。<br>回滚的阈值是<code>dfs.namenode.edit.log.autoroll.multiplier.threshold</code>和<code>dfs.namenode.checkpoint.txns</code>的乘积，<code>dfs.namenode.edit.log.autoroll.multiplier.threshold</code>默认是2.0f</li>
+<li>在HA模式下，standby NN会周期的让active NN对edits进行回滚，间隔周期由<code>dfs.ha.log-roll.period</code><br>控制，默认是120s</li>
+</ul>
+<p>standby NN之所以周期的让active NN回滚edits log是因为standby NN不会读取<em>inprogress</em>的edits，只是周期（<code>dfs.ha.tail-edits.period</code>，默认是60s）的去检测已经完成的edits文件，并将该edits文件通过JournalNode读取到内存更新fsimage在内存中的状态。</p>
+<p><strong>HA模式下，client只和active进行通信，将写操作信息分别写入本地的edits中和JournalNode中的edits中，standby NN周期的去JournalNode中读取进行同步。只有在active宕机之后，standby才对外提供服务，平时只是实现了active的热备</strong></p>
+<p>edits log默认会保存<code>dfs.namenode.num.extra.edits.retained</code>条事务，默认是1000000条</p>
+<h2 id="JournalNode"><a href="#JournalNode" class="headerlink" title="JournalNode"></a>JournalNode</h2><p>​    在HA模式下，edits由一组独立的守护进程JournalNodes进行收集。JournalNode的元数据目录配置在hdfs-site.xml的<code>dfs.journalnode.edits.dir</code>。JournalNode的元数据包含一个VERSION文件，多个edits_xx文件和一个edits_inprogress_xx，还包含一些与HA实现相关的文件，这些文件主要是为了防止脑裂，<em>但是JournalNode并不包含fsimage和seen_txid</em>。</p>
+<p>下面主要介绍下与NameNode元数据不一样的文件：</p>
+<ul>
+<li>committed-txid – 记录由NameNode提交的最后一个transaction ID</li>
+<li>last-promised-epoch – 这个文件记录了epoch，epoch是一个单调递增的数字。当standby变为active时，JournalNode会会增加epoch并存储。NameNode主要通过该值来告诉JournalNode谁是active，小于该值的NameNode禁止对JournalNode元数据写操作，写请求被忽略。</li>
+<li>last-writer-epoch – 和上面的值类似，该文件记录下最后一次发生写操作的epoch。</li>
+<li>paxos – 此目录包含一些临时文件，主要在实现paxos分布式算法协议中使用。这个目录通常是空的。</li>
+</ul>
+<h1 id="参考文档"><a href="#参考文档" class="headerlink" title="参考文档"></a>参考文档</h1><p><a href="https://blog.csdn.net/u011414200/article/details/50358603" target="_blank" rel="noopener">NameNode元数据相关文件目录解析</a></p>
+<p><a href="http://bigdatadecode.club/NameNode%E5%85%83%E6%95%B0%E6%8D%AE%E5%8F%8Acheckpoint%E5%88%86%E6%9E%90.html" target="_blank" rel="noopener">NameNode元数据及checkpoint分析</a></p>
+
+        
+      
+    </div>
+
+    
+    
+    
+      <footer class="post-footer">
+        <div class="post-eof"></div>
+      </footer>
+  </article>
+  
+  
+  
+
+    
+        
+  
+  
+  <article itemscope itemtype="http://schema.org/Article" class="post-block home" lang="zh-CN">
+    <link itemprop="mainEntityOfPage" href="http://yoursite.com/2020/06/23/hadoop/HDFS-Small-File/">
+
+    <span hidden itemprop="author" itemscope itemtype="http://schema.org/Person">
+      <meta itemprop="name" content="姜纪光">
+      <meta itemprop="description" content="">
+      <meta itemprop="image" content="/images/avatar.gif">
+    </span>
+
+    <span hidden itemprop="publisher" itemscope itemtype="http://schema.org/Organization">
+      <meta itemprop="name" content="角落之外">
+    </span>
+      <header class="post-header">
+        <h1 class="post-title" itemprop="name headline">
+          
+            
+            <a href="/2020/06/23/hadoop/HDFS-Small-File/" class="post-title-link" itemprop="url">HDFS小文件</a>
+          
+        </h1>
+
+        <div class="post-meta">
+            <span class="post-meta-item">
+              <span class="post-meta-item-icon">
+                <i class="fa fa-calendar-o"></i>
+              </span>
+              <span class="post-meta-item-text">发表于</span>
+
+              
+                
+              
+
+              <time title="创建时间：2020-06-23 09:17:48 / 修改时间：17:43:21" itemprop="dateCreated datePublished" datetime="2020-06-23T09:17:48+08:00">2020-06-23</time>
+            </span>
+          
+            
+
+            
+          
+            <span class="post-meta-item">
+              <span class="post-meta-item-icon">
+                <i class="fa fa-folder-o"></i>
+              </span>
+              <span class="post-meta-item-text">分类于</span>
+              
+                <span itemprop="about" itemscope itemtype="http://schema.org/Thing">
+                  <a href="/categories/hadoop/" itemprop="url" rel="index">
+                    <span itemprop="name">hadoop</span>
+                  </a>
+                </span>
+
+                
+                
+              
+            </span>
+          
+
+          
+            <span id="/2020/06/23/hadoop/HDFS-Small-File/" class="post-meta-item leancloud_visitors" data-flag-title="HDFS小文件" title="阅读次数">
+              <span class="post-meta-item-icon">
+                <i class="fa fa-eye"></i>
+              </span>
+              <span class="post-meta-item-text">阅读次数：</span>
+              <span class="leancloud-visitors-count"></span>
+            </span>
+          
+  
+  
+
+        </div>
+      </header>
+
+    
+    
+    
+    <div class="post-body" itemprop="articleBody">
+
+      
+          <h1 id="简介"><a href="#简介" class="headerlink" title="简介"></a>简介</h1><p>  HDFS的缺点之一就是无法高效地对大量小文件进行存储：</p>
+<ul>
+<li>每个小文件会占用150个byte，会占用大量的NameNode的内存存储文件的目录和块信息。</li>
+<li>小文件存储的寻址时间会超过读取时间</li>
+</ul>
+<h1 id="HDFS文件块大小"><a href="#HDFS文件块大小" class="headerlink" title="HDFS文件块大小"></a>HDFS文件块大小</h1><p>  HDFS中的文件在物理上是分块（Block）存储的，块大小通过dfs.blocksize参数设置的，生产中设置的是268435456，即256MB。</p>
+<p>寻址时间为传输时间的1%时，为最佳状态。</p>
+<p>影响块大小的最主要因素是磁盘传输速率：</p>
+<ul>
+<li>块大小=1s * 磁盘传输速率</li>
+<li>目前磁盘普遍传输速率为100MB/s，若磁盘传输速率高，应该把块大小提高。</li>
+</ul>
+<p>HDFS的块应该合理设置：</p>
+<ul>
+<li>设置太小，会增加寻址时间，程序查找块开始位置比较耗时</li>
+<li>设置太大，从磁盘传输数据的时间会明显大于定位块开始位置所需的时间。导致程序在处理这块时间时，非常慢</li>
+</ul>
+<p>如果副本数设置为10，那么每个节点最多存储一个副本，3个节点就存储3份，每增加一个节点就会增加一个副本</p>
+
+        
+      
+    </div>
+
+    
+    
+    
+      <footer class="post-footer">
+        <div class="post-eof"></div>
+      </footer>
+  </article>
+  
+  
+  
+
+    
+        
+  
+  
+  <article itemscope itemtype="http://schema.org/Article" class="post-block home" lang="zh-CN">
+    <link itemprop="mainEntityOfPage" href="http://yoursite.com/2020/06/22/hadoop/YARN-Node-Labels/">
+
+    <span hidden itemprop="author" itemscope itemtype="http://schema.org/Person">
+      <meta itemprop="name" content="姜纪光">
+      <meta itemprop="description" content="">
+      <meta itemprop="image" content="/images/avatar.gif">
+    </span>
+
+    <span hidden itemprop="publisher" itemscope itemtype="http://schema.org/Organization">
+      <meta itemprop="name" content="角落之外">
+    </span>
+      <header class="post-header">
+        <h1 class="post-title" itemprop="name headline">
+          
+            
+            <a href="/2020/06/22/hadoop/YARN-Node-Labels/" class="post-title-link" itemprop="url">YARN Node Labels</a>
+          
+        </h1>
+
+        <div class="post-meta">
+            <span class="post-meta-item">
+              <span class="post-meta-item-icon">
+                <i class="fa fa-calendar-o"></i>
+              </span>
+              <span class="post-meta-item-text">发表于</span>
+
+              
+                
+              
+
+              <time title="创建时间：2020-06-22 20:49:47" itemprop="dateCreated datePublished" datetime="2020-06-22T20:49:47+08:00">2020-06-22</time>
+            </span>
+          
+            
+
+            
+              <span class="post-meta-item">
+                <span class="post-meta-item-icon">
+                  <i class="fa fa-calendar-check-o"></i>
+                </span>
+                <span class="post-meta-item-text">更新于</span>
+                <time title="修改时间：2020-06-23 17:46:13" itemprop="dateModified" datetime="2020-06-23T17:46:13+08:00">2020-06-23</time>
+              </span>
+            
+          
+            <span class="post-meta-item">
+              <span class="post-meta-item-icon">
+                <i class="fa fa-folder-o"></i>
+              </span>
+              <span class="post-meta-item-text">分类于</span>
+              
+                <span itemprop="about" itemscope itemtype="http://schema.org/Thing">
+                  <a href="/categories/hadoop/" itemprop="url" rel="index">
+                    <span itemprop="name">hadoop</span>
+                  </a>
+                </span>
+
+                
+                
+              
+            </span>
+          
+
+          
+            <span id="/2020/06/22/hadoop/YARN-Node-Labels/" class="post-meta-item leancloud_visitors" data-flag-title="YARN Node Labels" title="阅读次数">
+              <span class="post-meta-item-icon">
+                <i class="fa fa-eye"></i>
+              </span>
+              <span class="post-meta-item-text">阅读次数：</span>
+              <span class="leancloud-visitors-count"></span>
+            </span>
+          
+  
+  
+
+        </div>
+      </header>
+
+    
+    
+    
+    <div class="post-body" itemprop="articleBody">
+
+      
+          <h1 id="简介"><a href="#简介" class="headerlink" title="简介"></a>简介</h1><p>  Node label是对相似</p>
+
+        
+      
+    </div>
+
+    
+    
+    
+      <footer class="post-footer">
+        <div class="post-eof"></div>
+      </footer>
+  </article>
+  
+  
+  
+
+    
+        
+  
+  
+  <article itemscope itemtype="http://schema.org/Article" class="post-block home" lang="zh-CN">
+    <link itemprop="mainEntityOfPage" href="http://yoursite.com/2020/06/22/blog-best-pratice/">
+
+    <span hidden itemprop="author" itemscope itemtype="http://schema.org/Person">
+      <meta itemprop="name" content="姜纪光">
+      <meta itemprop="description" content="">
+      <meta itemprop="image" content="/images/avatar.gif">
+    </span>
+
+    <span hidden itemprop="publisher" itemscope itemtype="http://schema.org/Organization">
+      <meta itemprop="name" content="角落之外">
+    </span>
+      <header class="post-header">
+        <h1 class="post-title" itemprop="name headline">
+          
+            
+            <a href="/2020/06/22/blog-best-pratice/" class="post-title-link" itemprop="url">博客最佳实践</a>
+          
+        </h1>
+
+        <div class="post-meta">
+            <span class="post-meta-item">
+              <span class="post-meta-item-icon">
+                <i class="fa fa-calendar-o"></i>
+              </span>
+              <span class="post-meta-item-text">发表于</span>
+
+              
+                
+              
+
+              <time title="创建时间：2020-06-22 11:05:29 / 修改时间：18:03:35" itemprop="dateCreated datePublished" datetime="2020-06-22T11:05:29+08:00">2020-06-22</time>
+            </span>
+          
+            
+
+            
+          
+            <span class="post-meta-item">
+              <span class="post-meta-item-icon">
+                <i class="fa fa-folder-o"></i>
+              </span>
+              <span class="post-meta-item-text">分类于</span>
+              
+                <span itemprop="about" itemscope itemtype="http://schema.org/Thing">
+                  <a href="/categories/blog/" itemprop="url" rel="index">
+                    <span itemprop="name">blog</span>
+                  </a>
+                </span>
+
+                
+                
+              
+            </span>
+          
+
+          
+            <span id="/2020/06/22/blog-best-pratice/" class="post-meta-item leancloud_visitors" data-flag-title="博客最佳实践" title="阅读次数">
+              <span class="post-meta-item-icon">
+                <i class="fa fa-eye"></i>
+              </span>
+              <span class="post-meta-item-text">阅读次数：</span>
+              <span class="leancloud-visitors-count"></span>
+            </span>
+          
+  
+  
+
+        </div>
+      </header>
+
+    
+    
+    
+    <div class="post-body" itemprop="articleBody">
+
+      
+          <h1 id="常用命令"><a href="#常用命令" class="headerlink" title="常用命令"></a>常用命令</h1><h2 id="新建文章或页面"><a href="#新建文章或页面" class="headerlink" title="新建文章或页面"></a>新建文章或页面</h2><figure class="highlight shell"><table><tr><td class="gutter"><pre><span class="line">1</span><br></pre></td><td class="code"><pre><span class="line"><span class="meta">$</span> hexo new [layout] &lt;title&gt;</span><br></pre></td></tr></table></figure>
+
+<p>layout（布局）：有三种默认布局：post、 page、draft，默认为post</p>
+<figure class="highlight shell"><table><tr><td class="gutter"><pre><span class="line">1</span><br></pre></td><td class="code"><pre><span class="line"><span class="meta">$</span> hexo publish [layout] &lt;title&gt;</span><br></pre></td></tr></table></figure>
+
+<p>通常用来把草稿中的文章移到_posts文件夹</p>
+<h2 id="本地调试"><a href="#本地调试" class="headerlink" title="本地调试"></a>本地调试</h2><figure class="highlight shell"><table><tr><td class="gutter"><pre><span class="line">1</span><br></pre></td><td class="code"><pre><span class="line"><span class="meta">$</span> hexo s --debug</span><br></pre></td></tr></table></figure>
+
+<h2 id="发布博客"><a href="#发布博客" class="headerlink" title="发布博客"></a>发布博客</h2><figure class="highlight shell"><table><tr><td class="gutter"><pre><span class="line">1</span><br></pre></td><td class="code"><pre><span class="line"><span class="meta">$</span> hexo clean &amp;&amp; hexo deploy</span><br></pre></td></tr></table></figure>
+
+<h1 id="常见问题"><a href="#常见问题" class="headerlink" title="常见问题"></a>常见问题</h1><h2 id="there-isn’t-a-github-pages-site-here-404"><a href="#there-isn’t-a-github-pages-site-here-404" class="headerlink" title="there isn’t a github pages site here. 404"></a>there isn’t a github pages site here. 404</h2><p>换了一台电脑后，再发布博客，会报404的错误，原因是nodejs版本太高，需要改成低版本</p>
+<p>卸载nodejs</p>
+<figure class="highlight shell"><table><tr><td class="gutter"><pre><span class="line">1</span><br></pre></td><td class="code"><pre><span class="line"><span class="meta">$</span> brew uninstall node</span><br></pre></td></tr></table></figure>
+
+<p>安装旧版本的nodejs</p>
+<figure class="highlight shell"><table><tr><td class="gutter"><pre><span class="line">1</span><br></pre></td><td class="code"><pre><span class="line"><span class="meta">$</span> brew install node@12</span><br></pre></td></tr></table></figure>
+
+<p>配置环境变量：</p>
+<figure class="highlight shell"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br></pre></td><td class="code"><pre><span class="line"><span class="meta">$</span> cat ~/.zshrc</span><br><span class="line">export PATH=$PATH:/usr/local/opt/node@12/bin</span><br></pre></td></tr></table></figure>
+
+<h2 id="在另外一台电脑恢复博客"><a href="#在另外一台电脑恢复博客" class="headerlink" title="在另外一台电脑恢复博客"></a>在另外一台电脑恢复博客</h2><figure class="highlight shell"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br><span class="line">3</span><br><span class="line">4</span><br></pre></td><td class="code"><pre><span class="line"><span class="meta">$</span> git clone '仓库地址'</span><br><span class="line"><span class="meta">$</span> npm install hexo-cli</span><br><span class="line"><span class="meta">$</span> npm install</span><br><span class="line"><span class="meta">$</span> npm install hexo-deployer-git</span><br></pre></td></tr></table></figure>
+
+
+        
+      
+    </div>
+
+    
+    
+    
+      <footer class="post-footer">
+        <div class="post-eof"></div>
+      </footer>
+  </article>
+  
+  
+  
+
+    
+        
+  
+  
+  <article itemscope itemtype="http://schema.org/Article" class="post-block home" lang="zh-CN">
     <link itemprop="mainEntityOfPage" href="http://yoursite.com/2020/01/14/flink/flink-checkpoint/">
 
     <span hidden itemprop="author" itemscope itemtype="http://schema.org/Person">
@@ -493,312 +2034,11 @@
   
 
     
-        
-  
-  
-  <article itemscope itemtype="http://schema.org/Article" class="post-block home" lang="zh-CN">
-    <link itemprop="mainEntityOfPage" href="http://yoursite.com/2020/01/14/linux/export和source/">
-
-    <span hidden itemprop="author" itemscope itemtype="http://schema.org/Person">
-      <meta itemprop="name" content="姜纪光">
-      <meta itemprop="description" content="">
-      <meta itemprop="image" content="/images/avatar.gif">
-    </span>
-
-    <span hidden itemprop="publisher" itemscope itemtype="http://schema.org/Organization">
-      <meta itemprop="name" content="角落之外">
-    </span>
-      <header class="post-header">
-        <h1 class="post-title" itemprop="name headline">
-          
-            
-            <a href="/2020/01/14/linux/export和source/" class="post-title-link" itemprop="url">export和source</a>
-          
-        </h1>
-
-        <div class="post-meta">
-            <span class="post-meta-item">
-              <span class="post-meta-item-icon">
-                <i class="fa fa-calendar-o"></i>
-              </span>
-              <span class="post-meta-item-text">发表于</span>
-
-              
-                
-              
-
-              <time title="创建时间：2020-01-14 10:23:08" itemprop="dateCreated datePublished" datetime="2020-01-14T10:23:08+08:00">2020-01-14</time>
-            </span>
-          
-            
-
-            
-              <span class="post-meta-item">
-                <span class="post-meta-item-icon">
-                  <i class="fa fa-calendar-check-o"></i>
-                </span>
-                <span class="post-meta-item-text">更新于</span>
-                <time title="修改时间：2020-06-22 17:12:52" itemprop="dateModified" datetime="2020-06-22T17:12:52+08:00">2020-06-22</time>
-              </span>
-            
-          
-            <span class="post-meta-item">
-              <span class="post-meta-item-icon">
-                <i class="fa fa-folder-o"></i>
-              </span>
-              <span class="post-meta-item-text">分类于</span>
-              
-                <span itemprop="about" itemscope itemtype="http://schema.org/Thing">
-                  <a href="/categories/linux/" itemprop="url" rel="index">
-                    <span itemprop="name">linux</span>
-                  </a>
-                </span>
-
-                
-                
-              
-            </span>
-          
-
-          
-            <span id="/2020/01/14/linux/export和source/" class="post-meta-item leancloud_visitors" data-flag-title="export和source" title="阅读次数">
-              <span class="post-meta-item-icon">
-                <i class="fa fa-eye"></i>
-              </span>
-              <span class="post-meta-item-text">阅读次数：</span>
-              <span class="leancloud-visitors-count"></span>
-            </span>
-          
-  
-  
-
-        </div>
-      </header>
-
-    
-    
-    
-    <div class="post-body" itemprop="articleBody">
-
-      
-          <p>export作用：设置或显示环境变量。</p>
-<p>语法：export [-fnp][变量名称]=[变量设置值]</p>
-<p>参数：</p>
-<p>&emsp;&emsp;-f 代表[变量名称]中为函数名称。 </p>
-<p>&emsp;&emsp;-n 删除指定的变量。变量实际上并未删除，只是不会输出到后续指令的执行环境中。 </p>
-<p>&emsp;&emsp;-p 列出所有的shell赋予程序的环境变量。  </p>
-<p>&emsp;&emsp;用户登录到linux终端后，系统将启动一个用户shell。在这个shell中，可以使用或者声明变量，也可以创建并运行 shell脚本程序。运行shell脚本程序时，系统将创建一个子shell。子shell可以使用父shell的所有环境变量。</p>
-<p>&emsp;&emsp;在子 shell中定义的变量只在该子shell内有效。如果在一个shell脚本程序中定义了一个变量，当该脚本程序运行时，这个定义的变量只是该脚本程序内的一个局部变量，其他的shell不能引用它，要使某个变量的值可以在其他shell中被使用，可以使用export命令对已定义的变量进行输出。</p>
-<p>&emsp;&emsp;简单来讲，export的作用就是设置环境变量，从而可以在本shell或者子shell中使用该变量，但是不能在父shell中使用。</p>
-<p>&emsp;&emsp;如果使用source执行子脚本设置环境变量，那么该环境变量也可以在其父环境（当前环境）下使用</p>
-<p>结论：</p>
-<p>&emsp;&emsp;1.bash命令执行脚本时是在一个子shell环境运行的，脚本执行完后该子shell自动退出</p>
-<p>&emsp;&emsp;2.export定义的环境变量才会被复制到子 shell中</p>
-<p>&emsp;&emsp;3.不用export定义的变量只对该shell有效，对子shell也是无效的</p>
-<p>&emsp;&emsp;4.使用source执行脚本是在当前环境运行的，所以脚本中的环境变量也对当前shell有效</p>
-
-        
-      
-    </div>
-
-    
-    
-    
-      <footer class="post-footer">
-        <div class="post-eof"></div>
-      </footer>
-  </article>
-  
-  
-  
-
-    
-        
-  
-  
-  <article itemscope itemtype="http://schema.org/Article" class="post-block home" lang="zh-CN">
-    <link itemprop="mainEntityOfPage" href="http://yoursite.com/2019/12/21/blog-hexo-env/">
-
-    <span hidden itemprop="author" itemscope itemtype="http://schema.org/Person">
-      <meta itemprop="name" content="姜纪光">
-      <meta itemprop="description" content="">
-      <meta itemprop="image" content="/images/avatar.gif">
-    </span>
-
-    <span hidden itemprop="publisher" itemscope itemtype="http://schema.org/Organization">
-      <meta itemprop="name" content="角落之外">
-    </span>
-      <header class="post-header">
-        <h1 class="post-title" itemprop="name headline">
-          
-            
-            <a href="/2019/12/21/blog-hexo-env/" class="post-title-link" itemprop="url">博客环境搭建</a>
-          
-        </h1>
-
-        <div class="post-meta">
-            <span class="post-meta-item">
-              <span class="post-meta-item-icon">
-                <i class="fa fa-calendar-o"></i>
-              </span>
-              <span class="post-meta-item-text">发表于</span>
-
-              
-                
-              
-
-              <time title="创建时间：2019-12-21 17:25:00" itemprop="dateCreated datePublished" datetime="2019-12-21T17:25:00+08:00">2019-12-21</time>
-            </span>
-          
-            
-
-            
-              <span class="post-meta-item">
-                <span class="post-meta-item-icon">
-                  <i class="fa fa-calendar-check-o"></i>
-                </span>
-                <span class="post-meta-item-text">更新于</span>
-                <time title="修改时间：2020-06-22 17:12:52" itemprop="dateModified" datetime="2020-06-22T17:12:52+08:00">2020-06-22</time>
-              </span>
-            
-          
-            <span class="post-meta-item">
-              <span class="post-meta-item-icon">
-                <i class="fa fa-folder-o"></i>
-              </span>
-              <span class="post-meta-item-text">分类于</span>
-              
-                <span itemprop="about" itemscope itemtype="http://schema.org/Thing">
-                  <a href="/categories/blog/" itemprop="url" rel="index">
-                    <span itemprop="name">blog</span>
-                  </a>
-                </span>
-
-                
-                
-              
-            </span>
-          
-
-          
-            <span id="/2019/12/21/blog-hexo-env/" class="post-meta-item leancloud_visitors" data-flag-title="博客环境搭建" title="阅读次数">
-              <span class="post-meta-item-icon">
-                <i class="fa fa-eye"></i>
-              </span>
-              <span class="post-meta-item-text">阅读次数：</span>
-              <span class="leancloud-visitors-count"></span>
-            </span>
-          
-  
-  
-
-        </div>
-      </header>
-
-    
-    
-    
-    <div class="post-body" itemprop="articleBody">
-
-      
-          <h1 id="安装Git"><a href="#安装Git" class="headerlink" title="安装Git"></a>安装Git</h1><p>自行安装</p>
-<p>安装完成后，还需要最后一步设置，在命令行输入</p>
-<p>$ git config –global <a href="http://user.name/" target="_blank" rel="noopener">user.name</a> “name”</p>
-<p>$ git config –global user.email “email”</p>
-<h1 id="安装Node-js"><a href="#安装Node-js" class="headerlink" title="安装Node.js"></a>安装Node.js</h1><p>下载地址：<a href="https://nodejs.org/en/" target="_blank" rel="noopener">https://nodejs.org/en/</a></p>
-<h1 id="部署Hexo"><a href="#部署Hexo" class="headerlink" title="部署Hexo"></a>部署Hexo</h1><p>Hexo官网：<a href="https://hexo.io/zh-cn/docs/writing" target="_blank" rel="noopener">https://hexo.io/zh-cn/docs/writing</a></p>
-<h2 id="安装Hexo"><a href="#安装Hexo" class="headerlink" title="安装Hexo"></a>安装Hexo</h2><p>打开终端，运行以下命令完成安装</p>
-<p>npm install -g hexo-cli</p>
-<p>安装Hexo的Git部署插件hexo-deployer-git：<a href="https://github.com/hexojs/hexo-deployer-git" target="_blank" rel="noopener">https://github.com/hexojs/hexo-deployer-git</a></p>
-<p>打开终端运行以下命令：</p>
-<p>npm install hexo-deployer-git -save</p>
-<h2 id="部署Hexo-1"><a href="#部署Hexo-1" class="headerlink" title="部署Hexo"></a>部署Hexo</h2><p>打开终端</p>
-<p>hexo init blog //会在当前目录新建blog目录，用于存放博客内容</p>
-<p>cd blog</p>
-<p>npm install</p>
-<p>输入hexo s 启动博客</p>
-<p>打开浏览器输入 <a href="http://localhost:4000/" target="_blank" rel="noopener">http://localhost:4000/</a> 即可访问</p>
-<h2 id="主题设置"><a href="#主题设置" class="headerlink" title="主题设置"></a>主题设置</h2><p><a href="https://theme-next.iissnan.com/getting-started.html" target="_blank" rel="noopener">https://theme-next.iissnan.com/getting-started.html</a></p>
-<h1 id="托管博客"><a href="#托管博客" class="headerlink" title="托管博客"></a>托管博客</h1><h2 id="托管到github"><a href="#托管到github" class="headerlink" title="托管到github"></a>托管到github</h2><p>首先需要在github建立两个repository：</p>
-<ul>
-<li><p>一个用来放置博客文件，用来备份博客的原始内容，以及用来在多台电脑上编辑和更新博客</p>
-</li>
-<li><p>一个用来放置博客被发布的生成好的内容，该repository的名字必须为 你的github用户名.<a href="http://github.io/" target="_blank" rel="noopener">github.io</a></p>
-</li>
-</ul>
-<p>回到博客根目录：</p>
-<p>找到文件 _config.yml 在deploy处增加三行：</p>
-<p>deploy:</p>
-<p> type: git</p>
-<p> repository: 你的仓库地址</p>
-<p> branch: master</p>
-<p>生成站点文件并推送到远程库</p>
-<p>hexo clean &amp;&amp; hexo deploy</p>
-<p>当执行 hexo deploy 时，Hexo 会将 public 目录中的文件和目录推送至 _config.yml 中指定的远端仓库和分支中，并且<strong>完全覆盖</strong>该分支下的已有内容。</p>
-<p>打开网站，可以看到博客内容：</p>
-<p>https://你的仓库名称</p>
-<h2 id="仓库1的-gitignore配置"><a href="#仓库1的-gitignore配置" class="headerlink" title="仓库1的.gitignore配置"></a>仓库1的.gitignore配置</h2><p>$ cat .gitignore</p>
-<p>.DS_Store</p>
-<p>Thumbs.db</p>
-<p>db.json</p>
-<p>*.log</p>
-<p>node_modules/</p>
-<p>public/</p>
-<p>.deploy*/</p>
-<h1 id="绑定域名"><a href="#绑定域名" class="headerlink" title="绑定域名"></a>绑定域名</h1><p>有没有觉得使用自己的域名会更酷？</p>
-<ul>
-<li>首先需要购买域名：<a href="https://sg.godaddy.com/zh" target="_blank" rel="noopener">https://sg.godaddy.com/zh</a></li>
-</ul>
-<p>在source目录下新建CNAME文件，写入域名，如：jiangjiguang.me</p>
-<p>最后执行：hexo deploy</p>
-<ul>
-<li>在github中设置域名：</li>
-</ul>
-<p>git的repository，点击Settings 往下滑到 GitHub Pages 点击 Change theme （不设置这一步骤会报404）</p>
-<p>添加域名解析：</p>
-<p>ping 你的仓库名称</p>
-<p>得到一个ip：185.199.109.153</p>
-<ul>
-<li>配置DSN：</li>
-</ul>
-<p>DNS服务商选的dnspod：<a href="https://support.dnspod.cn/" target="_blank" rel="noopener">https://support.dnspod.cn/</a></p>
-<p>配置文档：</p>
-<p><a href="https://support.dnspod.cn/Kb/showarticle/tsid/177/" target="_blank" rel="noopener">https://support.dnspod.cn/Kb/showarticle/tsid/177/</a></p>
-<p><a href="https://support.dnspod.cn/Kb/showarticle/tsid/30/" target="_blank" rel="noopener">https://support.dnspod.cn/Kb/showarticle/tsid/30/</a></p>
-<ul>
-<li>最后再到godaddy修改域名服务器：</li>
-</ul>
-<p><a href="http://f1g1ns1.dnspod.net/" target="_blank" rel="noopener">f1g1ns1.dnspod.net</a></p>
-<p><a href="http://f1g1ns2.dnspod.net/" target="_blank" rel="noopener">f1g1ns2.dnspod.net</a></p>
-<h1 id="参考文档"><a href="#参考文档" class="headerlink" title="参考文档"></a>参考文档</h1><p><a href="https://shenshanlaoyuan.com/2016/03/28/Hexo/Hexo搭建独立博客，托管到Github和Coding教程/" target="_blank" rel="noopener">深山老袁</a></p>
-<p><a href="https://wizardforcel.gitbooks.io/markdown-simple-world/index.html" target="_blank" rel="noopener">Markdown 简单的世界</a></p>
-<p><a href="https://dearb.me/archive/2014-07-28/use-github-and-gitcafe-hosting-octopress/" target="_blank" rel="noopener">同时托管到Github和Gitcafe</a></p>
-<p><a href="https://xhuyq.me/2017/09/16/github-domainName/" target="_blank" rel="noopener">Github pages绑定个人域名</a></p>
-<p><a href="https://blog.csdn.net/github_39611196/article/details/83591616" target="_blank" rel="noopener">解决404</a></p>
-<p><a href="https://lrscy.github.io/2018/01/26/Hexo-Github-Backup/" target="_blank" rel="noopener">异地同时编辑博客</a></p>
-<p><a href="https://segmentfault.com/a/1190000012002151" target="_blank" rel="noopener">子仓库</a></p>
-
-        
-      
-    </div>
-
-    
-    
-    
-      <footer class="post-footer">
-        <div class="post-eof"></div>
-      </footer>
-  </article>
-  
-  
-  
-
-    
   </div>
 
   
   <nav class="pagination">
-    <a class="extend prev" rel="prev" href="/page/4/"><i class="fa fa-angle-left" aria-label="上一页"></i></a><a class="page-number" href="/">1</a><span class="space">&hellip;</span><a class="page-number" href="/page/4/">4</a><span class="page-number current">5</span>
+    <a class="extend prev" rel="prev" href="/page/4/"><i class="fa fa-angle-left" aria-label="上一页"></i></a><a class="page-number" href="/">1</a><span class="space">&hellip;</span><a class="page-number" href="/page/4/">4</a><span class="page-number current">5</span><a class="page-number" href="/page/6/">6</a><a class="extend next" rel="next" href="/page/6/"><i class="fa fa-angle-right" aria-label="下一页"></i></a>
   </nav>
 
 
@@ -843,7 +2083,7 @@
         
           <a href="/archives/">
         
-          <span class="site-state-item-count">44</span>
+          <span class="site-state-item-count">52</span>
           <span class="site-state-item-name">日志</span>
         </a>
       </div>
@@ -856,7 +2096,7 @@
             <a href="/categories/">
           
         
-        <span class="site-state-item-count">10</span>
+        <span class="site-state-item-count">11</span>
         <span class="site-state-item-name">分类</span>
         </a>
       </div>
