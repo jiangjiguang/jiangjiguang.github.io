@@ -62,7 +62,7 @@
 <meta property="og:site_name" content="角落之外">
 <meta property="og:description" content="构建步骤123456#下载flink源码$ git clone https://github.com/apache/flink.git# idea安装 Scala插件# plugin -&amp;gt; Scala -&amp;gt; 重启idea# 安装配置Checkstyle 插件mvn clean install -Dmaven.test.skip=true -Dmaven.javadoc.skip=tru">
 <meta property="og:locale" content="zh-CN">
-<meta property="og:updated_time" content="2020-07-24T06:52:55.642Z">
+<meta property="og:updated_time" content="2020-08-26T03:12:15.056Z">
 <meta name="twitter:card" content="summary">
 <meta name="twitter:title" content="flink源码构建">
 <meta name="twitter:description" content="构建步骤123456#下载flink源码$ git clone https://github.com/apache/flink.git# idea安装 Scala插件# plugin -&amp;gt; Scala -&amp;gt; 重启idea# 安装配置Checkstyle 插件mvn clean install -Dmaven.test.skip=true -Dmaven.javadoc.skip=tru">
@@ -274,7 +274,7 @@
                   <i class="fa fa-calendar-check-o"></i>
                 </span>
                 <span class="post-meta-item-text">更新于</span>
-                <time title="修改时间：2020-07-24 14:52:55" itemprop="dateModified" datetime="2020-07-24T14:52:55+08:00">2020-07-24</time>
+                <time title="修改时间：2020-08-26 11:12:15" itemprop="dateModified" datetime="2020-08-26T11:12:15+08:00">2020-08-26</time>
               </span>
             
           
@@ -318,6 +318,11 @@
 
       
         <h1 id="构建步骤"><a href="#构建步骤" class="headerlink" title="构建步骤"></a>构建步骤</h1><figure class="highlight shell"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br><span class="line">3</span><br><span class="line">4</span><br><span class="line">5</span><br><span class="line">6</span><br></pre></td><td class="code"><pre><span class="line"><span class="meta">#</span>下载flink源码</span><br><span class="line"><span class="meta">$</span> git clone https://github.com/apache/flink.git</span><br><span class="line"><span class="meta">#</span> idea安装 Scala插件</span><br><span class="line"><span class="meta">#</span> plugin -&gt; Scala -&gt; 重启idea</span><br><span class="line"><span class="meta">#</span> 安装配置Checkstyle 插件</span><br><span class="line">mvn clean install -Dmaven.test.skip=true -Dmaven.javadoc.skip=true -Dcheckstyle.skip=true</span><br></pre></td></tr></table></figure>
+
+<h1 id="源码修改"><a href="#源码修改" class="headerlink" title="源码修改"></a>源码修改</h1><ul>
+<li>源码修改后，需要重新打包进行测试</li>
+</ul>
+<figure class="highlight shell"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br><span class="line">3</span><br><span class="line">4</span><br><span class="line">5</span><br></pre></td><td class="code"><pre><span class="line"><span class="meta">#</span>首先install 修改过的包，如修改了flink-streaming-java module下面的代码</span><br><span class="line"><span class="meta">$</span> cd flink-streaming-java</span><br><span class="line"><span class="meta">$</span> mvn -Dmaven.test.skip=true -Dmaven.javadoc.skip=true -Dcheckstyle.skip=true clean install </span><br><span class="line"><span class="meta">$</span> cd flink-dist </span><br><span class="line"><span class="meta">$</span> mvn -Dmaven.test.skip=true -Dmaven.javadoc.skip=true -Dcheckstyle.skip=true clean install</span><br></pre></td></tr></table></figure>
 
 <h1 id="参考文档"><a href="#参考文档" class="headerlink" title="参考文档"></a>参考文档</h1><p><a href="https://ci.apache.org/projects/flink/flink-docs-release-1.11/flinkDev/ide_setup.html" target="_blank" rel="noopener">Flink Development</a></p>
 <p><a href="https://cloud.tencent.com/developer/article/1419606" target="_blank" rel="noopener">《Flink 源码解析》—— 源码编译运行</a></p>
@@ -396,7 +401,7 @@
 
       <!--noindex-->
       <div class="post-toc-wrap sidebar-panel">
-          <div class="post-toc motion-element"><ol class="nav"><li class="nav-item nav-level-1"><a class="nav-link" href="#构建步骤"><span class="nav-number">1.</span> <span class="nav-text">构建步骤</span></a></li><li class="nav-item nav-level-1"><a class="nav-link" href="#参考文档"><span class="nav-number">2.</span> <span class="nav-text">参考文档</span></a></li></ol></div>
+          <div class="post-toc motion-element"><ol class="nav"><li class="nav-item nav-level-1"><a class="nav-link" href="#构建步骤"><span class="nav-number">1.</span> <span class="nav-text">构建步骤</span></a></li><li class="nav-item nav-level-1"><a class="nav-link" href="#源码修改"><span class="nav-number">2.</span> <span class="nav-text">源码修改</span></a></li><li class="nav-item nav-level-1"><a class="nav-link" href="#参考文档"><span class="nav-number">3.</span> <span class="nav-text">参考文档</span></a></li></ol></div>
         
       </div>
       <!--/noindex-->
@@ -412,7 +417,7 @@
         
           <a href="/archives/">
         
-          <span class="site-state-item-count">52</span>
+          <span class="site-state-item-count">61</span>
           <span class="site-state-item-name">日志</span>
         </a>
       </div>
@@ -425,7 +430,7 @@
             <a href="/categories/">
           
         
-        <span class="site-state-item-count">11</span>
+        <span class="site-state-item-count">13</span>
         <span class="site-state-item-name">分类</span>
         </a>
       </div>
