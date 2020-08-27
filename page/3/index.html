@@ -241,6 +241,159 @@
   
   
   <article itemscope itemtype="http://schema.org/Article" class="post-block home" lang="zh-CN">
+    <link itemprop="mainEntityOfPage" href="http://yoursite.com/2020/07/25/flink/flink基本知识/">
+
+    <span hidden itemprop="author" itemscope itemtype="http://schema.org/Person">
+      <meta itemprop="name" content="姜纪光">
+      <meta itemprop="description" content="">
+      <meta itemprop="image" content="/images/avatar.gif">
+    </span>
+
+    <span hidden itemprop="publisher" itemscope itemtype="http://schema.org/Organization">
+      <meta itemprop="name" content="纪光的博客">
+    </span>
+      <header class="post-header">
+        <h1 class="post-title" itemprop="name headline">
+          
+            
+            <a href="/2020/07/25/flink/flink基本知识/" class="post-title-link" itemprop="url">flink基本知识</a>
+          
+        </h1>
+
+        <div class="post-meta">
+            <span class="post-meta-item">
+              <span class="post-meta-item-icon">
+                <i class="fa fa-calendar-o"></i>
+              </span>
+              <span class="post-meta-item-text">发表于</span>
+
+              
+                
+              
+
+              <time title="创建时间：2020-07-25 14:16:10 / 修改时间：15:12:26" itemprop="dateCreated datePublished" datetime="2020-07-25T14:16:10+08:00">2020-07-25</time>
+            </span>
+          
+            
+
+            
+          
+            <span class="post-meta-item">
+              <span class="post-meta-item-icon">
+                <i class="fa fa-folder-o"></i>
+              </span>
+              <span class="post-meta-item-text">分类于</span>
+              
+                <span itemprop="about" itemscope itemtype="http://schema.org/Thing">
+                  <a href="/categories/flink/" itemprop="url" rel="index">
+                    <span itemprop="name">flink</span>
+                  </a>
+                </span>
+
+                
+                
+              
+            </span>
+          
+
+          
+            <span id="/2020/07/25/flink/flink基本知识/" class="post-meta-item leancloud_visitors" data-flag-title="flink基本知识" title="阅读次数">
+              <span class="post-meta-item-icon">
+                <i class="fa fa-eye"></i>
+              </span>
+              <span class="post-meta-item-text">阅读次数：</span>
+              <span class="leancloud-visitors-count"></span>
+            </span>
+          
+  
+  
+
+        </div>
+      </header>
+
+    
+    
+    
+    <div class="post-body" itemprop="articleBody">
+
+      
+          <h1 id="提交模式"><a href="#提交模式" class="headerlink" title="提交模式"></a>提交模式</h1><h2 id="Session模式"><a href="#Session模式" class="headerlink" title="Session模式"></a>Session模式</h2><ul>
+<li>提前启动好一个集群，在这个集群中不断提交任务</li>
+<li>所有任务共享集群资源</li>
+<li>好处是：不需要每次创建集群是带来的resource开销，</li>
+<li>问题是：隔离性差，一个TaskManager运行多个任务，其中一个任务导致TaskManager挂掉，会导致所有的任务重启；一个JobManager管理所有的任务，负载会成为瓶颈</li>
+</ul>
+<p>##Per-Job模式</p>
+<ul>
+<li>每个任务独立启动一个集群，隔离性好，每个任务有单独的JobManager管理，负载均衡</li>
+</ul>
+<p>##Application模式</p>
+<ul>
+<li><p>flink1.10版本新增的任务提交方式</p>
+</li>
+<li><p>Session和Per-Job的共同弊端是：Client端瓶颈，执行用户代码，生成Job graph，网络上传下载Jar包</p>
+</li>
+<li><p>解决思路：FLIP-85</p>
+<blockquote>
+<p>1.每个Application启动一个集群</p>
+<p>2.JobManager端执行用户代码，没有单点瓶颈</p>
+<p>3.YARN(FLINK-13938,FLINK-17632)、k8s支持</p>
+<p>   提供了远程的lib目录，可以把这些文件缓存到YARN的节点上，不必要每次的上传/下载</p>
+<p>   支持用户远程系统的Jar来创建任务，减少Jar包下载的开销   </p>
+</blockquote>
+</li>
+</ul>
+<p>#k8s和docker</p>
+<h2 id="k8s生产可用性增强"><a href="#k8s生产可用性增强" class="headerlink" title="k8s生产可用性增强"></a>k8s生产可用性增强</h2><ul>
+<li>Flink1.11版本达到生成可用的标准</li>
+<li>FLINK-14460</li>
+<li>基础功能：Node Selector、Label、Annotation、Toleration</li>
+<li>根据环境变量自动挂载Hadoop配置</li>
+</ul>
+<h2 id="Docker镜像统一"><a href="#Docker镜像统一" class="headerlink" title="Docker镜像统一"></a>Docker镜像统一</h2><ul>
+<li>FLIP-111</li>
+<li>问题：Docker资源分散、重复和不一致性问题，用户使用不便和维护成本</li>
+<li>资源统一整合到Flink-docker github项目</li>
+</ul>
+<p>#JobManager</p>
+<ul>
+<li><p>JobManager统一内存配置</p>
+</li>
+<li><p>FLIP-116: 延续FLIP49术语</p>
+</li>
+<li><p>升级：复用之前版本的配置可能导致内存参数不同，影响性能</p>
+</li>
+<li><p>FLIP-108: 增加扩展资源GPU调度支持</p>
+</li>
+<li><p>Web UI优化</p>
+<blockquote>
+<p>FLIP-103：JobManager和TaskManager的日志展示</p>
+<p>FLIP-99：支持展示更多历史Failover信息</p>
+<p>支持Thread dump</p>
+</blockquote>
+</li>
+</ul>
+<h1 id="参考文档"><a href="#参考文档" class="headerlink" title="参考文档"></a>参考文档</h1>
+        
+      
+    </div>
+
+    
+    
+    
+      <footer class="post-footer">
+        <div class="post-eof"></div>
+      </footer>
+  </article>
+  
+  
+  
+
+    
+        
+  
+  
+  <article itemscope itemtype="http://schema.org/Article" class="post-block home" lang="zh-CN">
     <link itemprop="mainEntityOfPage" href="http://yoursite.com/2020/07/24/flink/flink社区参与/">
 
     <span hidden itemprop="author" itemscope itemtype="http://schema.org/Person">
@@ -1855,137 +2008,6 @@
   
 
     
-        
-  
-  
-  <article itemscope itemtype="http://schema.org/Article" class="post-block home" lang="zh-CN">
-    <link itemprop="mainEntityOfPage" href="http://yoursite.com/2020/07/20/tools/github使用/">
-
-    <span hidden itemprop="author" itemscope itemtype="http://schema.org/Person">
-      <meta itemprop="name" content="姜纪光">
-      <meta itemprop="description" content="">
-      <meta itemprop="image" content="/images/avatar.gif">
-    </span>
-
-    <span hidden itemprop="publisher" itemscope itemtype="http://schema.org/Organization">
-      <meta itemprop="name" content="纪光的博客">
-    </span>
-      <header class="post-header">
-        <h1 class="post-title" itemprop="name headline">
-          
-            
-            <a href="/2020/07/20/tools/github使用/" class="post-title-link" itemprop="url">github使用实践</a>
-          
-        </h1>
-
-        <div class="post-meta">
-            <span class="post-meta-item">
-              <span class="post-meta-item-icon">
-                <i class="fa fa-calendar-o"></i>
-              </span>
-              <span class="post-meta-item-text">发表于</span>
-
-              
-                
-              
-
-              <time title="创建时间：2020-07-20 11:33:38" itemprop="dateCreated datePublished" datetime="2020-07-20T11:33:38+08:00">2020-07-20</time>
-            </span>
-          
-            
-
-            
-              <span class="post-meta-item">
-                <span class="post-meta-item-icon">
-                  <i class="fa fa-calendar-check-o"></i>
-                </span>
-                <span class="post-meta-item-text">更新于</span>
-                <time title="修改时间：2020-08-26 11:04:47" itemprop="dateModified" datetime="2020-08-26T11:04:47+08:00">2020-08-26</time>
-              </span>
-            
-          
-            <span class="post-meta-item">
-              <span class="post-meta-item-icon">
-                <i class="fa fa-folder-o"></i>
-              </span>
-              <span class="post-meta-item-text">分类于</span>
-              
-                <span itemprop="about" itemscope itemtype="http://schema.org/Thing">
-                  <a href="/categories/tools/" itemprop="url" rel="index">
-                    <span itemprop="name">tools</span>
-                  </a>
-                </span>
-
-                
-                
-              
-            </span>
-          
-
-          
-            <span id="/2020/07/20/tools/github使用/" class="post-meta-item leancloud_visitors" data-flag-title="github使用实践" title="阅读次数">
-              <span class="post-meta-item-icon">
-                <i class="fa fa-eye"></i>
-              </span>
-              <span class="post-meta-item-text">阅读次数：</span>
-              <span class="leancloud-visitors-count"></span>
-            </span>
-          
-  
-  
-
-        </div>
-      </header>
-
-    
-    
-    
-    <div class="post-body" itemprop="articleBody">
-
-      
-          <p>#Pull Request</p>
-<p>  是一种代码合作开发方式，将修改过的代码合并到主干的一种流程。这个过程中，还可以进行讨论、审核和修改代码。</p>
-<ul>
-<li>fork是指克隆别人的代码到自己的仓库</li>
-<li>Base 是你希望提交变更的目标</li>
-<li>Head 是目前包含你的变更的那个分支或仓库</li>
-</ul>
-<h2 id="fork其它项目后，同步更新别人的提交"><a href="#fork其它项目后，同步更新别人的提交" class="headerlink" title="fork其它项目后，同步更新别人的提交"></a>fork其它项目后，同步更新别人的提交</h2><p>###图文操作（好像不行）</p>
-<ul>
-<li>打开自己的仓库，进入code下面</li>
-<li>点击new pull request</li>
-<li>base fork是指变更的目标</li>
-<li>head fork是指变更的来源</li>
-<li>点击Merge pull request 合并从源fork来的代码。</li>
-</ul>
-<h3 id="命令操作（配置upstream指向fork的原仓库）"><a href="#命令操作（配置upstream指向fork的原仓库）" class="headerlink" title="命令操作（配置upstream指向fork的原仓库）"></a>命令操作（配置upstream指向fork的原仓库）</h3><figure class="highlight shell"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br><span class="line">3</span><br><span class="line">4</span><br><span class="line">5</span><br><span class="line">6</span><br><span class="line">7</span><br><span class="line">8</span><br><span class="line">9</span><br><span class="line">10</span><br><span class="line">11</span><br><span class="line">12</span><br><span class="line">13</span><br><span class="line">14</span><br><span class="line">15</span><br></pre></td><td class="code"><pre><span class="line"><span class="meta">#</span>查看现有的远程仓库</span><br><span class="line"><span class="meta">$</span> git remote -v </span><br><span class="line"><span class="meta">#</span>添加指向原仓库的upstream</span><br><span class="line"><span class="meta">$</span> git remote add #&#123;别名&#125; #&#123;原地址&#125;</span><br><span class="line"><span class="meta">$</span> git remote -v </span><br><span class="line"><span class="meta">#</span>删除远程仓库</span><br><span class="line"><span class="meta">$</span> git remote remove #&#123;别名&#125;</span><br><span class="line"><span class="meta">#</span>从源仓库更新同步代码</span><br><span class="line"><span class="meta">$</span> git fetch #&#123;别名&#125;</span><br><span class="line"><span class="meta">#</span>合并到本地代码</span><br><span class="line"><span class="meta">$</span> git merge #&#123;别名&#125;/master</span><br><span class="line"><span class="meta">#</span>更新并合并自己远程仓库的代码</span><br><span class="line"><span class="meta">$</span> git pull #&#123;别名&#125; master</span><br><span class="line"><span class="meta">#</span>向自己远程仓库推送刚才同步源仓库后的代码</span><br><span class="line"><span class="meta">$</span> git push</span><br></pre></td></tr></table></figure>
-
-<h1 id="常用命令"><a href="#常用命令" class="headerlink" title="常用命令"></a>常用命令</h1><figure class="highlight shell"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br><span class="line">3</span><br><span class="line">4</span><br><span class="line">5</span><br><span class="line">6</span><br><span class="line">7</span><br><span class="line">8</span><br><span class="line">9</span><br></pre></td><td class="code"><pre><span class="line"><span class="meta">#</span>查看本地有无修改</span><br><span class="line"><span class="meta">$</span> git status</span><br><span class="line"><span class="meta">#</span>添加修改</span><br><span class="line"><span class="meta">$</span> git add -A 或者 git add filename</span><br><span class="line"><span class="meta">#</span>获取原仓库更新</span><br><span class="line"><span class="meta">$</span> git fetch #&#123;别名&#125;</span><br><span class="line"><span class="meta">#</span>合并远程分支</span><br><span class="line">git checkout master</span><br><span class="line">git merge #&#123;别名&#125;/master</span><br></pre></td></tr></table></figure>
-
-<h1 id="参考文档"><a href="#参考文档" class="headerlink" title="参考文档"></a>参考文档</h1><p><a href="https://www.jianshu.com/p/6c366b53ea41" target="_blank" rel="noopener">如何用好 github 中的 watch、star、fork</a></p>
-<p><a href="https://github.com/cssmagic/blog/issues/49" target="_blank" rel="noopener">如何正确接收 GitHub 的消息邮件</a></p>
-<p><a href="https://blog.csdn.net/qq1332479771/article/details/56087333" target="_blank" rel="noopener">github上fork了别人的项目后，再同步更新别人的提交</a></p>
-<p><a href="https://zhuanlan.zhihu.com/p/34693871" target="_blank" rel="noopener">Github初级教程</a></p>
-<p><a href="https://www.cnblogs.com/lsgxeva/p/8540624.html" target="_blank" rel="noopener">Pull Request的正确打开方式（如何在GitHub上贡献开源项目</a></p>
-<p><a href="https://docs.github.com/cn/github/collaborating-with-issues-and-pull-requests/proposing-changes-to-your-work-with-pull-requests" target="_blank" rel="noopener">Github Docs</a></p>
-<p><a href="https://github.com/selfteaching/the-craft-of-selfteaching/issues/67" target="_blank" rel="noopener">Github进行fork后如何与原仓库同步</a></p>
-
-        
-      
-    </div>
-
-    
-    
-    
-      <footer class="post-footer">
-        <div class="post-eof"></div>
-      </footer>
-  </article>
-  
-  
-  
-
-    
   </div>
 
   
@@ -2035,7 +2057,7 @@
         
           <a href="/archives/">
         
-          <span class="site-state-item-count">61</span>
+          <span class="site-state-item-count">62</span>
           <span class="site-state-item-name">日志</span>
         </a>
       </div>
@@ -2061,7 +2083,7 @@
             <a href="/tags/">
           
         
-        <span class="site-state-item-count">1</span>
+        <span class="site-state-item-count">2</span>
         <span class="site-state-item-name">标签</span>
         </a>
       </div>
