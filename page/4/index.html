@@ -56,12 +56,12 @@
 </script>
 
   <meta property="og:type" content="website">
-<meta property="og:title" content="The Shine">
+<meta property="og:title" content="TheShy">
 <meta property="og:url" content="http://yoursite.com/page/4/index.html">
-<meta property="og:site_name" content="The Shine">
+<meta property="og:site_name" content="TheShy">
 <meta property="og:locale" content="zh-CN">
 <meta name="twitter:card" content="summary">
-<meta name="twitter:title" content="The Shine">
+<meta name="twitter:title" content="TheShy">
   <link rel="canonical" href="http://yoursite.com/page/4/">
 
 
@@ -76,7 +76,7 @@
   };
 </script>
 
-  <title>The Shine</title>
+  <title>TheShy</title>
   
 
 
@@ -131,7 +131,7 @@
     <div>
       <a href="/" class="brand" rel="start">
         <span class="logo-line-before"><i></i></span>
-        <span class="site-title">The Shine</span>
+        <span class="site-title">TheShy</span>
         <span class="logo-line-after"><i></i></span>
       </a>
     </div>
@@ -241,6 +241,203 @@
   
   
   <article itemscope itemtype="http://schema.org/Article" class="post-block home" lang="zh-CN">
+    <link itemprop="mainEntityOfPage" href="http://yoursite.com/2020/07/20/hadoop/hive元数据metastore/">
+
+    <span hidden itemprop="author" itemscope itemtype="http://schema.org/Person">
+      <meta itemprop="name" content="姜纪光">
+      <meta itemprop="description" content="">
+      <meta itemprop="image" content="/images/avatar.gif">
+    </span>
+
+    <span hidden itemprop="publisher" itemscope itemtype="http://schema.org/Organization">
+      <meta itemprop="name" content="TheShy">
+    </span>
+      <header class="post-header">
+        <h1 class="post-title" itemprop="name headline">
+          
+            
+            <a href="/2020/07/20/hadoop/hive元数据metastore/" class="post-title-link" itemprop="url">hive元数据metastore</a>
+          
+        </h1>
+
+        <div class="post-meta">
+            <span class="post-meta-item">
+              <span class="post-meta-item-icon">
+                <i class="fa fa-calendar-o"></i>
+              </span>
+              <span class="post-meta-item-text">发表于</span>
+
+              
+                
+              
+
+              <time title="创建时间：2020-07-20 17:43:21" itemprop="dateCreated datePublished" datetime="2020-07-20T17:43:21+08:00">2020-07-20</time>
+            </span>
+          
+            
+
+            
+              <span class="post-meta-item">
+                <span class="post-meta-item-icon">
+                  <i class="fa fa-calendar-check-o"></i>
+                </span>
+                <span class="post-meta-item-text">更新于</span>
+                <time title="修改时间：2020-07-21 15:52:17" itemprop="dateModified" datetime="2020-07-21T15:52:17+08:00">2020-07-21</time>
+              </span>
+            
+          
+            <span class="post-meta-item">
+              <span class="post-meta-item-icon">
+                <i class="fa fa-folder-o"></i>
+              </span>
+              <span class="post-meta-item-text">分类于</span>
+              
+                <span itemprop="about" itemscope itemtype="http://schema.org/Thing">
+                  <a href="/categories/hadoop/" itemprop="url" rel="index">
+                    <span itemprop="name">hadoop</span>
+                  </a>
+                </span>
+
+                
+                
+              
+            </span>
+          
+
+          
+            <span id="/2020/07/20/hadoop/hive元数据metastore/" class="post-meta-item leancloud_visitors" data-flag-title="hive元数据metastore" title="阅读次数">
+              <span class="post-meta-item-icon">
+                <i class="fa fa-eye"></i>
+              </span>
+              <span class="post-meta-item-text">阅读次数：</span>
+              <span class="leancloud-visitors-count"></span>
+            </span>
+          
+  
+  
+
+        </div>
+      </header>
+
+    
+    
+    
+    <div class="post-body" itemprop="articleBody">
+
+      
+          <h1 id="Hive数据模型"><a href="#Hive数据模型" class="headerlink" title="Hive数据模型"></a>Hive数据模型</h1><p>Hive中的所有数据都存储在HDFS中，包含以下数据模型：</p>
+<ul>
+<li><p>Table（Managed Table）</p>
+<blockquote>
+<p>hive默认创建managed table，files、metadata和statistics是被内部的Hive程序管理。managed table被默认存储在hive.metastore.warehouse.dir 路径属性下，类似于/apps/hive/warehouse/databasename.db/tablename，当创建表时，可以指定路径。如果managed table或其分区被删除，相关联的表或者分区的数据和元数据也将要被删除。如果PURGE选项没有被指定，那么数据将要被移到trash folder。</p>
+<p>managed Table的使用场景是：hive需要管理表的生命周期或者产生临时表</p>
+</blockquote>
+</li>
+<li><p>Partition</p>
+<blockquote>
+<p>表内的一个分区就是表的一个子目录</p>
+</blockquote>
+</li>
+<li><p>Bucket</p>
+<blockquote>
+<p>​    如果有分区，那么桶就是分区下的一个单位，如果表内没有分区，那么桶直接就是表下的单位，桶一般是文件的形式。</p>
+<p>​    对于每一个表（table）或者分区（partition）， Hive可以进一步组织成桶，也就是说桶是更为细粒度的数据范围划分。Hive也是 针对某一列进行桶的组织。Hive采用对列值哈希，然后除以桶的个数求余的方式决定该条记录存放在哪个桶当中。</p>
+<p>把表（或者分区）组织成桶（Bucket）有两个理由：</p>
+<p>1.获得更高的查询处理效率。桶为表加上了额外的结构，Hive 在处理有些查询时能利用这个结构。具体而言，连接两个在（包含连接列的）相同列上划分了桶的表，可以使用 Map 端连接 （Map-side join）高效的实现。比如JOIN操作。对于JOIN操作两个表有一个相同的列，如果对这两个表都进行了桶操作。那么将保存相同列值的桶进行JOIN操作就可以，可以大大较少JOIN的数据量。</p>
+<p>2.使取样（sampling）更高效。在处理大规模数据集时，在开发和修改查询的阶段，如果能在数据集的一小部分数据上试运行查询，会带来很多方便。</p>
+<p>​    物理上，每个桶就是表(或分区）目录里的一个文件。它的文件名并不重要，但是桶 n 是按照字典序排列的第 n 个文件。事实上，桶对应于 MapReduce 的输出文件分区：一个作业产生的桶(输出文件)和reduce任务个数相同。</p>
+</blockquote>
+</li>
+<li><p>External Table</p>
+<blockquote>
+<p>external table在外部文件中描述metadata / schema，External table files可以由Hive外部的进程访问和管理。外部表可以访问存储在诸如Azure存储卷（ASV）或远程HDFS位置的源中的数据。 如果更改了外部表的结构或分区，则可以使用MSCK REPAIR TABLE table_name语句刷新元数据信息。</p>
+<p>external tables的使用场景是：files已经在remote locations存在，并且即使是被删除，文件也应该保留。可以使用DESCRIBE FORMATTED table_name命令来标识托管表或外部表，该命令将根据表类型显示MANAGED_TABLE或EXTERNAL_TABLE。</p>
+<p>对于一些原始日志文件，同时被多个部门同时操作的时候就需要使用外部表，如果不小心将meta data删除了，HDFS上 的data还在可以恢复，增加了数据的安全性。</p>
+</blockquote>
+</li>
+</ul>
+<h1 id="元数据表结构"><a href="#元数据表结构" class="headerlink" title="元数据表结构"></a>元数据表结构</h1><h2 id="VERSION"><a href="#VERSION" class="headerlink" title="VERSION"></a>VERSION</h2><p>存储Hive版本的元数据表，该表比较简单，但是很重要。如果该表出现问题，根本进入不了Hive-Cli。比如该表不存在，当启动Hive-Cli时候，就会报错”Table ‘hive.version’ doesn’t exist”。</p>
+<h2 id="Hive数据库相关的元数据表-DBS、DATABASE-PARAMS"><a href="#Hive数据库相关的元数据表-DBS、DATABASE-PARAMS" class="headerlink" title="Hive数据库相关的元数据表(DBS、DATABASE_PARAMS)"></a>Hive数据库相关的元数据表(DBS、DATABASE_PARAMS)</h2><p>###DBS</p>
+<p>该表存储Hive中所有数据库的基本信息。</p>
+<p>DB_ID：数据库ID</p>
+<p>###DATABASE_PARAMS</p>
+<p>该表存储数据库的相关参数，</p>
+<p>在CREATE DATABASE时候用WITH DBPROPERTIES(property_name=property_value, …)指定的参数</p>
+<h2 id="Hive表和视图相关的元数据表"><a href="#Hive表和视图相关的元数据表" class="headerlink" title="Hive表和视图相关的元数据表"></a>Hive表和视图相关的元数据表</h2><p>主要有TBLS、TABLE_PARAMS、TBL_PRIVS，这三张表通过TBL_ID关联。</p>
+<p>###TBLS</p>
+<p>该表中存储Hive表，视图，索引表的基本信息</p>
+<p>TBL_ID：表ID</p>
+<p>###TABLE_PARAMS</p>
+<p>该表存储表/视图的属性信息</p>
+<p>###TBL_PRIVS</p>
+<p>该表存储表/视图的授权信息</p>
+<p>TBL_GRANT_ID：授权ID</p>
+<p>##Hive文件存储信息相关的元数据表</p>
+<p>​    主要涉及SDS、SD_PARAMS、SERDES、SERDE_PARAMS，由于HDFS支持的文件格式很多，而建Hive表时候也可以指定各种文件格式，Hive在将HQL解析成MapReduce时候，需要知道去哪里，使用哪种格式去读写HDFS文件，而这些信息就保存在这几张表中。</p>
+<h3 id="SDS"><a href="#SDS" class="headerlink" title="SDS"></a>SDS</h3><p>​    该表保存文件存储的基本信息，如INPUT_FORMAT、OUTPUT_FORMAT、是否压缩等。</p>
+<p>TBLS表中的SD_ID与该表关联，可以获取Hive表的存储信息。</p>
+<p>SD_ID：存储信息ID</p>
+<p>CD_ID：字段信息ID   对应CDS表</p>
+<p>SERDE_ID：序列化类ID  对应SERDES表</p>
+<h3 id="SD-PARAMS"><a href="#SD-PARAMS" class="headerlink" title="SD_PARAMS"></a>SD_PARAMS</h3><p>​    该表存储Hive存储的属性信息，在创建表时候使用STORED BY ‘storage.handler.class.name’ [WITH SERDEPROPERTIES (…)指定。</p>
+<h3 id="SERDES"><a href="#SERDES" class="headerlink" title="SERDES"></a>SERDES</h3><p>​    该表存储序列化使用的类信息</p>
+<h3 id="SERDE-PARAMS"><a href="#SERDE-PARAMS" class="headerlink" title="SERDE_PARAMS"></a>SERDE_PARAMS</h3><p>​    该表存储序列化的一些属性、格式信息，比如:行、列分隔符</p>
+<h2 id="Hive表字段相关的元数据表"><a href="#Hive表字段相关的元数据表" class="headerlink" title="Hive表字段相关的元数据表"></a>Hive表字段相关的元数据表</h2><h3 id="COLUMNS-V2"><a href="#COLUMNS-V2" class="headerlink" title="COLUMNS_V2"></a>COLUMNS_V2</h3><p>​    该表存储表对应的字段信息</p>
+<p>​    CD_ID：字段信息ID</p>
+<h2 id="Hive表分分区相关的元数据表"><a href="#Hive表分分区相关的元数据表" class="headerlink" title="Hive表分分区相关的元数据表"></a>Hive表分分区相关的元数据表</h2><p>​     主要涉及PARTITIONS、PARTITION_KEYS、PARTITION_KEY_VALS、PARTITION_PARAMS</p>
+<h3 id="PARTITIONS"><a href="#PARTITIONS" class="headerlink" title="PARTITIONS"></a>PARTITIONS</h3><p>​    该表存储表分区的基本信息</p>
+<p>​    PART_ID：分区ID</p>
+<h3 id="PARTITION-KEYS"><a href="#PARTITION-KEYS" class="headerlink" title="PARTITION_KEYS"></a>PARTITION_KEYS</h3><p>​    该表存储分区的字段信息</p>
+<h3 id="PARTITION-KEY-VALS"><a href="#PARTITION-KEY-VALS" class="headerlink" title="PARTITION_KEY_VALS"></a>PARTITION_KEY_VALS</h3><p>​    该表存储分区字段值</p>
+<h3 id="PARTITION-PARAMS"><a href="#PARTITION-PARAMS" class="headerlink" title="PARTITION_PARAMS"></a>PARTITION_PARAMS</h3><p>​    该表存储分区的属性信息</p>
+<p>##其它表</p>
+<p>DB_PRIVS</p>
+<p>数据库权限信息表。通过GRANT语句对数据库授权后，将会在这里存储。</p>
+<p>IDXS</p>
+<p>索引表，存储Hive索引相关的元数据</p>
+<p>INDEX_PARAMS</p>
+<p>索引相关的属性信息</p>
+<p>TBL_COL_STATS</p>
+<p>表字段的统计信息。使用ANALYZE语句对表字段分析后记录在这里</p>
+<p>TBL_COL_PRIVS</p>
+<p>表字段的授权信息</p>
+<p>PART_PRIVS</p>
+<p>分区的授权信息</p>
+<p>PART_COL_PRIVS</p>
+<p>分区字段的权限信息</p>
+<p>PART_COL_STATS</p>
+<p>分区字段的统计信息</p>
+<p>FUNCS</p>
+<p>用户注册的函数信息</p>
+<p>FUNC_RU</p>
+<p>用户注册函数的资源信息</p>
+<h1 id="参考文档"><a href="#参考文档" class="headerlink" title="参考文档"></a>参考文档</h1><p><a href="https://mp.weixin.qq.com/s?__biz=MzA3ODUxMzQxMA==&mid=2663993556&idx=1&sn=0e5291bd63426d747f32a7fd05128caa&scene=21#wechat_redirect" target="_blank" rel="noopener">Hive元数据表结构详解</a></p>
+<p><a href="https://www.cnblogs.com/bonelee/p/12441622.html" target="_blank" rel="noopener">Hive基本架构和原理</a></p>
+<p><a href="https://blog.csdn.net/qq_40990732/article/details/80914873" target="_blank" rel="noopener">Hive Metastore原理及配置</a></p>
+<p><a href="https://cloud.tencent.com/developer/news/362488" target="_blank" rel="noopener">Hive架构和工作原理</a></p>
+<p><a href="https://blog.csdn.net/m0_37534613/article/details/55258928" target="_blank" rel="noopener">Hive分桶之BUCKET详解</a></p>
+<p><a href="https://blog.csdn.net/qq_26803795/article/details/105205702?utm_medium=distribute.pc_relevant_t0.none-task-blog-BlogCommendFromMachineLearnPai2-1.nonecase&depth_1-utm_source=distribute.pc_relevant_t0.none-task-blog-BlogCommendFromMachineLearnPai2-1.nonecase" target="_blank" rel="noopener">一文彻底学会hive分桶表（实战详解）</a></p>
+
+        
+      
+    </div>
+
+    
+    
+    
+      <footer class="post-footer">
+        <div class="post-eof"></div>
+      </footer>
+  </article>
+  
+  
+  
+
+    
+        
+  
+  
+  <article itemscope itemtype="http://schema.org/Article" class="post-block home" lang="zh-CN">
     <link itemprop="mainEntityOfPage" href="http://yoursite.com/2020/07/20/tools/github使用/">
 
     <span hidden itemprop="author" itemscope itemtype="http://schema.org/Person">
@@ -250,7 +447,7 @@
     </span>
 
     <span hidden itemprop="publisher" itemscope itemtype="http://schema.org/Organization">
-      <meta itemprop="name" content="The Shine">
+      <meta itemprop="name" content="TheShy">
     </span>
       <header class="post-header">
         <h1 class="post-title" itemprop="name headline">
@@ -381,7 +578,7 @@
     </span>
 
     <span hidden itemprop="publisher" itemscope itemtype="http://schema.org/Organization">
-      <meta itemprop="name" content="The Shine">
+      <meta itemprop="name" content="TheShy">
     </span>
       <header class="post-header">
         <h1 class="post-title" itemprop="name headline">
@@ -619,7 +816,7 @@
     </span>
 
     <span hidden itemprop="publisher" itemscope itemtype="http://schema.org/Organization">
-      <meta itemprop="name" content="The Shine">
+      <meta itemprop="name" content="TheShy">
     </span>
       <header class="post-header">
         <h1 class="post-title" itemprop="name headline">
@@ -741,7 +938,7 @@
     </span>
 
     <span hidden itemprop="publisher" itemscope itemtype="http://schema.org/Organization">
-      <meta itemprop="name" content="The Shine">
+      <meta itemprop="name" content="TheShy">
     </span>
       <header class="post-header">
         <h1 class="post-title" itemprop="name headline">
@@ -900,7 +1097,7 @@
     </span>
 
     <span hidden itemprop="publisher" itemscope itemtype="http://schema.org/Organization">
-      <meta itemprop="name" content="The Shine">
+      <meta itemprop="name" content="TheShy">
     </span>
       <header class="post-header">
         <h1 class="post-title" itemprop="name headline">
@@ -1126,7 +1323,7 @@
     </span>
 
     <span hidden itemprop="publisher" itemscope itemtype="http://schema.org/Organization">
-      <meta itemprop="name" content="The Shine">
+      <meta itemprop="name" content="TheShy">
     </span>
       <header class="post-header">
         <h1 class="post-title" itemprop="name headline">
@@ -1239,7 +1436,7 @@
     </span>
 
     <span hidden itemprop="publisher" itemscope itemtype="http://schema.org/Organization">
-      <meta itemprop="name" content="The Shine">
+      <meta itemprop="name" content="TheShy">
     </span>
       <header class="post-header">
         <h1 class="post-title" itemprop="name headline">
@@ -1344,7 +1541,7 @@
     </span>
 
     <span hidden itemprop="publisher" itemscope itemtype="http://schema.org/Organization">
-      <meta itemprop="name" content="The Shine">
+      <meta itemprop="name" content="TheShy">
     </span>
       <header class="post-header">
         <h1 class="post-title" itemprop="name headline">
@@ -1488,7 +1685,7 @@
     </span>
 
     <span hidden itemprop="publisher" itemscope itemtype="http://schema.org/Organization">
-      <meta itemprop="name" content="The Shine">
+      <meta itemprop="name" content="TheShy">
     </span>
       <header class="post-header">
         <h1 class="post-title" itemprop="name headline">
@@ -1680,239 +1877,6 @@
   
 
     
-        
-  
-  
-  <article itemscope itemtype="http://schema.org/Article" class="post-block home" lang="zh-CN">
-    <link itemprop="mainEntityOfPage" href="http://yoursite.com/2020/07/10/es/es概览/">
-
-    <span hidden itemprop="author" itemscope itemtype="http://schema.org/Person">
-      <meta itemprop="name" content="姜纪光">
-      <meta itemprop="description" content="">
-      <meta itemprop="image" content="/images/avatar.gif">
-    </span>
-
-    <span hidden itemprop="publisher" itemscope itemtype="http://schema.org/Organization">
-      <meta itemprop="name" content="The Shine">
-    </span>
-      <header class="post-header">
-        <h1 class="post-title" itemprop="name headline">
-          
-            
-            <a href="/2020/07/10/es/es概览/" class="post-title-link" itemprop="url">es概览</a>
-          
-        </h1>
-
-        <div class="post-meta">
-            <span class="post-meta-item">
-              <span class="post-meta-item-icon">
-                <i class="fa fa-calendar-o"></i>
-              </span>
-              <span class="post-meta-item-text">发表于</span>
-
-              
-                
-              
-
-              <time title="创建时间：2020-07-10 18:04:55" itemprop="dateCreated datePublished" datetime="2020-07-10T18:04:55+08:00">2020-07-10</time>
-            </span>
-          
-            
-
-            
-              <span class="post-meta-item">
-                <span class="post-meta-item-icon">
-                  <i class="fa fa-calendar-check-o"></i>
-                </span>
-                <span class="post-meta-item-text">更新于</span>
-                <time title="修改时间：2020-08-11 09:21:58" itemprop="dateModified" datetime="2020-08-11T09:21:58+08:00">2020-08-11</time>
-              </span>
-            
-          
-            <span class="post-meta-item">
-              <span class="post-meta-item-icon">
-                <i class="fa fa-folder-o"></i>
-              </span>
-              <span class="post-meta-item-text">分类于</span>
-              
-                <span itemprop="about" itemscope itemtype="http://schema.org/Thing">
-                  <a href="/categories/es/" itemprop="url" rel="index">
-                    <span itemprop="name">es</span>
-                  </a>
-                </span>
-
-                
-                
-              
-            </span>
-          
-
-          
-            <span id="/2020/07/10/es/es概览/" class="post-meta-item leancloud_visitors" data-flag-title="es概览" title="阅读次数">
-              <span class="post-meta-item-icon">
-                <i class="fa fa-eye"></i>
-              </span>
-              <span class="post-meta-item-text">阅读次数：</span>
-              <span class="leancloud-visitors-count"></span>
-            </span>
-          
-  
-  
-
-        </div>
-      </header>
-
-    
-    
-    
-    <div class="post-body" itemprop="articleBody">
-
-      
-          <h1 id="简介"><a href="#简介" class="headerlink" title="简介"></a>简介</h1><p>计算文档相关性得分的算法：TF-IDF(term frequency-inverse document frequency)词频-逆文档频率</p>
-<ul>
-<li>词频：所查找的单词在文档中出现的次数越多，得分越高</li>
-<li>逆文档词频：如果某个词频在所有文档中比较少见，那么该词的权重越高，得分也会越高</li>
-</ul>
-<p>使用案例：</p>
-<ul>
-<li>不光能在完善的数据存储之上提供搜索能力，更能提供持久化数据的能力、统计能力</li>
-<li>版本1中不支持事务和复杂关系</li>
-<li>提供REST API服务，返回数据格式可以使JSON或YAML</li>
-</ul>
-<p>主要特性：</p>
-<ul>
-<li>es默认是面向文档的、可扩展的，没有固定的schema</li>
-<li>在多个字段中搜索多个关键字，一些是必须的，一些是可选的</li>
-<li>搜索可以同时包含查询、过滤器、聚集、聚集从匹配的文档中生成统计数据</li>
-<li>以文档的形式存储数据，文档可以是具有层次的，这种灵活性非常高，鼓励将所有属于一个逻辑实体的数据保存在同一个文档中。</li>
-<li>每个集群都有一个主节点，负责了解集群中的所有节点以及分片位置</li>
-<li>端口9300用于节点之间的通讯、java api</li>
-<li>端口9200用于http通讯</li>
-<li>gateway负责将数据持久化到磁盘</li>
-<li>es自动将数据划分为分片，做负载均衡，使得动态添加和移除服务器变动容易，分片可以复制，提高容错性</li>
-</ul>
-<h1 id="安装"><a href="#安装" class="headerlink" title="安装"></a>安装</h1><h2 id="mac下安装"><a href="#mac下安装" class="headerlink" title="mac下安装"></a>mac下安装</h2><h3 id="最新版本安装"><a href="#最新版本安装" class="headerlink" title="最新版本安装"></a>最新版本安装</h3><figure class="highlight shell"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br><span class="line">3</span><br><span class="line">4</span><br><span class="line">5</span><br></pre></td><td class="code"><pre><span class="line"><span class="meta">$</span> brew install elasticsearch  #安装</span><br><span class="line"><span class="meta">$</span> brew info elasticsearch     #查看安装信息</span><br><span class="line"><span class="meta">$</span> brew services start elasticsearch   #运行  http://localhost:9200/</span><br><span class="line"><span class="meta">$</span> brew install kibana         #安装kibana</span><br><span class="line"><span class="meta">$</span> brew services start kibana  #启用kibana    http://localhost:5601/</span><br></pre></td></tr></table></figure>
-
-<h3 id="5-6-9版本安装"><a href="#5-6-9版本安装" class="headerlink" title="5.6.9版本安装"></a>5.6.9版本安装</h3><figure class="highlight shell"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br></pre></td><td class="code"><pre><span class="line"><span class="meta">#</span>下载地址</span><br><span class="line"><span class="meta">$</span> https://www.elastic.co/cn/downloads/past-releases/elasticsearch-5-6-9</span><br></pre></td></tr></table></figure>
-
-<h2 id="配置"><a href="#配置" class="headerlink" title="配置"></a>配置</h2><h1 id="功能"><a href="#功能" class="headerlink" title="功能"></a>功能</h1><h2 id="逻辑设计"><a href="#逻辑设计" class="headerlink" title="逻辑设计"></a>逻辑设计</h2><ul>
-<li>文档是搜索和索引的基本单位，类似关系数据库中的一行</li>
-<li>类型用来分组文档，可以包含若干文档，类似表格包含若干行，类似表</li>
-<li>索引是更大的容器，一个或多个类型位于同一索引中，类似数据库</li>
-</ul>
-<h2 id="物理设计"><a href="#物理设计" class="headerlink" title="物理设计"></a>物理设计</h2><ul>
-<li>es将每个索引划分为分片</li>
-<li>每份分片可以在集群间的不同服务器上迁移</li>
-<li>物理配置的设计方式决定了集群的性能、可扩展性和可用性</li>
-</ul>
-<h2 id="文档"><a href="#文档" class="headerlink" title="文档"></a>文档</h2><ul>
-<li>文档由索引名称 + 类型名称 + 文档ID 唯一确定</li>
-<li>文档是无模式的，不是所有文档都需要相同的字段</li>
-<li>文档是层次型的，即文档中可以包含文档</li>
-<li>文档拥有灵活的结构，不依赖于预先定义的模式</li>
-<li>文档中的字段是有字段类型的，字符串、整数等</li>
-<li>一个词条是文本中的一个单词，是搜索的基本单位</li>
-</ul>
-<h2 id="类型"><a href="#类型" class="headerlink" title="类型"></a>类型</h2><ul>
-<li>类型是映射类型，要和字段类型区分开来</li>
-<li>类型是文档的逻辑容器，类似于表格是行的容器。</li>
-<li>相同结构（模式）的文档最好是放入到相同的类型中</li>
-<li>映射是指每个类型中字段的定义，包含类型中所有文档的所有字段</li>
-<li>多个类型中出现同名字段时，同名字段应该有同样的类型，因为两个字段属于同一个lucene索引，若类型不同，es将很难辨别</li>
-</ul>
-<p>既然es是无模式的，那么相同结构（模式）的文档要放到同一类型中吗？</p>
-<ul>
-<li>无模式是指文档不受模式的限制，文档不需要映射中定义的所有字段，当然也可以使用新字段。</li>
-<li>既然每个字段都需要在类型中定义映射，那么对于新字段，es会自动地将新字段加入映射</li>
-<li>es在加入新字段时，将会猜测该字段的字段类型，可能会猜不对</li>
-<li>最佳的方式是索引数据之前，就定义好所需映射</li>
-</ul>
-<h2 id="索引"><a href="#索引" class="headerlink" title="索引"></a>索引</h2><ul>
-<li>索引是映射类型的容器</li>
-<li>是独立的大量文档的集合</li>
-<li>每个索引存储在磁盘上的同组文件中</li>
-<li>索引可以设置分片的数量</li>
-</ul>
-<h2 id="节点"><a href="#节点" class="headerlink" title="节点"></a>节点</h2><ul>
-<li>一个节点是一个es实例</li>
-<li>多个节点可以加入同一个集群</li>
-<li>默认情况下，可以连接集群的任一节点，并访问完整的数据集</li>
-</ul>
-<h2 id="分片"><a href="#分片" class="headerlink" title="分片"></a>分片</h2><ul>
-<li>分片是es处理的最小单元</li>
-<li>一份分片是一个lucene的索引：一个包含倒排索引的文档目录</li>
-<li>一个索引（es）是由多个lucene的索引组成</li>
-<li>主分片必须是在创建索引之前就确定</li>
-<li>过少的分片影响扩展性，过多的分片影响性能</li>
-<li>新节点加入到集群后，现有的分片将在所有节点上进行负载均衡</li>
-<li>对于每篇文档，分片是通过其ID字符串的散列决定的</li>
-<li>每份分片拥有相同的散列范围，接受新文档的机会均等</li>
-</ul>
-<h2 id="副本分片"><a href="#副本分片" class="headerlink" title="副本分片"></a>副本分片</h2><ul>
-<li>副本分片是主分片的完整副本</li>
-<li>副本分片用于搜索，或主分片丢失后成为新的主分片</li>
-<li>副本分片可以在任何时候进行数量的改变</li>
-<li>搜索时会通过轮询机制选中主分片和副本分片</li>
-</ul>
-<h1 id="操作"><a href="#操作" class="headerlink" title="操作"></a>操作</h1><h2 id="字段含义"><a href="#字段含义" class="headerlink" title="字段含义"></a>字段含义</h2><ul>
-<li><p>_shard</p>
-<blockquote>
-<p>一共有多少分片，虽然默认有5个shard和3个replica，但是一个document只会存放在一个shard里面，而一个shard有多个replica，而我这只有个shard，没有replica，所有只有一个成功。</p>
-</blockquote>
-</li>
-<li><p>_version</p>
-<blockquote>
-<p>表示当前数据的版本号，数据发生变更时，递增</p>
-</blockquote>
-</li>
-<li><p>_seq_no</p>
-<blockquote>
-<p>严格递增的顺序号，每个文档一个，Shard级别严格递增，保证后写入的Doc的_seq_no大于先写入的Doc的_seq_no。任何类型的写操作，包括index、create、update和Delete，都会生成一个seq_no.这个是不可改的，而_version这个版本号是可以改的</p>
-</blockquote>
-</li>
-<li><p>_primary_term</p>
-<blockquote>
-<p>primary_term也和_seq_no一样是一个整数，每当Primary Shard发生重新分配时，比如重启，Primary选举等，_primary_term会递增1。_primary_term主要是用来恢复数据时处理当多个文档的_seq_no一样时的冲突，比如当一个shard宕机了，raplica需要用到最新的数据，就会根据_primary_term和_seq_no这两个值来拿到最新的document</p>
-</blockquote>
-</li>
-</ul>
-<h2 id="常用请求"><a href="#常用请求" class="headerlink" title="常用请求"></a>常用请求</h2><ul>
-<li><p>常用请求参数</p>
-<figure class="highlight plain"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br><span class="line">3</span><br><span class="line">4</span><br><span class="line">5</span><br></pre></td><td class="code"><pre><span class="line">所有的搜索选项都在URL里设置</span><br><span class="line">q=searchkey</span><br><span class="line">&amp;pretty</span><br><span class="line">&amp;timeout=3s</span><br><span class="line">&amp;size=1</span><br></pre></td></tr></table></figure>
-</li>
-<li><p>返回结果</p>
-<figure class="highlight plain"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br><span class="line">3</span><br><span class="line">4</span><br></pre></td><td class="code"><pre><span class="line">took: 花费时间毫秒</span><br><span class="line">time_out: 是否超时，超时只能返回超时前的结果</span><br><span class="line">_shards: 分片信息</span><br><span class="line">_source: 存储原始JSON文档</span><br></pre></td></tr></table></figure>
-</li>
-<li><p>获取索引的所有映射</p>
-<blockquote>
-<p><a href="http://localhost:9200/get-together/_mapping" target="_blank" rel="noopener">http://localhost:9200/get-together/_mapping</a></p>
-</blockquote>
-</li>
-<li><p>占位符_all</p>
-<blockquote>
-<p><a href="http://localhost:9200/_all/group/_search?q=jiang" target="_blank" rel="noopener">http://localhost:9200/_all/group/_search?q=jiang</a></p>
-</blockquote>
-</li>
-</ul>
-<h1 id="参考文档"><a href="#参考文档" class="headerlink" title="参考文档"></a>参考文档</h1><p><a href="https://blog.csdn.net/haozhishang/article/details/80032889" target="_blank" rel="noopener">ElasticSearch6.2.4(2)——核心概念和文档实操</a></p>
-<p><a href="https://doc.yonyoucloud.com/doc/mastering-elasticsearch/index.html" target="_blank" rel="noopener">Mastering Elasticsearch(中文版)</a></p>
-
-        
-      
-    </div>
-
-    
-    
-    
-      <footer class="post-footer">
-        <div class="post-eof"></div>
-      </footer>
-  </article>
-  
-  
-  
-
-    
   </div>
 
   
@@ -1962,7 +1926,7 @@
         
           <a href="/archives/">
         
-          <span class="site-state-item-count">62</span>
+          <span class="site-state-item-count">63</span>
           <span class="site-state-item-name">日志</span>
         </a>
       </div>
