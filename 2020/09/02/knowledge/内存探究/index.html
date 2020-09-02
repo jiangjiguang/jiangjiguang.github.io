@@ -55,18 +55,18 @@
   };
 </script>
 
-  <meta name="description" content="图是什么 图将实体表现为节点，实体与其它实体连接的方式表现为联系 天生不需要模式  现在最流行的图模型形式-带标签的属性图  它包含节点和联系 节点上有属性（键值对） 节点可以有一个或多个标签 联系有名字和方向，并总是有一个开始节点和一个结束节点 联系也可以有属性 使用labels表示节点在图中扮演的角色  图领域的分类  主要用于联机事务图的持久化技术，通常直接实时地被应用程序访问 主要用于离线">
+  <meta name="description" content="参考文档性能之巅">
 <meta property="og:type" content="article">
-<meta property="og:title" content="图数据库概览">
-<meta property="og:url" content="http://yoursite.com/2020/07/13/数据库/图数据库概览/index.html">
+<meta property="og:title" content="内存探究">
+<meta property="og:url" content="http://yoursite.com/2020/09/02/knowledge/内存探究/index.html">
 <meta property="og:site_name" content="纪光的博客">
-<meta property="og:description" content="图是什么 图将实体表现为节点，实体与其它实体连接的方式表现为联系 天生不需要模式  现在最流行的图模型形式-带标签的属性图  它包含节点和联系 节点上有属性（键值对） 节点可以有一个或多个标签 联系有名字和方向，并总是有一个开始节点和一个结束节点 联系也可以有属性 使用labels表示节点在图中扮演的角色  图领域的分类  主要用于联机事务图的持久化技术，通常直接实时地被应用程序访问 主要用于离线">
+<meta property="og:description" content="参考文档性能之巅">
 <meta property="og:locale" content="zh-CN">
-<meta property="og:updated_time" content="2020-07-13T10:53:22.750Z">
+<meta property="og:updated_time" content="2020-09-02T08:11:17.004Z">
 <meta name="twitter:card" content="summary">
-<meta name="twitter:title" content="图数据库概览">
-<meta name="twitter:description" content="图是什么 图将实体表现为节点，实体与其它实体连接的方式表现为联系 天生不需要模式  现在最流行的图模型形式-带标签的属性图  它包含节点和联系 节点上有属性（键值对） 节点可以有一个或多个标签 联系有名字和方向，并总是有一个开始节点和一个结束节点 联系也可以有属性 使用labels表示节点在图中扮演的角色  图领域的分类  主要用于联机事务图的持久化技术，通常直接实时地被应用程序访问 主要用于离线">
-  <link rel="canonical" href="http://yoursite.com/2020/07/13/数据库/图数据库概览/">
+<meta name="twitter:title" content="内存探究">
+<meta name="twitter:description" content="参考文档性能之巅">
+  <link rel="canonical" href="http://yoursite.com/2020/09/02/knowledge/内存探究/">
 
 
 <script id="page-configurations">
@@ -80,7 +80,7 @@
   };
 </script>
 
-  <title>图数据库概览 | 纪光的博客</title>
+  <title>内存探究 | 纪光的博客</title>
   
 
 
@@ -245,7 +245,7 @@
   
   
   <article itemscope itemtype="http://schema.org/Article" class="post-block " lang="zh-CN">
-    <link itemprop="mainEntityOfPage" href="http://yoursite.com/2020/07/13/数据库/图数据库概览/">
+    <link itemprop="mainEntityOfPage" href="http://yoursite.com/2020/09/02/knowledge/内存探究/">
 
     <span hidden itemprop="author" itemscope itemtype="http://schema.org/Person">
       <meta itemprop="name" content="姜纪光">
@@ -259,7 +259,7 @@
       <header class="post-header">
         <h1 class="post-title" itemprop="name headline">
           
-            图数据库概览
+            内存探究
             
 
           
@@ -276,7 +276,7 @@
                 
               
 
-              <time title="创建时间：2020-07-13 14:24:32 / 修改时间：18:53:22" itemprop="dateCreated datePublished" datetime="2020-07-13T14:24:32+08:00">2020-07-13</time>
+              <time title="创建时间：2020-09-02 16:09:32 / 修改时间：16:11:17" itemprop="dateCreated datePublished" datetime="2020-09-02T16:09:32+08:00">2020-09-02</time>
             </span>
           
             
@@ -290,8 +290,8 @@
               <span class="post-meta-item-text">分类于</span>
               
                 <span itemprop="about" itemscope itemtype="http://schema.org/Thing">
-                  <a href="/categories/图数据库/" itemprop="url" rel="index">
-                    <span itemprop="name">图数据库</span>
+                  <a href="/categories/内存/" itemprop="url" rel="index">
+                    <span itemprop="name">内存</span>
                   </a>
                 </span>
 
@@ -302,7 +302,7 @@
           
 
           
-            <span id="/2020/07/13/数据库/图数据库概览/" class="post-meta-item leancloud_visitors" data-flag-title="图数据库概览" title="阅读次数">
+            <span id="/2020/09/02/knowledge/内存探究/" class="post-meta-item leancloud_visitors" data-flag-title="内存探究" title="阅读次数">
               <span class="post-meta-item-icon">
                 <i class="fa fa-eye"></i>
               </span>
@@ -322,53 +322,7 @@
     <div class="post-body" itemprop="articleBody">
 
       
-        <h1 id="图是什么"><a href="#图是什么" class="headerlink" title="图是什么"></a>图是什么</h1><ul>
-<li>图将实体表现为节点，实体与其它实体连接的方式表现为联系</li>
-<li>天生不需要模式</li>
-</ul>
-<p>现在最流行的图模型形式-带标签的属性图</p>
-<ul>
-<li>它包含节点和联系</li>
-<li>节点上有属性（键值对）</li>
-<li>节点可以有一个或多个标签</li>
-<li>联系有名字和方向，并总是有一个开始节点和一个结束节点</li>
-<li>联系也可以有属性</li>
-<li>使用labels表示节点在图中扮演的角色</li>
-</ul>
-<p>图领域的分类</p>
-<ul>
-<li>主要用于联机事务图的持久化技术，通常直接实时地被应用程序访问</li>
-<li>主要用于离线图分析的技术，通常按一系列步骤执行</li>
-</ul>
-<p>图数据库</p>
-<ul>
-<li>一般用于事务（OLTP）系统中</li>
-<li>原生图存储的好处是，它的栈是专门为性能和扩展性设计建造的</li>
-<li>非原生图存储通常建立在非常成熟的非图后端之上</li>
-<li>原生图处理（免索引邻接）虽然在遍历查询时性能优势很大，但代价是一些未使用遍历的查询会比较难，并且需要占据巨大的内存</li>
-<li>联系是图数据模型中的一等公民</li>
-<li>图数据库通过将节点和联系的简单抽象组装为相互关系的结构，是我们能够建造任意复杂的模型，形象地映射我们的问题域</li>
-<li>图天生是可扩展的，可以对已经存在的结构添加不同种类的新联系、新节点、新标签和新子图。</li>
-<li>图数据库是处理复杂的、结构可变的、密集关联的数据的最好的技术</li>
-</ul>
-<p>图计算引擎</p>
-<ul>
-<li>偏重于全局查询</li>
-<li>通常为扫描和批处理大规模信息做过优化</li>
-</ul>
-<h1 id="图建模"><a href="#图建模" class="headerlink" title="图建模"></a>图建模</h1><ul>
-<li>带标签的属性图模型</li>
-<li>图查询语言cypher</li>
-<li>建模是为了让不规则的领域的一些具体方面变成结构化的、可操从的空间</li>
-<li>图建模与其他建模技术的不同之处在于其逻辑模型和物理模型之间有更加密切的关系</li>
-</ul>
-<h2 id="带标签的属性图模型"><a href="#带标签的属性图模型" class="headerlink" title="带标签的属性图模型"></a>带标签的属性图模型</h2><ul>
-<li>带标签的属性图是由节点、联系、属性和标签组成</li>
-<li>节点上包含属性。我们可以把节点想象成存储属性的文件，属性可以以任何键值对的形式存在，在Neo4j中，键一般是字符串，值则可以使java字符串和基元数据，或是这些数据类型的数组</li>
-<li>节点可以被打上一个或多个标签。标签把节点组织在一起，并表示它们在这个数据集中的角色</li>
-<li>联系连接节点，从而构成图。每条联系都有一个方向、一个名字、一个开始和一个结束节点</li>
-<li>联系也有属性，通过在联系上增加属性，可以给图算法提供元数据，也可以给联系增加额外的语义，还可以用于运行时的约束查询</li>
-</ul>
+        <h1 id="参考文档"><a href="#参考文档" class="headerlink" title="参考文档"></a>参考文档</h1><p><a href>性能之巅</a></p>
 
     </div>
 
@@ -385,8 +339,8 @@
           <div class="post-nav">
             <div class="post-nav-next post-nav-item">
               
-                <a href="/2020/07/13/es/映射/" rel="next" title="映射">
-                  <i class="fa fa-chevron-left"></i> 映射
+                <a href="/2020/09/02/flink/SLS日志带来的问题/" rel="next" title="SLS日志带来的问题">
+                  <i class="fa fa-chevron-left"></i> SLS日志带来的问题
                 </a>
               
             </div>
@@ -394,10 +348,6 @@
             <span class="post-nav-divider"></span>
 
             <div class="post-nav-prev post-nav-item">
-              
-                <a href="/2020/07/13/es/搜索数据/" rel="prev" title="搜索数据">
-                  搜索数据 <i class="fa fa-chevron-right"></i>
-                </a>
               
             </div>
           </div>
@@ -443,7 +393,7 @@
 
       <!--noindex-->
       <div class="post-toc-wrap sidebar-panel">
-          <div class="post-toc motion-element"><ol class="nav"><li class="nav-item nav-level-1"><a class="nav-link" href="#图是什么"><span class="nav-number">1.</span> <span class="nav-text">图是什么</span></a></li><li class="nav-item nav-level-1"><a class="nav-link" href="#图建模"><span class="nav-number">2.</span> <span class="nav-text">图建模</span></a><ol class="nav-child"><li class="nav-item nav-level-2"><a class="nav-link" href="#带标签的属性图模型"><span class="nav-number">2.1.</span> <span class="nav-text">带标签的属性图模型</span></a></li></ol></li></ol></div>
+          <div class="post-toc motion-element"><ol class="nav"><li class="nav-item nav-level-1"><a class="nav-link" href="#参考文档"><span class="nav-number">1.</span> <span class="nav-text">参考文档</span></a></li></ol></div>
         
       </div>
       <!--/noindex-->
