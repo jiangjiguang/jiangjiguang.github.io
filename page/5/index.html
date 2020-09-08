@@ -241,6 +241,1522 @@
   
   
   <article itemscope itemtype="http://schema.org/Article" class="post-block home" lang="zh-CN">
+    <link itemprop="mainEntityOfPage" href="http://yoursite.com/2020/07/21/flink/prometheus学习笔记/">
+
+    <span hidden itemprop="author" itemscope itemtype="http://schema.org/Person">
+      <meta itemprop="name" content="姜纪光">
+      <meta itemprop="description" content="">
+      <meta itemprop="image" content="/images/avatar.gif">
+    </span>
+
+    <span hidden itemprop="publisher" itemscope itemtype="http://schema.org/Organization">
+      <meta itemprop="name" content="纪光的博客">
+    </span>
+      <header class="post-header">
+        <h1 class="post-title" itemprop="name headline">
+          
+            
+            <a href="/2020/07/21/flink/prometheus学习笔记/" class="post-title-link" itemprop="url">prometheus学习笔记</a>
+          
+        </h1>
+
+        <div class="post-meta">
+            <span class="post-meta-item">
+              <span class="post-meta-item-icon">
+                <i class="fa fa-calendar-o"></i>
+              </span>
+              <span class="post-meta-item-text">发表于</span>
+
+              
+                
+              
+
+              <time title="创建时间：2020-07-21 09:08:35" itemprop="dateCreated datePublished" datetime="2020-07-21T09:08:35+08:00">2020-07-21</time>
+            </span>
+          
+            
+
+            
+              <span class="post-meta-item">
+                <span class="post-meta-item-icon">
+                  <i class="fa fa-calendar-check-o"></i>
+                </span>
+                <span class="post-meta-item-text">更新于</span>
+                <time title="修改时间：2020-09-02 16:03:03" itemprop="dateModified" datetime="2020-09-02T16:03:03+08:00">2020-09-02</time>
+              </span>
+            
+          
+            <span class="post-meta-item">
+              <span class="post-meta-item-icon">
+                <i class="fa fa-folder-o"></i>
+              </span>
+              <span class="post-meta-item-text">分类于</span>
+              
+                <span itemprop="about" itemscope itemtype="http://schema.org/Thing">
+                  <a href="/categories/flink/" itemprop="url" rel="index">
+                    <span itemprop="name">flink</span>
+                  </a>
+                </span>
+
+                
+                
+              
+            </span>
+          
+
+          
+            <span id="/2020/07/21/flink/prometheus学习笔记/" class="post-meta-item leancloud_visitors" data-flag-title="prometheus学习笔记" title="阅读次数">
+              <span class="post-meta-item-icon">
+                <i class="fa fa-eye"></i>
+              </span>
+              <span class="post-meta-item-text">阅读次数：</span>
+              <span class="leancloud-visitors-count"></span>
+            </span>
+          
+  
+  
+
+        </div>
+      </header>
+
+    
+    
+    
+    <div class="post-body" itemprop="articleBody">
+
+      
+          <h1 id="prometheus"><a href="#prometheus" class="headerlink" title="prometheus"></a>prometheus</h1><h2 id="总览"><a href="#总览" class="headerlink" title="总览"></a>总览</h2><p>​    prometheus的客户端库提供4中核心指标类型。在prometheus server中没有利用类型信息，通过把数据展平成无类型的时间序列，将来可能会改变。</p>
+<h2 id="Counter"><a href="#Counter" class="headerlink" title="Counter"></a>Counter</h2><p>​    counter是累加型指标，代表了一个单调递增计数器，其值仅仅能增加或者重启时置为0，不要使用counter暴露一直能够减少的指标。比如正在处理的数量，可以使用gauge代替</p>
+<h2 id="gauge"><a href="#gauge" class="headerlink" title="gauge"></a>gauge</h2><p>​    gauge是仪表板的意思，表示可以任意上下波动的单个数值。其典型使用是温度、内存使用率等指标，但是也可以当做计数器使用。</p>
+<h2 id="Histogram"><a href="#Histogram" class="headerlink" title="Histogram"></a>Histogram</h2><p>直方图采样观察值（通常是请求的持续时间或响应大小等），并且在可配置的buckets中计数。也能提供所有观察值的总和。</p>
+<p>一个指标的直方图在抓取期间展示了多个时间序列。</p>
+<pre><code>观察桶的累积计数器，显示为&lt;basename&gt; _bucket {le =“ &lt;包含上边界&gt;”}
+
+观察值的总和，显示为&lt;basename&gt;_sum
+
+观察值的事件数量，显示为&lt;basename&gt;_count (identical to &lt;basename&gt;_bucket{le=&quot;+Inf&quot;} above)</code></pre><p>使用 histogram_quantile()函数计算直方图的分位数或者直方图的均匀聚合。</p>
+<h2 id="Summary"><a href="#Summary" class="headerlink" title="Summary"></a>Summary</h2><h2 id="prometheus集群"><a href="#prometheus集群" class="headerlink" title="prometheus集群"></a>prometheus集群</h2><ul>
+<li><p>启动命令</p>
+<blockquote>
+<p>/data/app/prometheus/prometheus –config.file=/data/app/prometheus/prometheus.yml –query.max-samples=500000000 –storage.remote.read-sample-limit=5e8 –log.level=info</p>
+<p>./prometheus -h 查看所有的命令行参数</p>
+</blockquote>
+</li>
+<li><p>global</p>
+<blockquote>
+<p>scrape_interval  抓取数据的间隔</p>
+<p>evaluation_interval  评估规则的频率，用来生产报警</p>
+<p>scrape_timeout   抓取数据的超时时间</p>
+<p>external_labels    外部标签，每个时间序列数据和报警都会自动有</p>
+</blockquote>
+</li>
+<li><p>scrape_configs</p>
+<blockquote>
+<p>job_name 做job label添加到时间序列中  必须是唯一的</p>
+<p>scrape_interval  抓取间隔（覆盖全局配置的中该值）</p>
+<p>honor_labels     用开控制抓取的数据中的冲突的label  默认值false  true：保持已经抓取的数据的label值，忽略掉server端的冲突的label   false：重命名冲突的label值</p>
+<p>consul_sd_configs   server：consul api，用来获取抓取目标   services：抓取的目标列表 允许通过consul 目录 api 获取抓取对象</p>
+<p>relabel_configs  在抓取之前，允许对任何抓取目标和label进行高级修改</p>
+<p>rule_files   规则文件制定了清单列表，从匹配的文件中读取规则和报警   1.在即席查询时，聚合很多时间序列可能会变慢，Prometheus允许在规则文件中预录入表达式，这样在采集数据时，就可以直接聚合形成新的时间序列数据</p>
+</blockquote>
+</li>
+</ul>
+<h1 id="alertmanager"><a href="#alertmanager" class="headerlink" title="alertmanager"></a>alertmanager</h1><p>​    alertmanager采用高可用配置，0.15版本以及以上才支持高可用，默认是开启的。alertmanager的高可用必须让alertmanager集群实例可以相互通讯，这通过在启动alertmanager服务时通过–cluster.*参数实现和官方建议的高可用方案不一致，官方建议的是每个alertmanager都会收到报警，而这里实际上使用的slb配置。</p>
+<table>
+<thead>
+<tr>
+<th align="left">命令行参数</th>
+<th align="left">作用</th>
+<th></th>
+</tr>
+</thead>
+<tbody><tr>
+<td align="left">–cluster.listen-address=0.0.0.0:9094</td>
+<td align="left">当前实例集群服务监听地址，默认值就是0.0.0.0:9094，因此启动时无需添加该参数</td>
+<td></td>
+</tr>
+<tr>
+<td align="left">–cluster.advertise-address=172.16.161.22:9094</td>
+<td align="left">本机地址:9094   cluster advertise address    如果实例的IP地址不是RFC 6980的一部分，且带有默认路由，则标志是必需的</td>
+<td></td>
+</tr>
+<tr>
+<td align="left">–cluster.peer=172.16.161.15:9094</td>
+<td align="left">初始化时关联的其它实例的集群服务地址   第一个节点启动时不需要加该参数    第二个节点启动时添加该参数，且参数相同</td>
+<td></td>
+</tr>
+<tr>
+<td align="left">–web.listen-address=0.0.0.0:9093</td>
+<td align="left">服务运行地址    需要配置在prometheus中，ip:端口</td>
+<td></td>
+</tr>
+<tr>
+<td align="left">–config.file=/data/app/alertmanager/alertmanager.yml</td>
+<td align="left">配置文件地址</td>
+<td></td>
+</tr>
+<tr>
+<td align="left">–log.level=info</td>
+<td align="left">日志级别</td>
+<td></td>
+</tr>
+<tr>
+<td align="left">–alerts.gc-interval=30m</td>
+<td align="left">Interval between alert GC.</td>
+<td></td>
+</tr>
+</tbody></table>
+<h2 id="配置文件"><a href="#配置文件" class="headerlink" title="配置文件"></a>配置文件</h2><ul>
+<li><p>global  resolve_timeout</p>
+<blockquote>
+<p>该参数定义了当Alertmanager持续多长时间未接收到告警后标记告警状态为resolved（已解决）。<br>该参数的定义可能会影响到告警恢复通知的接收时间，读者可根据自己的实际场景进行定义，其默认值为5分钟。既然是5分钟，那么为啥发送 恢复 的时间间隔小于5分钟</p>
+</blockquote>
+</li>
+<li><p>route group_by</p>
+<blockquote>
+<p>用来对告警进行分组，将多条告警合并为一个通知。基于告警中包含的标签，如果满足<strong>group_by</strong>中定义标签名称，那么这些告警将会合并为一个通知发送给接收器</p>
+</blockquote>
+</li>
+<li><p>route group_wait</p>
+<blockquote>
+<p>如果在等待时间内当前group接收到了新的告警，这些告警将会合并为一个通知向receiver发送。</p>
+</blockquote>
+</li>
+<li><p>route group_interval</p>
+<blockquote>
+<p>则用于定义相同的Group之间发送告警通知的时间间隔。</p>
+<p>也就是第二次之后发送该Group告警的间隔时间</p>
+</blockquote>
+</li>
+<li><p>route repeat_interval</p>
+</li>
+<li><p>receivers send_resolved</p>
+<blockquote>
+<p>true发送恢复 通知  false 不发送恢复通知</p>
+</blockquote>
+</li>
+<li><p>inhibit_rules</p>
+<blockquote>
+<p>source_match target_match equal</p>
+<p>1.当source已经匹配时，会静默target匹配的告警</p>
+<p>2.source和target必须有在equal定义的一样的label值</p>
+<p>3.如果label缺失或者值为空，那么就是相等</p>
+</blockquote>
+</li>
+</ul>
+<h1 id="pushgateway"><a href="#pushgateway" class="headerlink" title="pushgateway"></a>pushgateway</h1><h2 id="指标一致性检查"><a href="#指标一致性检查" class="headerlink" title="指标一致性检查"></a>指标一致性检查</h2><p>  然而如果大量的指标是被频繁推送的pushgateway，pushgateway聚合的成本非常高，那么push的时间将会非常长。可以使用–push.disable-consistency-check 来节省一致性检查的成本，但是这将导致不一致的指标。设置了该参数，在抓取时任然会进行一致性检查，但是只要有不一致的指标，那么所有的抓取都会失败。 <a href="https://github.com/prometheus/pushgateway/issues/313" target="_blank" rel="noopener">https://github.com/prometheus/pushgateway/issues/313</a></p>
+<h2 id="时间戳"><a href="#时间戳" class="headerlink" title="时间戳"></a>时间戳</h2><p>​    如果指标被推送到pushgateway的时间是t1，你可能错误地认为prometheus在同样的时间抓取他们，事实上，prometheus赋给指标的时间戳是抓取的时间。在prometheus的视角中，prometheus可以在任何时间抓取指标，直到指标被删除。验证：prometheus有时是宽容的，但是如果在5分钟内得不到一个指标的任何采样，那么将其视为已删除。pushed group（推送组）：按照推送组聚合，其实就是指标名称，每个推送组都有push_time_seconds和push_failure_time_seconds。</p>
+<ul>
+<li>pushgateway不需要任何配置，开箱即用</li>
+<li>默认情况下，所有指标均存储在内存中，即如果重新，那么将丢失所有指标。可以通过–persistence.file 持久化于磁盘路径</li>
+</ul>
+<h2 id="系统指标"><a href="#系统指标" class="headerlink" title="系统指标"></a>系统指标</h2><figure class="highlight plain"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br><span class="line">3</span><br><span class="line">4</span><br><span class="line">5</span><br><span class="line">6</span><br><span class="line">7</span><br><span class="line">8</span><br><span class="line">9</span><br><span class="line">10</span><br><span class="line">11</span><br></pre></td><td class="code"><pre><span class="line">push_time_seconds，表示每个指标组最新的成功推送时间</span><br><span class="line">push_failure_time_seconds，表示每个指标组的POST/PUT的失败时间，失败的原因一般是value值非法，如果该指标没有，那么可以去掉检查</span><br><span class="line">pushgateway_http_requests_total：用来记录http请求的数量。</span><br><span class="line">pushgateway_build_info：pushgateway的版本信息</span><br><span class="line">pushgateway_http_push_duration_seconds：推送到pushgateway的http请求持续时间秒的概况</span><br><span class="line">pushgateway_http_push_duration_seconds_sum：应该是时间总和</span><br><span class="line">pushgateway_http_push_duration_seconds_count：应该是总次数</span><br><span class="line">pushgateway_http_push_size_bytes：推送到pushgateway的http请求的大小</span><br><span class="line">pushgateway_http_push_size_bytes_sum：应该是字节总大小</span><br><span class="line">pushgateway_http_push_size_bytes_count：应该是总次数</span><br><span class="line">pushgateway_http_requests_total：http请求的次数</span><br></pre></td></tr></table></figure>
+
+<h2 id="系统方法"><a href="#系统方法" class="headerlink" title="系统方法"></a>系统方法</h2><figure class="highlight plain"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br><span class="line">3</span><br><span class="line">4</span><br><span class="line">5</span><br><span class="line">6</span><br><span class="line">7</span><br></pre></td><td class="code"><pre><span class="line">/metrics/job/&lt;JOB_NAME&gt;&#123;/&lt;LABEL_NAME&gt;/&lt;LABEL_VALUE&gt;&#125;</span><br><span class="line">在URL中设置的label，被用作grouping key，被设置在body中的label将会被覆盖。</span><br><span class="line">验证（todo）：body中的label是否被覆盖？是否只有URL中的label才能用作grouping key？</span><br><span class="line">返回码：包含200 202 400</span><br><span class="line">200：表示成功</span><br><span class="line">400：表示失败，包括请求不符合格式，指标不一致，或者group冲突</span><br><span class="line">202：表示设置了--push.disable-consistency-check的成功推送</span><br></pre></td></tr></table></figure>
+
+<ul>
+<li><p>PUT</p>
+<blockquote>
+<p>用来推送一组指标，在URL路径中的所有grouping key是被PUT的指标替换？啥意思？没看懂，不是说grouping key 是URL中的指标吗 怎么又被body中的替换呢如果body是空，那么意味着删除所有grouping key的指标，与DELETE不同的是，PUT会更新push_time_seconds</p>
+</blockquote>
+</li>
+<li><p>POST</p>
+<blockquote>
+<p>和put方法基本相同，区别是：<br>1.仅仅是新推送的并且名称一样才能被替换？查一下具体区别？<br>2.如果body是空，push_time_seconds也会更新，但是不会更新任何先前推送的指标值，也就是不会删除。</p>
+</blockquote>
+</li>
+<li><p>DELETE</p>
+<blockquote>
+<p>请求不能包含body，所有匹配URL中grouping key的指标将被删除。成功码总是202，和PUT/POST相比具有最高执行优先级。</p>
+</blockquote>
+</li>
+</ul>
+<h2 id="pushgateway的GC时间"><a href="#pushgateway的GC时间" class="headerlink" title="pushgateway的GC时间"></a>pushgateway的GC时间</h2><table>
+<thead>
+<tr>
+<th align="left">指标</th>
+<th align="left">数值</th>
+<th align="left">作用</th>
+</tr>
+</thead>
+<tbody><tr>
+<td align="left">go_gc_duration_seconds</td>
+<td align="left">0.018889618</td>
+<td align="left">持续时间的秒数</td>
+</tr>
+<tr>
+<td align="left">go_gc_duration_seconds_count</td>
+<td align="left">24547</td>
+<td align="left">总次数</td>
+</tr>
+<tr>
+<td align="left">go_gc_duration_seconds_sum</td>
+<td align="left">11.83551848</td>
+<td align="left">总秒数</td>
+</tr>
+<tr>
+<td align="left">go_memstats_last_gc_time_seconds</td>
+<td align="left">1584932274.8469074</td>
+<td align="left">上次发生GC的时间</td>
+</tr>
+<tr>
+<td align="left">go_memstats_gc_cpu_fraction</td>
+<td align="left">0.008819378754311585</td>
+<td align="left">自程序启动以来，GC时间占程序<br>可用CPU的比例，可以排除GC导致的系统CPU负载过高</td>
+</tr>
+<tr>
+<td align="left">go_goroutines</td>
+<td align="left">415</td>
+<td align="left"></td>
+</tr>
+<tr>
+<td align="left">go_memstats_alloc_bytes</td>
+<td align="left">16840443448=16G</td>
+<td align="left">分配以及仍在使用的字节数</td>
+</tr>
+<tr>
+<td align="left">go_memstats_alloc_bytes_total</td>
+<td align="left">225647979901736<br>=225647G</td>
+<td align="left">总共分配的字节数</td>
+</tr>
+<tr>
+<td align="left">go_threads</td>
+<td align="left">41</td>
+<td align="left">系统创建的线程数</td>
+</tr>
+</tbody></table>
+<h2 id="pushgateway处理指标"><a href="#pushgateway处理指标" class="headerlink" title="pushgateway处理指标"></a>pushgateway处理指标</h2><table>
+<thead>
+<tr>
+<th align="left">指标</th>
+<th align="left">数值</th>
+<th align="left">作用</th>
+<th></th>
+</tr>
+</thead>
+<tbody><tr>
+<td align="left">process_cpu_seconds_total</td>
+<td align="left"></td>
+<td align="left"></td>
+<td></td>
+</tr>
+<tr>
+<td align="left">process_max_fds</td>
+<td align="left"></td>
+<td align="left"></td>
+<td></td>
+</tr>
+<tr>
+<td align="left">process_open_fds</td>
+<td align="left">430</td>
+<td align="left">打开的文件描述符的数量</td>
+<td></td>
+</tr>
+<tr>
+<td align="left">process_resident_memory_bytes</td>
+<td align="left">40902533120=40G</td>
+<td align="left">常驻内存大小</td>
+<td></td>
+</tr>
+<tr>
+<td align="left">process_start_time_seconds</td>
+<td align="left">1584069726</td>
+<td align="left">启动的时间</td>
+<td></td>
+</tr>
+<tr>
+<td align="left">process_virtual_memory_bytes</td>
+<td align="left">40G</td>
+<td align="left">RAM和交互区所有内存大小</td>
+<td></td>
+</tr>
+<tr>
+<td align="left">process_virtual_memory_max_bytes</td>
+<td align="left"></td>
+<td align="left"></td>
+<td></td>
+</tr>
+</tbody></table>
+<h2 id="pushgateway的http指标"><a href="#pushgateway的http指标" class="headerlink" title="pushgateway的http指标"></a>pushgateway的http指标</h2><table>
+<thead>
+<tr>
+<th align="left">指标</th>
+<th align="left">数值</th>
+<th align="left">作用</th>
+</tr>
+</thead>
+<tbody><tr>
+<td align="left">pushgateway_http_push_duration_seconds</td>
+<td align="left">0.04857185</td>
+<td align="left">90线还不到0.05秒，说明写入的很快</td>
+</tr>
+<tr>
+<td align="left">pushgateway_http_push_duration_seconds_count</td>
+<td align="left">42310596</td>
+<td align="left">启动以来写入的次数</td>
+</tr>
+<tr>
+<td align="left">pushgateway_http_push_duration_seconds_sum</td>
+<td align="left">1001197.3480990011</td>
+<td align="left"></td>
+</tr>
+<tr>
+<td align="left">pushgateway_http_push_size_bytes</td>
+<td align="left">1MB</td>
+<td align="left"></td>
+</tr>
+<tr>
+<td align="left">pushgateway_http_push_size_bytes_count</td>
+<td align="left"></td>
+<td align="left"></td>
+</tr>
+<tr>
+<td align="left">pushgateway_http_push_size_bytes_sum</td>
+<td align="left">26T</td>
+<td align="left"></td>
+</tr>
+<tr>
+<td align="left">pushgateway_http_requests_total</td>
+<td align="left">get=1455次 <br>delete=1417次 put=42337258次</td>
+<td align="left"></td>
+</tr>
+</tbody></table>
+<h2 id="scrape指标"><a href="#scrape指标" class="headerlink" title="scrape指标"></a>scrape指标</h2><table>
+<thead>
+<tr>
+<th align="left">指标</th>
+<th align="left">数值</th>
+<th>作用</th>
+</tr>
+</thead>
+<tbody><tr>
+<td align="left">scrape_duration_seconds</td>
+<td align="left">69</td>
+<td>最近一次prometheus从pushgateway获取指标的秒数</td>
+</tr>
+<tr>
+<td align="left">scrape_samples_post_metric_relabeling</td>
+<td align="left">2543411</td>
+<td>表示度量指标的标签变化后，标签没有变化的度量指标数量。</td>
+</tr>
+<tr>
+<td align="left">scrape_samples_scraped</td>
+<td align="left">2543411</td>
+<td></td>
+</tr>
+<tr>
+<td align="left">scrape_series_added</td>
+<td align="left">48926</td>
+<td>本次抓取中新增时间序列的数量</td>
+</tr>
+</tbody></table>
+<h1 id="参考文档"><a href="#参考文档" class="headerlink" title="参考文档"></a>参考文档</h1><p><a href="https://github.com/prometheus/client_java#counter" target="_blank" rel="noopener">ClientJava</a></p>
+<p><a href="https://prometheus.io/docs/concepts/metric_types/" target="_blank" rel="noopener">数据类型</a></p>
+<p><a href="https://prometheus.io/docs/prometheus/latest/querying/functions/#histogram_quantile" target="_blank" rel="noopener">函数</a></p>
+<p><a href="https://prometheus.io/docs/practices/histograms/" target="_blank" rel="noopener">直方图详细</a></p>
+<p><a href="https://km.qutoutiao.net/display/yunwei/PrometheusApi" target="_blank" rel="noopener">PrometheusApi</a></p>
+<p><a href="https://yunlzheng.gitbook.io/prometheus-book/parti-prometheus-ji-chu/alert/prometheus-alert-rule" target="_blank" rel="noopener">prometheus-alert-rule</a></p>
+<p><a href="https://prometheus.io/docs/prometheus/latest/configuration/configuration/" target="_blank" rel="noopener">configuration</a></p>
+<p><a href="https://github.com/prometheus/alertmanager" target="_blank" rel="noopener">alertmanager</a></p>
+<p><a href="https://prometheus.io/docs/alerting/overview/" target="_blank" rel="noopener">overview</a></p>
+<p><a href="https://yunlzheng.gitbook.io/prometheus-book/parti-prometheus-ji-chu/alert/install-alert-manager" target="_blank" rel="noopener">install-alert-manager</a></p>
+<p><a href="https://yunlzheng.gitbook.io/prometheus-book/part-ii-prometheus-jin-jie/readmd/alertmanager-high-availability" target="_blank" rel="noopener">alertmanager-high-availability</a></p>
+<p><a href="https://manpages.debian.org/testing/prometheus-alertmanager/prometheus-alertmanager.1.en.html" target="_blank" rel="noopener">prometheus-alertmanager</a></p>
+<p><a href="https://github.com/prometheus/prometheus/blob/release-2.18/config/testdata/conf.good.yml" target="_blank" rel="noopener">promethues集群生产配置</a></p>
+
+        
+      
+    </div>
+
+    
+    
+    
+      <footer class="post-footer">
+        <div class="post-eof"></div>
+      </footer>
+  </article>
+  
+  
+  
+
+    
+        
+  
+  
+  <article itemscope itemtype="http://schema.org/Article" class="post-block home" lang="zh-CN">
+    <link itemprop="mainEntityOfPage" href="http://yoursite.com/2020/07/20/hadoop/hive元数据metastore/">
+
+    <span hidden itemprop="author" itemscope itemtype="http://schema.org/Person">
+      <meta itemprop="name" content="姜纪光">
+      <meta itemprop="description" content="">
+      <meta itemprop="image" content="/images/avatar.gif">
+    </span>
+
+    <span hidden itemprop="publisher" itemscope itemtype="http://schema.org/Organization">
+      <meta itemprop="name" content="纪光的博客">
+    </span>
+      <header class="post-header">
+        <h1 class="post-title" itemprop="name headline">
+          
+            
+            <a href="/2020/07/20/hadoop/hive元数据metastore/" class="post-title-link" itemprop="url">hive元数据metastore</a>
+          
+        </h1>
+
+        <div class="post-meta">
+            <span class="post-meta-item">
+              <span class="post-meta-item-icon">
+                <i class="fa fa-calendar-o"></i>
+              </span>
+              <span class="post-meta-item-text">发表于</span>
+
+              
+                
+              
+
+              <time title="创建时间：2020-07-20 17:43:21" itemprop="dateCreated datePublished" datetime="2020-07-20T17:43:21+08:00">2020-07-20</time>
+            </span>
+          
+            
+
+            
+              <span class="post-meta-item">
+                <span class="post-meta-item-icon">
+                  <i class="fa fa-calendar-check-o"></i>
+                </span>
+                <span class="post-meta-item-text">更新于</span>
+                <time title="修改时间：2020-07-21 15:52:17" itemprop="dateModified" datetime="2020-07-21T15:52:17+08:00">2020-07-21</time>
+              </span>
+            
+          
+            <span class="post-meta-item">
+              <span class="post-meta-item-icon">
+                <i class="fa fa-folder-o"></i>
+              </span>
+              <span class="post-meta-item-text">分类于</span>
+              
+                <span itemprop="about" itemscope itemtype="http://schema.org/Thing">
+                  <a href="/categories/hadoop/" itemprop="url" rel="index">
+                    <span itemprop="name">hadoop</span>
+                  </a>
+                </span>
+
+                
+                
+              
+            </span>
+          
+
+          
+            <span id="/2020/07/20/hadoop/hive元数据metastore/" class="post-meta-item leancloud_visitors" data-flag-title="hive元数据metastore" title="阅读次数">
+              <span class="post-meta-item-icon">
+                <i class="fa fa-eye"></i>
+              </span>
+              <span class="post-meta-item-text">阅读次数：</span>
+              <span class="leancloud-visitors-count"></span>
+            </span>
+          
+  
+  
+
+        </div>
+      </header>
+
+    
+    
+    
+    <div class="post-body" itemprop="articleBody">
+
+      
+          <h1 id="Hive数据模型"><a href="#Hive数据模型" class="headerlink" title="Hive数据模型"></a>Hive数据模型</h1><p>Hive中的所有数据都存储在HDFS中，包含以下数据模型：</p>
+<ul>
+<li><p>Table（Managed Table）</p>
+<blockquote>
+<p>hive默认创建managed table，files、metadata和statistics是被内部的Hive程序管理。managed table被默认存储在hive.metastore.warehouse.dir 路径属性下，类似于/apps/hive/warehouse/databasename.db/tablename，当创建表时，可以指定路径。如果managed table或其分区被删除，相关联的表或者分区的数据和元数据也将要被删除。如果PURGE选项没有被指定，那么数据将要被移到trash folder。</p>
+<p>managed Table的使用场景是：hive需要管理表的生命周期或者产生临时表</p>
+</blockquote>
+</li>
+<li><p>Partition</p>
+<blockquote>
+<p>表内的一个分区就是表的一个子目录</p>
+</blockquote>
+</li>
+<li><p>Bucket</p>
+<blockquote>
+<p>​    如果有分区，那么桶就是分区下的一个单位，如果表内没有分区，那么桶直接就是表下的单位，桶一般是文件的形式。</p>
+<p>​    对于每一个表（table）或者分区（partition）， Hive可以进一步组织成桶，也就是说桶是更为细粒度的数据范围划分。Hive也是 针对某一列进行桶的组织。Hive采用对列值哈希，然后除以桶的个数求余的方式决定该条记录存放在哪个桶当中。</p>
+<p>把表（或者分区）组织成桶（Bucket）有两个理由：</p>
+<p>1.获得更高的查询处理效率。桶为表加上了额外的结构，Hive 在处理有些查询时能利用这个结构。具体而言，连接两个在（包含连接列的）相同列上划分了桶的表，可以使用 Map 端连接 （Map-side join）高效的实现。比如JOIN操作。对于JOIN操作两个表有一个相同的列，如果对这两个表都进行了桶操作。那么将保存相同列值的桶进行JOIN操作就可以，可以大大较少JOIN的数据量。</p>
+<p>2.使取样（sampling）更高效。在处理大规模数据集时，在开发和修改查询的阶段，如果能在数据集的一小部分数据上试运行查询，会带来很多方便。</p>
+<p>​    物理上，每个桶就是表(或分区）目录里的一个文件。它的文件名并不重要，但是桶 n 是按照字典序排列的第 n 个文件。事实上，桶对应于 MapReduce 的输出文件分区：一个作业产生的桶(输出文件)和reduce任务个数相同。</p>
+</blockquote>
+</li>
+<li><p>External Table</p>
+<blockquote>
+<p>external table在外部文件中描述metadata / schema，External table files可以由Hive外部的进程访问和管理。外部表可以访问存储在诸如Azure存储卷（ASV）或远程HDFS位置的源中的数据。 如果更改了外部表的结构或分区，则可以使用MSCK REPAIR TABLE table_name语句刷新元数据信息。</p>
+<p>external tables的使用场景是：files已经在remote locations存在，并且即使是被删除，文件也应该保留。可以使用DESCRIBE FORMATTED table_name命令来标识托管表或外部表，该命令将根据表类型显示MANAGED_TABLE或EXTERNAL_TABLE。</p>
+<p>对于一些原始日志文件，同时被多个部门同时操作的时候就需要使用外部表，如果不小心将meta data删除了，HDFS上 的data还在可以恢复，增加了数据的安全性。</p>
+</blockquote>
+</li>
+</ul>
+<h1 id="元数据表结构"><a href="#元数据表结构" class="headerlink" title="元数据表结构"></a>元数据表结构</h1><h2 id="VERSION"><a href="#VERSION" class="headerlink" title="VERSION"></a>VERSION</h2><p>存储Hive版本的元数据表，该表比较简单，但是很重要。如果该表出现问题，根本进入不了Hive-Cli。比如该表不存在，当启动Hive-Cli时候，就会报错”Table ‘hive.version’ doesn’t exist”。</p>
+<h2 id="Hive数据库相关的元数据表-DBS、DATABASE-PARAMS"><a href="#Hive数据库相关的元数据表-DBS、DATABASE-PARAMS" class="headerlink" title="Hive数据库相关的元数据表(DBS、DATABASE_PARAMS)"></a>Hive数据库相关的元数据表(DBS、DATABASE_PARAMS)</h2><p>###DBS</p>
+<p>该表存储Hive中所有数据库的基本信息。</p>
+<p>DB_ID：数据库ID</p>
+<p>###DATABASE_PARAMS</p>
+<p>该表存储数据库的相关参数，</p>
+<p>在CREATE DATABASE时候用WITH DBPROPERTIES(property_name=property_value, …)指定的参数</p>
+<h2 id="Hive表和视图相关的元数据表"><a href="#Hive表和视图相关的元数据表" class="headerlink" title="Hive表和视图相关的元数据表"></a>Hive表和视图相关的元数据表</h2><p>主要有TBLS、TABLE_PARAMS、TBL_PRIVS，这三张表通过TBL_ID关联。</p>
+<p>###TBLS</p>
+<p>该表中存储Hive表，视图，索引表的基本信息</p>
+<p>TBL_ID：表ID</p>
+<p>###TABLE_PARAMS</p>
+<p>该表存储表/视图的属性信息</p>
+<p>###TBL_PRIVS</p>
+<p>该表存储表/视图的授权信息</p>
+<p>TBL_GRANT_ID：授权ID</p>
+<p>##Hive文件存储信息相关的元数据表</p>
+<p>​    主要涉及SDS、SD_PARAMS、SERDES、SERDE_PARAMS，由于HDFS支持的文件格式很多，而建Hive表时候也可以指定各种文件格式，Hive在将HQL解析成MapReduce时候，需要知道去哪里，使用哪种格式去读写HDFS文件，而这些信息就保存在这几张表中。</p>
+<h3 id="SDS"><a href="#SDS" class="headerlink" title="SDS"></a>SDS</h3><p>​    该表保存文件存储的基本信息，如INPUT_FORMAT、OUTPUT_FORMAT、是否压缩等。</p>
+<p>TBLS表中的SD_ID与该表关联，可以获取Hive表的存储信息。</p>
+<p>SD_ID：存储信息ID</p>
+<p>CD_ID：字段信息ID   对应CDS表</p>
+<p>SERDE_ID：序列化类ID  对应SERDES表</p>
+<h3 id="SD-PARAMS"><a href="#SD-PARAMS" class="headerlink" title="SD_PARAMS"></a>SD_PARAMS</h3><p>​    该表存储Hive存储的属性信息，在创建表时候使用STORED BY ‘storage.handler.class.name’ [WITH SERDEPROPERTIES (…)指定。</p>
+<h3 id="SERDES"><a href="#SERDES" class="headerlink" title="SERDES"></a>SERDES</h3><p>​    该表存储序列化使用的类信息</p>
+<h3 id="SERDE-PARAMS"><a href="#SERDE-PARAMS" class="headerlink" title="SERDE_PARAMS"></a>SERDE_PARAMS</h3><p>​    该表存储序列化的一些属性、格式信息，比如:行、列分隔符</p>
+<h2 id="Hive表字段相关的元数据表"><a href="#Hive表字段相关的元数据表" class="headerlink" title="Hive表字段相关的元数据表"></a>Hive表字段相关的元数据表</h2><h3 id="COLUMNS-V2"><a href="#COLUMNS-V2" class="headerlink" title="COLUMNS_V2"></a>COLUMNS_V2</h3><p>​    该表存储表对应的字段信息</p>
+<p>​    CD_ID：字段信息ID</p>
+<h2 id="Hive表分分区相关的元数据表"><a href="#Hive表分分区相关的元数据表" class="headerlink" title="Hive表分分区相关的元数据表"></a>Hive表分分区相关的元数据表</h2><p>​     主要涉及PARTITIONS、PARTITION_KEYS、PARTITION_KEY_VALS、PARTITION_PARAMS</p>
+<h3 id="PARTITIONS"><a href="#PARTITIONS" class="headerlink" title="PARTITIONS"></a>PARTITIONS</h3><p>​    该表存储表分区的基本信息</p>
+<p>​    PART_ID：分区ID</p>
+<h3 id="PARTITION-KEYS"><a href="#PARTITION-KEYS" class="headerlink" title="PARTITION_KEYS"></a>PARTITION_KEYS</h3><p>​    该表存储分区的字段信息</p>
+<h3 id="PARTITION-KEY-VALS"><a href="#PARTITION-KEY-VALS" class="headerlink" title="PARTITION_KEY_VALS"></a>PARTITION_KEY_VALS</h3><p>​    该表存储分区字段值</p>
+<h3 id="PARTITION-PARAMS"><a href="#PARTITION-PARAMS" class="headerlink" title="PARTITION_PARAMS"></a>PARTITION_PARAMS</h3><p>​    该表存储分区的属性信息</p>
+<p>##其它表</p>
+<p>DB_PRIVS</p>
+<p>数据库权限信息表。通过GRANT语句对数据库授权后，将会在这里存储。</p>
+<p>IDXS</p>
+<p>索引表，存储Hive索引相关的元数据</p>
+<p>INDEX_PARAMS</p>
+<p>索引相关的属性信息</p>
+<p>TBL_COL_STATS</p>
+<p>表字段的统计信息。使用ANALYZE语句对表字段分析后记录在这里</p>
+<p>TBL_COL_PRIVS</p>
+<p>表字段的授权信息</p>
+<p>PART_PRIVS</p>
+<p>分区的授权信息</p>
+<p>PART_COL_PRIVS</p>
+<p>分区字段的权限信息</p>
+<p>PART_COL_STATS</p>
+<p>分区字段的统计信息</p>
+<p>FUNCS</p>
+<p>用户注册的函数信息</p>
+<p>FUNC_RU</p>
+<p>用户注册函数的资源信息</p>
+<h1 id="参考文档"><a href="#参考文档" class="headerlink" title="参考文档"></a>参考文档</h1><p><a href="https://mp.weixin.qq.com/s?__biz=MzA3ODUxMzQxMA==&mid=2663993556&idx=1&sn=0e5291bd63426d747f32a7fd05128caa&scene=21#wechat_redirect" target="_blank" rel="noopener">Hive元数据表结构详解</a></p>
+<p><a href="https://www.cnblogs.com/bonelee/p/12441622.html" target="_blank" rel="noopener">Hive基本架构和原理</a></p>
+<p><a href="https://blog.csdn.net/qq_40990732/article/details/80914873" target="_blank" rel="noopener">Hive Metastore原理及配置</a></p>
+<p><a href="https://cloud.tencent.com/developer/news/362488" target="_blank" rel="noopener">Hive架构和工作原理</a></p>
+<p><a href="https://blog.csdn.net/m0_37534613/article/details/55258928" target="_blank" rel="noopener">Hive分桶之BUCKET详解</a></p>
+<p><a href="https://blog.csdn.net/qq_26803795/article/details/105205702?utm_medium=distribute.pc_relevant_t0.none-task-blog-BlogCommendFromMachineLearnPai2-1.nonecase&depth_1-utm_source=distribute.pc_relevant_t0.none-task-blog-BlogCommendFromMachineLearnPai2-1.nonecase" target="_blank" rel="noopener">一文彻底学会hive分桶表（实战详解）</a></p>
+
+        
+      
+    </div>
+
+    
+    
+    
+      <footer class="post-footer">
+        <div class="post-eof"></div>
+      </footer>
+  </article>
+  
+  
+  
+
+    
+        
+  
+  
+  <article itemscope itemtype="http://schema.org/Article" class="post-block home" lang="zh-CN">
+    <link itemprop="mainEntityOfPage" href="http://yoursite.com/2020/07/20/tools/github使用/">
+
+    <span hidden itemprop="author" itemscope itemtype="http://schema.org/Person">
+      <meta itemprop="name" content="姜纪光">
+      <meta itemprop="description" content="">
+      <meta itemprop="image" content="/images/avatar.gif">
+    </span>
+
+    <span hidden itemprop="publisher" itemscope itemtype="http://schema.org/Organization">
+      <meta itemprop="name" content="纪光的博客">
+    </span>
+      <header class="post-header">
+        <h1 class="post-title" itemprop="name headline">
+          
+            
+            <a href="/2020/07/20/tools/github使用/" class="post-title-link" itemprop="url">github使用实践</a>
+          
+        </h1>
+
+        <div class="post-meta">
+            <span class="post-meta-item">
+              <span class="post-meta-item-icon">
+                <i class="fa fa-calendar-o"></i>
+              </span>
+              <span class="post-meta-item-text">发表于</span>
+
+              
+                
+              
+
+              <time title="创建时间：2020-07-20 11:33:38" itemprop="dateCreated datePublished" datetime="2020-07-20T11:33:38+08:00">2020-07-20</time>
+            </span>
+          
+            
+
+            
+              <span class="post-meta-item">
+                <span class="post-meta-item-icon">
+                  <i class="fa fa-calendar-check-o"></i>
+                </span>
+                <span class="post-meta-item-text">更新于</span>
+                <time title="修改时间：2020-08-26 11:04:47" itemprop="dateModified" datetime="2020-08-26T11:04:47+08:00">2020-08-26</time>
+              </span>
+            
+          
+            <span class="post-meta-item">
+              <span class="post-meta-item-icon">
+                <i class="fa fa-folder-o"></i>
+              </span>
+              <span class="post-meta-item-text">分类于</span>
+              
+                <span itemprop="about" itemscope itemtype="http://schema.org/Thing">
+                  <a href="/categories/tools/" itemprop="url" rel="index">
+                    <span itemprop="name">tools</span>
+                  </a>
+                </span>
+
+                
+                
+              
+            </span>
+          
+
+          
+            <span id="/2020/07/20/tools/github使用/" class="post-meta-item leancloud_visitors" data-flag-title="github使用实践" title="阅读次数">
+              <span class="post-meta-item-icon">
+                <i class="fa fa-eye"></i>
+              </span>
+              <span class="post-meta-item-text">阅读次数：</span>
+              <span class="leancloud-visitors-count"></span>
+            </span>
+          
+  
+  
+
+        </div>
+      </header>
+
+    
+    
+    
+    <div class="post-body" itemprop="articleBody">
+
+      
+          <p>#Pull Request</p>
+<p>  是一种代码合作开发方式，将修改过的代码合并到主干的一种流程。这个过程中，还可以进行讨论、审核和修改代码。</p>
+<ul>
+<li>fork是指克隆别人的代码到自己的仓库</li>
+<li>Base 是你希望提交变更的目标</li>
+<li>Head 是目前包含你的变更的那个分支或仓库</li>
+</ul>
+<h2 id="fork其它项目后，同步更新别人的提交"><a href="#fork其它项目后，同步更新别人的提交" class="headerlink" title="fork其它项目后，同步更新别人的提交"></a>fork其它项目后，同步更新别人的提交</h2><p>###图文操作（好像不行）</p>
+<ul>
+<li>打开自己的仓库，进入code下面</li>
+<li>点击new pull request</li>
+<li>base fork是指变更的目标</li>
+<li>head fork是指变更的来源</li>
+<li>点击Merge pull request 合并从源fork来的代码。</li>
+</ul>
+<h3 id="命令操作（配置upstream指向fork的原仓库）"><a href="#命令操作（配置upstream指向fork的原仓库）" class="headerlink" title="命令操作（配置upstream指向fork的原仓库）"></a>命令操作（配置upstream指向fork的原仓库）</h3><figure class="highlight shell"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br><span class="line">3</span><br><span class="line">4</span><br><span class="line">5</span><br><span class="line">6</span><br><span class="line">7</span><br><span class="line">8</span><br><span class="line">9</span><br><span class="line">10</span><br><span class="line">11</span><br><span class="line">12</span><br><span class="line">13</span><br><span class="line">14</span><br><span class="line">15</span><br></pre></td><td class="code"><pre><span class="line"><span class="meta">#</span>查看现有的远程仓库</span><br><span class="line"><span class="meta">$</span> git remote -v </span><br><span class="line"><span class="meta">#</span>添加指向原仓库的upstream</span><br><span class="line"><span class="meta">$</span> git remote add #&#123;别名&#125; #&#123;原地址&#125;</span><br><span class="line"><span class="meta">$</span> git remote -v </span><br><span class="line"><span class="meta">#</span>删除远程仓库</span><br><span class="line"><span class="meta">$</span> git remote remove #&#123;别名&#125;</span><br><span class="line"><span class="meta">#</span>从源仓库更新同步代码</span><br><span class="line"><span class="meta">$</span> git fetch #&#123;别名&#125;</span><br><span class="line"><span class="meta">#</span>合并到本地代码</span><br><span class="line"><span class="meta">$</span> git merge #&#123;别名&#125;/master</span><br><span class="line"><span class="meta">#</span>更新并合并自己远程仓库的代码</span><br><span class="line"><span class="meta">$</span> git pull #&#123;别名&#125; master</span><br><span class="line"><span class="meta">#</span>向自己远程仓库推送刚才同步源仓库后的代码</span><br><span class="line"><span class="meta">$</span> git push</span><br></pre></td></tr></table></figure>
+
+<h1 id="常用命令"><a href="#常用命令" class="headerlink" title="常用命令"></a>常用命令</h1><figure class="highlight shell"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br><span class="line">3</span><br><span class="line">4</span><br><span class="line">5</span><br><span class="line">6</span><br><span class="line">7</span><br><span class="line">8</span><br><span class="line">9</span><br></pre></td><td class="code"><pre><span class="line"><span class="meta">#</span>查看本地有无修改</span><br><span class="line"><span class="meta">$</span> git status</span><br><span class="line"><span class="meta">#</span>添加修改</span><br><span class="line"><span class="meta">$</span> git add -A 或者 git add filename</span><br><span class="line"><span class="meta">#</span>获取原仓库更新</span><br><span class="line"><span class="meta">$</span> git fetch #&#123;别名&#125;</span><br><span class="line"><span class="meta">#</span>合并远程分支</span><br><span class="line">git checkout master</span><br><span class="line">git merge #&#123;别名&#125;/master</span><br></pre></td></tr></table></figure>
+
+<h1 id="参考文档"><a href="#参考文档" class="headerlink" title="参考文档"></a>参考文档</h1><p><a href="https://www.jianshu.com/p/6c366b53ea41" target="_blank" rel="noopener">如何用好 github 中的 watch、star、fork</a></p>
+<p><a href="https://github.com/cssmagic/blog/issues/49" target="_blank" rel="noopener">如何正确接收 GitHub 的消息邮件</a></p>
+<p><a href="https://blog.csdn.net/qq1332479771/article/details/56087333" target="_blank" rel="noopener">github上fork了别人的项目后，再同步更新别人的提交</a></p>
+<p><a href="https://zhuanlan.zhihu.com/p/34693871" target="_blank" rel="noopener">Github初级教程</a></p>
+<p><a href="https://www.cnblogs.com/lsgxeva/p/8540624.html" target="_blank" rel="noopener">Pull Request的正确打开方式（如何在GitHub上贡献开源项目</a></p>
+<p><a href="https://docs.github.com/cn/github/collaborating-with-issues-and-pull-requests/proposing-changes-to-your-work-with-pull-requests" target="_blank" rel="noopener">Github Docs</a></p>
+<p><a href="https://github.com/selfteaching/the-craft-of-selfteaching/issues/67" target="_blank" rel="noopener">Github进行fork后如何与原仓库同步</a></p>
+
+        
+      
+    </div>
+
+    
+    
+    
+      <footer class="post-footer">
+        <div class="post-eof"></div>
+      </footer>
+  </article>
+  
+  
+  
+
+    
+        
+  
+  
+  <article itemscope itemtype="http://schema.org/Article" class="post-block home" lang="zh-CN">
+    <link itemprop="mainEntityOfPage" href="http://yoursite.com/2020/07/20/flink/flink为什么不能使用prometheus-pushgateway/">
+
+    <span hidden itemprop="author" itemscope itemtype="http://schema.org/Person">
+      <meta itemprop="name" content="姜纪光">
+      <meta itemprop="description" content="">
+      <meta itemprop="image" content="/images/avatar.gif">
+    </span>
+
+    <span hidden itemprop="publisher" itemscope itemtype="http://schema.org/Organization">
+      <meta itemprop="name" content="纪光的博客">
+    </span>
+      <header class="post-header">
+        <h1 class="post-title" itemprop="name headline">
+          
+            
+            <a href="/2020/07/20/flink/flink为什么不能使用prometheus-pushgateway/" class="post-title-link" itemprop="url">flink为什么不能使用prometheus pushgateway</a>
+          
+        </h1>
+
+        <div class="post-meta">
+            <span class="post-meta-item">
+              <span class="post-meta-item-icon">
+                <i class="fa fa-calendar-o"></i>
+              </span>
+              <span class="post-meta-item-text">发表于</span>
+
+              
+                
+              
+
+              <time title="创建时间：2020-07-20 09:10:54" itemprop="dateCreated datePublished" datetime="2020-07-20T09:10:54+08:00">2020-07-20</time>
+            </span>
+          
+            
+
+            
+              <span class="post-meta-item">
+                <span class="post-meta-item-icon">
+                  <i class="fa fa-calendar-check-o"></i>
+                </span>
+                <span class="post-meta-item-text">更新于</span>
+                <time title="修改时间：2020-07-21 10:08:43" itemprop="dateModified" datetime="2020-07-21T10:08:43+08:00">2020-07-21</time>
+              </span>
+            
+          
+            <span class="post-meta-item">
+              <span class="post-meta-item-icon">
+                <i class="fa fa-folder-o"></i>
+              </span>
+              <span class="post-meta-item-text">分类于</span>
+              
+                <span itemprop="about" itemscope itemtype="http://schema.org/Thing">
+                  <a href="/categories/flink/" itemprop="url" rel="index">
+                    <span itemprop="name">flink</span>
+                  </a>
+                </span>
+
+                
+                
+              
+            </span>
+          
+
+          
+            <span id="/2020/07/20/flink/flink为什么不能使用prometheus-pushgateway/" class="post-meta-item leancloud_visitors" data-flag-title="flink为什么不能使用prometheus pushgateway" title="阅读次数">
+              <span class="post-meta-item-icon">
+                <i class="fa fa-eye"></i>
+              </span>
+              <span class="post-meta-item-text">阅读次数：</span>
+              <span class="leancloud-visitors-count"></span>
+            </span>
+          
+  
+  
+
+        </div>
+      </header>
+
+    
+    
+    
+    <div class="post-body" itemprop="articleBody">
+
+      
+          <h1 id="简介"><a href="#简介" class="headerlink" title="简介"></a>简介</h1><p>​    flink可以使用多种Reporter向外部系统暴露指标（metrics），比如JMX、InfluxDB、prometheus等。由于公司运维的监控告警系统采用的是prometheus监控组件，而且公司对这方面技术存储比较多，所以实时计算平台的指标采集当仁不让的采用prometheus监控组件。</p>
+<p>​    但是即使采用prometheus收集任务指标，又有两种方式可供选择，即exporter 和 pushgateway。</p>
+<ul>
+<li>flink-conf.yaml中pushgateway配置</li>
+</ul>
+<figure class="highlight yaml"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br><span class="line">3</span><br><span class="line">4</span><br><span class="line">5</span><br><span class="line">6</span><br><span class="line">7</span><br></pre></td><td class="code"><pre><span class="line"><span class="string">metrics.reporter.promgateway.class:</span> <span class="string">org.apache.flink.metrics.prometheus.PrometheusPushGatewayReporter</span></span><br><span class="line"><span class="string">metrics.reporter.promgateway.host:</span> <span class="string">pushgateway-xxxxxxxxxxxxxxx.net</span></span><br><span class="line"><span class="string">metrics.reporter.promgateway.port:</span> <span class="number">9091</span></span><br><span class="line"><span class="string">metrics.reporter.promgateway.jobName:</span> <span class="string">xxxxxxxxxxxxxxx</span></span><br><span class="line"><span class="string">metrics.reporter.promgateway.randomJobNameSuffix:</span> <span class="literal">true</span></span><br><span class="line"><span class="string">metrics.reporter.promgateway.deleteOnShutdown:</span> <span class="literal">true</span></span><br><span class="line"><span class="string">metrics.reporter.promgateway.interval:</span> <span class="number">50</span> <span class="string">SECONDS</span></span><br></pre></td></tr></table></figure>
+
+<ul>
+<li>flink-conf.yaml中exporter配置方式</li>
+</ul>
+<figure class="highlight yaml"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br></pre></td><td class="code"><pre><span class="line"><span class="string">metrics.reporter.prom.class:</span> <span class="string">org.apache.flink.metrics.prometheus.PrometheusReporter</span></span><br><span class="line"><span class="string">metrics.reporter.prom.port:</span> <span class="number">9200</span><span class="bullet">-9299</span></span><br></pre></td></tr></table></figure>
+
+<h1 id="prometheus-pushgateway问题"><a href="#prometheus-pushgateway问题" class="headerlink" title="prometheus pushgateway问题"></a>prometheus pushgateway问题</h1><p>​    在开始搭建实时计算平台时，根据运维的建议和业界的调研最终选择了pushgateway的指标收集方式，刚开始时指标收集和报警都比较良好。但是随着任务数量的增多，任务数达到600的时候，prometheus每次pushgateway采集数据的时间达到70~80秒，而且还伴发着偶发性的超时（超时时间90秒）报警延时大概5分钟。为什么会这样呢？prometheus官网不建议pushgateway作为大量的指标收集方式，实时计算平台当任务数达到600时，其指标数量已经达到22000个。这时pushgateway 进程已经占用了45G内存、CPU负载达到300%。当从pushgateway把所有的指标下载的到本地磁盘后，只占3G左右的磁盘空间，为什么在占用内存会比磁盘大了一个数量级呢？那么随着指标数量的增加，pushgateway的内存是不是线性增加的呢？通过模拟线上指标数据，对pushgateway进行了测试，得出一个结论：pushgateway所占内存会随着指标的数量增加而线性增加。</p>
+<figure class="highlight plain"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br><span class="line">3</span><br><span class="line">4</span><br><span class="line">5</span><br><span class="line">6</span><br><span class="line">7</span><br><span class="line">8</span><br><span class="line">9</span><br><span class="line">10</span><br><span class="line">11</span><br></pre></td><td class="code"><pre><span class="line">pushgateway的问题有两个：</span><br><span class="line">1.内存使用高，申请的内存约45G，实际使用的内存约30G，所有数据拉到本地磁盘占1.6G</span><br><span class="line">2.GPU使用率为300%，瞬时值能达到1200%</span><br><span class="line">其中机器内存为：256G，CPU：32核</span><br><span class="line">结论：通过模拟数据写入pushgateway，观察内存和CPU的变化</span><br><span class="line">1.排除GC造成CPU负载高的原因，GC时间不到1%</span><br><span class="line">2.pushgateway打开400多个文件描述符，是系统打开的，未能确定其影响</span><br><span class="line">3.可以查到prometheus每次拉取约260万个指标，每个指标约占12KB</span><br><span class="line">模拟写入pushgateway时，内存随数据量成线性增长，每条数据约占8KB，</span><br><span class="line">虑到模拟时是写入停止时的内存统计，线上是一直不断写入的，再加上处理内存，认为线上pushgateway内存高是合理的</span><br><span class="line">4.CPU负载高的原因是，不断处理数据聚合，在模拟时也会看到随着写入量的增加，CPU逐渐增高，认为也是合理的</span><br></pre></td></tr></table></figure>
+
+<p>从而得出以下结论：</p>
+<figure class="highlight plain"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br><span class="line">3</span><br><span class="line">4</span><br><span class="line">5</span><br></pre></td><td class="code"><pre><span class="line">1.pushgateway的GC时间占用1%，不是造成CPU负载大的原因</span><br><span class="line">2.pushgateway打开了400个文件描述符，应该是系统打开的，未能明确其影响</span><br><span class="line">3.内存随数据量成线程增长，并且为写入数据大小的5.5倍</span><br><span class="line">4.pushgateway写入的基本逻辑是：pushgateway收到请求后放到队列，然后后台线程进行聚合处理。所以会造成CPU负载过高</span><br><span class="line">5.对比了线上版本（0.9.1）和最新版本（1.2.0），结论基本一致。</span><br></pre></td></tr></table></figure>
+
+<p>解决方案：</p>
+<figure class="highlight plain"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br><span class="line">3</span><br></pre></td><td class="code"><pre><span class="line">1.精简flink指标的写入，包括：指标数据量减少，值为0或者NAN的指标不再写入</span><br><span class="line">2.pushgateway构建多台</span><br><span class="line">3.使用其他存储替代pushgateway，如InfluxDB等</span><br></pre></td></tr></table></figure>
+
+<p>当时想到3个解决方案，但是都被一一排除：</p>
+<ul>
+<li><p>方案一</p>
+<blockquote>
+<p> 精简哪些指标、怎么精简指标、精简之后会造成哪些影响，这些都可能会耗费大量的精力，而且效果不一定明显</p>
+</blockquote>
+</li>
+<li><p>方案二</p>
+<blockquote>
+<p>如何pushgateway使用多台，那么怎么把不同指标达到不同的pushgateway，随着任务数量的增多pushgateway机器不够了还需要继续扩容？当下600个任务已经占用了45G内存，采集时间太长，而且偶发性超时怎么解决</p>
+</blockquote>
+</li>
+<li><p>方案三</p>
+<blockquote>
+<p>如果使用InfluxDB代替，那么开发人力成本、和现有系统的结合，又将是面临的问题</p>
+</blockquote>
+</li>
+</ul>
+<p>值得一提的是：当任务下线时，flink只会删除JobManager的指标，不会删除TaskManager的指标。</p>
+<p>总结起来，当前实时计算平台面临两个问题</p>
+<ul>
+<li>指标如何采集，即寻找pushgateway的替代方案</li>
+<li>报警延时比较高，达到5~6分钟</li>
+</ul>
+<h1 id="解决方案"><a href="#解决方案" class="headerlink" title="解决方案"></a>解决方案</h1><h1 id="指标标签"><a href="#指标标签" class="headerlink" title="指标标签"></a>指标标签</h1><ul>
+<li><p>cloud</p>
+<blockquote>
+<p>固定值</p>
+</blockquote>
+</li>
+<li><p>env</p>
+<blockquote>
+<p>prd 固定值</p>
+</blockquote>
+</li>
+<li><p>host</p>
+<blockquote>
+<p>server 的机器host</p>
+</blockquote>
+</li>
+<li><p>instance</p>
+<blockquote>
+<p>node_exporter所在的主机ip+端口号</p>
+</blockquote>
+</li>
+<li><p>monitor</p>
+<blockquote>
+<p>固定值 通过prometheus的配置文件 external_labels 参数指定</p>
+</blockquote>
+</li>
+<li><p>projectkey0</p>
+<blockquote>
+<p>固定值   应用名称   techcenter-di-flink-yarn</p>
+</blockquote>
+</li>
+<li><p>projectname0</p>
+<blockquote>
+<p>固定值  flink-yarn</p>
+</blockquote>
+</li>
+<li><p>promip</p>
+<blockquote>
+<p>采集指标的具体的prometheus机器</p>
+<p>通过prometheus的配置文件 external_labels 参数指定</p>
+</blockquote>
+</li>
+<li><p>server</p>
+<blockquote>
+<p>container的所在主机名</p>
+</blockquote>
+</li>
+<li><p>service</p>
+<blockquote>
+<p>consul_sd_configs配置的services的值</p>
+<p>用于服务注册和服务发现</p>
+<p>不同机器上的node_exporter可以相同</p>
+</blockquote>
+</li>
+<li><p>job</p>
+<blockquote>
+<p>固定值  通过prometheus的配置文件 scrape_configs 的job_name 参数指定</p>
+</blockquote>
+</li>
+<li><p>job_id</p>
+<blockquote>
+<p>用来标识唯一的个任务实例</p>
+<p>flink系统自动生成</p>
+</blockquote>
+</li>
+<li><p>job_name</p>
+<blockquote>
+<p>flink dashboard中任务的名称  flink系统自动生成</p>
+</blockquote>
+</li>
+<li><p>libra_job_name</p>
+<blockquote>
+<p>任务发布时libra_job_name参数的名称</p>
+</blockquote>
+</li>
+<li><p>libra_job_owner</p>
+<blockquote>
+<p>任务发布时libra_job_owner参数的名称</p>
+</blockquote>
+</li>
+<li><p>tm_id</p>
+<blockquote>
+<p>任务container id</p>
+</blockquote>
+</li>
+</ul>
+<h1 id="参考文档"><a href="#参考文档" class="headerlink" title="参考文档"></a>参考文档</h1><p><a href="https://ci.apache.org/projects/flink/flink-docs-release-1.11/monitoring/metrics.html" target="_blank" rel="noopener">Metrics</a></p>
+<p><a href="https://github.com/prometheus/pushgateway" target="_blank" rel="noopener">pushgateway</a></p>
+
+        
+      
+    </div>
+
+    
+    
+    
+      <footer class="post-footer">
+        <div class="post-eof"></div>
+      </footer>
+  </article>
+  
+  
+  
+
+    
+        
+  
+  
+  <article itemscope itemtype="http://schema.org/Article" class="post-block home" lang="zh-CN">
+    <link itemprop="mainEntityOfPage" href="http://yoursite.com/2020/07/15/linux/salt实践-SSH免密码登录/">
+
+    <span hidden itemprop="author" itemscope itemtype="http://schema.org/Person">
+      <meta itemprop="name" content="姜纪光">
+      <meta itemprop="description" content="">
+      <meta itemprop="image" content="/images/avatar.gif">
+    </span>
+
+    <span hidden itemprop="publisher" itemscope itemtype="http://schema.org/Organization">
+      <meta itemprop="name" content="纪光的博客">
+    </span>
+      <header class="post-header">
+        <h1 class="post-title" itemprop="name headline">
+          
+            
+            <a href="/2020/07/15/linux/salt实践-SSH免密码登录/" class="post-title-link" itemprop="url">salt实践-SSH免密码登录</a>
+          
+        </h1>
+
+        <div class="post-meta">
+            <span class="post-meta-item">
+              <span class="post-meta-item-icon">
+                <i class="fa fa-calendar-o"></i>
+              </span>
+              <span class="post-meta-item-text">发表于</span>
+
+              
+                
+              
+
+              <time title="创建时间：2020-07-15 15:25:06 / 修改时间：15:56:46" itemprop="dateCreated datePublished" datetime="2020-07-15T15:25:06+08:00">2020-07-15</time>
+            </span>
+          
+            
+
+            
+          
+            <span class="post-meta-item">
+              <span class="post-meta-item-icon">
+                <i class="fa fa-folder-o"></i>
+              </span>
+              <span class="post-meta-item-text">分类于</span>
+              
+                <span itemprop="about" itemscope itemtype="http://schema.org/Thing">
+                  <a href="/categories/linux/" itemprop="url" rel="index">
+                    <span itemprop="name">linux</span>
+                  </a>
+                </span>
+
+                
+                
+              
+            </span>
+          
+
+          
+            <span id="/2020/07/15/linux/salt实践-SSH免密码登录/" class="post-meta-item leancloud_visitors" data-flag-title="salt实践-SSH免密码登录" title="阅读次数">
+              <span class="post-meta-item-icon">
+                <i class="fa fa-eye"></i>
+              </span>
+              <span class="post-meta-item-text">阅读次数：</span>
+              <span class="leancloud-visitors-count"></span>
+            </span>
+          
+  
+  
+
+        </div>
+      </header>
+
+    
+    
+    
+    <div class="post-body" itemprop="articleBody">
+
+      
+          <ul>
+<li><p>在要分享公钥的机器上生成秘钥</p>
+<blockquote>
+<p>ssh-keygen -t rsa</p>
+</blockquote>
+</li>
+<li><p>给文件服务器生成文件</p>
+<blockquote>
+<p>mkdir -pv /srv/salt/ssh</p>
+<p>cp /root/.ssh/id_rsa.pub /srv/salt/ssh/</p>
+</blockquote>
+</li>
+<li><p>设置远程主机信息</p>
+<blockquote>
+<p>salt ‘*’ ssh.set_known_host user=root hostname=node20</p>
+</blockquote>
+</li>
+<li><p>复制公钥</p>
+<blockquote>
+<p>salt ‘*’ ssh.set_auth_key_from_file root salt://ssh/id_rsa.pub</p>
+<p>注意：salt://ssh/id_rsa.pub  中的ssh必须和 /srv/salt/ssh/ 中的ssh一致</p>
+</blockquote>
+</li>
+</ul>
+<h1 id="参考文档"><a href="#参考文档" class="headerlink" title="参考文档"></a>参考文档</h1><p><a href="https://docs.saltstack.com/en/latest/ref/modules/all/salt.modules.ssh.html" target="_blank" rel="noopener">SALT.MODULES.SSH</a></p>
+
+        
+      
+    </div>
+
+    
+    
+    
+      <footer class="post-footer">
+        <div class="post-eof"></div>
+      </footer>
+  </article>
+  
+  
+  
+
+    
+        
+  
+  
+  <article itemscope itemtype="http://schema.org/Article" class="post-block home" lang="zh-CN">
+    <link itemprop="mainEntityOfPage" href="http://yoursite.com/2020/07/15/运维/salt实践/">
+
+    <span hidden itemprop="author" itemscope itemtype="http://schema.org/Person">
+      <meta itemprop="name" content="姜纪光">
+      <meta itemprop="description" content="">
+      <meta itemprop="image" content="/images/avatar.gif">
+    </span>
+
+    <span hidden itemprop="publisher" itemscope itemtype="http://schema.org/Organization">
+      <meta itemprop="name" content="纪光的博客">
+    </span>
+      <header class="post-header">
+        <h1 class="post-title" itemprop="name headline">
+          
+            
+            <a href="/2020/07/15/运维/salt实践/" class="post-title-link" itemprop="url">salt实践</a>
+          
+        </h1>
+
+        <div class="post-meta">
+            <span class="post-meta-item">
+              <span class="post-meta-item-icon">
+                <i class="fa fa-calendar-o"></i>
+              </span>
+              <span class="post-meta-item-text">发表于</span>
+
+              
+                
+              
+
+              <time title="创建时间：2020-07-15 15:10:59 / 修改时间：15:23:18" itemprop="dateCreated datePublished" datetime="2020-07-15T15:10:59+08:00">2020-07-15</time>
+            </span>
+          
+            
+
+            
+          
+            <span class="post-meta-item">
+              <span class="post-meta-item-icon">
+                <i class="fa fa-folder-o"></i>
+              </span>
+              <span class="post-meta-item-text">分类于</span>
+              
+                <span itemprop="about" itemscope itemtype="http://schema.org/Thing">
+                  <a href="/categories/运维/" itemprop="url" rel="index">
+                    <span itemprop="name">运维</span>
+                  </a>
+                </span>
+
+                
+                
+              
+            </span>
+          
+
+          
+            <span id="/2020/07/15/运维/salt实践/" class="post-meta-item leancloud_visitors" data-flag-title="salt实践" title="阅读次数">
+              <span class="post-meta-item-icon">
+                <i class="fa fa-eye"></i>
+              </span>
+              <span class="post-meta-item-text">阅读次数：</span>
+              <span class="leancloud-visitors-count"></span>
+            </span>
+          
+  
+  
+
+        </div>
+      </header>
+
+    
+    
+    
+    <div class="post-body" itemprop="articleBody">
+
+      
+          <h1 id="原理说明"><a href="#原理说明" class="headerlink" title="原理说明"></a>原理说明</h1><h1 id="安装与配置"><a href="#安装与配置" class="headerlink" title="安装与配置"></a>安装与配置</h1><h2 id="安装"><a href="#安装" class="headerlink" title="安装"></a>安装</h2><h2 id="配置"><a href="#配置" class="headerlink" title="配置"></a>配置</h2><ul>
+<li><p>file_roots</p>
+<blockquote>
+<p>Salt运行以ZeroMQ编写的轻量级文件服务器，用来向minion传递文件。此文件服务使用master后台线程构建，不需要专用的端口。</p>
+<p>文件服务器在传递给主服务器的环境上工作，每个环境可以有多个根目录，多个文件根目录中的子目录不能匹配</p>
+<p>  默认值：base:<br>​                   - /srv/salt/</p>
+<p>  保持默认即可，但是有关文件传递时，需要在/srv/salt/  新建相关文件</p>
+</blockquote>
+</li>
+</ul>
+<h2 id="启动"><a href="#启动" class="headerlink" title="启动"></a>启动</h2><ul>
+<li><p>重启master</p>
+<blockquote>
+<p>在master上执行</p>
+<p>systemctl restart salt-master.service</p>
+</blockquote>
+</li>
+<li><p>重启minion</p>
+<blockquote>
+<p>在minion上执行</p>
+<p>systemctl restart salt-minion.service</p>
+</blockquote>
+</li>
+<li><p>查看master和minion的连接情况</p>
+<blockquote>
+<p>在master上执行</p>
+<p>salt-key -L</p>
+</blockquote>
+</li>
+<li><p>查看秘钥的指纹码</p>
+<blockquote>
+<p>在master上执行：salt-key -f node20</p>
+<p>在minion上执行：salt-call –lcoal key.finger</p>
+</blockquote>
+</li>
+<li><p>在master上接受秘钥</p>
+<blockquote>
+<p>salt-key -a node20</p>
+<p>salt-key -A</p>
+</blockquote>
+</li>
+</ul>
+<h1 id="远程执行管理minion"><a href="#远程执行管理minion" class="headerlink" title="远程执行管理minion"></a>远程执行管理minion</h1><h2 id="远程执行命令"><a href="#远程执行命令" class="headerlink" title="远程执行命令"></a>远程执行命令</h2><figure class="highlight plain"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br><span class="line">3</span><br><span class="line">4</span><br><span class="line">5</span><br><span class="line">6</span><br><span class="line">7</span><br><span class="line">8</span><br><span class="line">9</span><br><span class="line">10</span><br></pre></td><td class="code"><pre><span class="line">在master上执行，命令行帮助：</span><br><span class="line">salt --help</span><br><span class="line">Usage: salt [options] &apos;&lt;target&gt;&apos; &lt;function&gt; [arguments]</span><br><span class="line">可见由五部分组成：</span><br><span class="line">salt命令本身</span><br><span class="line">命令行选项</span><br><span class="line">目标定位</span><br><span class="line">salt模块函数</span><br><span class="line">远程执行函数的参数</span><br><span class="line">salt --summary &apos;*&apos; cmd.run &quot;uptime&quot;</span><br></pre></td></tr></table></figure>
+
+<h2 id="命令行选项"><a href="#命令行选项" class="headerlink" title="命令行选项"></a>命令行选项</h2><figure class="highlight plain"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br><span class="line">3</span><br></pre></td><td class="code"><pre><span class="line">与linux命令一样，命令行选项的作用就是改变程序本身的行为。</span><br><span class="line">如 ls -l 中的    -l</span><br><span class="line">详细请见salt --help 命令</span><br></pre></td></tr></table></figure>
+
+<h2 id="目标定位符"><a href="#目标定位符" class="headerlink" title="目标定位符"></a>目标定位符</h2><figure class="highlight plain"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br><span class="line">3</span><br><span class="line">4</span><br><span class="line">5</span><br><span class="line">6</span><br><span class="line">7</span><br><span class="line">8</span><br><span class="line">9</span><br></pre></td><td class="code"><pre><span class="line">其作用就是定位minion。</span><br><span class="line">全局匹配：&quot;*&quot;</span><br><span class="line">正则表达式匹配</span><br><span class="line">列表匹配：salt -L &quot;node21,node22&quot; test.ping</span><br><span class="line">Grains：</span><br><span class="line">  Grains可以认为是描述minion本身固有属性的静态数据。</span><br><span class="line">  salt &quot;node21&quot; grains.items：查看主机的Grains数据</span><br><span class="line">  salt &quot;node21&quot; grains.items username</span><br><span class="line">Pillars：</span><br></pre></td></tr></table></figure>
+
+<h2 id="远程执行模块和函数"><a href="#远程执行模块和函数" class="headerlink" title="远程执行模块和函数"></a>远程执行模块和函数</h2><figure class="highlight plain"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br><span class="line">3</span><br><span class="line">4</span><br><span class="line">5</span><br><span class="line">6</span><br><span class="line">7</span><br></pre></td><td class="code"><pre><span class="line">模块是函数的逻辑分组。</span><br><span class="line">列举对应的minion主机上所有的模块：salt &quot;node21&quot; sys.list_modules</span><br><span class="line">列举对应的minion主机上所有的模块内的函数：salt &quot;node21&quot; sys.list_functions test</span><br><span class="line">查询函数的详细用法：salt &quot;node21&quot; sys.doc test.sleep</span><br><span class="line">salt &apos;*&apos; test.ping：探测主机是否存活</span><br><span class="line">salt &apos;node21&apos; sys.list_functions test：test模块的有用函数</span><br><span class="line">salt &apos;node21&apos; sys.doc test.echo</span><br></pre></td></tr></table></figure>
+
+<h2 id="远程命令执行模块"><a href="#远程命令执行模块" class="headerlink" title="远程命令执行模块"></a>远程命令执行模块</h2><figure class="highlight plain"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br><span class="line">3</span><br></pre></td><td class="code"><pre><span class="line">命令执行模块cmd，可以在多台主机上同时执行相同的一条命令</span><br><span class="line">salt &quot;*&quot; cmd.run &quot;ps -ef | wc -l&quot;</span><br><span class="line">salt &quot;*&quot; cmd.run_all &quot;ps -ef | wc -l&quot;</span><br></pre></td></tr></table></figure>
+
+<h2 id="安装包管理"><a href="#安装包管理" class="headerlink" title="安装包管理"></a>安装包管理</h2><figure class="highlight plain"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br><span class="line">3</span><br><span class="line">4</span><br></pre></td><td class="code"><pre><span class="line">程序包安装和管理是系统管理员一个非常重要的任务，salt提供了pkg模块</span><br><span class="line">salt &quot;node21&quot; pkg.install &quot;httpd&quot;  安装包</span><br><span class="line">salt &quot;node21&quot; pkg.version &quot;httpd&quot;  查看已经安装软件的版本信息</span><br><span class="line">salt &quot;node21&quot; pkg.remove &quot;httpd&quot;</span><br></pre></td></tr></table></figure>
+
+<h2 id="管理服务模块"><a href="#管理服务模块" class="headerlink" title="管理服务模块"></a>管理服务模块</h2><figure class="highlight plain"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br></pre></td><td class="code"><pre><span class="line">salt通过service模块管理minion上的服务。该模块包括 service.start service.status service.stop等</span><br><span class="line">service.status：True表示服务正在运行，False 表示服务停止</span><br></pre></td></tr></table></figure>
+
+<h2 id="文件管理模块"><a href="#文件管理模块" class="headerlink" title="文件管理模块"></a>文件管理模块</h2><figure class="highlight plain"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br><span class="line">3</span><br></pre></td><td class="code"><pre><span class="line">对于minion上的文件，salt提供了file模块</span><br><span class="line">文件信息查询：salt &quot;node21&quot; file.stats /etc/yum.conf</span><br><span class="line">文件属性组修改：salt &quot;node21&quot; file.chown /etc/passwd root root</span><br></pre></td></tr></table></figure>
+
+<h2 id="用户模块管理"><a href="#用户模块管理" class="headerlink" title="用户模块管理"></a>用户模块管理</h2><figure class="highlight plain"><table><tr><td class="gutter"><pre><span class="line">1</span><br></pre></td><td class="code"><pre><span class="line">salt &apos;*&apos; user.add name &lt;uid&gt; &lt;gid&gt; &lt;groups&gt; &lt;home&gt; &lt;shell&gt;</span><br></pre></td></tr></table></figure>
+
+<h1 id="状态系统"><a href="#状态系统" class="headerlink" title="状态系统"></a>状态系统</h1><figure class="highlight plain"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br><span class="line">3</span><br><span class="line">4</span><br><span class="line">5</span><br></pre></td><td class="code"><pre><span class="line">对于minion的环境控制，使用状态进行管理更为合适。</span><br><span class="line">执行模块是过程式的</span><br><span class="line">状态是对minion的一种描述和定义，管理人员可以不关心具体部署任务是如何完成的，只要描述minion需要到达什么状态，底层由salt的状态模块来完成功能。</span><br><span class="line">列出所有的状态模块：salt &quot;*&quot; sys.list_state_modules </span><br><span class="line">salt &apos;node20&apos; sys.list_state_functions file</span><br></pre></td></tr></table></figure>
+
+
+        
+      
+    </div>
+
+    
+    
+    
+      <footer class="post-footer">
+        <div class="post-eof"></div>
+      </footer>
+  </article>
+  
+  
+  
+
+    
+        
+  
+  
+  <article itemscope itemtype="http://schema.org/Article" class="post-block home" lang="zh-CN">
+    <link itemprop="mainEntityOfPage" href="http://yoursite.com/2020/07/15/数据库/OrientDB概览/">
+
+    <span hidden itemprop="author" itemscope itemtype="http://schema.org/Person">
+      <meta itemprop="name" content="姜纪光">
+      <meta itemprop="description" content="">
+      <meta itemprop="image" content="/images/avatar.gif">
+    </span>
+
+    <span hidden itemprop="publisher" itemscope itemtype="http://schema.org/Organization">
+      <meta itemprop="name" content="纪光的博客">
+    </span>
+      <header class="post-header">
+        <h1 class="post-title" itemprop="name headline">
+          
+            
+            <a href="/2020/07/15/数据库/OrientDB概览/" class="post-title-link" itemprop="url">OrientDB学习笔记</a>
+          
+        </h1>
+
+        <div class="post-meta">
+            <span class="post-meta-item">
+              <span class="post-meta-item-icon">
+                <i class="fa fa-calendar-o"></i>
+              </span>
+              <span class="post-meta-item-text">发表于</span>
+
+              
+                
+              
+
+              <time title="创建时间：2020-07-15 09:54:53 / 修改时间：15:56:54" itemprop="dateCreated datePublished" datetime="2020-07-15T09:54:53+08:00">2020-07-15</time>
+            </span>
+          
+            
+
+            
+          
+            <span class="post-meta-item">
+              <span class="post-meta-item-icon">
+                <i class="fa fa-folder-o"></i>
+              </span>
+              <span class="post-meta-item-text">分类于</span>
+              
+                <span itemprop="about" itemscope itemtype="http://schema.org/Thing">
+                  <a href="/categories/数据库/" itemprop="url" rel="index">
+                    <span itemprop="name">数据库</span>
+                  </a>
+                </span>
+
+                
+                
+              
+            </span>
+          
+
+          
+            <span id="/2020/07/15/数据库/OrientDB概览/" class="post-meta-item leancloud_visitors" data-flag-title="OrientDB学习笔记" title="阅读次数">
+              <span class="post-meta-item-icon">
+                <i class="fa fa-eye"></i>
+              </span>
+              <span class="post-meta-item-text">阅读次数：</span>
+              <span class="leancloud-visitors-count"></span>
+            </span>
+          
+  
+  
+
+        </div>
+      </header>
+
+    
+    
+    
+    <div class="post-body" itemprop="articleBody">
+
+      
+          <h1 id="概览"><a href="#概览" class="headerlink" title="概览"></a>概览</h1><ul>
+<li><p>OrientDB 是一款 NoSQL 数据库。是一种文档-图数据库。既具有文档数据库的特性，又具有图数据库的功能。</p>
+</li>
+<li><p>端口</p>
+<blockquote>
+<p>2424  OrientDB 监听 二进制 访问的的端口 （即：通过程序访问）</p>
+<p>2480  OrientDB 监听 HTTP 访问的端口。（即通过web）存储模式</p>
+</blockquote>
+</li>
+</ul>
+<h2 id="存储模式"><a href="#存储模式" class="headerlink" title="存储模式"></a>存储模式</h2><ul>
+<li><p>Graph 图模式</p>
+<blockquote>
+<p>顶点</p>
+<p>边缘</p>
+</blockquote>
+</li>
+<li><p>Document 文档模式</p>
+<blockquote>
+<p>类或集群</p>
+<p>文档</p>
+<p>文档字段</p>
+<p>链接</p>
+</blockquote>
+</li>
+<li><p>Key/Value 键/值对模式</p>
+<blockquote>
+<p>键/值模型意味着数据可以以键/值对的形式存储，其中值可以是简单和复杂类型。 它可以支持文档和图形元素作为值。</p>
+<p>类或集群</p>
+<p>文档</p>
+<p>文档字段或顶点/边缘属性</p>
+<p>链接</p>
+</blockquote>
+</li>
+<li><p>Object 对象模式</p>
+<blockquote>
+<p>类或集群</p>
+<p>文档或顶点</p>
+<p>文档字段或顶点/边缘属性</p>
+<p>链接</p>
+</blockquote>
+</li>
+</ul>
+<h1 id="基本概念"><a href="#基本概念" class="headerlink" title="基本概念"></a>基本概念</h1><h2 id="记录（Record）"><a href="#记录（Record）" class="headerlink" title="记录（Record）"></a>记录（Record）</h2><ul>
+<li>数据库加载和存储的最小单位</li>
+<li>一条记录可以使 a Document, a Blob,  a Vertex or even an Edge</li>
+</ul>
+<p>###文档（Document）</p>
+<ul>
+<li>文档是最灵活的记录（Record）类型</li>
+<li>文档既可以是有模式的，也可以使无模式的</li>
+</ul>
+<p>###二进制（BLOB）</p>
+<ul>
+<li>BLOB是二进制形式的记录（Record）类型</li>
+<li>v2.2版本之前也叫RecordBytes</li>
+</ul>
+<h3 id="顶点（Vertex）"><a href="#顶点（Vertex）" class="headerlink" title="顶点（Vertex）"></a>顶点（Vertex）</h3><ul>
+<li>图数据库中最基本的单元是node，在OrientDB中称为vertex</li>
+<li>vertex也是文档（Document），所以可以存储embedded records 和 arbitrary properties</li>
+</ul>
+<h3 id="边（Edge）"><a href="#边（Edge）" class="headerlink" title="边（Edge）"></a>边（Edge）</h3><ul>
+<li>图数据库中，arc用于连接nodes，在OrientDB中称为edge</li>
+<li>edge是双向的，仅仅能连接两个vertex</li>
+<li>edge又分为两类：regular 和 lightweight</li>
+<li>regular Edge 是个文档（Document）</li>
+<li>Lightweight Edge 不是文档</li>
+</ul>
+<h2 id="Record-ID"><a href="#Record-ID" class="headerlink" title="Record ID"></a>Record ID</h2><ul>
+<li>每当OrientDB产生一个record，同时自动生成一个唯一的标识符，称为Record ID</li>
+<li>Record ID由集群（cluster）和位置（position）组成：<code>#&lt;cluster&gt;:&lt;position&gt;</code></li>
+<li>Cluster Identifier  指明Record属于哪个Cluster，正数表示持久化存储，负数表示临时存储</li>
+<li>position 指明Record在Cluster中的绝对位置</li>
+</ul>
+<h2 id="Record-Version"><a href="#Record-Version" class="headerlink" title="Record Version"></a>Record Version</h2><ul>
+<li>记录（Record）有自己的版本号，每当更新后会递增</li>
+</ul>
+<p>##Class</p>
+<ul>
+<li>Class用于定于Record</li>
+<li>Classes can be schema-less, schema-full or a mix</li>
+<li>和java中一样，类是可继承的，可以继承父类的属性</li>
+<li>每个非抽象类必须有至少一个自己的clusters (data files)，也可以有多个clusters</li>
+<li>当对类执行查询时，自动传播到该类的所有clusters</li>
+<li>创建Record时，该Record选择保存的clusters<a href="http://www.orientdb.com/docs/last/misc/Cluster-Selection.md" target="_blank" rel="noopener">configurable strategy</a></li>
+<li>当新建Class后，默认创建一个同名的持久化的cluster</li>
+</ul>
+<h3 id="Abstract-Class"><a href="#Abstract-Class" class="headerlink" title="Abstract Class"></a>Abstract Class</h3><ul>
+<li>和java中的抽象类的概念类似</li>
+<li>不能实例化</li>
+</ul>
+<h2 id="Cluster"><a href="#Cluster" class="headerlink" title="Cluster"></a>Cluster</h2><ul>
+<li>类Class提供了组织数据的逻辑结构</li>
+<li>集群clusters提供了存储数据的物理结构或内存空间，类似于关系型数据库中的表概念</li>
+<li>当创建Class时，也会创建物理的clusters，用于存储该class的数据</li>
+<li>cluster的命名方式是类Class转小写</li>
+</ul>
+<h2 id="Materialized-View"><a href="#Materialized-View" class="headerlink" title="Materialized View"></a>Materialized View</h2><ul>
+<li>是a persistent object that contains the result of a query</li>
+<li>在SQL查询中，可以作为class的等价</li>
+<li>可以使配置为只读和可更新的</li>
+<li>向class一样，可以有索引</li>
+</ul>
+<p>#Relationships</p>
+<ul>
+<li>支持两种类型的relationships，referenced 和 embedded</li>
+</ul>
+<p>###Referenced Relationships</p>
+<ul>
+<li>关系型数据库中，table通用join连接，这可能会在计算资源上造成高昂的代价</li>
+<li>OrientDB通过直接存储目标对象的连接</li>
+<li>使用LINK类型表示引用连接关系：LINKLIST、LINKSET、LINKMAP</li>
+<li>Edges仅仅连接两个vertices</li>
+<li>两个vertice都有Record ID</li>
+</ul>
+<h3 id="Embedded-Relationships"><a href="#Embedded-Relationships" class="headerlink" title="Embedded Relationships"></a>Embedded Relationships</h3><ul>
+<li>和Referenced Relationships不同，被嵌入的record 没有自己的Record ID</li>
+<li>当嵌入的Record删除后，被嵌入的Record也会被删除</li>
+<li>EMBEDDEDLIST、EMBEDDEDSET、EMBEDDEDMAP表示连接关系</li>
+</ul>
+<h3 id="Inverse-Relationships"><a href="#Inverse-Relationships" class="headerlink" title="Inverse Relationships"></a>Inverse Relationships</h3><ul>
+<li>OrientDB中所有的Edges都是双向的</li>
+</ul>
+<h1 id="使用"><a href="#使用" class="headerlink" title="使用"></a>使用</h1><h2 id="Tutorial-Clusters"><a href="#Tutorial-Clusters" class="headerlink" title="Tutorial-Clusters"></a>Tutorial-Clusters</h2><p>参考文档：<a href="http://www.orientdb.com/docs/last/gettingstarted/Tutorial-Clusters.md" target="_blank" rel="noopener">Tutorial-Clusters</a></p>
+<h1 id="集群模式安装"><a href="#集群模式安装" class="headerlink" title="集群模式安装"></a>集群模式安装</h1><p>##</p>
+<h1 id="参考文档"><a href="#参考文档" class="headerlink" title="参考文档"></a>参考文档</h1><p><a href="http://www.orientdb.com/docs/last/datamodeling/Concepts.html" target="_blank" rel="noopener">官网</a></p>
+<p><a href="https://www.cnblogs.com/jijizhazha/p/6656049.html" target="_blank" rel="noopener">orientdb 学习</a></p>
+<p><a href="https://www.howtoing.com/how-to-configure-an-orientdb-cluster-on-ubuntu-16-04" target="_blank" rel="noopener">如何在Ubuntu 16.04上配置OrientDB群集</a></p>
+<p><a href="https://orientdb.org/docs/3.0.x/distributed/Distributed-Architecture.html" target="_blank" rel="noopener">Distributed Architecture</a></p>
+
+        
+      
+    </div>
+
+    
+    
+    
+      <footer class="post-footer">
+        <div class="post-eof"></div>
+      </footer>
+  </article>
+  
+  
+  
+
+    
+        
+  
+  
+  <article itemscope itemtype="http://schema.org/Article" class="post-block home" lang="zh-CN">
     <link itemprop="mainEntityOfPage" href="http://yoursite.com/2020/07/13/数据库/Neo4j学习笔记/">
 
     <span hidden itemprop="author" itemscope itemtype="http://schema.org/Person">
@@ -599,1159 +2115,11 @@
   
 
     
-        
-  
-  
-  <article itemscope itemtype="http://schema.org/Article" class="post-block home" lang="zh-CN">
-    <link itemprop="mainEntityOfPage" href="http://yoursite.com/2020/07/13/es/映射/">
-
-    <span hidden itemprop="author" itemscope itemtype="http://schema.org/Person">
-      <meta itemprop="name" content="姜纪光">
-      <meta itemprop="description" content="">
-      <meta itemprop="image" content="/images/avatar.gif">
-    </span>
-
-    <span hidden itemprop="publisher" itemscope itemtype="http://schema.org/Organization">
-      <meta itemprop="name" content="纪光的博客">
-    </span>
-      <header class="post-header">
-        <h1 class="post-title" itemprop="name headline">
-          
-            
-            <a href="/2020/07/13/es/映射/" class="post-title-link" itemprop="url">映射</a>
-          
-        </h1>
-
-        <div class="post-meta">
-            <span class="post-meta-item">
-              <span class="post-meta-item-icon">
-                <i class="fa fa-calendar-o"></i>
-              </span>
-              <span class="post-meta-item-text">发表于</span>
-
-              
-                
-              
-
-              <time title="创建时间：2020-07-13 09:13:46" itemprop="dateCreated datePublished" datetime="2020-07-13T09:13:46+08:00">2020-07-13</time>
-            </span>
-          
-            
-
-            
-              <span class="post-meta-item">
-                <span class="post-meta-item-icon">
-                  <i class="fa fa-calendar-check-o"></i>
-                </span>
-                <span class="post-meta-item-text">更新于</span>
-                <time title="修改时间：2020-08-18 16:33:26" itemprop="dateModified" datetime="2020-08-18T16:33:26+08:00">2020-08-18</time>
-              </span>
-            
-          
-            <span class="post-meta-item">
-              <span class="post-meta-item-icon">
-                <i class="fa fa-folder-o"></i>
-              </span>
-              <span class="post-meta-item-text">分类于</span>
-              
-                <span itemprop="about" itemscope itemtype="http://schema.org/Thing">
-                  <a href="/categories/es/" itemprop="url" rel="index">
-                    <span itemprop="name">es</span>
-                  </a>
-                </span>
-
-                
-                
-              
-            </span>
-          
-
-          
-            <span id="/2020/07/13/es/映射/" class="post-meta-item leancloud_visitors" data-flag-title="映射" title="阅读次数">
-              <span class="post-meta-item-icon">
-                <i class="fa fa-eye"></i>
-              </span>
-              <span class="post-meta-item-text">阅读次数：</span>
-              <span class="leancloud-visitors-count"></span>
-            </span>
-          
-  
-  
-
-        </div>
-      </header>
-
-    
-    
-    
-    <div class="post-body" itemprop="articleBody">
-
-      
-          <h1 id="映射操作"><a href="#映射操作" class="headerlink" title="映射操作"></a>映射操作</h1><p>获取映射</p>
-<figure class="highlight plain"><table><tr><td class="gutter"><pre><span class="line">1</span><br></pre></td><td class="code"><pre><span class="line">http://localhost:9200/get-together/_mapping</span><br></pre></td></tr></table></figure>
-
-<p>定义映射</p>
-<figure class="highlight plain"><table><tr><td class="gutter"><pre><span class="line">1</span><br></pre></td><td class="code"><pre><span class="line">http://localhost:9200/get-together/_mapping/group?include_type_name=true</span><br></pre></td></tr></table></figure>
-
-<ul>
-<li>无法改变现有字段的数据类型</li>
-<li>无法改变一个字段被索引的方式</li>
-<li>删除数据也将删除映射</li>
-</ul>
-<h1 id="字段类型"><a href="#字段类型" class="headerlink" title="字段类型"></a>字段类型</h1><h2 id="核心类型"><a href="#核心类型" class="headerlink" title="核心类型"></a>核心类型</h2><ul>
-<li><p>keyword</p>
-<blockquote>
-<p>用于存储字符串，不会分词建立索引，用于聚合和排序</p>
-</blockquote>
-</li>
-<li><p>text</p>
-<blockquote>
-<p>用于存储字符串，会分词建立索引，用于全文检索</p>
-<p>index选项可以被设置为：<br>analyzed(默认):分析器将多有字符转为小写，并将字符串分解为单词<br>net_analyzed:分析过程被略过，整个字符串被当做单独的词条进行索引<br>no:索引被忽略，即无法在该字段索引</p>
-</blockquote>
-</li>
-<li><p>数值</p>
-<figure class="highlight plain"><table><tr><td class="gutter"><pre><span class="line">1</span><br></pre></td><td class="code"><pre><span class="line">包括byte、short、int、long、float、double</span><br></pre></td></tr></table></figure>
-</li>
-<li><p>日期</p>
-<figure class="highlight plain"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br><span class="line">3</span><br></pre></td><td class="code"><pre><span class="line">通常提供一个表示日期的字符串，es解析这个字符串，将其作为long的数值存储在lucene的索引</span><br><span class="line">是从1970年1月1日到所提供时间的毫秒数</span><br><span class="line">使用format选项指定日期格式</span><br></pre></td></tr></table></figure>
-</li>
-<li><p>布尔</p>
-<figure class="highlight plain"><table><tr><td class="gutter"><pre><span class="line">1</span><br></pre></td><td class="code"><pre><span class="line">在lucene索引中将T代表true，F代表false</span><br></pre></td></tr></table></figure>
-</li>
-<li><p>数组</p>
-<figure class="highlight plain"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br></pre></td><td class="code"><pre><span class="line">如果要索引拥有多个值的字段，将这些值放入到方括号中。</span><br><span class="line">映射将标签字段定义为字符串型，和单个值同样处理</span><br></pre></td></tr></table></figure>
-</li>
-<li><p>多字段</p>
-<figure class="highlight plain"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br><span class="line">3</span><br></pre></td><td class="code"><pre><span class="line">多字段允许使用不同的设置，对同一项数据索引多次</span><br><span class="line">analyzed针对每个单词进行匹配</span><br><span class="line">not_analyed针对完整标签名称的精确匹配</span><br></pre></td></tr></table></figure>
-
-</li>
-</ul>
-<h2 id="预定义字段"><a href="#预定义字段" class="headerlink" title="预定义字段"></a>预定义字段</h2><ul>
-<li>通常，不用部署预定义字段</li>
-<li>揭示了字段的相关的功能，如_ttl</li>
-<li>预定义的字段总是以下划线开头</li>
-</ul>
-<p>预定义字段类型：</p>
-<ul>
-<li><p>控制如何存储和搜索你的文档</p>
-<figure class="highlight plain"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br><span class="line">3</span><br></pre></td><td class="code"><pre><span class="line">_source在索引文档的时候，存储原始的JSON文档，_all将所有的字段一起索引</span><br><span class="line">_source设置为true或false来指定是否想要存储原始文档：强烈建议开启</span><br><span class="line">_include_in_all控制哪些字段包_all包含，哪些字段不被_all包含</span><br></pre></td></tr></table></figure>
-</li>
-<li><p>唯一识别文档</p>
-<figure class="highlight plain"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br></pre></td><td class="code"><pre><span class="line">有些特别的字段，包含了文档索引位置的数据：_uid、_id、_type和_index</span><br><span class="line">可以依靠es生成唯一的ID</span><br></pre></td></tr></table></figure>
-</li>
-<li><p>为文档增加新的属性</p>
-<figure class="highlight plain"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br></pre></td><td class="code"><pre><span class="line">_size索引原始JSON内容的大小</span><br><span class="line">_timestamp索引文档索引的时间</span><br></pre></td></tr></table></figure>
-</li>
-<li><p>控制文档路由到哪些分片</p>
-<figure class="highlight plain"><table><tr><td class="gutter"><pre><span class="line">1</span><br></pre></td><td class="code"><pre><span class="line">_routing和_parent</span><br></pre></td></tr></table></figure>
-
-</li>
-</ul>
-<h1 id="更新现有文档"><a href="#更新现有文档" class="headerlink" title="更新现有文档"></a>更新现有文档</h1><p>文档的更新包括检索文档、处理文档、并重新索引文档，直至先前的文档被覆盖</p>
-<ul>
-<li><p>es自动重试</p>
-<figure class="highlight plain"><table><tr><td class="gutter"><pre><span class="line">1</span><br></pre></td><td class="code"><pre><span class="line">retry_on_conflict</span><br></pre></td></tr></table></figure>
-</li>
-<li><p>并发版本控制</p>
-<figure class="highlight plain"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br></pre></td><td class="code"><pre><span class="line">http://localhost:9200/get-together/group/4/_update?if_seq_no=25&amp;if_primary_term=2</span><br><span class="line">不支持upsert模式</span><br></pre></td></tr></table></figure>
-
-</li>
-</ul>
-<h1 id="删除文档"><a href="#删除文档" class="headerlink" title="删除文档"></a>删除文档</h1><ul>
-<li><p>删除单个文档或一组文档</p>
-<blockquote>
-<p>es只是标记为删除，只是不会出现在搜索结果中，稍后es通过异步的方式彻底地从索引中移除</p>
-<p>删除文档可能的问题是，删除文档后，再通过更新添加文档，为了防止这一问题的发生，通过index.gc_deletes设置删除文档的保留时间</p>
-</blockquote>
-</li>
-<li><p>删除整个索引</p>
-<blockquote>
-<p>性能更好，主要工作就是移除和那个索引相关的文件</p>
-<p>文件只是被标记为已删除，在分段进行合并时，才被真正删除</p>
-<p>合并是指将多个lucene小分段组合为一个更大的分段的过程</p>
-</blockquote>
-</li>
-<li><p>关闭索引</p>
-<blockquote>
-<p>关闭的索引不允许读取或者写入操作，数据也不会加载到内存，还是会保留到磁盘上，只需要打开索引即可恢复</p>
-</blockquote>
-</li>
-<li><p>删除类型</p>
-<blockquote>
-<p>类型名称只是文档中的另一个字段。</p>
-<p>索引中的所有文档，无论它们属于哪个映射类型，都存放在同一分片中。</p>
-<p>es只能查询属于那个类型的文档，然后删除它们</p>
-<p>因此，删除类型通常要耗费更长的时间和更多的资源</p>
-</blockquote>
-</li>
-</ul>
-<h1 id="分段与合并"><a href="#分段与合并" class="headerlink" title="分段与合并"></a>分段与合并</h1><p>分段就是建立索引的时候所创建的一块lucene索引（es成为分片）。</p>
-
-        
-      
-    </div>
-
-    
-    
-    
-      <footer class="post-footer">
-        <div class="post-eof"></div>
-      </footer>
-  </article>
-  
-  
-  
-
-    
-        
-  
-  
-  <article itemscope itemtype="http://schema.org/Article" class="post-block home" lang="zh-CN">
-    <link itemprop="mainEntityOfPage" href="http://yoursite.com/2020/07/10/es/es概览/">
-
-    <span hidden itemprop="author" itemscope itemtype="http://schema.org/Person">
-      <meta itemprop="name" content="姜纪光">
-      <meta itemprop="description" content="">
-      <meta itemprop="image" content="/images/avatar.gif">
-    </span>
-
-    <span hidden itemprop="publisher" itemscope itemtype="http://schema.org/Organization">
-      <meta itemprop="name" content="纪光的博客">
-    </span>
-      <header class="post-header">
-        <h1 class="post-title" itemprop="name headline">
-          
-            
-            <a href="/2020/07/10/es/es概览/" class="post-title-link" itemprop="url">es概览</a>
-          
-        </h1>
-
-        <div class="post-meta">
-            <span class="post-meta-item">
-              <span class="post-meta-item-icon">
-                <i class="fa fa-calendar-o"></i>
-              </span>
-              <span class="post-meta-item-text">发表于</span>
-
-              
-                
-              
-
-              <time title="创建时间：2020-07-10 18:04:55" itemprop="dateCreated datePublished" datetime="2020-07-10T18:04:55+08:00">2020-07-10</time>
-            </span>
-          
-            
-
-            
-              <span class="post-meta-item">
-                <span class="post-meta-item-icon">
-                  <i class="fa fa-calendar-check-o"></i>
-                </span>
-                <span class="post-meta-item-text">更新于</span>
-                <time title="修改时间：2020-08-11 09:21:58" itemprop="dateModified" datetime="2020-08-11T09:21:58+08:00">2020-08-11</time>
-              </span>
-            
-          
-            <span class="post-meta-item">
-              <span class="post-meta-item-icon">
-                <i class="fa fa-folder-o"></i>
-              </span>
-              <span class="post-meta-item-text">分类于</span>
-              
-                <span itemprop="about" itemscope itemtype="http://schema.org/Thing">
-                  <a href="/categories/es/" itemprop="url" rel="index">
-                    <span itemprop="name">es</span>
-                  </a>
-                </span>
-
-                
-                
-              
-            </span>
-          
-
-          
-            <span id="/2020/07/10/es/es概览/" class="post-meta-item leancloud_visitors" data-flag-title="es概览" title="阅读次数">
-              <span class="post-meta-item-icon">
-                <i class="fa fa-eye"></i>
-              </span>
-              <span class="post-meta-item-text">阅读次数：</span>
-              <span class="leancloud-visitors-count"></span>
-            </span>
-          
-  
-  
-
-        </div>
-      </header>
-
-    
-    
-    
-    <div class="post-body" itemprop="articleBody">
-
-      
-          <h1 id="简介"><a href="#简介" class="headerlink" title="简介"></a>简介</h1><p>计算文档相关性得分的算法：TF-IDF(term frequency-inverse document frequency)词频-逆文档频率</p>
-<ul>
-<li>词频：所查找的单词在文档中出现的次数越多，得分越高</li>
-<li>逆文档词频：如果某个词频在所有文档中比较少见，那么该词的权重越高，得分也会越高</li>
-</ul>
-<p>使用案例：</p>
-<ul>
-<li>不光能在完善的数据存储之上提供搜索能力，更能提供持久化数据的能力、统计能力</li>
-<li>版本1中不支持事务和复杂关系</li>
-<li>提供REST API服务，返回数据格式可以使JSON或YAML</li>
-</ul>
-<p>主要特性：</p>
-<ul>
-<li>es默认是面向文档的、可扩展的，没有固定的schema</li>
-<li>在多个字段中搜索多个关键字，一些是必须的，一些是可选的</li>
-<li>搜索可以同时包含查询、过滤器、聚集、聚集从匹配的文档中生成统计数据</li>
-<li>以文档的形式存储数据，文档可以是具有层次的，这种灵活性非常高，鼓励将所有属于一个逻辑实体的数据保存在同一个文档中。</li>
-<li>每个集群都有一个主节点，负责了解集群中的所有节点以及分片位置</li>
-<li>端口9300用于节点之间的通讯、java api</li>
-<li>端口9200用于http通讯</li>
-<li>gateway负责将数据持久化到磁盘</li>
-<li>es自动将数据划分为分片，做负载均衡，使得动态添加和移除服务器变动容易，分片可以复制，提高容错性</li>
-</ul>
-<h1 id="安装"><a href="#安装" class="headerlink" title="安装"></a>安装</h1><h2 id="mac下安装"><a href="#mac下安装" class="headerlink" title="mac下安装"></a>mac下安装</h2><h3 id="最新版本安装"><a href="#最新版本安装" class="headerlink" title="最新版本安装"></a>最新版本安装</h3><figure class="highlight shell"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br><span class="line">3</span><br><span class="line">4</span><br><span class="line">5</span><br></pre></td><td class="code"><pre><span class="line"><span class="meta">$</span> brew install elasticsearch  #安装</span><br><span class="line"><span class="meta">$</span> brew info elasticsearch     #查看安装信息</span><br><span class="line"><span class="meta">$</span> brew services start elasticsearch   #运行  http://localhost:9200/</span><br><span class="line"><span class="meta">$</span> brew install kibana         #安装kibana</span><br><span class="line"><span class="meta">$</span> brew services start kibana  #启用kibana    http://localhost:5601/</span><br></pre></td></tr></table></figure>
-
-<h3 id="5-6-9版本安装"><a href="#5-6-9版本安装" class="headerlink" title="5.6.9版本安装"></a>5.6.9版本安装</h3><figure class="highlight shell"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br></pre></td><td class="code"><pre><span class="line"><span class="meta">#</span>下载地址</span><br><span class="line"><span class="meta">$</span> https://www.elastic.co/cn/downloads/past-releases/elasticsearch-5-6-9</span><br></pre></td></tr></table></figure>
-
-<h2 id="配置"><a href="#配置" class="headerlink" title="配置"></a>配置</h2><h1 id="功能"><a href="#功能" class="headerlink" title="功能"></a>功能</h1><h2 id="逻辑设计"><a href="#逻辑设计" class="headerlink" title="逻辑设计"></a>逻辑设计</h2><ul>
-<li>文档是搜索和索引的基本单位，类似关系数据库中的一行</li>
-<li>类型用来分组文档，可以包含若干文档，类似表格包含若干行，类似表</li>
-<li>索引是更大的容器，一个或多个类型位于同一索引中，类似数据库</li>
-</ul>
-<h2 id="物理设计"><a href="#物理设计" class="headerlink" title="物理设计"></a>物理设计</h2><ul>
-<li>es将每个索引划分为分片</li>
-<li>每份分片可以在集群间的不同服务器上迁移</li>
-<li>物理配置的设计方式决定了集群的性能、可扩展性和可用性</li>
-</ul>
-<h2 id="文档"><a href="#文档" class="headerlink" title="文档"></a>文档</h2><ul>
-<li>文档由索引名称 + 类型名称 + 文档ID 唯一确定</li>
-<li>文档是无模式的，不是所有文档都需要相同的字段</li>
-<li>文档是层次型的，即文档中可以包含文档</li>
-<li>文档拥有灵活的结构，不依赖于预先定义的模式</li>
-<li>文档中的字段是有字段类型的，字符串、整数等</li>
-<li>一个词条是文本中的一个单词，是搜索的基本单位</li>
-</ul>
-<h2 id="类型"><a href="#类型" class="headerlink" title="类型"></a>类型</h2><ul>
-<li>类型是映射类型，要和字段类型区分开来</li>
-<li>类型是文档的逻辑容器，类似于表格是行的容器。</li>
-<li>相同结构（模式）的文档最好是放入到相同的类型中</li>
-<li>映射是指每个类型中字段的定义，包含类型中所有文档的所有字段</li>
-<li>多个类型中出现同名字段时，同名字段应该有同样的类型，因为两个字段属于同一个lucene索引，若类型不同，es将很难辨别</li>
-</ul>
-<p>既然es是无模式的，那么相同结构（模式）的文档要放到同一类型中吗？</p>
-<ul>
-<li>无模式是指文档不受模式的限制，文档不需要映射中定义的所有字段，当然也可以使用新字段。</li>
-<li>既然每个字段都需要在类型中定义映射，那么对于新字段，es会自动地将新字段加入映射</li>
-<li>es在加入新字段时，将会猜测该字段的字段类型，可能会猜不对</li>
-<li>最佳的方式是索引数据之前，就定义好所需映射</li>
-</ul>
-<h2 id="索引"><a href="#索引" class="headerlink" title="索引"></a>索引</h2><ul>
-<li>索引是映射类型的容器</li>
-<li>是独立的大量文档的集合</li>
-<li>每个索引存储在磁盘上的同组文件中</li>
-<li>索引可以设置分片的数量</li>
-</ul>
-<h2 id="节点"><a href="#节点" class="headerlink" title="节点"></a>节点</h2><ul>
-<li>一个节点是一个es实例</li>
-<li>多个节点可以加入同一个集群</li>
-<li>默认情况下，可以连接集群的任一节点，并访问完整的数据集</li>
-</ul>
-<h2 id="分片"><a href="#分片" class="headerlink" title="分片"></a>分片</h2><ul>
-<li>分片是es处理的最小单元</li>
-<li>一份分片是一个lucene的索引：一个包含倒排索引的文档目录</li>
-<li>一个索引（es）是由多个lucene的索引组成</li>
-<li>主分片必须是在创建索引之前就确定</li>
-<li>过少的分片影响扩展性，过多的分片影响性能</li>
-<li>新节点加入到集群后，现有的分片将在所有节点上进行负载均衡</li>
-<li>对于每篇文档，分片是通过其ID字符串的散列决定的</li>
-<li>每份分片拥有相同的散列范围，接受新文档的机会均等</li>
-</ul>
-<h2 id="副本分片"><a href="#副本分片" class="headerlink" title="副本分片"></a>副本分片</h2><ul>
-<li>副本分片是主分片的完整副本</li>
-<li>副本分片用于搜索，或主分片丢失后成为新的主分片</li>
-<li>副本分片可以在任何时候进行数量的改变</li>
-<li>搜索时会通过轮询机制选中主分片和副本分片</li>
-</ul>
-<h1 id="操作"><a href="#操作" class="headerlink" title="操作"></a>操作</h1><h2 id="字段含义"><a href="#字段含义" class="headerlink" title="字段含义"></a>字段含义</h2><ul>
-<li><p>_shard</p>
-<blockquote>
-<p>一共有多少分片，虽然默认有5个shard和3个replica，但是一个document只会存放在一个shard里面，而一个shard有多个replica，而我这只有个shard，没有replica，所有只有一个成功。</p>
-</blockquote>
-</li>
-<li><p>_version</p>
-<blockquote>
-<p>表示当前数据的版本号，数据发生变更时，递增</p>
-</blockquote>
-</li>
-<li><p>_seq_no</p>
-<blockquote>
-<p>严格递增的顺序号，每个文档一个，Shard级别严格递增，保证后写入的Doc的_seq_no大于先写入的Doc的_seq_no。任何类型的写操作，包括index、create、update和Delete，都会生成一个seq_no.这个是不可改的，而_version这个版本号是可以改的</p>
-</blockquote>
-</li>
-<li><p>_primary_term</p>
-<blockquote>
-<p>primary_term也和_seq_no一样是一个整数，每当Primary Shard发生重新分配时，比如重启，Primary选举等，_primary_term会递增1。_primary_term主要是用来恢复数据时处理当多个文档的_seq_no一样时的冲突，比如当一个shard宕机了，raplica需要用到最新的数据，就会根据_primary_term和_seq_no这两个值来拿到最新的document</p>
-</blockquote>
-</li>
-</ul>
-<h2 id="常用请求"><a href="#常用请求" class="headerlink" title="常用请求"></a>常用请求</h2><ul>
-<li><p>常用请求参数</p>
-<figure class="highlight plain"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br><span class="line">3</span><br><span class="line">4</span><br><span class="line">5</span><br></pre></td><td class="code"><pre><span class="line">所有的搜索选项都在URL里设置</span><br><span class="line">q=searchkey</span><br><span class="line">&amp;pretty</span><br><span class="line">&amp;timeout=3s</span><br><span class="line">&amp;size=1</span><br></pre></td></tr></table></figure>
-</li>
-<li><p>返回结果</p>
-<figure class="highlight plain"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br><span class="line">3</span><br><span class="line">4</span><br></pre></td><td class="code"><pre><span class="line">took: 花费时间毫秒</span><br><span class="line">time_out: 是否超时，超时只能返回超时前的结果</span><br><span class="line">_shards: 分片信息</span><br><span class="line">_source: 存储原始JSON文档</span><br></pre></td></tr></table></figure>
-</li>
-<li><p>获取索引的所有映射</p>
-<blockquote>
-<p><a href="http://localhost:9200/get-together/_mapping" target="_blank" rel="noopener">http://localhost:9200/get-together/_mapping</a></p>
-</blockquote>
-</li>
-<li><p>占位符_all</p>
-<blockquote>
-<p><a href="http://localhost:9200/_all/group/_search?q=jiang" target="_blank" rel="noopener">http://localhost:9200/_all/group/_search?q=jiang</a></p>
-</blockquote>
-</li>
-</ul>
-<h1 id="参考文档"><a href="#参考文档" class="headerlink" title="参考文档"></a>参考文档</h1><p><a href="https://blog.csdn.net/haozhishang/article/details/80032889" target="_blank" rel="noopener">ElasticSearch6.2.4(2)——核心概念和文档实操</a></p>
-<p><a href="https://doc.yonyoucloud.com/doc/mastering-elasticsearch/index.html" target="_blank" rel="noopener">Mastering Elasticsearch(中文版)</a></p>
-
-        
-      
-    </div>
-
-    
-    
-    
-      <footer class="post-footer">
-        <div class="post-eof"></div>
-      </footer>
-  </article>
-  
-  
-  
-
-    
-        
-  
-  
-  <article itemscope itemtype="http://schema.org/Article" class="post-block home" lang="zh-CN">
-    <link itemprop="mainEntityOfPage" href="http://yoursite.com/2020/07/10/life/interesting-site/">
-
-    <span hidden itemprop="author" itemscope itemtype="http://schema.org/Person">
-      <meta itemprop="name" content="姜纪光">
-      <meta itemprop="description" content="">
-      <meta itemprop="image" content="/images/avatar.gif">
-    </span>
-
-    <span hidden itemprop="publisher" itemscope itemtype="http://schema.org/Organization">
-      <meta itemprop="name" content="纪光的博客">
-    </span>
-      <header class="post-header">
-        <h1 class="post-title" itemprop="name headline">
-          
-            
-            <a href="/2020/07/10/life/interesting-site/" class="post-title-link" itemprop="url">有趣的网站</a>
-          
-        </h1>
-
-        <div class="post-meta">
-            <span class="post-meta-item">
-              <span class="post-meta-item-icon">
-                <i class="fa fa-calendar-o"></i>
-              </span>
-              <span class="post-meta-item-text">发表于</span>
-
-              
-                
-              
-
-              <time title="创建时间：2020-07-10 16:58:54" itemprop="dateCreated datePublished" datetime="2020-07-10T16:58:54+08:00">2020-07-10</time>
-            </span>
-          
-            
-
-            
-              <span class="post-meta-item">
-                <span class="post-meta-item-icon">
-                  <i class="fa fa-calendar-check-o"></i>
-                </span>
-                <span class="post-meta-item-text">更新于</span>
-                <time title="修改时间：2020-08-23 09:29:18" itemprop="dateModified" datetime="2020-08-23T09:29:18+08:00">2020-08-23</time>
-              </span>
-            
-          
-            <span class="post-meta-item">
-              <span class="post-meta-item-icon">
-                <i class="fa fa-folder-o"></i>
-              </span>
-              <span class="post-meta-item-text">分类于</span>
-              
-                <span itemprop="about" itemscope itemtype="http://schema.org/Thing">
-                  <a href="/categories/life/" itemprop="url" rel="index">
-                    <span itemprop="name">life</span>
-                  </a>
-                </span>
-
-                
-                
-              
-            </span>
-          
-
-          
-            <span id="/2020/07/10/life/interesting-site/" class="post-meta-item leancloud_visitors" data-flag-title="有趣的网站" title="阅读次数">
-              <span class="post-meta-item-icon">
-                <i class="fa fa-eye"></i>
-              </span>
-              <span class="post-meta-item-text">阅读次数：</span>
-              <span class="leancloud-visitors-count"></span>
-            </span>
-          
-  
-  
-
-        </div>
-      </header>
-
-    
-    
-    
-    <div class="post-body" itemprop="articleBody">
-
-      
-          <p>本文用来收藏常用的网站</p>
-<ul>
-<li><p>FLIP</p>
-<blockquote>
-<p><a href="https://cwiki.apache.org/confluence/display/FLINK/Flink+Improvement+Proposals" target="_blank" rel="noopener">https://cwiki.apache.org/confluence/display/FLINK/Flink+Improvement+Proposals</a></p>
-</blockquote>
-</li>
-</ul>
-<ul>
-<li><p>find great things to read</p>
-<blockquote>
-<p><a href="https://medium.com" target="_blank" rel="noopener">https://medium.com</a></p>
-</blockquote>
-</li>
-<li><p>Java Thread Dump Analyzer</p>
-<blockquote>
-<p><a href="https://fastthread.io/" target="_blank" rel="noopener">https://fastthread.io/</a></p>
-</blockquote>
-</li>
-<li><p>JSON Patch Generator</p>
-<blockquote>
-<p><a href="https://extendsclass.com/json-patch.html" target="_blank" rel="noopener">https://extendsclass.com/json-patch.html</a></p>
-</blockquote>
-</li>
-<li></li>
-</ul>
-
-        
-      
-    </div>
-
-    
-    
-    
-      <footer class="post-footer">
-        <div class="post-eof"></div>
-      </footer>
-  </article>
-  
-  
-  
-
-    
-        
-  
-  
-  <article itemscope itemtype="http://schema.org/Article" class="post-block home" lang="zh-CN">
-    <link itemprop="mainEntityOfPage" href="http://yoursite.com/2020/07/10/linux/工具实践-printf/">
-
-    <span hidden itemprop="author" itemscope itemtype="http://schema.org/Person">
-      <meta itemprop="name" content="姜纪光">
-      <meta itemprop="description" content="">
-      <meta itemprop="image" content="/images/avatar.gif">
-    </span>
-
-    <span hidden itemprop="publisher" itemscope itemtype="http://schema.org/Organization">
-      <meta itemprop="name" content="纪光的博客">
-    </span>
-      <header class="post-header">
-        <h1 class="post-title" itemprop="name headline">
-          
-            
-            <a href="/2020/07/10/linux/工具实践-printf/" class="post-title-link" itemprop="url">工具实践-printf</a>
-          
-        </h1>
-
-        <div class="post-meta">
-            <span class="post-meta-item">
-              <span class="post-meta-item-icon">
-                <i class="fa fa-calendar-o"></i>
-              </span>
-              <span class="post-meta-item-text">发表于</span>
-
-              
-                
-              
-
-              <time title="创建时间：2020-07-10 14:26:09 / 修改时间：14:34:04" itemprop="dateCreated datePublished" datetime="2020-07-10T14:26:09+08:00">2020-07-10</time>
-            </span>
-          
-            
-
-            
-          
-            <span class="post-meta-item">
-              <span class="post-meta-item-icon">
-                <i class="fa fa-folder-o"></i>
-              </span>
-              <span class="post-meta-item-text">分类于</span>
-              
-                <span itemprop="about" itemscope itemtype="http://schema.org/Thing">
-                  <a href="/categories/hadoop/" itemprop="url" rel="index">
-                    <span itemprop="name">hadoop</span>
-                  </a>
-                </span>
-
-                
-                
-              
-            </span>
-          
-
-          
-            <span id="/2020/07/10/linux/工具实践-printf/" class="post-meta-item leancloud_visitors" data-flag-title="工具实践-printf" title="阅读次数">
-              <span class="post-meta-item-icon">
-                <i class="fa fa-eye"></i>
-              </span>
-              <span class="post-meta-item-text">阅读次数：</span>
-              <span class="leancloud-visitors-count"></span>
-            </span>
-          
-  
-  
-
-        </div>
-      </header>
-
-    
-    
-    
-    <div class="post-body" itemprop="articleBody">
-
-      
-          <h1 id="最佳使用"><a href="#最佳使用" class="headerlink" title="最佳使用"></a>最佳使用</h1><blockquote>
-<p>打印基本输出 printf “hello,world\n”</p>
-<p>十进制转16进制 printf “%x\n” 27</p>
-<p>16进制转十进制 printf “%d\n” 0x1b</p>
-</blockquote>
-<p>%x 十六进制</p>
-<p>%d 十进制</p>
-<p>%o 八进制</p>
-<h1 id="参考文档"><a href="#参考文档" class="headerlink" title="参考文档"></a>参考文档</h1><p><a href="https://blog.51cto.com/cuidehua/1890139" target="_blank" rel="noopener">总结linux下printf命令的用法</a></p>
-<p><a href="https://www.computerhope.com/unix/uprintf.htm" target="_blank" rel="noopener">Linux printf command</a></p>
-
-        
-      
-    </div>
-
-    
-    
-    
-      <footer class="post-footer">
-        <div class="post-eof"></div>
-      </footer>
-  </article>
-  
-  
-  
-
-    
-        
-  
-  
-  <article itemscope itemtype="http://schema.org/Article" class="post-block home" lang="zh-CN">
-    <link itemprop="mainEntityOfPage" href="http://yoursite.com/2020/07/10/linux/工具实践-top/">
-
-    <span hidden itemprop="author" itemscope itemtype="http://schema.org/Person">
-      <meta itemprop="name" content="姜纪光">
-      <meta itemprop="description" content="">
-      <meta itemprop="image" content="/images/avatar.gif">
-    </span>
-
-    <span hidden itemprop="publisher" itemscope itemtype="http://schema.org/Organization">
-      <meta itemprop="name" content="纪光的博客">
-    </span>
-      <header class="post-header">
-        <h1 class="post-title" itemprop="name headline">
-          
-            
-            <a href="/2020/07/10/linux/工具实践-top/" class="post-title-link" itemprop="url">工具实践-top</a>
-          
-        </h1>
-
-        <div class="post-meta">
-            <span class="post-meta-item">
-              <span class="post-meta-item-icon">
-                <i class="fa fa-calendar-o"></i>
-              </span>
-              <span class="post-meta-item-text">发表于</span>
-
-              
-                
-              
-
-              <time title="创建时间：2020-07-10 11:20:40 / 修改时间：14:21:56" itemprop="dateCreated datePublished" datetime="2020-07-10T11:20:40+08:00">2020-07-10</time>
-            </span>
-          
-            
-
-            
-          
-            <span class="post-meta-item">
-              <span class="post-meta-item-icon">
-                <i class="fa fa-folder-o"></i>
-              </span>
-              <span class="post-meta-item-text">分类于</span>
-              
-                <span itemprop="about" itemscope itemtype="http://schema.org/Thing">
-                  <a href="/categories/linux/" itemprop="url" rel="index">
-                    <span itemprop="name">linux</span>
-                  </a>
-                </span>
-
-                
-                
-              
-            </span>
-          
-
-          
-            <span id="/2020/07/10/linux/工具实践-top/" class="post-meta-item leancloud_visitors" data-flag-title="工具实践-top" title="阅读次数">
-              <span class="post-meta-item-icon">
-                <i class="fa fa-eye"></i>
-              </span>
-              <span class="post-meta-item-text">阅读次数：</span>
-              <span class="leancloud-visitors-count"></span>
-            </span>
-          
-  
-  
-
-        </div>
-      </header>
-
-    
-    
-    
-    <div class="post-body" itemprop="articleBody">
-
-      
-          <h1 id="最佳使用"><a href="#最佳使用" class="headerlink" title="最佳使用"></a>最佳使用</h1><p>top使用按键和用户交互</p>
-<blockquote>
-<p>h 显示命令帮助信息</p>
-<p>f  add/remove/order/sort 列</p>
-<p>R 切换正序/倒序排序</p>
-</blockquote>
-<p>常用命令</p>
-<blockquote>
-<p>显示进程的所有线程：top -H -p <pid></pid></p>
-</blockquote>
-<h1 id="命令简介"><a href="#命令简介" class="headerlink" title="命令简介"></a>命令简介</h1><p>​    top能够实时显示系统中各个进程的资源占用状况。是一个动态过程，即可以通过用户按键来不断刷新当前状态。</p>
-<p>​    下面介绍参数结果的具体含义：</p>
-<blockquote>
-<p><img src="/images/linux/tools-top.png" alt></p>
-</blockquote>
-<p>信息统计区分为五行，第一行：</p>
-<blockquote>
-<p>当前时间、系统运行时间、当前登录用户数、系统负载，三个数值分别为 1分钟、5分钟、15分钟前到现在的平均值。</p>
-</blockquote>
-<p>第二行：</p>
-<blockquote>
-<p>total 进程总数，running 正在运行的进程数，sleeping 睡眠的进程数，stopped 停止的进程数，zombie 僵尸进程数</p>
-</blockquote>
-<p>第三行：</p>
-<blockquote>
-<p>us 用户空间占用CPU百分比，sy 内核空间占用CPU百分比，</p>
-<p>ni 用户进程空间内改变过优先级的进程占用CPU百分比，id 空闲CPU百分比，</p>
-<p>wa 等待输入输出的CPU时间百分比，hi 硬件CPU中断占用百分比</p>
-<p>si 软中断占用百分比，st 虚拟机占用百分比</p>
-</blockquote>
-<p>第四行 内存KB：</p>
-<blockquote>
-<p>total    物理内存总量</p>
-<p>free    空闲内存总量</p>
-<p>used    已使用的物理内存总量</p>
-<p>buffers    用作内核缓存的内存量</p>
-</blockquote>
-<p>第五行 交换去KB</p>
-<blockquote>
-<p>total    交换区总量</p>
-<p>free    空闲交换区总量</p>
-<p>used    使用的交换区总量</p>
-<p>cached    缓冲的交换区总量,内存中的内容被换出到交换区，而后又被换入到内存，但使用过的交换区尚未被覆盖，该数值即为这些内容已存在于内存中的交换区的大小,相应的内存再次被换出时可不必再对交换区写入。</p>
-</blockquote>
-<p>进程信息统计区个列的含义：</p>
-<blockquote>
-<p>PID     进程id<br>PPID    父进程id<br>RUSER   Real user name<br>UID     进程所有者的用户id<br>USER    进程所有者的用户名<br>GROUP   进程所有者的组名<br>TTY     启动进程的终端名。不是从终端启动的进程则显示为 ?<br>PR      优先级<br>NI      nice值。负值表示高优先级，正值表示低优先级<br>P       最后使用的CPU，仅在多CPU环境下有意义<br>%CPU    上次更新到现在的CPU时间占用百分比<br>TIME    进程使用的CPU时间总计，单位秒<br>TIME+   进程使用的CPU时间总计，单位1/100秒<br>%MEM    进程使用的物理内存百分比<br>VIRT    进程使用的虚拟内存总量，单位kb。VIRT=SWAP+RES<br>SWAP    进程使用的虚拟内存中，被换出的大小，单位kb。<br>RES     进程使用的、未被换出的物理内存大小，单位kb。RES=CODE+DATA<br>CODE    可执行代码占用的物理内存大小，单位kb<br>DATA    可执行代码以外的部分(数据段+栈)占用的物理内存大小，单位kb<br>SHR     共享内存大小，单位kb<br>nFLT    页面错误次数<br>nDRT    最后一次写入到现在，被修改过的页面数。<br>S       进程状态(D=不可中断的睡眠状态,R=运行,S=睡眠,T=跟踪/停止,Z=僵尸进程)<br>x    COMMAND 命令名/命令行<br>y    WCHAN   若该进程在睡眠，则显示睡眠中的系统函数名<br>z    Flags   任务标志，参考 sched.h</p>
-</blockquote>
-<h1 id="参考文档"><a href="#参考文档" class="headerlink" title="参考文档"></a>参考文档</h1><p><a href="https://www.cnblogs.com/ggjucheng/archive/2012/01/08/2316399.html" target="_blank" rel="noopener"><a href="https://www.cnblogs.com/ggjucheng/archive/2012/01/08/2316399.html" target="_blank" rel="noopener">linux的top命令参数详解</a></a></p>
-
-        
-      
-    </div>
-
-    
-    
-    
-      <footer class="post-footer">
-        <div class="post-eof"></div>
-      </footer>
-  </article>
-  
-  
-  
-
-    
-        
-  
-  
-  <article itemscope itemtype="http://schema.org/Article" class="post-block home" lang="zh-CN">
-    <link itemprop="mainEntityOfPage" href="http://yoursite.com/2020/07/10/flink/flink问题排查-Connection-unexpectedly-closed-by-remote-task-manager/">
-
-    <span hidden itemprop="author" itemscope itemtype="http://schema.org/Person">
-      <meta itemprop="name" content="姜纪光">
-      <meta itemprop="description" content="">
-      <meta itemprop="image" content="/images/avatar.gif">
-    </span>
-
-    <span hidden itemprop="publisher" itemscope itemtype="http://schema.org/Organization">
-      <meta itemprop="name" content="纪光的博客">
-    </span>
-      <header class="post-header">
-        <h1 class="post-title" itemprop="name headline">
-          
-            
-            <a href="/2020/07/10/flink/flink问题排查-Connection-unexpectedly-closed-by-remote-task-manager/" class="post-title-link" itemprop="url">flink问题排查-Connection unexpectedly closed by remote task manager</a>
-          
-        </h1>
-
-        <div class="post-meta">
-            <span class="post-meta-item">
-              <span class="post-meta-item-icon">
-                <i class="fa fa-calendar-o"></i>
-              </span>
-              <span class="post-meta-item-text">发表于</span>
-
-              
-                
-              
-
-              <time title="创建时间：2020-07-10 09:48:39 / 修改时间：10:24:35" itemprop="dateCreated datePublished" datetime="2020-07-10T09:48:39+08:00">2020-07-10</time>
-            </span>
-          
-            
-
-            
-          
-            <span class="post-meta-item">
-              <span class="post-meta-item-icon">
-                <i class="fa fa-folder-o"></i>
-              </span>
-              <span class="post-meta-item-text">分类于</span>
-              
-                <span itemprop="about" itemscope itemtype="http://schema.org/Thing">
-                  <a href="/categories/flink/" itemprop="url" rel="index">
-                    <span itemprop="name">flink</span>
-                  </a>
-                </span>
-
-                
-                
-              
-            </span>
-          
-
-          
-            <span id="/2020/07/10/flink/flink问题排查-Connection-unexpectedly-closed-by-remote-task-manager/" class="post-meta-item leancloud_visitors" data-flag-title="flink问题排查-Connection unexpectedly closed by remote task manager" title="阅读次数">
-              <span class="post-meta-item-icon">
-                <i class="fa fa-eye"></i>
-              </span>
-              <span class="post-meta-item-text">阅读次数：</span>
-              <span class="leancloud-visitors-count"></span>
-            </span>
-          
-  
-  
-
-        </div>
-      </header>
-
-    
-    
-    
-    <div class="post-body" itemprop="articleBody">
-
-      
-          <h1 id="问题描述"><a href="#问题描述" class="headerlink" title="问题描述"></a>问题描述</h1><p>flink版本是1.10.1</p>
-<p>最近一个任务每隔一段时间就会重启，而且重启的间隔较为均为，</p>
-<h1 id="排查过程"><a href="#排查过程" class="headerlink" title="排查过程"></a>排查过程</h1><h1 id="思维发散"><a href="#思维发散" class="headerlink" title="思维发散"></a>思维发散</h1><h1 id="参考文档"><a href="#参考文档" class="headerlink" title="参考文档"></a>参考文档</h1><p><a href="http://cloudsqale.com/2020/04/29/flink-1-9-off-heap-memory-on-yarn-troubleshooting-container-is-running-beyond-physical-memory-limits-errors/" target="_blank" rel="noopener">Flink 1.9 – Off-Heap Memory on YARN – Troubleshooting Container is Running Beyond Physical Memory Limits Errors</a></p>
-
-        
-      
-    </div>
-
-    
-    
-    
-      <footer class="post-footer">
-        <div class="post-eof"></div>
-      </footer>
-  </article>
-  
-  
-  
-
-    
-        
-  
-  
-  <article itemscope itemtype="http://schema.org/Article" class="post-block home" lang="zh-CN">
-    <link itemprop="mainEntityOfPage" href="http://yoursite.com/2020/07/07/hadoop/HDFS权限控制总结/">
-
-    <span hidden itemprop="author" itemscope itemtype="http://schema.org/Person">
-      <meta itemprop="name" content="姜纪光">
-      <meta itemprop="description" content="">
-      <meta itemprop="image" content="/images/avatar.gif">
-    </span>
-
-    <span hidden itemprop="publisher" itemscope itemtype="http://schema.org/Organization">
-      <meta itemprop="name" content="纪光的博客">
-    </span>
-      <header class="post-header">
-        <h1 class="post-title" itemprop="name headline">
-          
-            
-            <a href="/2020/07/07/hadoop/HDFS权限控制总结/" class="post-title-link" itemprop="url">HDFS权限控制总结</a>
-          
-        </h1>
-
-        <div class="post-meta">
-            <span class="post-meta-item">
-              <span class="post-meta-item-icon">
-                <i class="fa fa-calendar-o"></i>
-              </span>
-              <span class="post-meta-item-text">发表于</span>
-
-              
-                
-              
-
-              <time title="创建时间：2020-07-07 14:04:27" itemprop="dateCreated datePublished" datetime="2020-07-07T14:04:27+08:00">2020-07-07</time>
-            </span>
-          
-            
-
-            
-              <span class="post-meta-item">
-                <span class="post-meta-item-icon">
-                  <i class="fa fa-calendar-check-o"></i>
-                </span>
-                <span class="post-meta-item-text">更新于</span>
-                <time title="修改时间：2020-07-22 14:38:54" itemprop="dateModified" datetime="2020-07-22T14:38:54+08:00">2020-07-22</time>
-              </span>
-            
-          
-            <span class="post-meta-item">
-              <span class="post-meta-item-icon">
-                <i class="fa fa-folder-o"></i>
-              </span>
-              <span class="post-meta-item-text">分类于</span>
-              
-                <span itemprop="about" itemscope itemtype="http://schema.org/Thing">
-                  <a href="/categories/hadoop/" itemprop="url" rel="index">
-                    <span itemprop="name">hadoop</span>
-                  </a>
-                </span>
-
-                
-                
-              
-            </span>
-          
-
-          
-            <span id="/2020/07/07/hadoop/HDFS权限控制总结/" class="post-meta-item leancloud_visitors" data-flag-title="HDFS权限控制总结" title="阅读次数">
-              <span class="post-meta-item-icon">
-                <i class="fa fa-eye"></i>
-              </span>
-              <span class="post-meta-item-text">阅读次数：</span>
-              <span class="leancloud-visitors-count"></span>
-            </span>
-          
-  
-  
-
-        </div>
-      </header>
-
-    
-    
-    
-    <div class="post-body" itemprop="articleBody">
-
-      
-          <h1 id="概述"><a href="#概述" class="headerlink" title="概述"></a>概述</h1><p>​    Hadoop分布式文件系统实现了一个和POSIX系统类似的文件和目录的权限模型。每个文件和目录有一个所有者（owner）和一个组（group）。文件或目录对其所有者、同组的其他用户以及所有其他用户分别有着不同的权限。对文件而言，当读取这个文件时需要有<em>r</em>权限，当写入或者追加到文件时需要有w权限。对目录而言，当列出目录内容时需要具有r权限，当新建或删除子文件或子目录时需要有<em>w</em>权限，当访问目录的子节点时需要有x权限。</p>
-<p>​    不同于POSIX模型，HDFS权限模型中的文件没有sticky，setuid、setgid位，因为这里没有可执行文件的概念。为了简单起见，这里也没有目录的sticky，setuid或setgid位。Sticky bit 可以设置在目录上，用来防止除了超级用户、目录所有者、文件所有者以外的任何人删除或者移动目录文件。Sticky bit 对文件无效。总的来说，文件或目录的权限就是它的模式（mode）。</p>
-<p>​    HDFS采用了Unix表示和显示模式的习惯，包括使用八进制数来表示权限。当新建一个文件或目录，它的所有者即客户进程的用户，它的所属组是父目录的组（BSD的规定）。</p>
-<p>​    HDFS还提供对POSIX ACL（访问控制列表）的可选支持，以针对特定命名用户或命名组的更细粒度的规则来扩展文件权限。 本文档后面将详细讨论ACL。</p>
-<p>​    每个访问HDFS的用户进程的标识分为两个部分，分别是用户名和组名列表。每次用户进程访问一个文件或目录foo，HDFS都要对其进行权限检查：</p>
-<ul>
-<li>如果用户即foo的所有者，则检查所有者的访问权限；</li>
-<li>如果foo关联的组在组名列表中出现，则检查组用户的访问权限；</li>
-<li>否则检查foo其他用户的访问权限。</li>
-</ul>
-<p>如果权限检查失败，则客户的操作会失败。</p>
-<h1 id="用户身份（User-Identity）"><a href="#用户身份（User-Identity）" class="headerlink" title="用户身份（User Identity）"></a>用户身份（User Identity）</h1><p>​    从Hadoop 0.22开始，Hadoop支持两种不同的操作模式来确定用户的身份，该模式由hadoop.security.authentication属性指定：</p>
-<ul>
-<li><p>simple</p>
-<blockquote>
-<p>在这种操作模式下，客户端进程的身份由主机操作系统确定。 在类似Unix的系统上，用户名等效于“ whoami”。</p>
-</blockquote>
-</li>
-<li><p>kerberos</p>
-<blockquote>
-<p>在Kerberized操作中，客户端进程的身份由其Kerberos凭据确定。</p>
-<p>例如，在以Kerberized环境中，用户可以使用kinit实用程序来获取Kerberos票证授予票证（TGT），并使用klist来确定其当前主体。 将Kerberos主体映射到HDFS用户名时，除主组件外的所有组件都将放弃。 例如，principal todd/foobar@CORP.COMPANY.COM将充当HDFS上的简单用户名todd。</p>
-<p>无论操作模式如何，用户标识机制都是HDFS本身固有的。 HDFS中没有用于创建用户身份，建立组或处理用户凭据的规定。</p>
-</blockquote>
-</li>
-</ul>
-<h1 id="Group-Mapping"><a href="#Group-Mapping" class="headerlink" title="Group Mapping"></a>Group Mapping</h1><p>​    一旦username被确定之后，组将由hadoop.security.group.mapping属性配置的组映射服务确定。</p>
-<p> 默认实现org.apache.hadoop.security.JniBasedUnixGroupsMappingWithFallback将确定Java本机接口（JNI）是否可用。 如果JNI可用，则实现将使用hadoop中的API来解析用户的组列表。 如果JNI不可用，则使用外壳程序实现org.apache.hadoop.security.ShellBasedUnixGroupsMapping。 此实现用bash -c groups命令（对于Linux / Unix环境）或net group命令（对于Windows环境）来解决，以为用户解析组列表。</p>
-<p>​    可通过org.apache.hadoop.security.LdapGroupsMapping获得直接连接到LDAP服务器以解析组列表的替代实现。 但是，仅当必需的组仅驻留在LDAP中并且不在Unix服务器上实现时，才应使用此提供程序。 Javadocs中提供了有关配置组映射服务的更多信息。</p>
-<p>​    对于HDFS，用户到组的映射是在NameNode上执行的。 因此，NameNode的主机系统配置确定了用户的组映射。请注意，HDFS将用户或文件或目录组存储为字符串。 没有用户和组标识号的转换，这是Unix中的常规方法。</p>
-<h1 id="超级用户（The-Super-User）"><a href="#超级用户（The-Super-User）" class="headerlink" title="超级用户（The Super-User）"></a>超级用户（The Super-User）</h1><p>​    超级用户是与名称节点进程本身具有相同标识的用户。如果您启动了名称节点，那么您就是超级用户。 超级用户可以执行任何操作，因为权限检查永远不会失败。谁是超级用户并没有持久的观念。 当名称节点启动时，进程标识确定谁是当前的超级用户。 HDFS超级用户不必是名称节点主机的超级用户，也不必所有群集都具有相同的超级用户。 另外，在个人工作站上运行HDFS的实验人员可以方便地成为该安装的超级用户，而无需进行任何配置。</p>
-<p>  管理员可以使用配置参数来识别专有组。 如果设置，则该组的成员也是超级用户，必须在nn中添加该用户。</p>
-<h1 id="ACL（访问控制列表）"><a href="#ACL（访问控制列表）" class="headerlink" title="ACL（访问控制列表）"></a>ACL（访问控制列表）</h1><p>ACL提供了一种方法，可以为特定的命名用户或命名组设置不同的权限，而不仅仅是文件的所有者和文件的组。</p>
-<p>默认情况下，禁用对ACL的支持，并且NameNode禁止创建ACL。 要启用对ACL的支持，请在NameNode配置中将dfs.namenode.acls.enabled设置为true。</p>
-<p>​    ACL由一组ACL条目组成。 每个ACL条目都为一个特定的用户或组命名，并授予或拒绝对该特定用户或组的读取，写入和执行权限。 例如：</p>
-<blockquote>
-<figure class="highlight shell"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br><span class="line">3</span><br><span class="line">4</span><br><span class="line">5</span><br><span class="line">6</span><br><span class="line">7</span><br><span class="line">8</span><br><span class="line">9</span><br><span class="line">10</span><br></pre></td><td class="code"><pre><span class="line"><span class="meta">&gt;</span> $ hdfs dfs -getfacl hdfs://rt1/user/cpc</span><br><span class="line"><span class="meta">&gt;</span> # file: hdfs://rt1/user/cpc   //文件名</span><br><span class="line"><span class="meta">&gt;</span> # owner: cpc                  //文件所属者</span><br><span class="line"><span class="meta">&gt;</span> # group: hadoop               //文件所属组</span><br><span class="line"><span class="meta">&gt;</span> user::rwx                     //文件所属者权限</span><br><span class="line"><span class="meta">&gt;</span> user:cpc:rwx                  //cpc用户的权限</span><br><span class="line"><span class="meta">&gt;</span> group::rwx                    //同组用户权限</span><br><span class="line"><span class="meta">&gt;</span> mask::rwx                     //mask权限</span><br><span class="line"><span class="meta">&gt;</span> other::r-x                    //其它者权限</span><br><span class="line"><span class="meta">&gt;</span></span><br></pre></td></tr></table></figure>
-</blockquote>
-<p>​    值得一提的是mask权限：</p>
-<blockquote>
-<p>有效权限(mask) 即用户或组所设置的权限必须要存在于mask的权限设置范围内才会生效</p>
-</blockquote>
-<p>只有目录可以具有默认的ACL。 创建新文件或子目录后，它将自动将其父级的默认ACL复制到其自己的访问ACL中。 新的子目录还将其复制到其自己的默认ACL。 这样，当创建新的子目录时，将通过文件系统树的任意深层次向下复制默认ACL。</p>
-<p>​    对于默认的umask 022，对于新目录为755，对于新文件为644。</p>
-<p>​    考虑具有ACL的文件时，权限检查算法更改为：</p>
-<ul>
-<li>如果用户名与文件的所有者匹配，则将测试所有者权限</li>
-<li>否则，如果用户名与命名的用户条目之一中的名称匹配，则将测试这些许可权，并通过掩码许可权进行过滤；否则，将对这些许可权进行测试。</li>
-<li>否则，如果文件组与组列表中的任何成员匹配，并且如果由掩码过滤的这些权限授予访问权限，则使用这些权限；否则，将使用这些权限。</li>
-<li>否则，如果存在与组列表成员匹配的命名组条目，并且如果这些权限由掩码授予访问权限过滤，则将使用这些权限；否则，将使用这些权限。</li>
-<li>否则，如果文件组或任何命名的组条目与组列表的成员相匹配，但是任何这些权限均未授予访问权限，则访问被拒绝；</li>
-<li>否则，将测试文件的其他权限。</li>
-</ul>
-<p>​    最佳实践是依靠传统的权限位来实现大多数权限要求，并定义较少数量的ACL以通过一些例外规则来扩展权限位。 与仅具有权限位的文件相比，带有ACL的文件会在NameNode中的内存中产生额外的开销。</p>
-<h2 id="ACLs-Shell-Commands"><a href="#ACLs-Shell-Commands" class="headerlink" title="ACLs Shell Commands"></a>ACLs Shell Commands</h2><ul>
-<li><p>getfacl</p>
-<blockquote>
-<p>显示文件和目录的访问控制列表（ACL）。 如果目录具有默认ACL，则getfacl还将显示默认ACL。</p>
-<p>hdfs dfs -getfacl [-R] <path></path></p>
-<p>-R: 以递归方式列出所有文件和目录的ACL。</p>
-<p>​</p>
-</blockquote>
-</li>
-<li><p>setfacl   设置文件和目录的访问控制列表（ACL）</p>
-<blockquote>
-<p>hdfs dfs -setfacl -R|[–set <acl_spec> <path>]</path></acl_spec></p>
-<p>-b: 删除基本ACL条目以外的所有条目。保留用户，组和其他条目以与权限位兼容。<br>-k: 删除默认ACL。default<br>-R: 以递归方式将操作应用于所有文件和目录。常用。<br>-m: 修改ACL。新条目将添加到ACL，并保留现有条目。常用。<br>-x: 删除指定的ACL条目。保留其他ACL条目。常用。<br>–set: 完全替换ACL，丢弃所有现有条目。 acl_spec必须包含用户，组和其他条目，以便与权限位兼容。<br>acl_spec: 逗号分隔的ACL条目列表。<br>path: 要修改的文件或目录。</p>
-<p>示例：</p>
-<p>hdfs dfs -setfacl -m user:hadoop:rw- /file<br>hdfs dfs -setfacl -x user:hadoop /file<br>hdfs dfs -setfacl -b /file<br>hdfs dfs -setfacl -k /dir<br>hdfs dfs -setfacl –set user::rw-,user:hadoop:rw-,group::r–,other::r– /file<br>hdfs dfs -setfacl -R -m user:hadoop:r-x /dir<br>hdfs dfs -setfacl -m default:user:hadoop:r-x /dir</p>
-</blockquote>
-</li>
-<li><p>hdfs dfs -ls path</p>
-<blockquote>
-<p>ls的输出将在带有ACL的任何文件或目录的权限字符串后附加一个’+’字符。</p>
-</blockquote>
-</li>
-</ul>
-<h1 id="配置参数"><a href="#配置参数" class="headerlink" title="配置参数"></a>配置参数</h1><p>​    均在hdfs-site.xml中配置</p>
-<ul>
-<li><p>dfs.permissions.enabled = true</p>
-<blockquote>
-<p>true开启权限系统，false关闭权限检查，但是其它所有行为保持不变。</p>
-<p>从一个参数值切换到另一个参数值不会更改模式，所有者或文件或目录组。 </p>
-<p>无论权限是打开还是关闭，chmod，chgrp，chown和setfacl都会始终检查权限。 </p>
-<p>这些功能仅在权限上下文中有用，因此不存在向后兼容性问题。 此外，这允许管理员在打开常规权限检查之前可靠地设置所有者和权限。</p>
-</blockquote>
-</li>
-<li><p>dfs.web.ugi = webuser,webgroup</p>
-<blockquote>
-<p>Web服务器要使用的用户名。 将此设置为超级用户的名称将允许任何Web客户端查看所有内容。 将其更改为其他方式未使用的身份，可使Web客户端仅查看使用“其他”权限可见的内容。 可以将其他组添加到以逗号分隔的列表中。</p>
-<p>一般不需要配置</p>
-</blockquote>
-</li>
-<li><p>dfs.permissions.superusergroup = supergroup</p>
-<blockquote>
-<p>设置超级用户组，超级用户组的所有用户都具有超级权限</p>
-</blockquote>
-</li>
-<li><p>fs.permissions.umask-mode = 022</p>
-<blockquote>
-<p>创建文件和目录时使用的umask</p>
-</blockquote>
-</li>
-<li><p>dfs.cluster.administrators = ACL-for-admins</p>
-<blockquote>
-<p>指定为ACL的群集的管理员。 这控制了谁可以访问HDFS中的默认servlet等。</p>
-</blockquote>
-</li>
-<li><p>dfs.namenode.acls.enabled = true</p>
-<blockquote>
-<p>设置为true以启用对HDFS ACL（访问控制列表）的支持。 默认情况下，禁用ACL。 禁用ACL时，NameNode拒绝所有设置ACL的尝试。</p>
-</blockquote>
-</li>
-</ul>
-<h1 id="用户代理"><a href="#用户代理" class="headerlink" title="用户代理"></a>用户代理</h1><p>​    作用是让超级用户superuser模拟一个普通用户来执行任务。比如用户stream通过yarn提交一个任务到集群上，如果不设置用户代理，那么就会以启动yarn进程的用户来提交任务,这样任务就显示为yarn，无法判断是哪个用户提交了任务。当开始proxy功能后，会以yarn模拟stream来提交任务，任务的提交者是yarn，但显示为stream。</p>
-<p>   以用户stream使用代理用户yarn提交作业为例，当用户stream提交作业时，yarn会接管该作业，负责作业资源的申请及监管。但其中若遇到读取HDFS文件时，要判断是否有使用该文件的权限，此时使用的用户是stream，作业运行完后，作业列表中显示该作业的用户也是stream。当然，除此之外，剩下的工作都由yarn负责，以体现“代理”的作用。</p>
-<h1 id="参考文档"><a href="#参考文档" class="headerlink" title="参考文档"></a>参考文档</h1><p><a href="https://hadoop.apache.org/docs/r2.6.0/hadoop-project-dist/hadoop-hdfs/HdfsPermissionsGuide.html" target="_blank" rel="noopener">HDFS Permissions Guide</a></p>
-<p><a href="https://www.cnblogs.com/zwCHAN/p/4686054.html" target="_blank" rel="noopener">hadoop用户和权限</a></p>
-<p><a href="https://www.maiyewang.com/archives/17122" target="_blank" rel="noopener">hadoop的用户代理机制</a></p>
-<p><a href="https://cloud.tencent.com/developer/article/1404750" target="_blank" rel="noopener">HDFS ACL权限设置</a></p>
-<p><a href="https://blog.51cto.com/guodong810/1176427" target="_blank" rel="noopener">linux ACL权限规划</a></p>
-
-        
-      
-    </div>
-
-    
-    
-    
-      <footer class="post-footer">
-        <div class="post-eof"></div>
-      </footer>
-  </article>
-  
-  
-  
-
-    
   </div>
 
   
   <nav class="pagination">
-    <a class="extend prev" rel="prev" href="/page/4/"><i class="fa fa-angle-left" aria-label="上一页"></i></a><a class="page-number" href="/">1</a><span class="space">&hellip;</span><a class="page-number" href="/page/4/">4</a><span class="page-number current">5</span><a class="page-number" href="/page/6/">6</a><a class="page-number" href="/page/7/">7</a><a class="extend next" rel="next" href="/page/6/"><i class="fa fa-angle-right" aria-label="下一页"></i></a>
+    <a class="extend prev" rel="prev" href="/page/4/"><i class="fa fa-angle-left" aria-label="上一页"></i></a><a class="page-number" href="/">1</a><span class="space">&hellip;</span><a class="page-number" href="/page/4/">4</a><span class="page-number current">5</span><a class="page-number" href="/page/6/">6</a><span class="space">&hellip;</span><a class="page-number" href="/page/8/">8</a><a class="extend next" rel="next" href="/page/6/"><i class="fa fa-angle-right" aria-label="下一页"></i></a>
   </nav>
 
 
@@ -1796,7 +2164,7 @@
         
           <a href="/archives/">
         
-          <span class="site-state-item-count">67</span>
+          <span class="site-state-item-count">74</span>
           <span class="site-state-item-name">日志</span>
         </a>
       </div>
@@ -1822,7 +2190,7 @@
             <a href="/tags/">
           
         
-        <span class="site-state-item-count">9</span>
+        <span class="site-state-item-count">11</span>
         <span class="site-state-item-name">标签</span>
         </a>
       </div>

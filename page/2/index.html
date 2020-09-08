@@ -241,6 +241,1173 @@
   
   
   <article itemscope itemtype="http://schema.org/Article" class="post-block home" lang="zh-CN">
+    <link itemprop="mainEntityOfPage" href="http://yoursite.com/2020/09/01/flink/Flink源码贡献/">
+
+    <span hidden itemprop="author" itemscope itemtype="http://schema.org/Person">
+      <meta itemprop="name" content="姜纪光">
+      <meta itemprop="description" content="">
+      <meta itemprop="image" content="/images/avatar.gif">
+    </span>
+
+    <span hidden itemprop="publisher" itemscope itemtype="http://schema.org/Organization">
+      <meta itemprop="name" content="纪光的博客">
+    </span>
+      <header class="post-header">
+        <h1 class="post-title" itemprop="name headline">
+          
+            
+            <a href="/2020/09/01/flink/Flink源码贡献/" class="post-title-link" itemprop="url">Flink源码贡献</a>
+          
+        </h1>
+
+        <div class="post-meta">
+            <span class="post-meta-item">
+              <span class="post-meta-item-icon">
+                <i class="fa fa-calendar-o"></i>
+              </span>
+              <span class="post-meta-item-text">发表于</span>
+
+              
+                
+              
+
+              <time title="创建时间：2020-09-01 10:37:39 / 修改时间：11:05:57" itemprop="dateCreated datePublished" datetime="2020-09-01T10:37:39+08:00">2020-09-01</time>
+            </span>
+          
+            
+
+            
+          
+            <span class="post-meta-item">
+              <span class="post-meta-item-icon">
+                <i class="fa fa-folder-o"></i>
+              </span>
+              <span class="post-meta-item-text">分类于</span>
+              
+                <span itemprop="about" itemscope itemtype="http://schema.org/Thing">
+                  <a href="/categories/flink/" itemprop="url" rel="index">
+                    <span itemprop="name">flink</span>
+                  </a>
+                </span>
+
+                
+                
+              
+            </span>
+          
+
+          
+            <span id="/2020/09/01/flink/Flink源码贡献/" class="post-meta-item leancloud_visitors" data-flag-title="Flink源码贡献" title="阅读次数">
+              <span class="post-meta-item-icon">
+                <i class="fa fa-eye"></i>
+              </span>
+              <span class="post-meta-item-text">阅读次数：</span>
+              <span class="leancloud-visitors-count"></span>
+            </span>
+          
+  
+  
+
+        </div>
+      </header>
+
+    
+    
+    
+    <div class="post-body" itemprop="articleBody">
+
+      
+          <h1 id="简介"><a href="#简介" class="headerlink" title="简介"></a>简介</h1><p>本文用来记录对社区的所有共享</p>
+<h1 id="参考文档"><a href="#参考文档" class="headerlink" title="参考文档"></a>参考文档</h1>
+        
+      
+    </div>
+
+    
+    
+    
+      <footer class="post-footer">
+        <div class="post-eof"></div>
+      </footer>
+  </article>
+  
+  
+  
+
+    
+        
+  
+  
+  <article itemscope itemtype="http://schema.org/Article" class="post-block home" lang="zh-CN">
+    <link itemprop="mainEntityOfPage" href="http://yoursite.com/2020/08/27/hadoop/Parquet数据格式/">
+
+    <span hidden itemprop="author" itemscope itemtype="http://schema.org/Person">
+      <meta itemprop="name" content="姜纪光">
+      <meta itemprop="description" content="">
+      <meta itemprop="image" content="/images/avatar.gif">
+    </span>
+
+    <span hidden itemprop="publisher" itemscope itemtype="http://schema.org/Organization">
+      <meta itemprop="name" content="纪光的博客">
+    </span>
+      <header class="post-header">
+        <h1 class="post-title" itemprop="name headline">
+          
+            
+            <a href="/2020/08/27/hadoop/Parquet数据格式/" class="post-title-link" itemprop="url">Parquet学习</a>
+          
+        </h1>
+
+        <div class="post-meta">
+            <span class="post-meta-item">
+              <span class="post-meta-item-icon">
+                <i class="fa fa-calendar-o"></i>
+              </span>
+              <span class="post-meta-item-text">发表于</span>
+
+              
+                
+              
+
+              <time title="创建时间：2020-08-27 10:34:43 / 修改时间：15:06:36" itemprop="dateCreated datePublished" datetime="2020-08-27T10:34:43+08:00">2020-08-27</time>
+            </span>
+          
+            
+
+            
+          
+            <span class="post-meta-item">
+              <span class="post-meta-item-icon">
+                <i class="fa fa-folder-o"></i>
+              </span>
+              <span class="post-meta-item-text">分类于</span>
+              
+                <span itemprop="about" itemscope itemtype="http://schema.org/Thing">
+                  <a href="/categories/hadoop/" itemprop="url" rel="index">
+                    <span itemprop="name">hadoop</span>
+                  </a>
+                </span>
+
+                
+                
+              
+            </span>
+          
+
+          
+            <span id="/2020/08/27/hadoop/Parquet数据格式/" class="post-meta-item leancloud_visitors" data-flag-title="Parquet学习" title="阅读次数">
+              <span class="post-meta-item-icon">
+                <i class="fa fa-eye"></i>
+              </span>
+              <span class="post-meta-item-text">阅读次数：</span>
+              <span class="leancloud-visitors-count"></span>
+            </span>
+          
+  
+  
+
+        </div>
+      </header>
+
+    
+    
+    
+    <div class="post-body" itemprop="articleBody">
+
+      
+          <h1 id="简介"><a href="#简介" class="headerlink" title="简介"></a>简介</h1><ul>
+<li><p>Parquet是一个列式存储系统</p>
+</li>
+<li><p>列式存储通过将相同基本类型的值存储在一起提供高效的编码和解码</p>
+</li>
+<li><p>Parquet支持Avro、Thrift、Protocol Buffers 等数据格式</p>
+</li>
+<li><p>Parquet的数据格式也是根据schema定义的</p>
+</li>
+<li><p>列裁剪</p>
+<blockquote>
+<p>Parquet可以只读取需要的列，实现高效的列扫描，减少 IO 操作</p>
+</blockquote>
+</li>
+<li><p>谓词下推</p>
+<blockquote>
+<p>可以过滤掉不符合条件的数据，只读取需要的数据，进一步减少 IO 操作</p>
+</blockquote>
+</li>
+<li><p>高效的压缩与编码</p>
+<blockquote>
+<p>因为同一列的数据类型相同，所以可以针对不同列使用更合适的压缩与编码方式，降低磁盘存储空间</p>
+</blockquote>
+</li>
+</ul>
+<h1 id="技术架构"><a href="#技术架构" class="headerlink" title="技术架构"></a>技术架构</h1><p><img src="/images/hadoop/parquet-jiagou.png" alt></p>
+<ul>
+<li><p>数据存储层</p>
+<blockquote>
+<p>定义 Parquet 文件格式，其中元数据在 parquet-format 项目中定义，包括 Parquet 原始类型定义、Page类型、编码类型、压缩类型等</p>
+</blockquote>
+</li>
+<li><p>对象转换层</p>
+<blockquote>
+<p>这一层在 parquet-mr 项目中，包含多个模块，作用是完成其他对象模型与 Parquet 内部数据模型的映射和转换，Parquet 的编码方式使用的是 striping and assembly 算法</p>
+</blockquote>
+</li>
+<li><p>对象模型层</p>
+<blockquote>
+<p>对象模型可以简单理解为内存中的数据表示</p>
+<p>定义如何读取 Parquet 文件的内容，这一层转换包括 Avro、Thrift、Protocal Buffer 等对象模型/序列化格式、Hive serde 等的适配</p>
+</blockquote>
+</li>
+</ul>
+<h1 id="数据模型"><a href="#数据模型" class="headerlink" title="数据模型"></a>数据模型</h1><ul>
+<li><p>Parquet的数据模型是由schema定义的</p>
+</li>
+<li><p>schema的结构</p>
+<blockquote>
+<p>message 是根</p>
+<p>message 包含多个fields，每个fields包含三个属性：repetition、type、name  </p>
+</blockquote>
+</li>
+<li><p>repetition</p>
+<blockquote>
+<p>repetition表示出现的次数，由三种：</p>
+<p>1、required   仅仅能出现一次  </p>
+<p>2、optional    出现0次或者一次</p>
+<p>3、repeated  出现0次或者多次  可以用来表示 list 或set</p>
+</blockquote>
+</li>
+<li><p>type</p>
+<blockquote>
+<p>type表示数据类型，可以是group或者primitive类型</p>
+<p>group和java中的对象类似，可以用来表示map</p>
+</blockquote>
+</li>
+</ul>
+<h2 id="Definition-levels"><a href="#Definition-levels" class="headerlink" title="Definition levels"></a>Definition levels</h2><ul>
+<li><p>Definition level指明该列的路径上多少个可选field被定义了</p>
+<blockquote>
+<p>嵌套数据类型的特点是有些field（optional field 和 repeated field）可以是空的，也就是没有定义</p>
+<p>从根节点开始遍历，当某一个field的路径上的节点开始是空的时候我们记录下当前的深度作为这个field的Definition Level</p>
+<p>如果一个field的definition Level等于这个field的最大definition Level就说明这个field是有数据的</p>
+<p>对于required类型的field必须是有定义的，所以这个Definition Level是不需要的</p>
+<p>definition Level是该路径上有定义的repeated field 和 optional field的个数，不包括required field，因为required field是必须有定义的</p>
+</blockquote>
+</li>
+</ul>
+<h2 id="Repetition-levels"><a href="#Repetition-levels" class="headerlink" title="Repetition levels"></a>Repetition levels</h2><ul>
+<li>Repetition level指明该值在路径中哪个repeated field重复</li>
+<li>详情见参考文档</li>
+</ul>
+<h1 id="文件格式"><a href="#文件格式" class="headerlink" title="文件格式"></a>文件格式</h1><ul>
+<li><p>行组(Row Group)</p>
+<blockquote>
+<p>按照行将数据物理上划分为多个单元，每一个行组包含一定的行数。</p>
+<p>一个行组包含这个行组对应的区间内的所有列的列块</p>
+</blockquote>
+</li>
+<li><p>列块(Column Chunk)</p>
+<blockquote>
+<p>在一个行组中每一列保存在一个列块中，行组中的所有列连续的存储在这个行组文件中。不同的列块可能使用不同的算法进行压缩。一个列块由多个页组成</p>
+</blockquote>
+</li>
+<li><p>页(Page)</p>
+<blockquote>
+<p>每一个列块划分为多个页，页是压缩和编码的单元，对数据模型来说页是透明的。</p>
+<p>在同一个列块的不同页可能使用不同的编码方式。官方建议一个页为8KB。</p>
+</blockquote>
+</li>
+</ul>
+<h1 id="谓词下推"><a href="#谓词下推" class="headerlink" title="谓词下推"></a>谓词下推</h1><ul>
+<li><p>通过将一些过滤条件尽可能的在最底层执行可以减少每一层交互的数据量</p>
+<blockquote>
+<p>在Parquet做了更进一步的优化，优化的方法时对每一个Row Group的每一个Column Chunk在存储的时候都计算对应的统计信息，包括该Column Chunk的最大值、最小值和空值个数。通过这些统计值和该列的过滤条件可以判断该Row Group是否需要扫描</p>
+</blockquote>
+</li>
+</ul>
+<h1 id="参考文档"><a href="#参考文档" class="headerlink" title="参考文档"></a>参考文档</h1><p><a href="https://www.jianshu.com/p/47b39ae336d5" target="_blank" rel="noopener">列存储格式Parquet浅析</a></p>
+
+        
+      
+    </div>
+
+    
+    
+    
+      <footer class="post-footer">
+        <div class="post-eof"></div>
+      </footer>
+  </article>
+  
+  
+  
+
+    
+        
+  
+  
+  <article itemscope itemtype="http://schema.org/Article" class="post-block home" lang="zh-CN">
+    <link itemprop="mainEntityOfPage" href="http://yoursite.com/2020/08/26/hadoop/Avro数据格式/">
+
+    <span hidden itemprop="author" itemscope itemtype="http://schema.org/Person">
+      <meta itemprop="name" content="姜纪光">
+      <meta itemprop="description" content="">
+      <meta itemprop="image" content="/images/avatar.gif">
+    </span>
+
+    <span hidden itemprop="publisher" itemscope itemtype="http://schema.org/Organization">
+      <meta itemprop="name" content="纪光的博客">
+    </span>
+      <header class="post-header">
+        <h1 class="post-title" itemprop="name headline">
+          
+            
+            <a href="/2020/08/26/hadoop/Avro数据格式/" class="post-title-link" itemprop="url">Avro学习</a>
+          
+        </h1>
+
+        <div class="post-meta">
+            <span class="post-meta-item">
+              <span class="post-meta-item-icon">
+                <i class="fa fa-calendar-o"></i>
+              </span>
+              <span class="post-meta-item-text">发表于</span>
+
+              
+                
+              
+
+              <time title="创建时间：2020-08-26 19:02:42" itemprop="dateCreated datePublished" datetime="2020-08-26T19:02:42+08:00">2020-08-26</time>
+            </span>
+          
+            
+
+            
+              <span class="post-meta-item">
+                <span class="post-meta-item-icon">
+                  <i class="fa fa-calendar-check-o"></i>
+                </span>
+                <span class="post-meta-item-text">更新于</span>
+                <time title="修改时间：2020-08-27 10:37:33" itemprop="dateModified" datetime="2020-08-27T10:37:33+08:00">2020-08-27</time>
+              </span>
+            
+          
+            <span class="post-meta-item">
+              <span class="post-meta-item-icon">
+                <i class="fa fa-folder-o"></i>
+              </span>
+              <span class="post-meta-item-text">分类于</span>
+              
+                <span itemprop="about" itemscope itemtype="http://schema.org/Thing">
+                  <a href="/categories/hadoop/" itemprop="url" rel="index">
+                    <span itemprop="name">hadoop</span>
+                  </a>
+                </span>
+
+                
+                
+              
+            </span>
+          
+
+          
+            <span id="/2020/08/26/hadoop/Avro数据格式/" class="post-meta-item leancloud_visitors" data-flag-title="Avro学习" title="阅读次数">
+              <span class="post-meta-item-icon">
+                <i class="fa fa-eye"></i>
+              </span>
+              <span class="post-meta-item-text">阅读次数：</span>
+              <span class="leancloud-visitors-count"></span>
+            </span>
+          
+  
+  
+
+        </div>
+      </header>
+
+    
+    
+    
+    <div class="post-body" itemprop="articleBody">
+
+      
+          <h1 id="简介"><a href="#简介" class="headerlink" title="简介"></a>简介</h1><ul>
+<li>Avro是个数据序列化系统</li>
+<li>一种紧凑、快速的二进制文件格式</li>
+<li>远程过程调用RPC</li>
+<li>通过Schema定义数据格式，可以通过Schema生成静态java类，也可以通过Schema动态生成GenericRecord，当做实体类</li>
+<li>Avro的Schema用JSON表示。Schema定义了简单数据类型和复杂数据类型。</li>
+</ul>
+<h1 id="数据类型"><a href="#数据类型" class="headerlink" title="数据类型"></a>数据类型</h1><p>包含基本和复杂数据类型</p>
+<ul>
+<li><p>基本数据类型包含8种</p>
+<blockquote>
+<p>null/boolean/int/long/float/double/bytes/string</p>
+<p>基本类型没有属性，类型名字就是类型的名称</p>
+</blockquote>
+</li>
+<li><p>复杂数据类型包6种</p>
+<blockquote>
+<p>Record/Enum/Array/Map/Union/Fixed</p>
+</blockquote>
+</li>
+<li><p>Record</p>
+<blockquote>
+<p>1、类型名字是：record</p>
+<p>2、支持的属性包括：</p>
+<p>  name：record类型的名字(必填)</p>
+<p>  namespace：命名空间(可选)</p>
+<p>  doc：这个类型的文档说明(可选)</p>
+<p>  aliases：record类型的别名，是个字符串数组(可选)</p>
+<p>  fields：record类型中的字段，是个对象数组(必填)。每个字段需要以下属性：</p>
+<ol>
+<li>name：字段名字(必填)</li>
+<li>doc：字段说明文档(可选)</li>
+<li>type：一个schema的json对象或者一个类型名字(必填)</li>
+<li>default：默认值(可选)</li>
+<li>order：排序(可选)，只有3个值ascending(默认)，descending或ignore</li>
+<li>aliases：别名，字符串数组(可选)</li>
+</ol>
+</blockquote>
+</li>
+<li><p>Enum</p>
+<blockquote>
+<p>1、类型名字是：enum</p>
+<p>2、支持的属性包括：</p>
+<p>  name：枚举类型的名字(必填)</p>
+<p>  namespace：命名空间(可选)</p>
+<p>  aliases：字符串数组，别名(可选)</p>
+<p>  doc：说明文档(可选)</p>
+<p>  symbols：字符串数组，所有的枚举值(必填)，不允许重复数据。</p>
+</blockquote>
+</li>
+<li><p>Array</p>
+<blockquote>
+<p>1、类型名字是：array</p>
+<p>2、支持的属性包括：</p>
+<p>  items：数组元素的schema</p>
+</blockquote>
+</li>
+<li><p>Map</p>
+<blockquote>
+<p>1、类型名字是：map</p>
+<p>2、支持的属性包括：</p>
+<p>  values：map值的schema</p>
+<p>Map的key必须是字符串</p>
+</blockquote>
+</li>
+<li><p>Union</p>
+<blockquote>
+<p>1、组合类型表示各种类型的组合，使用数组组合</p>
+<p>  比如，[“null”, “string”]表示类型既可以为null也可以为string</p>
+</blockquote>
+</li>
+<li><p>Fixed</p>
+<blockquote>
+<p>1、类型名字是：fixed</p>
+<p>2、支持的属性包括：</p>
+<p>  name：名字(必填)</p>
+<p>  namespace：命名空间(可选)</p>
+<p>  aliases：字符串数组，别名(可选)</p>
+<p>  size：一个整数，表示每个值的字节数(必填)</p>
+</blockquote>
+</li>
+</ul>
+<h1 id="使用实践"><a href="#使用实践" class="headerlink" title="使用实践"></a>使用实践</h1><ul>
+<li><p>通过schema由两种方式可以生成静态java类</p>
+<blockquote>
+<p>1、使用avro-tools-1.8.2.jar手动编译</p>
+<p>2、使用maven插件编译，在package时自动生成java类</p>
+</blockquote>
+</li>
+<li><p>maven插件编译</p>
+<figure class="highlight"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br><span class="line">3</span><br><span class="line">4</span><br><span class="line">5</span><br><span class="line">6</span><br><span class="line">7</span><br><span class="line">8</span><br><span class="line">9</span><br><span class="line">10</span><br><span class="line">11</span><br><span class="line">12</span><br><span class="line">13</span><br><span class="line">14</span><br><span class="line">15</span><br><span class="line">16</span><br><span class="line">17</span><br></pre></td><td class="code"><pre><span class="line">&lt;plugin&gt;</span><br><span class="line">  &lt;groupId&gt;org.apache.avro&lt;/groupId&gt;</span><br><span class="line">  &lt;artifactId&gt;avro-maven-plugin&lt;/artifactId&gt;</span><br><span class="line">  &lt;version&gt;1.8.2&lt;/version&gt;</span><br><span class="line">  &lt;executions&gt;</span><br><span class="line">    &lt;execution&gt;</span><br><span class="line">      &lt;phase&gt;generate-sources&lt;/phase&gt;</span><br><span class="line">      &lt;goals&gt;</span><br><span class="line">        &lt;goal&gt;schema&lt;/goal&gt;</span><br><span class="line">      &lt;/goals&gt;</span><br><span class="line">      &lt;configuration&gt;</span><br><span class="line">        &lt;sourceDirectory&gt;$&#123;project.basedir&#125;/src/main/avro/&lt;/sourceDirectory&gt;</span><br><span class="line">        &lt;outputDirectory&gt;$&#123;project.basedir&#125;/src/main/java/&lt;/outputDirectory&gt;</span><br><span class="line">      &lt;/configuration&gt;</span><br><span class="line">    &lt;/execution&gt;</span><br><span class="line">  &lt;/executions&gt;</span><br><span class="line">&lt;/plugin&gt;</span><br></pre></td></tr></table></figure>
+
+</li>
+</ul>
+<h1 id="参考文档"><a href="#参考文档" class="headerlink" title="参考文档"></a>参考文档</h1><p><a href="https://fangjian0423.github.io/2016/02/21/avro-intro/" target="_blank" rel="noopener">Avro介绍</a></p>
+<p><a href="http://bigdataer.net/?p=640" target="_blank" rel="noopener">avro入门指南（Java实现）</a></p>
+
+        
+      
+    </div>
+
+    
+    
+    
+      <footer class="post-footer">
+        <div class="post-eof"></div>
+      </footer>
+  </article>
+  
+  
+  
+
+    
+        
+  
+  
+  <article itemscope itemtype="http://schema.org/Article" class="post-block home" lang="zh-CN">
+    <link itemprop="mainEntityOfPage" href="http://yoursite.com/2020/08/26/flink/Flink获取所有Source和Sink信息/">
+
+    <span hidden itemprop="author" itemscope itemtype="http://schema.org/Person">
+      <meta itemprop="name" content="姜纪光">
+      <meta itemprop="description" content="">
+      <meta itemprop="image" content="/images/avatar.gif">
+    </span>
+
+    <span hidden itemprop="publisher" itemscope itemtype="http://schema.org/Organization">
+      <meta itemprop="name" content="纪光的博客">
+    </span>
+      <header class="post-header">
+        <h1 class="post-title" itemprop="name headline">
+          
+            
+            <a href="/2020/08/26/flink/Flink获取所有Source和Sink信息/" class="post-title-link" itemprop="url">Flink获取所有Source和Sink信息</a>
+          
+        </h1>
+
+        <div class="post-meta">
+            <span class="post-meta-item">
+              <span class="post-meta-item-icon">
+                <i class="fa fa-calendar-o"></i>
+              </span>
+              <span class="post-meta-item-text">发表于</span>
+
+              
+                
+              
+
+              <time title="创建时间：2020-08-26 11:57:42 / 修改时间：18:59:24" itemprop="dateCreated datePublished" datetime="2020-08-26T11:57:42+08:00">2020-08-26</time>
+            </span>
+          
+            
+
+            
+          
+            <span class="post-meta-item">
+              <span class="post-meta-item-icon">
+                <i class="fa fa-folder-o"></i>
+              </span>
+              <span class="post-meta-item-text">分类于</span>
+              
+                <span itemprop="about" itemscope itemtype="http://schema.org/Thing">
+                  <a href="/categories/flink/" itemprop="url" rel="index">
+                    <span itemprop="name">flink</span>
+                  </a>
+                </span>
+
+                
+                
+              
+            </span>
+          
+
+          
+            <span id="/2020/08/26/flink/Flink获取所有Source和Sink信息/" class="post-meta-item leancloud_visitors" data-flag-title="Flink获取所有Source和Sink信息" title="阅读次数">
+              <span class="post-meta-item-icon">
+                <i class="fa fa-eye"></i>
+              </span>
+              <span class="post-meta-item-text">阅读次数：</span>
+              <span class="leancloud-visitors-count"></span>
+            </span>
+          
+  
+  
+
+        </div>
+      </header>
+
+    
+    
+    
+    <div class="post-body" itemprop="articleBody">
+
+      
+          <h1 id="简介"><a href="#简介" class="headerlink" title="简介"></a>简介</h1><ul>
+<li><p>首先要搞明白获取Souce和Sink信息有什么意义？</p>
+<blockquote>
+<p>1、如果没有source和sink信息，那么一个flink任务就是独立的任务，不能和其它flink任务、甚至spark任务联系起来。</p>
+<p>2、有了source和sink信息，那么就可以对该任务就行评估、甚至是打分</p>
+</blockquote>
+</li>
+</ul>
+<h1 id="技术方案"><a href="#技术方案" class="headerlink" title="技术方案"></a>技术方案</h1><p>  更重要的一个问题是，如何获取任务的所有Souce和Sink信息？是在任务提交过程中获取，还是提交之后获取，是从任务的哪个阶段获取，下面将要解答这些问题。</p>
+<h1 id="具体信息"><a href="#具体信息" class="headerlink" title="具体信息"></a>具体信息</h1><h2 id="Kafka"><a href="#Kafka" class="headerlink" title="Kafka"></a>Kafka</h2><figure class="highlight java"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br><span class="line">3</span><br><span class="line">4</span><br><span class="line">5</span><br><span class="line">6</span><br><span class="line">7</span><br><span class="line">8</span><br><span class="line">9</span><br><span class="line">10</span><br><span class="line">11</span><br><span class="line">12</span><br><span class="line">13</span><br><span class="line">14</span><br><span class="line">15</span><br><span class="line">16</span><br><span class="line">17</span><br><span class="line">18</span><br><span class="line">19</span><br><span class="line">20</span><br><span class="line">21</span><br><span class="line">22</span><br><span class="line">23</span><br><span class="line">24</span><br><span class="line">25</span><br><span class="line">26</span><br><span class="line">27</span><br><span class="line">28</span><br><span class="line">29</span><br><span class="line">30</span><br><span class="line">31</span><br><span class="line">32</span><br><span class="line">33</span><br><span class="line">34</span><br><span class="line">35</span><br><span class="line">36</span><br><span class="line">37</span><br></pre></td><td class="code"><pre><span class="line">#kafka的source</span><br><span class="line">java类：org.apache.flink.streaming.connectors.kafka.FlinkKafkaProducer</span><br><span class="line">需要的字段：</span><br><span class="line"><span class="keyword">private</span> <span class="keyword">static</span> <span class="keyword">final</span> Set&lt;String&gt; fields = Stream.of(<span class="string">"properties"</span>,</span><br><span class="line">		<span class="string">"topicsDescriptor"</span>, <span class="string">"discoveryIntervalMillis"</span>, <span class="string">"startupMode"</span>, <span class="string">"KEY_PARTITION_DISCOVERY_INTERVAL_MILLIS"</span>)</span><br><span class="line">  .collect(Collectors.toCollection(HashSet::<span class="keyword">new</span>));</span><br><span class="line">字段示例：</span><br><span class="line">&#123;</span><br><span class="line">    DEFAULT_POLL_TIMEOUT=<span class="number">100</span>,</span><br><span class="line">    pollTimeout=<span class="number">100</span>,</span><br><span class="line">    KEY_POLL_TIMEOUT=flink.poll-timeout,</span><br><span class="line">    properties=&#123;</span><br><span class="line">        key.deserializer=org.apache.kafka.common.serialization.ByteArrayDeserializer,</span><br><span class="line">        bootstrap.servers=kafka.net: <span class="number">9092</span>,</span><br><span class="line">        group.id=libra_log_consumer_02,</span><br><span class="line">        value.deserializer=org.apache.kafka.common.serialization.ByteArrayDeserializer,</span><br><span class="line">        flink.partition-discovery.interval-millis=<span class="number">60000</span></span><br><span class="line">    &#125;</span><br><span class="line">&#125;</span><br><span class="line"></span><br><span class="line">#kafka的sink</span><br><span class="line">java类：org.apache.flink.streaming.connectors.kafka.FlinkKafkaConsumer</span><br><span class="line">需要的字段：</span><br><span class="line"><span class="keyword">private</span> <span class="keyword">static</span> <span class="keyword">final</span> Set&lt;String&gt; fields = Stream.of(<span class="string">"semantic"</span>,</span><br><span class="line">		<span class="string">"defaultTopicId"</span>, <span class="string">"producerConfig"</span>)</span><br><span class="line">		.collect(Collectors.toCollection(HashSet::<span class="keyword">new</span>));</span><br><span class="line">字段示例：</span><br><span class="line">&#123;</span><br><span class="line">    semantic=AT_LEAST_ONCE,</span><br><span class="line">    producerConfig=&#123;</span><br><span class="line">        transaction.timeout.ms=<span class="number">3600000</span>,</span><br><span class="line">        bootstrap.servers=kafka.net: <span class="number">9092</span>,</span><br><span class="line">        value.serializer=org.apache.kafka.common.serialization.ByteArraySerializer,</span><br><span class="line">        key.serializer=org.apache.kafka.common.serialization.ByteArraySerializer</span><br><span class="line">    &#125;,</span><br><span class="line">    defaultTopicId=bigdata_libra_metrics</span><br><span class="line">&#125;</span><br></pre></td></tr></table></figure>
+
+<h2 id="Elasticsearch"><a href="#Elasticsearch" class="headerlink" title="Elasticsearch"></a>Elasticsearch</h2><figure class="highlight plain"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br><span class="line">3</span><br><span class="line">4</span><br><span class="line">5</span><br><span class="line">6</span><br><span class="line">7</span><br><span class="line">8</span><br></pre></td><td class="code"><pre><span class="line">#es5</span><br><span class="line">java类：org.apache.flink.streaming.connectors.elasticsearch5.ElasticsearchSink</span><br><span class="line">字段：callBridge.httpHosts</span><br><span class="line">##es6/7</span><br><span class="line">java类：</span><br><span class="line">org.apache.flink.streaming.connectors.elasticsearch6.ElasticsearchSink</span><br><span class="line">org.apache.flink.streaming.connectors.elasticsearch7.ElasticsearchSink</span><br><span class="line">字段：callBridge.transportAddresses</span><br></pre></td></tr></table></figure>
+
+<h3 id="HDFS"><a href="#HDFS" class="headerlink" title="HDFS"></a>HDFS</h3><h1 id="参考文档"><a href="#参考文档" class="headerlink" title="参考文档"></a>参考文档</h1><p><a href="http://wuchong.me/blog/2016/05/03/flink-internals-overview/" target="_blank" rel="noopener">Flink 原理与实现：架构和拓扑概览</a></p>
+
+        
+      
+    </div>
+
+    
+    
+    
+      <footer class="post-footer">
+        <div class="post-eof"></div>
+      </footer>
+  </article>
+  
+  
+  
+
+    
+        
+  
+  
+  <article itemscope itemtype="http://schema.org/Article" class="post-block home" lang="zh-CN">
+    <link itemprop="mainEntityOfPage" href="http://yoursite.com/2020/08/23/flink/Flink内存解析/">
+
+    <span hidden itemprop="author" itemscope itemtype="http://schema.org/Person">
+      <meta itemprop="name" content="姜纪光">
+      <meta itemprop="description" content="">
+      <meta itemprop="image" content="/images/avatar.gif">
+    </span>
+
+    <span hidden itemprop="publisher" itemscope itemtype="http://schema.org/Organization">
+      <meta itemprop="name" content="纪光的博客">
+    </span>
+      <header class="post-header">
+        <h1 class="post-title" itemprop="name headline">
+          
+            
+            <a href="/2020/08/23/flink/Flink内存解析/" class="post-title-link" itemprop="url">Flink内存解析(Flink1.10)</a>
+          
+        </h1>
+
+        <div class="post-meta">
+            <span class="post-meta-item">
+              <span class="post-meta-item-icon">
+                <i class="fa fa-calendar-o"></i>
+              </span>
+              <span class="post-meta-item-text">发表于</span>
+
+              
+                
+              
+
+              <time title="创建时间：2020-08-23 09:14:55" itemprop="dateCreated datePublished" datetime="2020-08-23T09:14:55+08:00">2020-08-23</time>
+            </span>
+          
+            
+
+            
+              <span class="post-meta-item">
+                <span class="post-meta-item-icon">
+                  <i class="fa fa-calendar-check-o"></i>
+                </span>
+                <span class="post-meta-item-text">更新于</span>
+                <time title="修改时间：2020-09-08 11:56:45" itemprop="dateModified" datetime="2020-09-08T11:56:45+08:00">2020-09-08</time>
+              </span>
+            
+          
+            <span class="post-meta-item">
+              <span class="post-meta-item-icon">
+                <i class="fa fa-folder-o"></i>
+              </span>
+              <span class="post-meta-item-text">分类于</span>
+              
+                <span itemprop="about" itemscope itemtype="http://schema.org/Thing">
+                  <a href="/categories/flink/" itemprop="url" rel="index">
+                    <span itemprop="name">flink</span>
+                  </a>
+                </span>
+
+                
+                
+              
+            </span>
+          
+
+          
+            <span id="/2020/08/23/flink/Flink内存解析/" class="post-meta-item leancloud_visitors" data-flag-title="Flink内存解析(Flink1.10)" title="阅读次数">
+              <span class="post-meta-item-icon">
+                <i class="fa fa-eye"></i>
+              </span>
+              <span class="post-meta-item-text">阅读次数：</span>
+              <span class="leancloud-visitors-count"></span>
+            </span>
+          
+  
+  
+
+        </div>
+      </header>
+
+    
+    
+    
+    <div class="post-body" itemprop="articleBody">
+
+      
+          <h1 id="内存模型"><a href="#内存模型" class="headerlink" title="内存模型"></a>内存模型</h1><h2 id="内存概览"><a href="#内存概览" class="headerlink" title="内存概览"></a>内存概览</h2><p><img src="/images/flink/%E5%86%85%E5%AD%98%E6%A8%A1%E5%9E%8B.png" alt="内存模型"></p>
+<p><img src="/images/flink/TaskMemory.png" alt="TaskMemory"></p>
+<p><img src="/images/flink/FrameworkTaskOff-HeapMemory.png" alt="Off-Heap"></p>
+<h2 id="Total-Process-Memory"><a href="#Total-Process-Memory" class="headerlink" title="Total Process Memory"></a>Total Process Memory</h2><ul>
+<li><p>TaskExecutor的总内存，和TM内存一致</p>
+</li>
+<li><p>由三部分组成</p>
+<blockquote>
+<p>Flink Total Memory + JVM Metaspace + JVM Overhead</p>
+</blockquote>
+</li>
+</ul>
+<ul>
+<li><p>内存设置参数</p>
+<blockquote>
+<p>taskmanager.memory.process.size</p>
+<p>不建议显示设置</p>
+</blockquote>
+</li>
+</ul>
+<p>##Total Flink Memory</p>
+<ul>
+<li><p>TaskExecutors中Flink任务使用的总内存</p>
+</li>
+<li><p>由以下部分组成</p>
+<blockquote>
+<p>Framework Heap（Heap）</p>
+<p>Framework Off-Heap（Direct + Native）</p>
+<p>Task Heap（Heap）</p>
+<p>Task Off-Heap（Direct + Native）</p>
+<p>Managed（Native）</p>
+<p>Network（Direct）</p>
+</blockquote>
+</li>
+</ul>
+<ul>
+<li><p>设置参数</p>
+<blockquote>
+<p>taskmanager.memory.flink.size</p>
+<p>不建议显示设置</p>
+</blockquote>
+</li>
+</ul>
+<p>##Framework Memory</p>
+<ul>
+<li><p>Heap    Direct &amp; Native</p>
+</li>
+<li><p>Framework是TaskManager维度的，不计入Slot资源</p>
+</li>
+<li><p>分为Framework Heap 和 Framework Off-Heap</p>
+</li>
+<li><p>设置参数</p>
+<blockquote>
+<p>Framework Heap：taskmanager.memory.framework.heap.size  默认值：128MB  </p>
+<p>Framework Off-Heap：taskmanager.memory.framework.off-heap.size  默认值：128MB</p>
+<p>如果没有充分理由，不要更改内存选项，在诸如Hadoop等Flink的依赖中，可能需要更多的direct或native内存</p>
+</blockquote>
+</li>
+<li><p>说明</p>
+<blockquote>
+<p>堆总用量限制：-Xmx=Framework Heap + Task Heap</p>
+<p>非堆总用量限制：-XX:MaxDirectMemorySize= Framework Off-Heap + Off-Task Heap + Network</p>
+<p>无隔离：没有在Slot和Framework 之间做隔离，后续版本：动态切割Slot资源</p>
+<p><a href="https://cwiki.apache.org/confluence/display/FLINK/FLIP-56:+Dynamic+Slot+Allocation" target="_blank" rel="noopener">FLIP-56:+Dynamic+Slot+Allocation</a></p>
+</blockquote>
+</li>
+</ul>
+<p>##Network Memory</p>
+<ul>
+<li><p>属于Direct Memory</p>
+</li>
+<li><p>在配置大小后，集群启动后直接申请，不会释放，实际上是个常量</p>
+</li>
+<li><p>用于上下游算子的 数据传输缓冲</p>
+</li>
+<li><p>设置参数</p>
+<blockquote>
+<p>taskmanager.memory.network.min        默认值：64MB    Explicit  </p>
+<p>taskmanager.memory.network.max       默认值：1GB       Explicit  </p>
+<p>taskmanager.memory.network.fraction 默认值：0.1（Total Flink Memory ）  Implicit</p>
+<p>在满足min和max的条件下，设置为fraction，否则就是min或max的值</p>
+</blockquote>
+</li>
+<li><p>特点</p>
+<blockquote>
+<p>同一TaskExecutor的个Slot之间没有隔离</p>
+<p>由作业拓扑决定量，不足会导致运行失败，多了也用不到</p>
+</blockquote>
+</li>
+</ul>
+<ul>
+<li><p>计算公式</p>
+<blockquote>
+<p>Network Memory = (inputBuffers + outputBuffers) * bufferSize(32KB)</p>
+<p>inputBuffers = remoteChannels * buffersPerChannel(2) + gates * buffersPerGates(8)</p>
+<p>​      remoteChannels = 不在当前TM的上游Subtask(Physical Graph Vertex)数量</p>
+<p>​      gates = 上游Task(Logical Graph VerTex)数量</p>
+<p>outputBuffers = subpartitions + 1</p>
+<p>​    subpartitions = 下游Subtask(Physical Graph Vertex)数量</p>
+</blockquote>
+</li>
+</ul>
+<p>##Managed Memory</p>
+<ul>
+<li><p>托管内存是 Native Memory，即 不会受到JVM heap  或者Direct 大小的限制</p>
+</li>
+<li><p>主要用来排序，哈希表，中间结果的缓存和RocksDB状态后端</p>
+</li>
+<li><p>设置参数</p>
+<blockquote>
+<p>taskmanager.memory.managed.size         默认值：None</p>
+<p>taskmanager.memory.managed.fraction  默认值：0.4（Total Flink Memory ）</p>
+<p>当任务是无状态的或者使用MemoryStateBackend or FsStateBackend状态后端时，设置托管内存为零，以确保为用户代码使用的堆分配更多内存</p>
+</blockquote>
+</li>
+<li><p>特点：</p>
+<blockquote>
+<p>各个Slot之间严格隔离</p>
+<p>多点少点都能跑，与性能挂钩</p>
+</blockquote>
+</li>
+<li><p>RocksDB内存限制</p>
+<blockquote>
+<p>state.backend.rocksdb.memory.managed：默认为true，</p>
+<p>设置RocksDB使用的内存大小为Managed Memory，目的是防止容器内存超用，而被YARN杀掉</p>
+</blockquote>
+<h2 id="JVM-Metaspace"><a href="#JVM-Metaspace" class="headerlink" title="JVM Metaspace"></a>JVM Metaspace</h2></li>
+<li><p>Metaspace内存类型</p>
+</li>
+<li><p>Explicit</p>
+</li>
+<li><p>用来存储JVM类的元数据</p>
+</li>
+<li><p>设置参数</p>
+<blockquote>
+<p>taskmanager.memory.jvm-metaspace.size  默认值：256 mb</p>
+<p>用量上限受JVM严格控制：-XX:MaxMetaspaceSize</p>
+</blockquote>
+</li>
+</ul>
+<p>##JVM Overhead </p>
+<ul>
+<li><p>是native memory，不是direct memory</p>
+<blockquote>
+<p>当Flink计算max direct memory size parameter时，不会计算在内</p>
+</blockquote>
+</li>
+<li><p>Explicit  Range&amp; Implicit Fraction</p>
+</li>
+<li><p>用来存储 thread stack space, compile cache</p>
+</li>
+</ul>
+<ul>
+<li><p>设置参数</p>
+<blockquote>
+<p>taskmanager.memory.jvm-overhead.min         默认值：192 mb</p>
+<p>taskmanager.memory.jvm-overhead.max        默认值：1 gb</p>
+<p>taskmanager.memory.jvm-overhead.fraction  默认值：0.1（Total Process Memory）</p>
+</blockquote>
+</li>
+</ul>
+<p>##Direct Memory</p>
+<ul>
+<li>包括：Framework Off-Heap（部分） + Task Off-Heap（部分） + Network </li>
+<li>用量上限受JVM严格控制：-XX:MaxDirectMemorySize</li>
+<li>达到上线时触发GC</li>
+</ul>
+<p>##Native Memory</p>
+<ul>
+<li><p>包括</p>
+<blockquote>
+<p>Framework Off-Heap（部分）</p>
+<p>Task Off-Heap（部分）</p>
+<p>Managed Memory </p>
+<p>JVM Overhead</p>
+</blockquote>
+</li>
+<li><p>用量上限不受JVM严格控制</p>
+<blockquote>
+<p>但是Managed Memory用量上限受Flink严格控制</p>
+</blockquote>
+</li>
+</ul>
+<h2 id="Off-Heap-Memory"><a href="#Off-Heap-Memory" class="headerlink" title="Off-Heap Memory"></a>Off-Heap Memory</h2><ul>
+<li><p>包括Framework Off-Heap Memory 和Task Off-Heap Memory</p>
+</li>
+<li><p>两种Off-Heap内存设置，都包含了Direct和Native内存</p>
+<blockquote>
+<p>用户无需理解Direct/Native内存的区别并分别配置</p>
+<p>无法严格控制Direct内存用量，可能导致超用</p>
+<p>绝大多数情况下，只需要少量Native内存，FullGC时释放不需要的Direct内存</p>
+<p>如果需要大量的Native内存，可以考虑增大JVM Overhead</p>
+</blockquote>
+</li>
+</ul>
+<h1 id="参数配置"><a href="#参数配置" class="headerlink" title="参数配置"></a>参数配置</h1><ul>
+<li><p>Explicit</p>
+<blockquote>
+<p>Size, Min/Max</p>
+<p>严格保证（包括默认值）</p>
+<p>配置不当可能引发冲突</p>
+</blockquote>
+</li>
+</ul>
+<ul>
+<li><p>Implicit</p>
+<blockquote>
+<p>Fraction</p>
+<p>非严格保证</p>
+<p>存在冲突时优先保证Explicit的配置</p>
+</blockquote>
+</li>
+<li><p>避免配置冲突</p>
+<blockquote>
+<p>1.以下3项至少配置一项，不建议配置两项及以上：</p>
+<p>  Total Process</p>
+<p>  Total Flink</p>
+<p>  Task Heap &amp; Managed</p>
+<p>2.至少一个内存部分或总内存大小是Implicit</p>
+</blockquote>
+</li>
+</ul>
+<h1 id="JVM参数源码解析"><a href="#JVM参数源码解析" class="headerlink" title="JVM参数源码解析"></a>JVM参数源码解析</h1><p>flink升级到1.10后，内存管理和配置有很大的更改，下面进行具体的分析</p>
+<h1 id="参考文档"><a href="#参考文档" class="headerlink" title="参考文档"></a>参考文档</h1><p><a href="https://www.bilibili.com/video/BV1At4y1U7vH/" target="_blank" rel="noopener">Flink TaskExecutor 内存管理与配置</a></p>
+<p><a href="https://cwiki.apache.org/confluence/display/FLINK/FLIP-49%3A+Unified+Memory+Configuration+for+TaskExecutors" target="_blank" rel="noopener">FLIP-49: Unified Memory Configuration for TaskExecutors</a></p>
+<p><a href="https://docs.google.com/spreadsheets/d/1mJaMkMPfDJJ-w6nMXALYmTc4XxiV30P5U7DzgwLkSoE/edit#gid=0" target="_blank" rel="noopener">Memory calculations</a></p>
+<p><a href="https://github.com/KarmaGYZ/flink-memory-calculator" target="_blank" rel="noopener">flink-memory-calculator</a></p>
+
+        
+      
+    </div>
+
+    
+    
+    
+      <footer class="post-footer">
+        <div class="post-eof"></div>
+      </footer>
+  </article>
+  
+  
+  
+
+    
+        
+  
+  
+  <article itemscope itemtype="http://schema.org/Article" class="post-block home" lang="zh-CN">
+    <link itemprop="mainEntityOfPage" href="http://yoursite.com/2020/08/17/java/Java锁知识/">
+
+    <span hidden itemprop="author" itemscope itemtype="http://schema.org/Person">
+      <meta itemprop="name" content="姜纪光">
+      <meta itemprop="description" content="">
+      <meta itemprop="image" content="/images/avatar.gif">
+    </span>
+
+    <span hidden itemprop="publisher" itemscope itemtype="http://schema.org/Organization">
+      <meta itemprop="name" content="纪光的博客">
+    </span>
+      <header class="post-header">
+        <h1 class="post-title" itemprop="name headline">
+          
+            
+            <a href="/2020/08/17/java/Java锁知识/" class="post-title-link" itemprop="url">Java锁知识</a>
+          
+        </h1>
+
+        <div class="post-meta">
+            <span class="post-meta-item">
+              <span class="post-meta-item-icon">
+                <i class="fa fa-calendar-o"></i>
+              </span>
+              <span class="post-meta-item-text">发表于</span>
+
+              
+                
+              
+
+              <time title="创建时间：2020-08-17 09:49:39" itemprop="dateCreated datePublished" datetime="2020-08-17T09:49:39+08:00">2020-08-17</time>
+            </span>
+          
+
+          
+            <span id="/2020/08/17/java/Java锁知识/" class="post-meta-item leancloud_visitors" data-flag-title="Java锁知识" title="阅读次数">
+              <span class="post-meta-item-icon">
+                <i class="fa fa-eye"></i>
+              </span>
+              <span class="post-meta-item-text">阅读次数：</span>
+              <span class="leancloud-visitors-count"></span>
+            </span>
+          
+  
+  
+
+        </div>
+      </header>
+
+    
+    
+    
+    <div class="post-body" itemprop="articleBody">
+
+      
+          
+        
+      
+    </div>
+
+    
+    
+    
+      <footer class="post-footer">
+        <div class="post-eof"></div>
+      </footer>
+  </article>
+  
+  
+  
+
+    
+        
+  
+  
+  <article itemscope itemtype="http://schema.org/Article" class="post-block home" lang="zh-CN">
+    <link itemprop="mainEntityOfPage" href="http://yoursite.com/2020/08/17/java/Java线程知识/">
+
+    <span hidden itemprop="author" itemscope itemtype="http://schema.org/Person">
+      <meta itemprop="name" content="姜纪光">
+      <meta itemprop="description" content="">
+      <meta itemprop="image" content="/images/avatar.gif">
+    </span>
+
+    <span hidden itemprop="publisher" itemscope itemtype="http://schema.org/Organization">
+      <meta itemprop="name" content="纪光的博客">
+    </span>
+      <header class="post-header">
+        <h1 class="post-title" itemprop="name headline">
+          
+            
+            <a href="/2020/08/17/java/Java线程知识/" class="post-title-link" itemprop="url">Java线程知识</a>
+          
+        </h1>
+
+        <div class="post-meta">
+            <span class="post-meta-item">
+              <span class="post-meta-item-icon">
+                <i class="fa fa-calendar-o"></i>
+              </span>
+              <span class="post-meta-item-text">发表于</span>
+
+              
+                
+              
+
+              <time title="创建时间：2020-08-17 09:49:31 / 修改时间：10:54:05" itemprop="dateCreated datePublished" datetime="2020-08-17T09:49:31+08:00">2020-08-17</time>
+            </span>
+          
+            
+
+            
+          
+            <span class="post-meta-item">
+              <span class="post-meta-item-icon">
+                <i class="fa fa-folder-o"></i>
+              </span>
+              <span class="post-meta-item-text">分类于</span>
+              
+                <span itemprop="about" itemscope itemtype="http://schema.org/Thing">
+                  <a href="/categories/java/" itemprop="url" rel="index">
+                    <span itemprop="name">java</span>
+                  </a>
+                </span>
+
+                
+                
+              
+            </span>
+          
+
+          
+            <span id="/2020/08/17/java/Java线程知识/" class="post-meta-item leancloud_visitors" data-flag-title="Java线程知识" title="阅读次数">
+              <span class="post-meta-item-icon">
+                <i class="fa fa-eye"></i>
+              </span>
+              <span class="post-meta-item-text">阅读次数：</span>
+              <span class="leancloud-visitors-count"></span>
+            </span>
+          
+  
+  
+
+        </div>
+      </header>
+
+    
+    
+    
+    <div class="post-body" itemprop="articleBody">
+
+      
+          <h1 id="基本知识"><a href="#基本知识" class="headerlink" title="基本知识"></a>基本知识</h1><h2 id="线程知识"><a href="#线程知识" class="headerlink" title="线程知识"></a>线程知识</h2><h2 id="线程状态"><a href="#线程状态" class="headerlink" title="线程状态"></a>线程状态</h2><p>线程的状态由Thread.State枚举常量标识：</p>
+<ul>
+<li><p>NEW</p>
+<blockquote>
+<p>线程还没有开始执行</p>
+</blockquote>
+</li>
+<li><p>RUNNABLE</p>
+<blockquote>
+<p>线程正在JVM中执行</p>
+</blockquote>
+</li>
+<li><p>BLOCKED</p>
+<blockquote>
+<p>线程被阻塞并等待一个监听锁</p>
+</blockquote>
+</li>
+<li><p>WAITING</p>
+<blockquote>
+<p>线程无期限地等待另外一条线程执行特定操作，调用以下方法会进入该状态：</p>
+<p>1.Object.wait()   //其它线程调用Object.notify()或Object.notifyAll() 唤醒该线程</p>
+<p>2.Thread.join()   //其它线程终止唤醒该线程</p>
+<p>3.LockSupport.park</p>
+</blockquote>
+</li>
+<li><p>TIMED_WAITING</p>
+<blockquote>
+<p>线程在特定的时间内等待另外一条线程执行特定操作：</p>
+<p>1.Thread.sleep</p>
+<p>2.Object.wait(long)</p>
+<p>3.Thread.join(long)</p>
+<p>4.LockSupport.parkNanos</p>
+<p>5.LockSupport.parkUntil</p>
+</blockquote>
+</li>
+<li><p>TERMINATED</p>
+<blockquote>
+<p>线程已经退出</p>
+</blockquote>
+</li>
+</ul>
+<h2 id="调用修饰"><a href="#调用修饰" class="headerlink" title="调用修饰"></a>调用修饰</h2><p>表示线程在方法调用时，额外的重要操作</p>
+<figure class="highlight plain"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br><span class="line">3</span><br><span class="line">4</span><br><span class="line">5</span><br></pre></td><td class="code"><pre><span class="line">locked &lt;地址&gt; 目标：使用synchronized申请对象锁成功,监视器的拥有者。</span><br><span class="line">waiting to lock &lt;地址&gt; 目标：使用synchronized申请对象锁未成功,在进入区等待。</span><br><span class="line">waiting on &lt;地址&gt; 目标：使用synchronized申请对象锁成功后,释放锁并在等待区等待。</span><br><span class="line">parking to wait for &lt;地址&gt; 目标 //park是基本的线程阻塞原语,不通过监视器在对象上阻塞。</span><br><span class="line">  随concurrent包会出现的新的机制,和synchronized体系不同。</span><br></pre></td></tr></table></figure>
+
+<h1 id="参考文档"><a href="#参考文档" class="headerlink" title="参考文档"></a>参考文档</h1><p><a href>Java线程与并发编程实践</a></p>
+
+        
+      
+    </div>
+
+    
+    
+    
+      <footer class="post-footer">
+        <div class="post-eof"></div>
+      </footer>
+  </article>
+  
+  
+  
+
+    
+        
+  
+  
+  <article itemscope itemtype="http://schema.org/Article" class="post-block home" lang="zh-CN">
     <link itemprop="mainEntityOfPage" href="http://yoursite.com/2020/08/17/java/JVM常用命令/">
 
     <span hidden itemprop="author" itemscope itemtype="http://schema.org/Person">
@@ -282,7 +1449,7 @@
                   <i class="fa fa-calendar-check-o"></i>
                 </span>
                 <span class="post-meta-item-text">更新于</span>
-                <time title="修改时间：2020-09-02 20:07:03" itemprop="dateModified" datetime="2020-09-02T20:07:03+08:00">2020-09-02</time>
+                <time title="修改时间：2020-09-07 12:12:36" itemprop="dateModified" datetime="2020-09-07T12:12:36+08:00">2020-09-07</time>
               </span>
             
           
@@ -379,7 +1546,7 @@
 </li>
 <li><p>命令使用</p>
 <blockquote>
-<p>jstask -F vmid</p>
+<p>jstack -F vmid</p>
 </blockquote>
 </li>
 </ul>
@@ -394,12 +1561,27 @@
 </li>
 <li><p>打印堆的概要信息</p>
 <figure class="highlight shell"><table><tr><td class="gutter"><pre><span class="line">1</span><br></pre></td><td class="code"><pre><span class="line">jmap -heap 47365</span><br></pre></td></tr></table></figure>
+</li>
+<li><p>显示堆中对象统计信息，类、实例数量、占用空间</p>
+<figure class="highlight shell"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br></pre></td><td class="code"><pre><span class="line">jmap -histo:live 19570</span><br><span class="line">jmap -F -histo 19570</span><br></pre></td></tr></table></figure>
+</li>
+<li><p>打印类加载器信息</p>
+<figure class="highlight shell"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br></pre></td><td class="code"><pre><span class="line">jmap -clstats 47365</span><br><span class="line"><span class="meta">#</span>会报错，没有解决</span><br></pre></td></tr></table></figure>
+
+</li>
+</ul>
+<h1 id="jinfo"><a href="#jinfo" class="headerlink" title="jinfo"></a>jinfo</h1><ul>
+<li><p>全称Configuration Info for Java，用来实时查看和调整虚拟机的各项参数</p>
+</li>
+<li><p>用法</p>
+<figure class="highlight shell"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br><span class="line">3</span><br><span class="line">4</span><br><span class="line">5</span><br><span class="line">6</span><br><span class="line">7</span><br><span class="line">8</span><br></pre></td><td class="code"><pre><span class="line"><span class="meta">#</span> jinfo -help</span><br><span class="line"><span class="meta">#</span> jinfo [option] pid</span><br><span class="line">  no option 输出全部的参数和系统属性</span><br><span class="line">  -flag name 输出对应名称的参数</span><br><span class="line">  -flag [+|-]name 开启或者关闭对应名称的参数</span><br><span class="line">  -flag name=value 设定对应名称的参数</span><br><span class="line">  -flags 输出全部的参数</span><br><span class="line">  -sysprops 输出系统属性</span><br></pre></td></tr></table></figure>
 
 <p>​</p>
 </li>
 </ul>
 <h1 id="参考文档"><a href="#参考文档" class="headerlink" title="参考文档"></a>参考文档</h1><p><a href="https://www.cnblogs.com/alter888/p/10407952.html" target="_blank" rel="noopener">jstat命令查看jvm的GC情况</a></p>
 <p><a href="https://www.cnblogs.com/kongzhongqijing/articles/3630264.html" target="_blank" rel="noopener">java命令—jstack工具</a></p>
+<p><a href="https://www.jianshu.com/p/8d8aef212b25" target="_blank" rel="noopener">jvm 性能调优工具之 jinfo</a></p>
 
         
       
@@ -674,924 +1856,11 @@
   
 
     
-        
-  
-  
-  <article itemscope itemtype="http://schema.org/Article" class="post-block home" lang="zh-CN">
-    <link itemprop="mainEntityOfPage" href="http://yoursite.com/2020/08/11/flink/Flink任务提交过程解析/">
-
-    <span hidden itemprop="author" itemscope itemtype="http://schema.org/Person">
-      <meta itemprop="name" content="姜纪光">
-      <meta itemprop="description" content="">
-      <meta itemprop="image" content="/images/avatar.gif">
-    </span>
-
-    <span hidden itemprop="publisher" itemscope itemtype="http://schema.org/Organization">
-      <meta itemprop="name" content="纪光的博客">
-    </span>
-      <header class="post-header">
-        <h1 class="post-title" itemprop="name headline">
-          
-            
-            <a href="/2020/08/11/flink/Flink任务提交过程解析/" class="post-title-link" itemprop="url">Flink任务提交过程解析</a>
-          
-        </h1>
-
-        <div class="post-meta">
-            <span class="post-meta-item">
-              <span class="post-meta-item-icon">
-                <i class="fa fa-calendar-o"></i>
-              </span>
-              <span class="post-meta-item-text">发表于</span>
-
-              
-                
-              
-
-              <time title="创建时间：2020-08-11 09:27:01 / 修改时间：10:46:19" itemprop="dateCreated datePublished" datetime="2020-08-11T09:27:01+08:00">2020-08-11</time>
-            </span>
-          
-            
-
-            
-          
-            <span class="post-meta-item">
-              <span class="post-meta-item-icon">
-                <i class="fa fa-folder-o"></i>
-              </span>
-              <span class="post-meta-item-text">分类于</span>
-              
-                <span itemprop="about" itemscope itemtype="http://schema.org/Thing">
-                  <a href="/categories/flink/" itemprop="url" rel="index">
-                    <span itemprop="name">flink</span>
-                  </a>
-                </span>
-
-                
-                
-              
-            </span>
-          
-
-          
-            <span id="/2020/08/11/flink/Flink任务提交过程解析/" class="post-meta-item leancloud_visitors" data-flag-title="Flink任务提交过程解析" title="阅读次数">
-              <span class="post-meta-item-icon">
-                <i class="fa fa-eye"></i>
-              </span>
-              <span class="post-meta-item-text">阅读次数：</span>
-              <span class="leancloud-visitors-count"></span>
-            </span>
-          
-  
-  
-
-        </div>
-      </header>
-
-    
-    
-    
-    <div class="post-body" itemprop="articleBody">
-
-      
-          <ul>
-<li>发布类</li>
-</ul>
-<p>org.apache.flink.client.cli.CliFrontend</p>
-<ul>
-<li>Configuration对象内容</li>
-</ul>
-<figure class="highlight java"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br><span class="line">3</span><br><span class="line">4</span><br><span class="line">5</span><br><span class="line">6</span><br><span class="line">7</span><br><span class="line">8</span><br><span class="line">9</span><br><span class="line">10</span><br><span class="line">11</span><br><span class="line">12</span><br><span class="line">13</span><br><span class="line">14</span><br><span class="line">15</span><br><span class="line">16</span><br><span class="line">17</span><br><span class="line">18</span><br><span class="line">19</span><br><span class="line">20</span><br><span class="line">21</span><br><span class="line">22</span><br><span class="line">23</span><br><span class="line">24</span><br><span class="line">25</span><br><span class="line">26</span><br><span class="line">27</span><br></pre></td><td class="code"><pre><span class="line">&#123;state.checkpoints.num-retained=<span class="number">10</span>, </span><br><span class="line"> env.java.opts=-server -XX:+UseConcMarkSweepGC -XX:+UseCMSInitiatingOccupancyOnly -XX:CMSInitiatingOccupancyFraction=<span class="number">75</span> -XX:ParallelGCThreads=<span class="number">4</span> -XX:+AlwaysPreTouch -XX:+UseCMSCompactAtFullCollection -XX:CMSFullGCsBeforeCompaction=<span class="number">3</span> -XX:+HeapDumpOnOutOfMemoryError -XX:HeapDumpPath=/tmp/<span class="number">2433f</span>8bdeb5143dbaded373e1dfd112c.hprof -Xloggc:/tmp/trace-<span class="number">2433f</span>8bdeb5143dbaded373e1dfd112c.log -XX:+PrintGCDetails -XX:+PrintGCTimeStamps -XX:+PrintHeapAtGC </span><br><span class="line"> -DjobName=jjg-test-<span class="number">1.10</span>kafka-producer, </span><br><span class="line"> taskmanager.jvm-exit-on-oom=<span class="keyword">true</span>, </span><br><span class="line"> jobmanager.execution.failover-strategy=region, </span><br><span class="line"> jobmanager.rpc.address=localhost, </span><br><span class="line"> state.backend.rocksdb.predefined-options=FLASH_SSD_OPTIMIZED,    </span><br><span class="line"> state.savepoints.dir=hdfs:<span class="comment">///user/flink/savepoints,</span></span><br><span class="line"> metrics.reporter.prom.labels=libra_job_name=jjg-test-<span class="number">1.10</span>kafka-producer;libra_job_owner=jiangjiguang<span class="meta">@qutoutiao</span>.net, </span><br><span class="line"> execution.savepoint.ignore-unclaimed-state=<span class="keyword">false</span>, </span><br><span class="line"> parallelism.<span class="keyword">default</span>=<span class="number">1</span>, </span><br><span class="line"> yarn.application-attempts=<span class="number">3</span>, </span><br><span class="line"> taskmanager.numberOfTaskSlots=<span class="number">1</span>, </span><br><span class="line"> cluster.evenly-spread-out-slots=<span class="keyword">true</span>, </span><br><span class="line"> yarn.application.name=jjg-test-<span class="number">1.10</span>kafka-producer_jiangjiguang, </span><br><span class="line"> yarn.application.queue=root.data.stream, </span><br><span class="line"> metrics.reporter.prom.class=org.apache.flink.metrics.prometheus.PrometheusReporter, </span><br><span class="line"> jobmanager.heap.size=<span class="number">700</span>m, taskmanager.memory.process.size=<span class="number">1</span> gb, </span><br><span class="line"> metrics.reporter.prom.port=<span class="number">9249</span>-<span class="number">9299</span>, </span><br><span class="line"> state.backend.rocksdb.checkpoint.transfer.thread.num=<span class="number">2</span>, state.backend.incremental=<span class="keyword">true</span>, </span><br><span class="line"> restart-strategy.fixed-delay.attempts=<span class="number">120</span>, execution.target=yarn-per-job, </span><br><span class="line"> jobmanager.rpc.port=<span class="number">6123</span>, restart-strategy.fixed-delay.delay=<span class="number">30</span> s, </span><br><span class="line"> execution.attached=<span class="keyword">false</span>, execution.shutdown-on-attached-exit=<span class="keyword">false</span>, </span><br><span class="line"> pipeline.jars=[file:/tmp/<span class="number">2433f</span>8bdeb5143dbaded373e1dfd112c-<span class="number">1597113469689138815923316673038</span>.jar], </span><br><span class="line"> state.backend=rocksdb, restart-strategy=fixed-delay, </span><br><span class="line"> $internal.yarn.log-config-file=/data/flink/test/jjg-test/flink-<span class="number">1.10</span>.1/conf/log4j.properties, </span><br><span class="line"> state.checkpoints.dir=hdfs:<span class="comment">///user/flink/checkpoints&#125;</span></span><br></pre></td></tr></table></figure>
-
-<ul>
-<li>YarnConfiguration对象内容</li>
-</ul>
-<figure class="highlight plain"><table><tr><td class="gutter"><pre><span class="line">1</span><br></pre></td><td class="code"><pre><span class="line">Configuration: core-default.xml, core-site.xml, mapred-default.xml, mapred-site.xml, yarn-default.xml, yarn-site.xml, hdfs-default.xml, hdfs-site.xml</span><br></pre></td></tr></table></figure>
-
-<h1 id="参考文档"><a href="#参考文档" class="headerlink" title="参考文档"></a>参考文档</h1><p><a href="https://blog.csdn.net/lmalds/article/details/70174778" target="_blank" rel="noopener">Flink源码–CLI提交Job</a></p>
-
-        
-      
-    </div>
-
-    
-    
-    
-      <footer class="post-footer">
-        <div class="post-eof"></div>
-      </footer>
-  </article>
-  
-  
-  
-
-    
-        
-  
-  
-  <article itemscope itemtype="http://schema.org/Article" class="post-block home" lang="zh-CN">
-    <link itemprop="mainEntityOfPage" href="http://yoursite.com/2020/08/10/es/ES的Client实践/">
-
-    <span hidden itemprop="author" itemscope itemtype="http://schema.org/Person">
-      <meta itemprop="name" content="姜纪光">
-      <meta itemprop="description" content="">
-      <meta itemprop="image" content="/images/avatar.gif">
-    </span>
-
-    <span hidden itemprop="publisher" itemscope itemtype="http://schema.org/Organization">
-      <meta itemprop="name" content="纪光的博客">
-    </span>
-      <header class="post-header">
-        <h1 class="post-title" itemprop="name headline">
-          
-            
-            <a href="/2020/08/10/es/ES的Client实践/" class="post-title-link" itemprop="url">ES使用实践</a>
-          
-        </h1>
-
-        <div class="post-meta">
-            <span class="post-meta-item">
-              <span class="post-meta-item-icon">
-                <i class="fa fa-calendar-o"></i>
-              </span>
-              <span class="post-meta-item-text">发表于</span>
-
-              
-                
-              
-
-              <time title="创建时间：2020-08-10 15:51:49" itemprop="dateCreated datePublished" datetime="2020-08-10T15:51:49+08:00">2020-08-10</time>
-            </span>
-          
-            
-
-            
-              <span class="post-meta-item">
-                <span class="post-meta-item-icon">
-                  <i class="fa fa-calendar-check-o"></i>
-                </span>
-                <span class="post-meta-item-text">更新于</span>
-                <time title="修改时间：2020-08-16 17:10:45" itemprop="dateModified" datetime="2020-08-16T17:10:45+08:00">2020-08-16</time>
-              </span>
-            
-          
-            <span class="post-meta-item">
-              <span class="post-meta-item-icon">
-                <i class="fa fa-folder-o"></i>
-              </span>
-              <span class="post-meta-item-text">分类于</span>
-              
-                <span itemprop="about" itemscope itemtype="http://schema.org/Thing">
-                  <a href="/categories/es/" itemprop="url" rel="index">
-                    <span itemprop="name">es</span>
-                  </a>
-                </span>
-
-                
-                
-              
-            </span>
-          
-
-          
-            <span id="/2020/08/10/es/ES的Client实践/" class="post-meta-item leancloud_visitors" data-flag-title="ES使用实践" title="阅读次数">
-              <span class="post-meta-item-icon">
-                <i class="fa fa-eye"></i>
-              </span>
-              <span class="post-meta-item-text">阅读次数：</span>
-              <span class="leancloud-visitors-count"></span>
-            </span>
-          
-  
-  
-
-        </div>
-      </header>
-
-    
-    
-    
-    <div class="post-body" itemprop="articleBody">
-
-      
-          <h1 id="索引"><a href="#索引" class="headerlink" title="索引"></a>索引</h1><h2 id="分片和分片副本数量设置"><a href="#分片和分片副本数量设置" class="headerlink" title="分片和分片副本数量设置"></a>分片和分片副本数量设置</h2><p>目前ES集群有18个节点</p>
-<h1 id="API操作"><a href="#API操作" class="headerlink" title="API操作"></a>API操作</h1><h1 id="springboot整合"><a href="#springboot整合" class="headerlink" title="springboot整合"></a>springboot整合</h1><h1 id="参考文档"><a href="#参考文档" class="headerlink" title="参考文档"></a>参考文档</h1><p><a href="https://blog.csdn.net/u013515384/article/details/84994763" target="_blank" rel="noopener">springboot elasticsearch整合实践（RestHighLevelClient）</a></p>
-<p><a href="https://xiaoxiami.gitbook.io/elasticsearch/ji-chu/33-apis" target="_blank" rel="noopener">Elasticsearch高手之路</a></p>
-
-        
-      
-    </div>
-
-    
-    
-    
-      <footer class="post-footer">
-        <div class="post-eof"></div>
-      </footer>
-  </article>
-  
-  
-  
-
-    
-        
-  
-  
-  <article itemscope itemtype="http://schema.org/Article" class="post-block home" lang="zh-CN">
-    <link itemprop="mainEntityOfPage" href="http://yoursite.com/2020/08/10/java/虚拟机监控和管理/">
-
-    <span hidden itemprop="author" itemscope itemtype="http://schema.org/Person">
-      <meta itemprop="name" content="姜纪光">
-      <meta itemprop="description" content="">
-      <meta itemprop="image" content="/images/avatar.gif">
-    </span>
-
-    <span hidden itemprop="publisher" itemscope itemtype="http://schema.org/Organization">
-      <meta itemprop="name" content="纪光的博客">
-    </span>
-      <header class="post-header">
-        <h1 class="post-title" itemprop="name headline">
-          
-            
-            <a href="/2020/08/10/java/虚拟机监控和管理/" class="post-title-link" itemprop="url">虚拟机监控和管理</a>
-          
-        </h1>
-
-        <div class="post-meta">
-            <span class="post-meta-item">
-              <span class="post-meta-item-icon">
-                <i class="fa fa-calendar-o"></i>
-              </span>
-              <span class="post-meta-item-text">发表于</span>
-
-              
-                
-              
-
-              <time title="创建时间：2020-08-10 11:00:25 / 修改时间：12:08:54" itemprop="dateCreated datePublished" datetime="2020-08-10T11:00:25+08:00">2020-08-10</time>
-            </span>
-          
-            
-
-            
-          
-            <span class="post-meta-item">
-              <span class="post-meta-item-icon">
-                <i class="fa fa-folder-o"></i>
-              </span>
-              <span class="post-meta-item-text">分类于</span>
-              
-                <span itemprop="about" itemscope itemtype="http://schema.org/Thing">
-                  <a href="/categories/java/" itemprop="url" rel="index">
-                    <span itemprop="name">java</span>
-                  </a>
-                </span>
-
-                
-                
-              
-            </span>
-          
-
-          
-            <span id="/2020/08/10/java/虚拟机监控和管理/" class="post-meta-item leancloud_visitors" data-flag-title="虚拟机监控和管理" title="阅读次数">
-              <span class="post-meta-item-icon">
-                <i class="fa fa-eye"></i>
-              </span>
-              <span class="post-meta-item-text">阅读次数：</span>
-              <span class="leancloud-visitors-count"></span>
-            </span>
-          
-  
-  
-
-        </div>
-      </header>
-
-    
-    
-    
-    <div class="post-body" itemprop="articleBody">
-
-      
-          <h1 id="java-lang-management简介"><a href="#java-lang-management简介" class="headerlink" title="java.lang.management简介"></a>java.lang.management简介</h1><p>​    该包提供了用于监控和管理Java虚拟机和Java运行时中的其他组件的管理接口。它可以对正在运行的Java虚拟机进行本地和远程的监控和管理。</p>
-<h1 id="信号量"><a href="#信号量" class="headerlink" title="信号量"></a>信号量</h1><h1 id="Shutdownhook"><a href="#Shutdownhook" class="headerlink" title="Shutdownhook"></a>Shutdownhook</h1><h1 id="参考文档"><a href="#参考文档" class="headerlink" title="参考文档"></a>参考文档</h1><p><a href="https://blog.csdn.net/zgljl2012/article/details/50989976" target="_blank" rel="noopener">Java获取当前进程ID以及所有Java进程的进程ID</a></p>
-<p><a href="https://docs.oracle.com/javase/8/docs/api/java/lang/management/package-summary.html" target="_blank" rel="noopener">java.lang.management</a></p>
-<p><a href="https://www.cnblogs.com/nuccch/p/10903162.html" target="_blank" rel="noopener">如何优雅地停止Java进程</a></p>
-<p><a href="https://blog.csdn.net/loveli178/article/details/90704869" target="_blank" rel="noopener">浅析java的退出钩子(Hook)</a></p>
-<p><a href="https://openjdk.java.net/groups/serviceability/jvmstat/overview-summary.html" target="_blank" rel="noopener">Jvmstat</a></p>
-<p><a href="https://www.cnblogs.com/dongguacai/p/5900507.html" target="_blank" rel="noopener">JMX超详细解读</a></p>
-
-        
-      
-    </div>
-
-    
-    
-    
-      <footer class="post-footer">
-        <div class="post-eof"></div>
-      </footer>
-  </article>
-  
-  
-  
-
-    
-        
-  
-  
-  <article itemscope itemtype="http://schema.org/Article" class="post-block home" lang="zh-CN">
-    <link itemprop="mainEntityOfPage" href="http://yoursite.com/2020/08/09/java/java性能优化/">
-
-    <span hidden itemprop="author" itemscope itemtype="http://schema.org/Person">
-      <meta itemprop="name" content="姜纪光">
-      <meta itemprop="description" content="">
-      <meta itemprop="image" content="/images/avatar.gif">
-    </span>
-
-    <span hidden itemprop="publisher" itemscope itemtype="http://schema.org/Organization">
-      <meta itemprop="name" content="纪光的博客">
-    </span>
-      <header class="post-header">
-        <h1 class="post-title" itemprop="name headline">
-          
-            
-            <a href="/2020/08/09/java/java性能优化/" class="post-title-link" itemprop="url">Java性能优化</a>
-          
-        </h1>
-
-        <div class="post-meta">
-            <span class="post-meta-item">
-              <span class="post-meta-item-icon">
-                <i class="fa fa-calendar-o"></i>
-              </span>
-              <span class="post-meta-item-text">发表于</span>
-
-              
-                
-              
-
-              <time title="创建时间：2020-08-09 12:59:07 / 修改时间：18:11:58" itemprop="dateCreated datePublished" datetime="2020-08-09T12:59:07+08:00">2020-08-09</time>
-            </span>
-          
-            
-
-            
-          
-            <span class="post-meta-item">
-              <span class="post-meta-item-icon">
-                <i class="fa fa-folder-o"></i>
-              </span>
-              <span class="post-meta-item-text">分类于</span>
-              
-                <span itemprop="about" itemscope itemtype="http://schema.org/Thing">
-                  <a href="/categories/java/" itemprop="url" rel="index">
-                    <span itemprop="name">java</span>
-                  </a>
-                </span>
-
-                
-                
-              
-            </span>
-          
-
-          
-            <span id="/2020/08/09/java/java性能优化/" class="post-meta-item leancloud_visitors" data-flag-title="Java性能优化" title="阅读次数">
-              <span class="post-meta-item-icon">
-                <i class="fa fa-eye"></i>
-              </span>
-              <span class="post-meta-item-text">阅读次数：</span>
-              <span class="leancloud-visitors-count"></span>
-            </span>
-          
-  
-  
-
-        </div>
-      </header>
-
-    
-    
-    
-    <div class="post-body" itemprop="articleBody">
-
-      
-          <h1 id="JVM参数设置"><a href="#JVM参数设置" class="headerlink" title="JVM参数设置"></a>JVM参数设置</h1><h2 id="开启逃逸分析"><a href="#开启逃逸分析" class="headerlink" title="开启逃逸分析"></a>开启逃逸分析</h2><p>jvm参数设置：<code>-XX:+DoEscapeAnalysis</code></p>
-<p>JDK8中默认是开启的，开启后对热点代码，到达一定次数后会触发JIT编译，之后实例对象就会在栈上分配而不是在堆上</p>
-<h2 id="开启TLAB-Thread-Local-Application-Buffer"><a href="#开启TLAB-Thread-Local-Application-Buffer" class="headerlink" title="开启TLAB(Thread Local Application Buffer)"></a>开启TLAB(Thread Local Application Buffer)</h2><p>jvm参数设置：<code>-XX:+UseTLAB</code></p>
-<p>默认是开启的，TLAB的空间默认栈eden区的1%</p>
-<p>当eden进行GC时也会回收TLAB空间</p>
-<h1 id="参考文档"><a href="#参考文档" class="headerlink" title="参考文档"></a>参考文档</h1>
-        
-      
-    </div>
-
-    
-    
-    
-      <footer class="post-footer">
-        <div class="post-eof"></div>
-      </footer>
-  </article>
-  
-  
-  
-
-    
-        
-  
-  
-  <article itemscope itemtype="http://schema.org/Article" class="post-block home" lang="zh-CN">
-    <link itemprop="mainEntityOfPage" href="http://yoursite.com/2020/08/07/java/java程序捕获signal实践/">
-
-    <span hidden itemprop="author" itemscope itemtype="http://schema.org/Person">
-      <meta itemprop="name" content="姜纪光">
-      <meta itemprop="description" content="">
-      <meta itemprop="image" content="/images/avatar.gif">
-    </span>
-
-    <span hidden itemprop="publisher" itemscope itemtype="http://schema.org/Organization">
-      <meta itemprop="name" content="纪光的博客">
-    </span>
-      <header class="post-header">
-        <h1 class="post-title" itemprop="name headline">
-          
-            
-            <a href="/2020/08/07/java/java程序捕获signal实践/" class="post-title-link" itemprop="url">java程序捕获signal实践</a>
-          
-        </h1>
-
-        <div class="post-meta">
-            <span class="post-meta-item">
-              <span class="post-meta-item-icon">
-                <i class="fa fa-calendar-o"></i>
-              </span>
-              <span class="post-meta-item-text">发表于</span>
-
-              
-                
-              
-
-              <time title="创建时间：2020-08-07 14:33:41 / 修改时间：16:48:20" itemprop="dateCreated datePublished" datetime="2020-08-07T14:33:41+08:00">2020-08-07</time>
-            </span>
-          
-            
-
-            
-          
-            <span class="post-meta-item">
-              <span class="post-meta-item-icon">
-                <i class="fa fa-folder-o"></i>
-              </span>
-              <span class="post-meta-item-text">分类于</span>
-              
-                <span itemprop="about" itemscope itemtype="http://schema.org/Thing">
-                  <a href="/categories/java/" itemprop="url" rel="index">
-                    <span itemprop="name">java</span>
-                  </a>
-                </span>
-
-                
-                
-              
-            </span>
-          
-
-          
-            <span id="/2020/08/07/java/java程序捕获signal实践/" class="post-meta-item leancloud_visitors" data-flag-title="java程序捕获signal实践" title="阅读次数">
-              <span class="post-meta-item-icon">
-                <i class="fa fa-eye"></i>
-              </span>
-              <span class="post-meta-item-text">阅读次数：</span>
-              <span class="leancloud-visitors-count"></span>
-            </span>
-          
-  
-  
-
-        </div>
-      </header>
-
-    
-    
-    
-    <div class="post-body" itemprop="articleBody">
-
-      
-          <h1 id="简介"><a href="#简介" class="headerlink" title="简介"></a>简介</h1><h1 id="参考文档"><a href="#参考文档" class="headerlink" title="参考文档"></a>参考文档</h1><p><a href="https://blog.csdn.net/loveli178/article/details/90704869" target="_blank" rel="noopener">浅析java的退出钩子(Hook)</a></p>
-
-        
-      
-    </div>
-
-    
-    
-    
-      <footer class="post-footer">
-        <div class="post-eof"></div>
-      </footer>
-  </article>
-  
-  
-  
-
-    
-        
-  
-  
-  <article itemscope itemtype="http://schema.org/Article" class="post-block home" lang="zh-CN">
-    <link itemprop="mainEntityOfPage" href="http://yoursite.com/2020/08/07/linux/linux的signal机制/">
-
-    <span hidden itemprop="author" itemscope itemtype="http://schema.org/Person">
-      <meta itemprop="name" content="姜纪光">
-      <meta itemprop="description" content="">
-      <meta itemprop="image" content="/images/avatar.gif">
-    </span>
-
-    <span hidden itemprop="publisher" itemscope itemtype="http://schema.org/Organization">
-      <meta itemprop="name" content="纪光的博客">
-    </span>
-      <header class="post-header">
-        <h1 class="post-title" itemprop="name headline">
-          
-            
-            <a href="/2020/08/07/linux/linux的signal机制/" class="post-title-link" itemprop="url">linux的signal机制</a>
-          
-        </h1>
-
-        <div class="post-meta">
-            <span class="post-meta-item">
-              <span class="post-meta-item-icon">
-                <i class="fa fa-calendar-o"></i>
-              </span>
-              <span class="post-meta-item-text">发表于</span>
-
-              
-                
-              
-
-              <time title="创建时间：2020-08-07 09:24:23 / 修改时间：17:12:49" itemprop="dateCreated datePublished" datetime="2020-08-07T09:24:23+08:00">2020-08-07</time>
-            </span>
-          
-            
-
-            
-          
-            <span class="post-meta-item">
-              <span class="post-meta-item-icon">
-                <i class="fa fa-folder-o"></i>
-              </span>
-              <span class="post-meta-item-text">分类于</span>
-              
-                <span itemprop="about" itemscope itemtype="http://schema.org/Thing">
-                  <a href="/categories/linux/" itemprop="url" rel="index">
-                    <span itemprop="name">linux</span>
-                  </a>
-                </span>
-
-                
-                
-              
-            </span>
-          
-
-          
-            <span id="/2020/08/07/linux/linux的signal机制/" class="post-meta-item leancloud_visitors" data-flag-title="linux的signal机制" title="阅读次数">
-              <span class="post-meta-item-icon">
-                <i class="fa fa-eye"></i>
-              </span>
-              <span class="post-meta-item-text">阅读次数：</span>
-              <span class="leancloud-visitors-count"></span>
-            </span>
-          
-  
-  
-
-        </div>
-      </header>
-
-    
-    
-    
-    <div class="post-body" itemprop="articleBody">
-
-      
-          <h1 id="基本概念"><a href="#基本概念" class="headerlink" title="基本概念"></a>基本概念</h1><ul>
-<li><p>信号(signal)是一种软中断，是进程间异步通讯的一种方式。</p>
-<blockquote>
-<p>每个信号都有一个编号和一个宏定义名称，查看方式：cat /usr/include/bits/signum.h</p>
-</blockquote>
-</li>
-<li><p>Linux系统共定义了64种信号，分为可靠信号和不可靠信号</p>
-<blockquote>
-<p>不可靠信号：称为非实时信号、不支持排队，信号可能丢失，比如发送多次相同的信号, 进程只能收到一   次。取值范围：1~31</p>
-<p>可靠信号：称为实时信号、支持排队，信号不会丢失，发多少次, 就可以收到多少次。取值范围：32~64</p>
-</blockquote>
-</li>
-<li><p>kill -l查看所有的signal</p>
-<blockquote>
-<p>1) SIGHUP       2) SIGINT       3) SIGQUIT      4) SIGILL       5) SIGTRAP<br> 6) SIGABRT      7) SIGBUS       8) SIGFPE       9) SIGKILL     10) SIGUSR1<br>11) SIGSEGV     12) SIGUSR2     13) SIGPIPE     14) SIGALRM     15) SIGTERM<br>16) SIGSTKFLT   17) SIGCHLD     18) SIGCONT     19) SIGSTOP     20) SIGTSTP<br>21) SIGTTIN     22) SIGTTOU     23) SIGURG      24) SIGXCPU     25) SIGXFSZ<br>26) SIGVTALRM   27) SIGPROF     28) SIGWINCH    29) SIGIO       30) SIGPWR<br>31) SIGSYS      34) SIGRTMIN    35) SIGRTMIN+1  36) SIGRTMIN+2  37) SIGRTMIN+3<br>38) SIGRTMIN+4  39) SIGRTMIN+5  40) SIGRTMIN+6  41) SIGRTMIN+7  42) SIGRTMIN+8<br>43) SIGRTMIN+9  44) SIGRTMIN+10 45) SIGRTMIN+11 46) SIGRTMIN+12 47) SIGRTMIN+13<br>48) SIGRTMIN+14 49) SIGRTMIN+15 50) SIGRTMAX-14 51) SIGRTMAX-13 52) SIGRTMAX-12<br>53) SIGRTMAX-11 54) SIGRTMAX-10 55) SIGRTMAX-9  56) SIGRTMAX-8  57) SIGRTMAX-7<br>58) SIGRTMAX-6  59) SIGRTMAX-5  60) SIGRTMAX-4  61) SIGRTMAX-3  62) SIGRTMAX-2<br>63) SIGRTMAX-1  64) SIGRTMAX</p>
-</blockquote>
-</li>
-<li><p>信号解释，cat /usr/include/bits/signum.h</p>
-<blockquote>
-<p>Fake signal：</p>
-<p>SIG_ERR ((__sighandler_t) -1)    Error return</p>
-<p>SIG_DFL ((__sighandler_t) 0)      Default action</p>
-<p>SIG_IGN ((__sighandler_t) 1)      Ignore signal</p>
-<p>Signals：</p>
-<p>SIGHUP          1       挂起/* Hangup (POSIX).  */</p>
-<p>SIGINT            2       中断/* Interrupt (ANSI).  */       可由Ctrl-C产生</p>
-<p>SIGQUIT         3       退出/* Quit (POSIX).  */</p>
-<p>SIGILL             4       非法指令/* Illegal instruction (ANSI).  */</p>
-<p>SIGTRAP         5       断点或陷阱指令/* Trace trap (POSIX).  */</p>
-<p>SIGABRT         6       abort发出的信号/* Abort (ANSI).  */</p>
-<p>SIGIOT            6       /* IOT trap (4.2 BSD).  */</p>
-<p>SIGBUS           7       非法内存访问/* BUS error (4.2 BSD).  */</p>
-<p>SIGFPE            8      浮点异常 /* Floating-point exception (ANSI).  */</p>
-<p>SIGKILL           9       kill信号（不能被拦截、忽略、处理和阻塞）/* Kill, unblockable (POSIX).  */</p>
-<p>SIGUSR1         10      用户信号1/* User-defined signal 1 (POSIX).  */</p>
-<p>SIGSEGV         11      无效内存访问/* Segmentation violation (ANSI).  */</p>
-<p>SIGUSR2         12      用户信号2/* User-defined signal 2 (POSIX).  */</p>
-<p>SIGPIPE           13      管道破损，没有读端的管道写数据/* Broken pipe (POSIX).  */</p>
-<p>SIGALRM         14      alarm发出的信号/* Alarm clock (POSIX).  */</p>
-<p>SIGTERM         15      终止信号/* Termination (ANSI).  */</p>
-<p>SIGSTKFLT       16      栈溢出/* Stack fault.  */</p>
-<p>SIGCLD          SIGCHLD /* Same as SIGCHLD (System V).  */</p>
-<p>SIGCHLD         17      子进程退出（默认忽略）/* Child status has changed (POSIX).  */</p>
-<p>SIGCONT         18      进程继续/* Continue (POSIX).  */</p>
-<p>SIGSTOP          19      进程停止（不能被忽略、处理和阻塞）/* Stop, unblockable (POSIX).  */</p>
-<p>SIGTSTP           20      进程停止/* Keyboard stop (POSIX).  */          可由Ctrl-Z产生</p>
-<p>SIGTTIN            21      进程停止，后台进程从终端读数据时/* Background read from tty (POSIX).  */</p>
-<p>SIGTTOU          22      进程停止，后台进程想终端写数据时/* Background write to tty (POSIX).  */</p>
-<p>SIGURG            23      I/O有紧急数据到达当前进程（默认忽略）/* Urgent condition on socket (4.2 BSD).  */</p>
-<p>SIGXCPU           24      进程的CPU时间片到期/* CPU limit exceeded (4.2 BSD).  */</p>
-<p>SIGXFSZ            25      文件大小的超出上限/* File size limit exceeded (4.2 BSD).  */</p>
-<p>SIGVTALRM      26      虚拟时钟超时/* Virtual alarm clock (4.2 BSD).  */</p>
-<p>SIGPROF           27      profile时钟超时/* Profiling alarm clock (4.2 BSD).  */</p>
-<p>SIGWINCH        28      窗口大小改变（默认忽略）/* Window size change (4.3 BSD, Sun).  */</p>
-<p>SIGPOLL         SIGIO   /* Pollable event occurred (System V).  */</p>
-<p>SIGIO                29      I/O相关/* I/O now possible (4.2 BSD).  */</p>
-<p>SIGPWR            30      关机（默认忽略）/* Power failure restart (System V).  */</p>
-<p>SIGSYS              31      系统调用异常/* Bad system call.  */</p>
-<p>SIGUNUSED     31</p>
-</blockquote>
-</li>
-<li><p>signal的默认处理动作</p>
-<blockquote>
-<p>Term表示终止当前进程</p>
-<p>Core表示终止当前进程并且Core Dump</p>
-<p>Ign表示忽略该信号</p>
-<p>Stop表示停止当前进程</p>
-<p>Cont表示继续执行先前停止的进程，</p>
-</blockquote>
-</li>
-</ul>
-<h1 id="信号产生"><a href="#信号产生" class="headerlink" title="信号产生"></a>信号产生</h1><p>信号的来源可分为：硬件类和软件类</p>
-<h2 id="硬件方式"><a href="#硬件方式" class="headerlink" title="硬件方式"></a>硬件方式</h2><ul>
-<li><p>用户输入</p>
-<blockquote>
-<p>ctrl-c 发送 <code>SIGINT</code> 中断信号给前台进程组中的所有进程。常用于终止正在运行的程序。<br>ctrl-z 发送 <code>SIGTSTP</code> 进程停止信号给前台进程组中的所有进程，常用于挂起一个进程。<br>ctrl-d 不是发送信号，而是表示一个特殊的二进制值，表示 EOF。<br>ctrl-\ 发送 <code>SIGQUIT</code> 退出信号给前台进程组中的所有进程，终止前台进程并生成 core 文件。</p>
-</blockquote>
-</li>
-<li><p>硬件异常</p>
-<blockquote>
-<p>由硬件检测到并通知内核、然后内核向当前进程发送适当的信号，例如：</p>
-<p>1、当前进程执行了除以0的指令，CPU的运算单元会产生异常，内核将这个异常解释为<code>SIGFPE</code>浮点异常信号发送给进程</p>
-<p>2、当前进程访问了非法内存地址，MMU会产生异常，内核将这个异常解释为<code>SIGSEGV</code>无效内存访问信号发送给进程。</p>
-</blockquote>
-</li>
-</ul>
-<h2 id="软件方式"><a href="#软件方式" class="headerlink" title="软件方式"></a>软件方式</h2><ul>
-<li><p>进程间</p>
-<blockquote>
-<p>一个进程调用<code>kill(2)</code>函数可以发送信号给另一个进程。</p>
-<p>可以用<code>kill(1)</code>命令发送信号给某个进程，<code>kill(1)</code>命令也是调用<code>kill(2)</code>函数实现的，如果不明确指定信号则发送<code>SIGTERM</code>信号，该信号的默认处理动作是终止进程。</p>
-</blockquote>
-</li>
-<li><p>编程语言</p>
-<blockquote>
-<p>kernel,使用 kill_proc_info(）等</p>
-<p>native,使用 kill() 或者raise()  等</p>
-<p>java,使用 Procees.sendSignal()等</p>
-</blockquote>
-</li>
-</ul>
-<h1 id="信号注册和注销"><a href="#信号注册和注销" class="headerlink" title="信号注册和注销"></a>信号注册和注销</h1><h2 id="信号注册"><a href="#信号注册" class="headerlink" title="信号注册"></a>信号注册</h2><p>​    在进程task_struct结构体中有一个未决信号的成员变量 <code>struct sigpending pending</code>。每个信号在进程中注册都会把信号值加入到进程的未决信号集。</p>
-<ul>
-<li>非实时信号发送给进程时，如果该信息已经在进程中注册过，不会再次注册，故信号会丢失</li>
-<li>实时信号发送给进程时，不管该信号是否在进程中注册过，都会再次注册。故信号不会丢失</li>
-</ul>
-<h2 id="信号注销"><a href="#信号注销" class="headerlink" title="信号注销"></a>信号注销</h2><ul>
-<li>非实时信号：不可重复注册，最多只有一个sigqueue结构；当该结构被释放后，把该信号从进程未决信号集中删除，则信号注销完毕</li>
-<li>实时信号：可重复注册，可能存在多个sigqueue结构；当该信号的所有sigqueue处理完毕后，把该信号从进程未决信号集中删除，则信号注销完毕</li>
-</ul>
-<h1 id="信号处理"><a href="#信号处理" class="headerlink" title="信号处理"></a>信号处理</h1><p>​    内核处理进程收到的signal是在当前进程的上下文，故进程必须是Running状态。</p>
-<p>​    当进程唤醒或者调度后获取CPU，则会从内核态转到用户态时检测是否有signal等待处理，处理完，进程会把相应的未决信号从链表中去掉。</p>
-<p>​    信号处理动作称为信号<em>递达</em>（Delivery）。信号从产生到递达之间的状态，称为信号<em>未决</em>（Pending）</p>
-<ul>
-<li><p>signal信号处理时机</p>
-<blockquote>
-<p>内核态 -&gt; signal信号处理 -&gt; 用户态</p>
-<p>在内核态，signal信号不起作用</p>
-<p>在用户态，signal所有未被屏蔽的信号都处理完毕</p>
-<p>当屏蔽信号，取消屏蔽时，会在下一次内核转用户态的过程中执行</p>
-</blockquote>
-</li>
-<li><p>处理方式</p>
-<blockquote>
-<p>默认：接收到信号后按默认的行为处理该信号，这是多数应用采取的处理方式</p>
-<p>自定义：用自定义的信号处理函数来执行特定的动作</p>
-<p>忽略：接收到信号后不做任何反应</p>
-</blockquote>
-</li>
-<li><p>信号安装</p>
-<blockquote>
-<p>进程处理某个信号前，需要先在进程中安装此信号。安装过程主要是建立信号值和进程对相应信息值的动作。</p>
-<p>信号安装函数:</p>
-<p>1、signal()：不支持信号传递信息，主要用于非实时信号安装</p>
-<p>2、sigaction()：支持信号传递信息，可用于所有信号安装</p>
-<p>函数原型：</p>
-<p>int sigaction(int signum, const struct sigaction *act, struct sigaction *oldact)</p>
-<p>1、signum：要操作的signal信号</p>
-<p>2、act：设置对signal信号的新处理方式</p>
-<p>3、oldact：原来对信号的处理方式</p>
-<p>4、返回值：0 表示成功，-1 表示有错误发生</p>
-<p>其中 sigaction结构体：</p>
-<p>1、sa_handler：信号处理函数</p>
-<p>2、sa_mask：指定信号处理程序执行过程中需要阻塞的信号</p>
-<p>3、sa_flags：标示位</p>
-<ul>
-<li>SA_RESTART：使被信号打断的syscall重新发起。</li>
-<li>SA_NOCLDSTOP：使父进程在它的子进程暂停或继续运行时不会收到 SIGCHLD 信号。</li>
-<li>SA_NOCLDWAIT：使父进程在它的子进程退出时不会收到SIGCHLD信号，这时子进程如果退出也不会成为僵 尸进程。</li>
-<li>SA_NODEFER：使对信号的屏蔽无效，即在信号处理函数执行期间仍能发出这个信号。</li>
-<li>SA_RESETHAND：信号处理之后重新设置为默认的处理方式。</li>
-<li>SA_SIGINFO：使用sa_sigaction成员而不是sa_handler作为信号处理函数</li>
-</ul>
-</blockquote>
-</li>
-<li><p>信号发送</p>
-<blockquote>
-<p>1、kill()：用于向进程或进程组发送信号</p>
-<p>2、sigqueue()：只能向一个进程发送信号，不能像进程组发送信号；主要针对实时信号提出，与sigaction()组合使用，当然也支持非实时信号的发送</p>
-<p>3、alarm()：用于调用进程指定时间后发出SIGALARM信号</p>
-<p>4、setitimer()：设置定时器，计时达到后给进程发送SIGALRM信号，功能比alarm更强大</p>
-<p>5、abort()：向进程发送SIGABORT信号，默认进程会异常退出</p>
-<p>6、raise()：用于向进程自身发送信号</p>
-</blockquote>
-</li>
-<li><p>信号函数</p>
-<blockquote>
-<p>信号集操作函数：</p>
-<p>1、sigemptyset(sigset_t *set)：信号集全部清0</p>
-<p>2、sigfillset(sigset_t *set)： 信号集全部置1，则信号集包含linux支持的64种信号</p>
-<p>3、sigaddset(sigset_t *set, int signum)：向信号集中加入signum信号</p>
-<p>4、sigdelset(sigset_t *set, int signum)：向信号集中删除signum信号</p>
-<p>5、sigismember(const sigset_t *set, int signum)：判定信号signum是否存在信号集中</p>
-<p>信号阻塞函数：</p>
-<p>1、sigprocmask(int how, const sigset_t *set, sigset_t *oldset))； 不同how参数，实现不同功能</p>
-<p>​        SIG_BLOCK：将set指向信号集中的信号，添加到进程阻塞信号集</p>
-<p>​        SIG_UNBLOCK：将set指向信号集中的信号，从进程阻塞信号集删除</p>
-<p>​        SIG_SETMASK：将set指向信号集中的信号，设置成进程阻塞信号集</p>
-<p>2、sigpending(sigset_t *set))：获取已发送到进程，却被阻塞的所有信号</p>
-<p>3、sigsuspend(const sigset_t *mask))：用mask代替进程的原有掩码，并暂停进程执行，直到收到信号再恢复原有掩码并继续执行进程</p>
-</blockquote>
-</li>
-</ul>
-<h1 id="参考文档"><a href="#参考文档" class="headerlink" title="参考文档"></a>参考文档</h1><p><a href="http://gityuan.com/2015/12/20/signal/" target="_blank" rel="noopener">Linux信号(signal)机制</a></p>
-<p><a href="http://akaedu.github.io/book/ch33s01.html" target="_blank" rel="noopener">信号</a></p>
-<p><a href="https://blog.csdn.net/melody_1016/article/details/84959962" target="_blank" rel="noopener">signal信号宏定义查看</a></p>
-<p><a href="https://www.cnblogs.com/jiangzhaowei/p/8971265.html" target="_blank" rel="noopener">Linux后台进程管理</a></p>
-<p><a href="https://www.coder.work/article/2816595" target="_blank" rel="noopener">java - CTRL-C在Java程序上不起作用</a></p>
-
-        
-      
-    </div>
-
-    
-    
-    
-      <footer class="post-footer">
-        <div class="post-eof"></div>
-      </footer>
-  </article>
-  
-  
-  
-
-    
-        
-  
-  
-  <article itemscope itemtype="http://schema.org/Article" class="post-block home" lang="zh-CN">
-    <link itemprop="mainEntityOfPage" href="http://yoursite.com/2020/08/06/flink/Flink从checkpoint恢复失败-EOFException/">
-
-    <span hidden itemprop="author" itemscope itemtype="http://schema.org/Person">
-      <meta itemprop="name" content="姜纪光">
-      <meta itemprop="description" content="">
-      <meta itemprop="image" content="/images/avatar.gif">
-    </span>
-
-    <span hidden itemprop="publisher" itemscope itemtype="http://schema.org/Organization">
-      <meta itemprop="name" content="纪光的博客">
-    </span>
-      <header class="post-header">
-        <h1 class="post-title" itemprop="name headline">
-          
-            
-            <a href="/2020/08/06/flink/Flink从checkpoint恢复失败-EOFException/" class="post-title-link" itemprop="url">Flink从checkpoint恢复失败-EOFException</a>
-          
-        </h1>
-
-        <div class="post-meta">
-            <span class="post-meta-item">
-              <span class="post-meta-item-icon">
-                <i class="fa fa-calendar-o"></i>
-              </span>
-              <span class="post-meta-item-text">发表于</span>
-
-              
-                
-              
-
-              <time title="创建时间：2020-08-06 19:32:53 / 修改时间：19:37:27" itemprop="dateCreated datePublished" datetime="2020-08-06T19:32:53+08:00">2020-08-06</time>
-            </span>
-          
-            
-
-            
-          
-            <span class="post-meta-item">
-              <span class="post-meta-item-icon">
-                <i class="fa fa-folder-o"></i>
-              </span>
-              <span class="post-meta-item-text">分类于</span>
-              
-                <span itemprop="about" itemscope itemtype="http://schema.org/Thing">
-                  <a href="/categories/flink/" itemprop="url" rel="index">
-                    <span itemprop="name">flink</span>
-                  </a>
-                </span>
-
-                
-                
-              
-            </span>
-          
-
-          
-            <span id="/2020/08/06/flink/Flink从checkpoint恢复失败-EOFException/" class="post-meta-item leancloud_visitors" data-flag-title="Flink从checkpoint恢复失败-EOFException" title="阅读次数">
-              <span class="post-meta-item-icon">
-                <i class="fa fa-eye"></i>
-              </span>
-              <span class="post-meta-item-text">阅读次数：</span>
-              <span class="leancloud-visitors-count"></span>
-            </span>
-          
-  
-  
-
-        </div>
-      </header>
-
-    
-    
-    
-    <div class="post-body" itemprop="articleBody">
-
-      
-          <h1 id="问题描述"><a href="#问题描述" class="headerlink" title="问题描述"></a>问题描述</h1><p>​    flink任务运行过程中出现异常时（如checkpoint失败次数超过配置阈值），自动重启出现算子异常，从checkpoint恢复失败。报错信息如下：</p>
-<figure class="highlight plain"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br><span class="line">3</span><br><span class="line">4</span><br><span class="line">5</span><br><span class="line">6</span><br><span class="line">7</span><br><span class="line">8</span><br><span class="line">9</span><br><span class="line">10</span><br><span class="line">11</span><br><span class="line">12</span><br><span class="line">13</span><br><span class="line">14</span><br><span class="line">15</span><br><span class="line">16</span><br><span class="line">17</span><br><span class="line">18</span><br><span class="line">19</span><br><span class="line">20</span><br><span class="line">21</span><br><span class="line">22</span><br><span class="line">23</span><br><span class="line">24</span><br><span class="line">25</span><br><span class="line">26</span><br><span class="line">27</span><br><span class="line">28</span><br><span class="line">29</span><br><span class="line">30</span><br><span class="line">31</span><br></pre></td><td class="code"><pre><span class="line">java.lang.Exception: Exception while creating StreamOperatorStateContext.</span><br><span class="line">  at org.apache.flink.streaming.api.operators.StreamTaskStateInitializerImpl.streamOperatorStateContext(StreamTaskStateInitializerImpl.java:195)</span><br><span class="line">  at org.apache.flink.streaming.api.operators.AbstractStreamOperator.initializeState(AbstractStreamOperator.java:253)</span><br><span class="line">  at org.apache.flink.streaming.runtime.tasks.StreamTask.initializeState(StreamTask.java:881)</span><br><span class="line">  at org.apache.flink.streaming.runtime.tasks.StreamTask.invoke(StreamTask.java:395)</span><br><span class="line">  at org.apache.flink.runtime.taskmanager.Task.doRun(Task.java:705)</span><br><span class="line">  at org.apache.flink.runtime.taskmanager.Task.run(Task.java:530)</span><br><span class="line">  at java.lang.Thread.run(Thread.java:748)</span><br><span class="line">Caused by: org.apache.flink.util.FlinkException: Could not restore operator state backend for StreamSource_cbc357ccb763df2852fee8c4fc7d55f2_(1/20) from any of the 1 provided restore options.</span><br><span class="line">  at org.apache.flink.streaming.api.operators.BackendRestorerProcedure.createAndRestore(BackendRestorerProcedure.java:135)</span><br><span class="line">  at org.apache.flink.streaming.api.operators.StreamTaskStateInitializerImpl.operatorStateBackend(StreamTaskStateInitializerImpl.java:255)</span><br><span class="line">  at org.apache.flink.streaming.api.operators.StreamTaskStateInitializerImpl.streamOperatorStateContext(StreamTaskStateInitializerImpl.java:143)</span><br><span class="line">  ... 6 more</span><br><span class="line">Caused by: org.apache.flink.runtime.state.BackendBuildingException: Failed when trying to restore operator state backend</span><br><span class="line">  at org.apache.flink.runtime.state.DefaultOperatorStateBackendBuilder.build(DefaultOperatorStateBackendBuilder.java:86)</span><br><span class="line">  at org.apache.flink.contrib.streaming.state.RocksDBStateBackend.createOperatorStateBackend(RocksDBStateBackend.java:537)</span><br><span class="line">  at org.apache.flink.streaming.api.operators.StreamTaskStateInitializerImpl.lambda$operatorStateBackend$0(StreamTaskStateInitializerImpl.java:246)</span><br><span class="line">  at org.apache.flink.streaming.api.operators.BackendRestorerProcedure.attemptCreateAndRestore(BackendRestorerProcedure.java:142)</span><br><span class="line">  at org.apache.flink.streaming.api.operators.BackendRestorerProcedure.createAndRestore(BackendRestorerProcedure.java:121)</span><br><span class="line">  ... 8 more</span><br><span class="line">Caused by: java.io.EOFException</span><br><span class="line">  at java.io.DataInputStream.readFully(DataInputStream.java:197)</span><br><span class="line">  at java.io.DataInputStream.readLong(DataInputStream.java:416)</span><br><span class="line">  at org.apache.flink.api.common.typeutils.base.LongSerializer.deserialize(LongSerializer.java:74)</span><br><span class="line">  at org.apache.flink.api.common.typeutils.base.LongSerializer.deserialize(LongSerializer.java:32)</span><br><span class="line">  at org.apache.flink.api.java.typeutils.runtime.TupleSerializer.deserialize(TupleSerializer.java:143)</span><br><span class="line">  at org.apache.flink.api.java.typeutils.runtime.TupleSerializer.deserialize(TupleSerializer.java:37)</span><br><span class="line">  at org.apache.flink.runtime.state.OperatorStateRestoreOperation.deserializeOperatorStateValues(OperatorStateRestoreOperation.java:191)</span><br><span class="line">  at org.apache.flink.runtime.state.OperatorStateRestoreOperation.restore(OperatorStateRestoreOperation.java:165)</span><br><span class="line">  at org.apache.flink.runtime.state.DefaultOperatorStateBackendBuilder.build(DefaultOperatorStateBackendBuilder.java:83)</span><br><span class="line">  ... 12 more</span><br></pre></td></tr></table></figure>
-
-<h1 id="问题解决"><a href="#问题解决" class="headerlink" title="问题解决"></a>问题解决</h1><p>  无法从checkpoint恢复的原因是：jar包冲突，反序列化时，无法读取之前写入checkpoint的内容，因此无法恢复</p>
-<p>需要排除kryo包</p>
-<figure class="highlight plain"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br><span class="line">3</span><br><span class="line">4</span><br><span class="line">5</span><br><span class="line">6</span><br><span class="line">7</span><br><span class="line">8</span><br><span class="line">9</span><br><span class="line">10</span><br><span class="line">11</span><br></pre></td><td class="code"><pre><span class="line">&lt;dependency&gt;</span><br><span class="line">            &lt;groupId&gt;com.twitter&lt;/groupId&gt;</span><br><span class="line">            &lt;artifactId&gt;chill-protobuf&lt;/artifactId&gt;</span><br><span class="line">            &lt;version&gt;0.5.2&lt;/version&gt;</span><br><span class="line">            &lt;exclusions&gt;</span><br><span class="line">                &lt;exclusion&gt;</span><br><span class="line">                    &lt;groupId&gt;com.esotericsoftware.kryo&lt;/groupId&gt;</span><br><span class="line">                    &lt;artifactId&gt;kryo&lt;/artifactId&gt;</span><br><span class="line">                &lt;/exclusion&gt;</span><br><span class="line">            &lt;/exclusions&gt;</span><br><span class="line">&lt;/dependency&gt;</span><br></pre></td></tr></table></figure>
-
-
-        
-      
-    </div>
-
-    
-    
-    
-      <footer class="post-footer">
-        <div class="post-eof"></div>
-      </footer>
-  </article>
-  
-  
-  
-
-    
   </div>
 
   
   <nav class="pagination">
-    <a class="extend prev" rel="prev" href="/"><i class="fa fa-angle-left" aria-label="上一页"></i></a><a class="page-number" href="/">1</a><span class="page-number current">2</span><a class="page-number" href="/page/3/">3</a><span class="space">&hellip;</span><a class="page-number" href="/page/7/">7</a><a class="extend next" rel="next" href="/page/3/"><i class="fa fa-angle-right" aria-label="下一页"></i></a>
+    <a class="extend prev" rel="prev" href="/"><i class="fa fa-angle-left" aria-label="上一页"></i></a><a class="page-number" href="/">1</a><span class="page-number current">2</span><a class="page-number" href="/page/3/">3</a><span class="space">&hellip;</span><a class="page-number" href="/page/8/">8</a><a class="extend next" rel="next" href="/page/3/"><i class="fa fa-angle-right" aria-label="下一页"></i></a>
   </nav>
 
 
@@ -1636,7 +1905,7 @@
         
           <a href="/archives/">
         
-          <span class="site-state-item-count">67</span>
+          <span class="site-state-item-count">74</span>
           <span class="site-state-item-name">日志</span>
         </a>
       </div>
@@ -1662,7 +1931,7 @@
             <a href="/tags/">
           
         
-        <span class="site-state-item-count">9</span>
+        <span class="site-state-item-count">11</span>
         <span class="site-state-item-name">标签</span>
         </a>
       </div>
