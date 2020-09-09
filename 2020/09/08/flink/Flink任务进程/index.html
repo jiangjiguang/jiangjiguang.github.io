@@ -55,19 +55,19 @@
   };
 </script>
 
-  <meta name="description" content="简介如图所示，每个Flink任务的TaskManager的进程依赖：  参考文档">
+  <meta name="description" content="简介 如图所示，每个Flink任务的TaskManager的进程依赖：   可见每个TM其实由4个进程依赖，分别是：  12027  NodeManager进程   40972，父进程12027  由3个脚本组成： 1、/data1/yarn/usercache/stream/appcache/application_1588838921607_3751/container_15888389216">
 <meta name="keywords" content="Flink知识">
 <meta property="og:type" content="article">
 <meta property="og:title" content="Flink任务进程">
 <meta property="og:url" content="http://yoursite.com/2020/09/08/flink/Flink任务进程/index.html">
 <meta property="og:site_name" content="纪光的博客">
-<meta property="og:description" content="简介如图所示，每个Flink任务的TaskManager的进程依赖：  参考文档">
+<meta property="og:description" content="简介 如图所示，每个Flink任务的TaskManager的进程依赖：   可见每个TM其实由4个进程依赖，分别是：  12027  NodeManager进程   40972，父进程12027  由3个脚本组成： 1、/data1/yarn/usercache/stream/appcache/application_1588838921607_3751/container_15888389216">
 <meta property="og:locale" content="zh-CN">
 <meta property="og:image" content="http://yoursite.com/images/flink/flink-task-pid.png">
-<meta property="og:updated_time" content="2020-09-08T07:16:55.697Z">
+<meta property="og:updated_time" content="2020-09-08T08:06:43.536Z">
 <meta name="twitter:card" content="summary">
 <meta name="twitter:title" content="Flink任务进程">
-<meta name="twitter:description" content="简介如图所示，每个Flink任务的TaskManager的进程依赖：  参考文档">
+<meta name="twitter:description" content="简介 如图所示，每个Flink任务的TaskManager的进程依赖：   可见每个TM其实由4个进程依赖，分别是：  12027  NodeManager进程   40972，父进程12027  由3个脚本组成： 1、/data1/yarn/usercache/stream/appcache/application_1588838921607_3751/container_15888389216">
 <meta name="twitter:image" content="http://yoursite.com/images/flink/flink-task-pid.png">
   <link rel="canonical" href="http://yoursite.com/2020/09/08/flink/Flink任务进程/">
 
@@ -279,7 +279,7 @@
                 
               
 
-              <time title="创建时间：2020-09-08 14:55:52 / 修改时间：15:16:55" itemprop="dateCreated datePublished" datetime="2020-09-08T14:55:52+08:00">2020-09-08</time>
+              <time title="创建时间：2020-09-08 14:55:52 / 修改时间：16:06:43" itemprop="dateCreated datePublished" datetime="2020-09-08T14:55:52+08:00">2020-09-08</time>
             </span>
           
             
@@ -325,9 +325,40 @@
     <div class="post-body" itemprop="articleBody">
 
       
-        <h1 id="简介"><a href="#简介" class="headerlink" title="简介"></a>简介</h1><p>如图所示，每个Flink任务的TaskManager的进程依赖：</p>
+        <h1 id="简介"><a href="#简介" class="headerlink" title="简介"></a>简介</h1><ul>
+<li>如图所示，每个Flink任务的TaskManager的进程依赖：</li>
+</ul>
 <p><img src="/images/flink/flink-task-pid.png" alt="TM进程依赖"></p>
-<h1 id="参考文档"><a href="#参考文档" class="headerlink" title="参考文档"></a>参考文档</h1>
+<p>可见每个TM其实由4个进程依赖，分别是：</p>
+<ul>
+<li><p>12027</p>
+<blockquote>
+<p>NodeManager进程</p>
+</blockquote>
+</li>
+<li><p>40972，父进程12027</p>
+<blockquote>
+<p>由3个脚本组成：</p>
+<p>1、/data1/yarn/usercache/stream/appcache/application_1588838921607_3751/container_1588838921607_3751_01_000002/default_container_executor.sh</p>
+<p>  主要作用就是执行脚本2</p>
+<p>  $?：上个命令的退出状态，或函数的返回值。</p>
+<p>2、/data1/yarn/usercache/stream/appcache/application_1588838921607_3751/container_1588838921607_3751_01_000002/default_container_executor_session.sh</p>
+<p>  $$：当前Shell进程ID。对于 Shell 脚本，就是这些脚本所在的进程ID。</p>
+<p>  执行脚本3</p>
+<p>3、/data1/yarn/usercache/stream/appcache/application_1588838921607_3751/container_1588838921607_3751_01_000002/launch_container.sh </p>
+<p>   用于启动40973进程</p>
+</blockquote>
+</li>
+<li><p>40973，父进程40972</p>
+</li>
+<li><p>41005，父进程40973</p>
+<blockquote>
+<p>TM所属进程</p>
+</blockquote>
+</li>
+</ul>
+<h1 id="参考文档"><a href="#参考文档" class="headerlink" title="参考文档"></a>参考文档</h1><p><a href="http://c.biancheng.net/cpp/view/2739.html" target="_blank" rel="noopener">Shell教程</a></p>
+
     </div>
 
     
@@ -361,6 +392,10 @@
             <span class="post-nav-divider"></span>
 
             <div class="post-nav-prev post-nav-item">
+              
+                <a href="/2020/09/09/linux/工具实践-vmstat/" rel="prev" title="工具实践-vmstat">
+                  工具实践-vmstat <i class="fa fa-chevron-right"></i>
+                </a>
               
             </div>
           </div>
@@ -422,7 +457,7 @@
         
           <a href="/archives/">
         
-          <span class="site-state-item-count">74</span>
+          <span class="site-state-item-count">76</span>
           <span class="site-state-item-name">日志</span>
         </a>
       </div>
@@ -448,7 +483,7 @@
             <a href="/tags/">
           
         
-        <span class="site-state-item-count">11</span>
+        <span class="site-state-item-count">12</span>
         <span class="site-state-item-name">标签</span>
         </a>
       </div>

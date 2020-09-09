@@ -241,6 +241,344 @@
   
   
   <article itemscope itemtype="http://schema.org/Article" class="post-block home" lang="zh-CN">
+    <link itemprop="mainEntityOfPage" href="http://yoursite.com/2020/08/05/java/类生命周期/">
+
+    <span hidden itemprop="author" itemscope itemtype="http://schema.org/Person">
+      <meta itemprop="name" content="姜纪光">
+      <meta itemprop="description" content="">
+      <meta itemprop="image" content="/images/avatar.gif">
+    </span>
+
+    <span hidden itemprop="publisher" itemscope itemtype="http://schema.org/Organization">
+      <meta itemprop="name" content="纪光的博客">
+    </span>
+      <header class="post-header">
+        <h1 class="post-title" itemprop="name headline">
+          
+            
+            <a href="/2020/08/05/java/类生命周期/" class="post-title-link" itemprop="url">类生命周期</a>
+          
+        </h1>
+
+        <div class="post-meta">
+            <span class="post-meta-item">
+              <span class="post-meta-item-icon">
+                <i class="fa fa-calendar-o"></i>
+              </span>
+              <span class="post-meta-item-text">发表于</span>
+
+              
+                
+              
+
+              <time title="创建时间：2020-08-05 11:42:36" itemprop="dateCreated datePublished" datetime="2020-08-05T11:42:36+08:00">2020-08-05</time>
+            </span>
+          
+            
+
+            
+              <span class="post-meta-item">
+                <span class="post-meta-item-icon">
+                  <i class="fa fa-calendar-check-o"></i>
+                </span>
+                <span class="post-meta-item-text">更新于</span>
+                <time title="修改时间：2020-08-10 10:11:26" itemprop="dateModified" datetime="2020-08-10T10:11:26+08:00">2020-08-10</time>
+              </span>
+            
+          
+            <span class="post-meta-item">
+              <span class="post-meta-item-icon">
+                <i class="fa fa-folder-o"></i>
+              </span>
+              <span class="post-meta-item-text">分类于</span>
+              
+                <span itemprop="about" itemscope itemtype="http://schema.org/Thing">
+                  <a href="/categories/java/" itemprop="url" rel="index">
+                    <span itemprop="name">java</span>
+                  </a>
+                </span>
+
+                
+                
+              
+            </span>
+          
+
+          
+            <span id="/2020/08/05/java/类生命周期/" class="post-meta-item leancloud_visitors" data-flag-title="类生命周期" title="阅读次数">
+              <span class="post-meta-item-icon">
+                <i class="fa fa-eye"></i>
+              </span>
+              <span class="post-meta-item-text">阅读次数：</span>
+              <span class="leancloud-visitors-count"></span>
+            </span>
+          
+  
+  
+
+        </div>
+      </header>
+
+    
+    
+    
+    <div class="post-body" itemprop="articleBody">
+
+      
+          <h1 id="生命周期概述"><a href="#生命周期概述" class="headerlink" title="生命周期概述"></a>生命周期概述</h1><p>​    按照JVM规范，一个Java文件从被加载到被卸载共分为5个阶段：</p>
+<ul>
+<li><p>加载</p>
+<blockquote>
+<p>1.加载就是将Java类的字节码文件加载到机器内存中，并在内存中构建出Java类的原型-类模板对象。</p>
+<p>2.类模板对象就是Java类在JVM内存中的一个快照，JVM将从字节码文件中解析出常量池、类字段、类方法    等信息存储到类模板中</p>
+<p>3.类模板在JDK被存储在metaSpace区</p>
+<p>4.JVM会对字节码文件格式进行验证</p>
+</blockquote>
+</li>
+<li><p>链接（验证+准备+解析）</p>
+<blockquote>
+<p>1.链接的主要作用是将字节码指令中对常量池中索引引用转换为直接引用。</p>
+<p>2.验证是指由字节码信息触发进行反向验证：</p>
+<p>   验证字节码文件中的类名是否能够找到对应的类模板</p>
+</blockquote>
+</li>
+<li><p>初始化</p>
+<blockquote>
+<p>并非是对类进行实例化，而是执行类的<code>&lt;client&gt;</code>方法，该方法仅能由Java编辑器生成并由JVM调用。</p>
+<p>当Java类中包含由<code>static</code>修饰的静态字段或者代码块时，编译后的便会在字节码文件中包含一个<code>&lt;client&gt;</code>方法</p>
+</blockquote>
+</li>
+<li><p>使用</p>
+</li>
+<li><p>卸载</p>
+</li>
+</ul>
+<h1 id="类加载"><a href="#类加载" class="headerlink" title="类加载"></a>类加载</h1><blockquote>
+<p>1.类加载的目标就是在JVM方法区创建一个与Java类结构对等的instanceKcass的实例对象。</p>
+<p>2.mirror镜像类也是一个instanceKcass的实例对象</p>
+<p>3.java.lang.Class是为了被程序调用，instanceKcass是为了被JVM内部访问</p>
+<p>4.反射工具类都是基于java.lang.Class这个内部镜像实现的</p>
+<p>5.类加载的主要流程：</p>
+<p>​    a.读取魔术与版本号</p>
+<p>​    b.解析常量池</p>
+<p>​    c.解析字段信息</p>
+<p>​    d.解析方案</p>
+<p>​    e.创建与Java类对等的内部对象instanceKlass</p>
+<p>​    f.创建Java镜像类，create_mirror()</p>
+</blockquote>
+<h2 id="Java主类加载机制"><a href="#Java主类加载机制" class="headerlink" title="Java主类加载机制"></a>Java主类加载机制</h2><blockquote>
+<p>1.包含main()主函数的类就是Java主类，由JVM自动触发加载。</p>
+<p>2.JVM执行完自身的若干初始化逻辑之后，第一个加载的便是Java主类。</p>
+<p>3.Java主类的类加载器模式是系统加载器。</p>
+</blockquote>
+<h2 id="类加载器的加载机制"><a href="#类加载器的加载机制" class="headerlink" title="类加载器的加载机制"></a>类加载器的加载机制</h2><blockquote>
+<p>1.通过继承java.lang.ClassLoader可以自定义类加载器，自定义类加载器的loadClass()方法仅仅完成了声明周期的<code>加载</code>阶段</p>
+<p>2.通过反射java.lang.Class.forName(String)完成的类加载，包含了声明周期的<code>加载、验证、准备、解析和初始化</code>阶段</p>
+<p>3.import仅仅是个语法糖，没有关联任何运行时行为，更不会导致类加载</p>
+<p>4.使用new指令加载类时，如果一个类尚未被加载或者链接，那么会进入慢分配流程</p>
+</blockquote>
+<h2 id="类加载器"><a href="#类加载器" class="headerlink" title="类加载器"></a>类加载器</h2><blockquote>
+<p>1.Java体系中定义了3种类加载器：</p>
+<p>​    Bootstrap ClassLoader(引导类加载器，BCL)：加载指定的JDK核心类库，无法由Java应用程序直接引用。负责加载：</p>
+<p>​        a.%JAVA_HOME%/jre/lib目录</p>
+<p>​        b.-Xbootclasspath参数指定的目录</p>
+<p>​        c.系统属性sun.boot.class.path指定的目录中的特定名称的jar包</p>
+<p>​    Extension ClassLoader(扩展类加载器，ECL)：加载扩展类，扩展JVM的类库。负责加载：</p>
+<p>​        a.%JAVA_HOME%/jre/lib/ext目录</p>
+<p>​        b.系统属性java.ext.dirs所指定的目录中的所有类库</p>
+<p>​    System ClassLoader(系统类加载器，SCL)：加载Java应用程序类库，加载类库的路径由系统环境变量ClassPath、-cp或系统属性java.class.path指定</p>
+</blockquote>
+<h3 id="引导类加载器"><a href="#引导类加载器" class="headerlink" title="引导类加载器"></a>引导类加载器</h3><blockquote>
+<p>1.使用C++实现，所有字段和函数都使用static修饰，因此该加载器不需要实例化</p>
+<p>2.Java类编写的加载器无法继承引导类加载器</p>
+<p>3.没有父加载器</p>
+</blockquote>
+<h3 id="扩展类加载器"><a href="#扩展类加载器" class="headerlink" title="扩展类加载器"></a>扩展类加载器</h3><blockquote>
+<p>1.所有Java体系的类加载器都是继承自java.lang.ClassLoader</p>
+<p>2.类名是ExtClassLoader</p>
+<p>3.扩展类加载器的父加载器是null，并不是引导类加载器</p>
+</blockquote>
+<h3 id="系统类加载器"><a href="#系统类加载器" class="headerlink" title="系统类加载器"></a>系统类加载器</h3><blockquote>
+<p>1.系统类加载器的父加载器是扩展类加载器</p>
+</blockquote>
+<h3 id="双亲委派"><a href="#双亲委派" class="headerlink" title="双亲委派"></a>双亲委派</h3><blockquote>
+<p>1.引导类加载器、扩展类加载器和系统类加载器之间没有直接的继承关系</p>
+<p>2.Java体系的扩展类加载器、系统类加载器和用户自定义类加载器都继承自java.lang.ClassLoader</p>
+<p>3.委托加载关系是通过java.lang.ClassLoader.parent实现</p>
+<p>4.双亲委派机制在java.lang.ClassLoader.loadClass(String,boolean)接口中实现：</p>
+<p>​    a.先在当前加载器的缓存中查找有无目标类，如果有，直接返回</p>
+<p>​    b.判断当前加载器的父加载器是否为空，如果不为空，则调用parent.loadClass(name,false)接口</p>
+<p>​    c.如果当前加载器的父类加载器为空，则调用findBoostraopClassOrNull(name)接口，让引导类加载器进行加载</p>
+<p>​    d.如果上述未加载成功，则调用findClass(name)接口进行加载</p>
+<p>5.双亲委派机制从本质上规定了类加载的顺序：</p>
+<p>​    a.引导类加载器先加载</p>
+<p>​    b.若加载不到由扩展类加载</p>
+<p>​    c.若还是加载不到，才会由系统类或自定义类加载器加载</p>
+<p>6.如果自定义类加载器重写loadClass方法，会不会破坏双亲委派机制？答案是不会的</p>
+<p>​    会判断所要加载的目标类全限定名是否以<code>java</code>开始，如果是，则抛出异常</p>
+<p>​    因此所有的自定义类加载器只能重写java.lang.ClassLoader.findClass接口</p>
+</blockquote>
+<h1 id="类初始化"><a href="#类初始化" class="headerlink" title="类初始化"></a>类初始化</h1><blockquote>
+<p>1.并非是对类进行实例化，而是执行类的<code>&lt;client&gt;</code>方法，该方法仅能由Java编辑器生成并由JVM调用。</p>
+<p>2.当Java类中包含由<code>static</code>修饰的静态字段或者代码块时，编译后的便会在字节码文件中包含一个<code>&lt;client&gt;</code>方法。</p>
+<p>3.每个类都有一个类加载器，并且不同的加载器加载的同一个类无法相互转换。</p>
+</blockquote>
+<h1 id="类使用"><a href="#类使用" class="headerlink" title="类使用"></a>类使用</h1><h2 id="类实例分配"><a href="#类实例分配" class="headerlink" title="类实例分配"></a>类实例分配</h2><blockquote>
+<p>1.实例化类的方式：java.lang.Class.newInstance()、new</p>
+<p>​    在new的实现过程中，对内存分配、线程并发控制、垃圾回收等优化。</p>
+<p>2.类实例化过程：</p>
+<p>​    a.若Java类尚未被解析，则直接进入慢分配，不会使用快速分配策略</p>
+<p>​    b.快速分配，如果没有开启栈分配或不符合条件则会进行TLAB分配</p>
+<p>​    c.快速分配，如果TLAB分配失败，则尝试eden区分配</p>
+<p>​    d.如果eden区分配失败，则会进入慢分配流程</p>
+<p>​    e.如果对象满足了直接进入老年代的条件，那就直接分配在老年代</p>
+<p>​    f.快速分配，对于热点代码，如果开启逃逸分析，JVM则会执行栈上分配或标量替换等优化方案</p>
+</blockquote>
+<h2 id="逃逸分析"><a href="#逃逸分析" class="headerlink" title="逃逸分析"></a>逃逸分析</h2><blockquote>
+<p>​    逃逸是指在方法内部被创建的对象不仅在方法内部而且还在方法外部被其它变量引用。坏处是，方法执行完毕之后，在方法内创建的对象无法被GC回收。</p>
+<p>​    如果确定不会逃逸，那么就能对方法内创建的对象进行多种优化，包含内存分配和线程同步</p>
+<p>​    逃逸分析实在运行时进行的，原因是动态生产字节码、调用本地函数、反射、方法拦截等致使不能在编译期间的静态化设施。</p>
+<p>​    逃逸分析是很耗费内存和CPU资源的，因此JVM不能对所有方法的变量进行逃逸分析，只有JVM触发即时编译（JIT）时才会进行逃逸分析。</p>
+<p>​    即时编译（JIT）是一种在运行时将字节码翻译为机器码，从而改善字节码编译语言性能的技术，即时编译基于逃逸分析的优化策略主要是标量替换和栈上分配，都不会在堆上分配实例化对象。</p>
+<p>​    可以通过<code>jmap -histo</code>命令观察开启/关闭逃逸分析的实例总数</p>
+</blockquote>
+<h3 id="标量替换"><a href="#标量替换" class="headerlink" title="标量替换"></a>标量替换</h3><blockquote>
+<p>​    标量是指不可分割的量，基本数据类型和引用都是标量，标量替换不仅仅是替换还需要修改类型字段的读写指令。</p>
+<p>​    可以将一个类中的所有字段都打散，分配到寄存器中。</p>
+</blockquote>
+<h3 id="栈上分配"><a href="#栈上分配" class="headerlink" title="栈上分配"></a>栈上分配</h3><blockquote>
+<p>​    如果一个类没有发生逃逸，则实例对象直接分配在方法栈上。在栈上分配的对象实例，会随着方法执行结束，方法栈空间的被回收而回收，从而不需要GC来回收</p>
+<p>​    栈空间是有限的，因此不能分配字段多的大Java对象</p>
+</blockquote>
+<h2 id="TLAB-Thead-Local-Applocation-Buffer"><a href="#TLAB-Thead-Local-Applocation-Buffer" class="headerlink" title="TLAB(Thead Local Applocation Buffer)"></a>TLAB(Thead Local Applocation Buffer)</h2><blockquote>
+<p>​    即线程本地分配缓存区，是一个线程专用的内存分配区域，线程私有的，位于eden区。各个线程在各自的TLAB申请空间，无需加锁，是一中“空间换时间”的策略。</p>
+<p>​    堆是全局的，每个线程都可以在堆上申请空间，而后必须在线程间进行同步，当多线程在堆上申请内存时，势必出现竞争、同步、阻塞等。</p>
+<p>​    如果JVM向TLAB申请内存失败，则会向eden区申请内存</p>
+</blockquote>
+<h1 id="参考文档"><a href="#参考文档" class="headerlink" title="参考文档"></a>参考文档</h1><p><a href>揭秘Java虚拟机JVM设计原理与实现</a></p>
+
+        
+      
+    </div>
+
+    
+    
+    
+      <footer class="post-footer">
+        <div class="post-eof"></div>
+      </footer>
+  </article>
+  
+  
+  
+
+    
+        
+  
+  
+  <article itemscope itemtype="http://schema.org/Article" class="post-block home" lang="zh-CN">
+    <link itemprop="mainEntityOfPage" href="http://yoursite.com/2020/08/05/java/正则的那些点/">
+
+    <span hidden itemprop="author" itemscope itemtype="http://schema.org/Person">
+      <meta itemprop="name" content="姜纪光">
+      <meta itemprop="description" content="">
+      <meta itemprop="image" content="/images/avatar.gif">
+    </span>
+
+    <span hidden itemprop="publisher" itemscope itemtype="http://schema.org/Organization">
+      <meta itemprop="name" content="纪光的博客">
+    </span>
+      <header class="post-header">
+        <h1 class="post-title" itemprop="name headline">
+          
+            
+            <a href="/2020/08/05/java/正则的那些点/" class="post-title-link" itemprop="url">正则的那些点</a>
+          
+        </h1>
+
+        <div class="post-meta">
+            <span class="post-meta-item">
+              <span class="post-meta-item-icon">
+                <i class="fa fa-calendar-o"></i>
+              </span>
+              <span class="post-meta-item-text">发表于</span>
+
+              
+                
+              
+
+              <time title="创建时间：2020-08-05 10:00:38 / 修改时间：10:10:52" itemprop="dateCreated datePublished" datetime="2020-08-05T10:00:38+08:00">2020-08-05</time>
+            </span>
+          
+            
+
+            
+          
+            <span class="post-meta-item">
+              <span class="post-meta-item-icon">
+                <i class="fa fa-folder-o"></i>
+              </span>
+              <span class="post-meta-item-text">分类于</span>
+              
+                <span itemprop="about" itemscope itemtype="http://schema.org/Thing">
+                  <a href="/categories/java/" itemprop="url" rel="index">
+                    <span itemprop="name">java</span>
+                  </a>
+                </span>
+
+                
+                
+              
+            </span>
+          
+
+          
+            <span id="/2020/08/05/java/正则的那些点/" class="post-meta-item leancloud_visitors" data-flag-title="正则的那些点" title="阅读次数">
+              <span class="post-meta-item-icon">
+                <i class="fa fa-eye"></i>
+              </span>
+              <span class="post-meta-item-text">阅读次数：</span>
+              <span class="leancloud-visitors-count"></span>
+            </span>
+          
+  
+  
+
+        </div>
+      </header>
+
+    
+    
+    
+    <div class="post-body" itemprop="articleBody">
+
+      
+          <h1 id="特殊字符"><a href="#特殊字符" class="headerlink" title="特殊字符"></a>特殊字符</h1><h1 id="quote"><a href="#quote" class="headerlink" title="quote"></a>quote</h1><p>​    Pattern.quote 方法就是给添加上 \Q…\E 引用字符的，可以使得其失去正则表达式的含义，而仅作为普通字符串。</p>
+<p>   建议直接使用\Q…\E</p>
+<blockquote>
+<p>\ Nothing，但是引用以下字符<br>\Q Nothing，但是引用所有字符，直到 \E<br>\E Nothing，但是结束从 \Q 开始的引用 </p>
+</blockquote>
+<h1 id="参考文档"><a href="#参考文档" class="headerlink" title="参考文档"></a>参考文档</h1>
+        
+      
+    </div>
+
+    
+    
+    
+      <footer class="post-footer">
+        <div class="post-eof"></div>
+      </footer>
+  </article>
+  
+  
+  
+
+    
+        
+  
+  
+  <article itemscope itemtype="http://schema.org/Article" class="post-block home" lang="zh-CN">
     <link itemprop="mainEntityOfPage" href="http://yoursite.com/2020/08/05/calcite/Calcite学习笔记/">
 
     <span hidden itemprop="author" itemscope itemtype="http://schema.org/Person">
@@ -1275,316 +1613,6 @@
   
 
     
-        
-  
-  
-  <article itemscope itemtype="http://schema.org/Article" class="post-block home" lang="zh-CN">
-    <link itemprop="mainEntityOfPage" href="http://yoursite.com/2020/07/21/flink/consul学习笔记/">
-
-    <span hidden itemprop="author" itemscope itemtype="http://schema.org/Person">
-      <meta itemprop="name" content="姜纪光">
-      <meta itemprop="description" content="">
-      <meta itemprop="image" content="/images/avatar.gif">
-    </span>
-
-    <span hidden itemprop="publisher" itemscope itemtype="http://schema.org/Organization">
-      <meta itemprop="name" content="纪光的博客">
-    </span>
-      <header class="post-header">
-        <h1 class="post-title" itemprop="name headline">
-          
-            
-            <a href="/2020/07/21/flink/consul学习笔记/" class="post-title-link" itemprop="url">consul学习笔记</a>
-          
-        </h1>
-
-        <div class="post-meta">
-            <span class="post-meta-item">
-              <span class="post-meta-item-icon">
-                <i class="fa fa-calendar-o"></i>
-              </span>
-              <span class="post-meta-item-text">发表于</span>
-
-              
-                
-              
-
-              <time title="创建时间：2020-07-21 09:41:40 / 修改时间：09:42:20" itemprop="dateCreated datePublished" datetime="2020-07-21T09:41:40+08:00">2020-07-21</time>
-            </span>
-          
-            
-
-            
-          
-            <span class="post-meta-item">
-              <span class="post-meta-item-icon">
-                <i class="fa fa-folder-o"></i>
-              </span>
-              <span class="post-meta-item-text">分类于</span>
-              
-                <span itemprop="about" itemscope itemtype="http://schema.org/Thing">
-                  <a href="/categories/flink/" itemprop="url" rel="index">
-                    <span itemprop="name">flink</span>
-                  </a>
-                </span>
-
-                
-                
-              
-            </span>
-          
-
-          
-            <span id="/2020/07/21/flink/consul学习笔记/" class="post-meta-item leancloud_visitors" data-flag-title="consul学习笔记" title="阅读次数">
-              <span class="post-meta-item-icon">
-                <i class="fa fa-eye"></i>
-              </span>
-              <span class="post-meta-item-text">阅读次数：</span>
-              <span class="leancloud-visitors-count"></span>
-            </span>
-          
-  
-  
-
-        </div>
-      </header>
-
-    
-    
-    
-    <div class="post-body" itemprop="articleBody">
-
-      
-          <h1 id="参考文档"><a href="#参考文档" class="headerlink" title="参考文档"></a>参考文档</h1><p><a href="https://km.qutoutiao.net/display/yunwei/consul-api" target="_blank" rel="noopener">consul-api</a></p>
-
-        
-      
-    </div>
-
-    
-    
-    
-      <footer class="post-footer">
-        <div class="post-eof"></div>
-      </footer>
-  </article>
-  
-  
-  
-
-    
-        
-  
-  
-  <article itemscope itemtype="http://schema.org/Article" class="post-block home" lang="zh-CN">
-    <link itemprop="mainEntityOfPage" href="http://yoursite.com/2020/07/21/flink/Thanos学习笔记/">
-
-    <span hidden itemprop="author" itemscope itemtype="http://schema.org/Person">
-      <meta itemprop="name" content="姜纪光">
-      <meta itemprop="description" content="">
-      <meta itemprop="image" content="/images/avatar.gif">
-    </span>
-
-    <span hidden itemprop="publisher" itemscope itemtype="http://schema.org/Organization">
-      <meta itemprop="name" content="纪光的博客">
-    </span>
-      <header class="post-header">
-        <h1 class="post-title" itemprop="name headline">
-          
-            
-            <a href="/2020/07/21/flink/Thanos学习笔记/" class="post-title-link" itemprop="url">thanos学习笔记</a>
-          
-        </h1>
-
-        <div class="post-meta">
-            <span class="post-meta-item">
-              <span class="post-meta-item-icon">
-                <i class="fa fa-calendar-o"></i>
-              </span>
-              <span class="post-meta-item-text">发表于</span>
-
-              
-                
-              
-
-              <time title="创建时间：2020-07-21 09:38:34" itemprop="dateCreated datePublished" datetime="2020-07-21T09:38:34+08:00">2020-07-21</time>
-            </span>
-          
-            
-
-            
-              <span class="post-meta-item">
-                <span class="post-meta-item-icon">
-                  <i class="fa fa-calendar-check-o"></i>
-                </span>
-                <span class="post-meta-item-text">更新于</span>
-                <time title="修改时间：2020-09-02 16:02:26" itemprop="dateModified" datetime="2020-09-02T16:02:26+08:00">2020-09-02</time>
-              </span>
-            
-          
-            <span class="post-meta-item">
-              <span class="post-meta-item-icon">
-                <i class="fa fa-folder-o"></i>
-              </span>
-              <span class="post-meta-item-text">分类于</span>
-              
-                <span itemprop="about" itemscope itemtype="http://schema.org/Thing">
-                  <a href="/categories/flink/" itemprop="url" rel="index">
-                    <span itemprop="name">flink</span>
-                  </a>
-                </span>
-
-                
-                
-              
-            </span>
-          
-
-          
-            <span id="/2020/07/21/flink/Thanos学习笔记/" class="post-meta-item leancloud_visitors" data-flag-title="thanos学习笔记" title="阅读次数">
-              <span class="post-meta-item-icon">
-                <i class="fa fa-eye"></i>
-              </span>
-              <span class="post-meta-item-text">阅读次数：</span>
-              <span class="leancloud-visitors-count"></span>
-            </span>
-          
-  
-  
-
-        </div>
-      </header>
-
-    
-    
-    
-    <div class="post-body" itemprop="articleBody">
-
-      
-          <h1 id="Sidecar"><a href="#Sidecar" class="headerlink" title="Sidecar"></a>Sidecar</h1><p>​    connects to Prometheus, reads its data for query and/or uploads it to cloud storage.</p>
-<p>Sidecar和Prometheus servers运行在相同的机器或者pod中。其作用就是备份prometheus的数据到对象存储桶中，并且给Thanos其他组件通过gRPC读取Prometheus指标的权限。</p>
-<p>thanos sidecar 命令运行thanos的一个组件，该组件和prometheus实例一起部署。</p>
-<p>这使得sidecar可选的可以上传指标到对象存储，并且允许使用storeapi查询prometheus数据。</p>
-<p>详细：</p>
-<p>​    它在Prometheus的远程读取API之上实现Thanos的Store API。 这使Queriers可以将Prometheus服务器视为时间序列数据的另一个来源，而无需直接与其API对话。</p>
-<p>​    可选地，在Prometheus每2小时生成一次TSDB块时，Sidecar将TSDB块上载到对象存储桶中。 这使得Prometheus服务器可以以相对较低的保留时间运行，同时使其历史数据持久且可通过对象存储查询。</p>
-<p>​        注意：这仍然并不意味着Prometheus可以是完全无状态的，因为如果它崩溃并重新启动，您将损失大约2个小时的指标，因此强烈建议使用Prometheus的永久磁盘。 您可以得到的最接近无状态的状态是使用远程写入（Thanos实验支持，请参阅此信息。远程写入还有其他风险和后果，而且即使崩溃了，也可能在积极的情况下丢失度量数据，因此在所有情况下都建议使用永久磁盘 。</p>
-<p>​    可选地，Thanos sidecar能够查看Prometheus规则和配置，在需要时解压缩和替换环境变量，并ping Prometheus重新加载它们。 在这里阅读更多关于此的信息</p>
-<p>通过Sidecar连接到Thanos集群的Prometheus服务器受一些限制和安全操作建议：</p>
-<p>​    Prometheus版本在2.2.1 或以上</p>
-<p>​    Prometheus配置文件的Prometheus external_labels部分在整个Thanos系统中具有唯一的标签。 这些外部标签将由sidecar使用，然后由Thanos在许多地方使用：</p>
-<p>​        <a href="https://github.com/thanos-io/thanos/blob/master/docs/components/query.md" target="_blank" rel="noopener">Querier</a> to filter out store APIs to touch during query requests.<br>​        许多对象存储读取器（如压缩器和存储网关）都按Prometheus源对块进行分组。 在上载到对象存储之前，Prometheus制作的每个TSDB块都由sidecar进行了外部标签标记。</p>
-<ul>
-<li><p>启动命令</p>
-<blockquote>
-<p>/data/app/thanos/thanos sidecar –grpc-address=0.0.0.0:19091 –http-address=0.0.0.0:19192 –prometheus.url=<a href="http://127.0.0.1:9090/" target="_blank" rel="noopener">http://127.0.0.1:9090</a> –tsdb.path=/data/app/prometheus/data –log.level=info</p>
-</blockquote>
-</li>
-</ul>
-<table>
-<thead>
-<tr>
-<th align="left">命令行参数</th>
-<th align="left">参数值</th>
-<th align="left">参数作用</th>
-</tr>
-</thead>
-<tbody><tr>
-<td align="left">–prometheus.url</td>
-<td align="left"><a href="http://127.0.0.1:9090" target="_blank" rel="noopener">http://127.0.0.1:9090</a></td>
-<td align="left">Prometheus’s API，用于Sidecar查询指标数据<br>local network是性能更好的</td>
-</tr>
-<tr>
-<td align="left">–tsdb.path</td>
-<td align="left">data/app/prometheus/data</td>
-<td align="left">Data directory of TSDB</td>
-</tr>
-<tr>
-<td align="left">–http-address</td>
-<td align="left">0.0.0.0:19192</td>
-<td align="left">HTTP endpoint for collecting metrics on the Sidecar</td>
-</tr>
-<tr>
-<td align="left">–grpc-address</td>
-<td align="left">0.0.0.0:19091</td>
-<td align="left">GRPC endpoint for StoreAPI</td>
-</tr>
-<tr>
-<td align="left">–web.enable-lifecycle</td>
-<td align="left"></td>
-<td align="left">Thanos can watch changes in Prometheus configuration and refresh Prometheus configuration if</td>
-</tr>
-</tbody></table>
-<h1 id="Ruler-Rule"><a href="#Ruler-Rule" class="headerlink" title="Ruler/Rule"></a>Ruler/Rule</h1><p>evaluates recording and alerting rules against data in Thanos for exposition and/or upload.</p>
-<p>注意：建议将规则保留在本地相关Prometheus服务器中。 仅在特定情况下使用情况。 请阅读下面的详细信息。</p>
-<p>thanos rule 命令评估prometheus记录和规则，通过选择的query API.</p>
-<p>可以把规则看做简化的Prometheus，不需要sidecar、scrape、PromQL</p>
-<p>规则数据可以被标注为满足集群标签。ha对模式可以并行运行，应该通过副本标签来区分</p>
-<ul>
-<li><p>启动命令</p>
-<blockquote>
-<p>/data/app/thanos/thanos rule –http-address=0.0.0.0:10902 –grpc-address=0.0.0.0:10901 –query=172.16.xxx.xxx:80 –log.level=info –data-dir=”/data/app/thanos” –rule-file=/data/app/prometheus/rules/* –alert.query-url=<a href="http://thanos-query-xxxx.xxxx.net" target="_blank" rel="noopener">http://thanos-query-xxxx.xxxx.net</a> —alertmanagers.url=<a href="http://172.16.xxx.xxx:80" target="_blank" rel="noopener">http://172.16.xxx.xxx:80</a></p>
-</blockquote>
-</li>
-</ul>
-<table>
-<thead>
-<tr>
-<th align="left">参数</th>
-<th align="left">参数值</th>
-<th align="left">参数作用</th>
-</tr>
-</thead>
-<tbody><tr>
-<td align="left">–http-address</td>
-<td align="left">19192</td>
-<td align="left">Listen host:port for HTTP endpoints.</td>
-</tr>
-<tr>
-<td align="left">–grpc-address</td>
-<td align="left">10901</td>
-<td align="left">Listen ip:port address for gRPC endpoints (StoreAPI)</td>
-</tr>
-<tr>
-<td align="left">–query</td>
-<td align="left">172.16.xxx.xxx:80</td>
-<td align="left">Addresses of statically configured query API servers (repeatable)</td>
-</tr>
-<tr>
-<td align="left">–data-dir</td>
-<td align="left">/data/app/thanos</td>
-<td align="left">data directory（没有改目录）</td>
-</tr>
-<tr>
-<td align="left">–rule-file</td>
-<td align="left">/data/app/prometheus</td>
-<td align="left"></td>
-</tr>
-</tbody></table>
-<h1 id="Querier-Query"><a href="#Querier-Query" class="headerlink" title="Querier/Query"></a>Querier/Query</h1><p>implements Prometheus’s v1 API to aggregate data from the underlying components.</p>
-<h1 id="命令"><a href="#命令" class="headerlink" title="命令"></a>命令</h1><p>systemctl status thanos-rule -l</p>
-<p>systemctl status prometheus -l</p>
-<h1 id="参考文档"><a href="#参考文档" class="headerlink" title="参考文档"></a>参考文档</h1><p><a href="http://dockone.io/article/6019" target="_blank" rel="noopener">Thanos：开源的大规模Prometheus集群解决方案</a></p>
-<p><a href="https://thanos.io/" target="_blank" rel="noopener">thnos.io</a></p>
-<p><a href="https://github.com/thanos-io/thanos/blob/master/docs/components/rule.md" target="_blank" rel="noopener">rule</a></p>
-<p><a href="https://github.com/thanos-io/thanos/blob/master/docs/components/sidecar.md" target="_blank" rel="noopener">sidecar.md</a></p>
-
-        
-      
-    </div>
-
-    
-    
-    
-      <footer class="post-footer">
-        <div class="post-eof"></div>
-      </footer>
-  </article>
-  
-  
-  
-
-    
   </div>
 
   
@@ -1634,7 +1662,7 @@
         
           <a href="/archives/">
         
-          <span class="site-state-item-count">74</span>
+          <span class="site-state-item-count">76</span>
           <span class="site-state-item-name">日志</span>
         </a>
       </div>
@@ -1660,7 +1688,7 @@
             <a href="/tags/">
           
         
-        <span class="site-state-item-count">11</span>
+        <span class="site-state-item-count">12</span>
         <span class="site-state-item-name">标签</span>
         </a>
       </div>

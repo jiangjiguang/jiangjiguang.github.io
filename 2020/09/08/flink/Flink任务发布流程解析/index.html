@@ -63,7 +63,7 @@
 <meta property="og:site_name" content="纪光的博客">
 <meta property="og:description" content="发布入口类解析 入口类：org.apache.flink.client.cli.CliFrontend   用于执行程序的简单命令行前端的实现。  main函数解析 12345#提交命令 /data/flink/test/jjg-test/flink-1.10.1/bin/flink run -d -m yarn-cluster -p 5 -yjm 2048 -ytm 8192 -ys 5 -yq">
 <meta property="og:locale" content="zh-CN">
-<meta property="og:updated_time" content="2020-09-08T06:33:37.414Z">
+<meta property="og:updated_time" content="2020-09-08T08:17:19.926Z">
 <meta name="twitter:card" content="summary">
 <meta name="twitter:title" content="Flink任务发布流程解析">
 <meta name="twitter:description" content="发布入口类解析 入口类：org.apache.flink.client.cli.CliFrontend   用于执行程序的简单命令行前端的实现。  main函数解析 12345#提交命令 /data/flink/test/jjg-test/flink-1.10.1/bin/flink run -d -m yarn-cluster -p 5 -yjm 2048 -ytm 8192 -ys 5 -yq">
@@ -277,7 +277,7 @@
                 
               
 
-              <time title="创建时间：2020-09-08 13:56:27 / 修改时间：14:33:37" itemprop="dateCreated datePublished" datetime="2020-09-08T13:56:27+08:00">2020-09-08</time>
+              <time title="创建时间：2020-09-08 13:56:27 / 修改时间：16:17:19" itemprop="dateCreated datePublished" datetime="2020-09-08T13:56:27+08:00">2020-09-08</time>
             </span>
           
             
@@ -333,6 +333,13 @@
 <figure class="highlight shell"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br><span class="line">3</span><br><span class="line">4</span><br><span class="line">5</span><br></pre></td><td class="code"><pre><span class="line"><span class="meta">#</span>提交命令</span><br><span class="line"> /data/flink/test/jjg-test/flink-1.10.1/bin/flink run -d -m yarn-cluster -p 5 -yjm 2048 -ytm 8192 -ys 5 -yqu root.data.stream -ynm jjg-test-1.10kafka-consumer_jiangjiguang -yD taskmanager.memory.network.fraction="0.2" -yD taskmanager.memory.managed.fraction="0.3" -yD taskmanager.memory.framework.off-heap.size="500 mb" -yD metrics.reporter.prom.labels="libra_job_name=jjg-test-1.10kafka-consumer;libra_job_owner=jiangjiguang@qutoutiao.net,yanggang@qutoutiao.net" -yD env.java.opts="-server -XX:+UseConcMarkSweepGC -XX:+UseCMSInitiatingOccupancyOnly -XX:CMSInitiatingOccupancyFraction=75 -XX:ParallelGCThreads=4 -XX:+AlwaysPreTouch -XX:NewRatio=1 -DjobName=jjg-test-1.10kafka-consumer" -c net.qutoutiao.libra.flink110.app.KafkaConsumerDemo /tmp/915622fbb5e7457a9d4149c039e893cb-15995463001176478074492659573282.jar --key1 v1 --key2 v2 --key3 v3 --job.name jjg-test-1.10kafka-consumer</span><br><span class="line"></span><br><span class="line"><span class="meta">#</span>main参数</span><br><span class="line">[run, -d, -m, yarn-cluster, -p, 5, -yjm, 2048, -ytm, 8192, -ys, 5, -yqu, root.data.stream, -ynm, jjg-test-1.10kafka-consumer_jiangjiguang, -yD, taskmanager.memory.network.fraction=0.2, -yD, taskmanager.memory.managed.fraction=0.3, -yD, taskmanager.memory.framework.off-heap.size=500 mb, -yD, metrics.reporter.prom.labels=libra_job_name=jjg-test-1.10kafka-consumer;libra_job_owner=jiangjiguang@qutoutiao.net,yanggang@qutoutiao.net, -yD, env.java.opts=-server -XX:+UseConcMarkSweepGC -XX:+UseCMSInitiatingOccupancyOnly -XX:CMSInitiatingOccupancyFraction=75 -XX:ParallelGCThreads=4 -XX:+AlwaysPreTouch -XX:NewRatio=1 -DjobName=jjg-test-1.10kafka-consumer, -c, net.qutoutiao.libra.flink110.app.KafkaConsumerDemo, /tmp/915622fbb5e7457a9d4149c039e893cb-15995463001176478074492659573282.jar, --key1, v1, --key2, v2, --key3, v3, --job.name, jjg-test-1.10kafka-consumer]</span><br></pre></td></tr></table></figure>
 </li>
 <li><p>可见main参数就是 提交命令</p>
+</li>
+<li><p>获取flink源码 版本和提交信息</p>
+<blockquote>
+<p>即flink任务 dashboard中的 右上角信息</p>
+</blockquote>
+</li>
+<li><p>获取FLINK_CONF_DIR 配置文件，得到全局配置</p>
 </li>
 <li><p>​</p>
 </li>
@@ -437,7 +444,7 @@
         
           <a href="/archives/">
         
-          <span class="site-state-item-count">74</span>
+          <span class="site-state-item-count">76</span>
           <span class="site-state-item-name">日志</span>
         </a>
       </div>
@@ -463,7 +470,7 @@
             <a href="/tags/">
           
         
-        <span class="site-state-item-count">11</span>
+        <span class="site-state-item-count">12</span>
         <span class="site-state-item-name">标签</span>
         </a>
       </div>
