@@ -63,7 +63,7 @@
 <meta property="og:site_name" content="纪光的博客">
 <meta property="og:description" content="说明 全称System Activity Reporter 系统活动情况报告，是linux上最为全面的系统性能分析工具之一  可以从多方面对系统活动进行报告： 1、文件的读写情况 2、系统调用的使用情况 3、磁盘I/O 4、CPU效率 5、内存使用状况 6、进程活动以及IPC有关的活动   具体使用 1234567891011121314151617181920212223242526272829">
 <meta property="og:locale" content="zh-CN">
-<meta property="og:updated_time" content="2020-09-09T06:13:29.778Z">
+<meta property="og:updated_time" content="2020-09-09T09:21:56.177Z">
 <meta name="twitter:card" content="summary">
 <meta name="twitter:title" content="工具实践-sar">
 <meta name="twitter:description" content="说明 全称System Activity Reporter 系统活动情况报告，是linux上最为全面的系统性能分析工具之一  可以从多方面对系统活动进行报告： 1、文件的读写情况 2、系统调用的使用情况 3、磁盘I/O 4、CPU效率 5、内存使用状况 6、进程活动以及IPC有关的活动   具体使用 1234567891011121314151617181920212223242526272829">
@@ -277,7 +277,7 @@
                 
               
 
-              <time title="创建时间：2020-09-09 11:16:12 / 修改时间：14:13:29" itemprop="dateCreated datePublished" datetime="2020-09-09T11:16:12+08:00">2020-09-09</time>
+              <time title="创建时间：2020-09-09 11:16:12 / 修改时间：17:21:56" itemprop="dateCreated datePublished" datetime="2020-09-09T11:16:12+08:00">2020-09-09</time>
             </span>
           
             
@@ -351,7 +351,13 @@
 <figure class="highlight shell"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br><span class="line">3</span><br><span class="line">4</span><br><span class="line">5</span><br><span class="line">6</span><br><span class="line">7</span><br></pre></td><td class="code"><pre><span class="line"><span class="meta">$</span> sar -r 3 5</span><br><span class="line">kbmemfree：这个值和free命令中的free值基本一致,所以它不包括buffer和cache的空间.</span><br><span class="line">kbmemused：这个值和free命令中的used值基本一致,所以它包括buffer和cache的空间.</span><br><span class="line"><span class="meta">%</span>memused：这个值是kbmemused和内存总量(不包括swap)的一个百分比.</span><br><span class="line">kbbuffers和kbcached：这两个值就是free命令中的buffer和cache.</span><br><span class="line">kbcommit：保证当前系统所需要的内存,即为了确保不溢出而需要的内存(RAM+swap).</span><br><span class="line"><span class="meta">%</span>commit：这个值是kbcommit与内存总量(包括swap)的一个百分比.</span><br></pre></td></tr></table></figure>
 </li>
 <li><p>内存分页监控</p>
-<figure class="highlight shell"><table><tr><td class="gutter"><pre><span class="line">1</span><br></pre></td><td class="code"><pre><span class="line"><span class="meta">$</span> sar -B 3 5</span><br></pre></td></tr></table></figure>
+<figure class="highlight shell"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br><span class="line">3</span><br><span class="line">4</span><br><span class="line">5</span><br><span class="line">6</span><br><span class="line">7</span><br><span class="line">8</span><br><span class="line">9</span><br><span class="line">10</span><br><span class="line">11</span><br></pre></td><td class="code"><pre><span class="line"><span class="meta">$</span> sar -B 3 5</span><br><span class="line"></span><br><span class="line">pgpgin/s：表示每秒从磁盘或SWAP置换到内存的字节数(KB)</span><br><span class="line">pgpgout/s：表示每秒从内存置换到磁盘或SWAP的字节数(KB)</span><br><span class="line">fault/s：每秒钟系统产生的缺页数,即主缺页与次缺页之和(major + minor)</span><br><span class="line">majflt/s：每秒钟产生的主缺页数.</span><br><span class="line">pgfree/s：每秒被放入空闲队列中的页个数</span><br><span class="line">pgscank/s：每秒被kswapd扫描的页个数</span><br><span class="line">pgscand/s：每秒直接被扫描的页个数</span><br><span class="line">pgsteal/s：每秒钟从cache中被清除来满足内存需要的页个数</span><br><span class="line"><span class="meta">%</span>vmeff：每秒清除的页(pgsteal)占总扫描页(pgscank+pgscand)的百分比</span><br></pre></td></tr></table></figure>
+</li>
+<li><p>I/O和传送速率监控</p>
+<figure class="highlight shell"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br><span class="line">3</span><br><span class="line">4</span><br><span class="line">5</span><br><span class="line">6</span><br></pre></td><td class="code"><pre><span class="line"><span class="meta">$</span> sar -b 3 10 </span><br><span class="line">tps：每秒钟物理设备的 I/O 传输总量</span><br><span class="line">rtps：每秒钟从物理设备读入的数据总量</span><br><span class="line">wtps：每秒钟向物理设备写入的数据总量</span><br><span class="line">bread/s：每秒钟从物理设备读入的数据量，单位为 块/s</span><br><span class="line">bwrtn/s：每秒钟向物理设备写入的数据量，单位为 块/s</span><br></pre></td></tr></table></figure>
+</li>
+<li><p>设备使用情况监控</p>
+<figure class="highlight shell"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br><span class="line">3</span><br><span class="line">4</span><br><span class="line">5</span><br><span class="line">6</span><br><span class="line">7</span><br><span class="line">8</span><br><span class="line">9</span><br><span class="line">10</span><br><span class="line">11</span><br><span class="line">12</span><br><span class="line">13</span><br><span class="line">14</span><br><span class="line">15</span><br><span class="line">16</span><br><span class="line">17</span><br></pre></td><td class="code"><pre><span class="line"><span class="meta">$</span> sar -d 3 3 -p</span><br><span class="line">参数-p可以打印出sda,hdc等磁盘设备名称,如果不用参数-p,设备节点则有可能是dev8-0,dev22-0</span><br><span class="line"></span><br><span class="line">tps:每秒从物理磁盘I/O的次数.多个逻辑请求会被合并为一个I/O磁盘请求,一次传输的大小是不确定的.</span><br><span class="line">rd_sec/s:每秒读扇区的次数.</span><br><span class="line">wr_sec/s:每秒写扇区的次数.</span><br><span class="line">avgrq-sz:平均每次设备I/O操作的数据大小(扇区).</span><br><span class="line">avgqu-sz:磁盘请求队列的平均长度.</span><br><span class="line">await:从请求磁盘操作到系统完成处理,每次请求的平均消耗时间,包括请求队列等待时间,单位是毫秒(1秒=1000毫秒).</span><br><span class="line">svctm:系统处理每次请求的平均时间,不包括在请求队列中消耗的时间.</span><br><span class="line"><span class="meta">%</span>util:I/O请求占CPU的百分比,比率越大,说明越饱和.</span><br><span class="line">1. avgqu-sz 的值较低时，设备的利用率较高。</span><br><span class="line">2. 当%util的值接近 1% 时，表示设备带宽已经占满。</span><br><span class="line"></span><br><span class="line">怀疑CPU存在瓶颈，可用 sar -u 和 sar -q 等来查看</span><br><span class="line">怀疑内存存在瓶颈，可用 sar -B、sar -r 和 sar -W 等来查看</span><br><span class="line">怀疑I/O存在瓶颈，可用 sar -b、sar -u 和 sar -d 等来查看</span><br></pre></td></tr></table></figure>
 
 <p>​</p>
 </li>
@@ -396,6 +402,10 @@
             <span class="post-nav-divider"></span>
 
             <div class="post-nav-prev post-nav-item">
+              
+                <a href="/2020/09/09/linux/工具实践-slabtop/" rel="prev" title="工具实践-slabtop">
+                  工具实践-slabtop <i class="fa fa-chevron-right"></i>
+                </a>
               
             </div>
           </div>
@@ -457,7 +467,7 @@
         
           <a href="/archives/">
         
-          <span class="site-state-item-count">76</span>
+          <span class="site-state-item-count">78</span>
           <span class="site-state-item-name">日志</span>
         </a>
       </div>

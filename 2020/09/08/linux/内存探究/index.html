@@ -63,7 +63,7 @@
 <meta property="og:site_name" content="纪光的博客">
 <meta property="og:description" content="基本概念主存也称为物理内存，是计算机的数据存储区域。通常是动态随机访问内存（DRAM） 虚拟内存 是一个抽象概念 大多数虚拟内存是以页的方式实现的 它向每个进程和内核提供巨大的、线性的并且私有的地址空间 它简化了软件开发，把物理内存的分配交给操作系统管理 支持多任务，因为虚拟地址空间被设计成分离的，并且可以超额订购 进程的地址空间由虚拟内存子系统映射到主内存和物理交换设备，内核按需在它们之间移动内">
 <meta property="og:locale" content="zh-CN">
-<meta property="og:updated_time" content="2020-09-08T03:14:20.486Z">
+<meta property="og:updated_time" content="2020-09-10T03:35:45.904Z">
 <meta name="twitter:card" content="summary">
 <meta name="twitter:title" content="内存探究">
 <meta name="twitter:description" content="基本概念主存也称为物理内存，是计算机的数据存储区域。通常是动态随机访问内存（DRAM） 虚拟内存 是一个抽象概念 大多数虚拟内存是以页的方式实现的 它向每个进程和内核提供巨大的、线性的并且私有的地址空间 它简化了软件开发，把物理内存的分配交给操作系统管理 支持多任务，因为虚拟地址空间被设计成分离的，并且可以超额订购 进程的地址空间由虚拟内存子系统映射到主内存和物理交换设备，内核按需在它们之间移动内">
@@ -277,11 +277,19 @@
                 
               
 
-              <time title="创建时间：2020-09-08 09:36:10 / 修改时间：11:14:20" itemprop="dateCreated datePublished" datetime="2020-09-08T09:36:10+08:00">2020-09-08</time>
+              <time title="创建时间：2020-09-08 09:36:10" itemprop="dateCreated datePublished" datetime="2020-09-08T09:36:10+08:00">2020-09-08</time>
             </span>
           
             
 
+            
+              <span class="post-meta-item">
+                <span class="post-meta-item-icon">
+                  <i class="fa fa-calendar-check-o"></i>
+                </span>
+                <span class="post-meta-item-text">更新于</span>
+                <time title="修改时间：2020-09-10 11:35:45" itemprop="dateModified" datetime="2020-09-10T11:35:45+08:00">2020-09-10</time>
+              </span>
             
           
             <span class="post-meta-item">
@@ -382,7 +390,9 @@
 <li>linux可以用可调参数配置过度提交</li>
 <li>过度提交的后果取决于内核如何管理内存压力</li>
 </ul>
-<h1 id="分析工具"><a href="#分析工具" class="headerlink" title="分析工具"></a>分析工具</h1><h2 id="vmstat"><a href="#vmstat" class="headerlink" title="vmstat"></a>vmstat</h2><h1 id="性能调优"><a href="#性能调优" class="headerlink" title="性能调优"></a>性能调优</h1><h1 id="参考文档"><a href="#参考文档" class="headerlink" title="参考文档"></a>参考文档</h1><p><a href>性能之巅</a></p>
+<h1 id="性能调优"><a href="#性能调优" class="headerlink" title="性能调优"></a>性能调优</h1><h1 id="特别说明"><a href="#特别说明" class="headerlink" title="特别说明"></a>特别说明</h1><h2 id="nice值"><a href="#nice值" class="headerlink" title="nice值"></a>nice值</h2><p>​     进程特性nice值允许进程间接的影响内核调度算法。所谓nice就是指对其他进程的谦让程度，显然比0越小就越不谦让，比0越大就越谦让。顾名思义，越谦让的君子在CPU调度过程中占用CPU的时间会越少，反之不谦让的进程相比较可能占用更多的CPU时间。因此字符’&lt;’表示此进程可能在调度过程中获得优势。</p>
+<h2 id="缺页-1"><a href="#缺页-1" class="headerlink" title="缺页"></a>缺页</h2><p>​    操作系统管理内存的基本单元是4KB大小的页框，当进程访问尚未有物理内存建立页表映射关系的虚拟内存地址值时，会产生一次缺页异常。在缺页异常处理过程中会为虚拟内存页分配一个物理内存页并建立映射。所以每一次缺页异常就会分配4096（4kb）字节的物理内存，这样rss和minflt的比值当然就是4了。如果分配之后又有释放，后面再次分配，会使这个比值逐步小于4。如果这个比值过于小，那我们就有充足理由怀疑用户程序代码在内存管理上存在重大问题</p>
+<h1 id="参考文档"><a href="#参考文档" class="headerlink" title="参考文档"></a>参考文档</h1><p><a href>性能之巅</a></p>
 
     </div>
 
@@ -466,7 +476,7 @@
 
       <!--noindex-->
       <div class="post-toc-wrap sidebar-panel">
-          <div class="post-toc motion-element"><ol class="nav"><li class="nav-item nav-level-1"><a class="nav-link" href="#基本概念"><span class="nav-number">1.</span> <span class="nav-text">基本概念</span></a><ol class="nav-child"><li class="nav-item nav-level-2"><a class="nav-link" href="#主存"><span class="nav-number">1.1.</span> <span class="nav-text">主存</span></a></li><li class="nav-item nav-level-2"><a class="nav-link" href="#虚拟内存"><span class="nav-number">1.2.</span> <span class="nav-text">虚拟内存</span></a></li><li class="nav-item nav-level-2"><a class="nav-link" href="#常驻内存"><span class="nav-number">1.3.</span> <span class="nav-text">常驻内存</span></a></li><li class="nav-item nav-level-2"><a class="nav-link" href="#匿名内存"><span class="nav-number">1.4.</span> <span class="nav-text">匿名内存</span></a></li><li class="nav-item nav-level-2"><a class="nav-link" href="#地址空间"><span class="nav-number">1.5.</span> <span class="nav-text">地址空间</span></a></li><li class="nav-item nav-level-2"><a class="nav-link" href="#段"><span class="nav-number">1.6.</span> <span class="nav-text">段</span></a></li><li class="nav-item nav-level-2"><a class="nav-link" href="#页"><span class="nav-number">1.7.</span> <span class="nav-text">页</span></a></li><li class="nav-item nav-level-2"><a class="nav-link" href="#缺页"><span class="nav-number">1.8.</span> <span class="nav-text">缺页</span></a></li><li class="nav-item nav-level-2"><a class="nav-link" href="#换页"><span class="nav-number">1.9.</span> <span class="nav-text">换页</span></a><ol class="nav-child"><li class="nav-item nav-level-3"><a class="nav-link" href="#文件系统换页"><span class="nav-number">1.9.1.</span> <span class="nav-text">文件系统换页</span></a></li><li class="nav-item nav-level-3"><a class="nav-link" href="#匿名换页"><span class="nav-number">1.9.2.</span> <span class="nav-text">匿名换页</span></a></li></ol></li><li class="nav-item nav-level-2"><a class="nav-link" href="#按需换页"><span class="nav-number">1.10.</span> <span class="nav-text">按需换页</span></a></li><li class="nav-item nav-level-2"><a class="nav-link" href="#过度提交"><span class="nav-number">1.11.</span> <span class="nav-text">过度提交</span></a></li></ol></li><li class="nav-item nav-level-1"><a class="nav-link" href="#分析工具"><span class="nav-number">2.</span> <span class="nav-text">分析工具</span></a><ol class="nav-child"><li class="nav-item nav-level-2"><a class="nav-link" href="#vmstat"><span class="nav-number">2.1.</span> <span class="nav-text">vmstat</span></a></li></ol></li><li class="nav-item nav-level-1"><a class="nav-link" href="#性能调优"><span class="nav-number">3.</span> <span class="nav-text">性能调优</span></a></li><li class="nav-item nav-level-1"><a class="nav-link" href="#参考文档"><span class="nav-number">4.</span> <span class="nav-text">参考文档</span></a></li></ol></div>
+          <div class="post-toc motion-element"><ol class="nav"><li class="nav-item nav-level-1"><a class="nav-link" href="#基本概念"><span class="nav-number">1.</span> <span class="nav-text">基本概念</span></a><ol class="nav-child"><li class="nav-item nav-level-2"><a class="nav-link" href="#主存"><span class="nav-number">1.1.</span> <span class="nav-text">主存</span></a></li><li class="nav-item nav-level-2"><a class="nav-link" href="#虚拟内存"><span class="nav-number">1.2.</span> <span class="nav-text">虚拟内存</span></a></li><li class="nav-item nav-level-2"><a class="nav-link" href="#常驻内存"><span class="nav-number">1.3.</span> <span class="nav-text">常驻内存</span></a></li><li class="nav-item nav-level-2"><a class="nav-link" href="#匿名内存"><span class="nav-number">1.4.</span> <span class="nav-text">匿名内存</span></a></li><li class="nav-item nav-level-2"><a class="nav-link" href="#地址空间"><span class="nav-number">1.5.</span> <span class="nav-text">地址空间</span></a></li><li class="nav-item nav-level-2"><a class="nav-link" href="#段"><span class="nav-number">1.6.</span> <span class="nav-text">段</span></a></li><li class="nav-item nav-level-2"><a class="nav-link" href="#页"><span class="nav-number">1.7.</span> <span class="nav-text">页</span></a></li><li class="nav-item nav-level-2"><a class="nav-link" href="#缺页"><span class="nav-number">1.8.</span> <span class="nav-text">缺页</span></a></li><li class="nav-item nav-level-2"><a class="nav-link" href="#换页"><span class="nav-number">1.9.</span> <span class="nav-text">换页</span></a><ol class="nav-child"><li class="nav-item nav-level-3"><a class="nav-link" href="#文件系统换页"><span class="nav-number">1.9.1.</span> <span class="nav-text">文件系统换页</span></a></li><li class="nav-item nav-level-3"><a class="nav-link" href="#匿名换页"><span class="nav-number">1.9.2.</span> <span class="nav-text">匿名换页</span></a></li></ol></li><li class="nav-item nav-level-2"><a class="nav-link" href="#按需换页"><span class="nav-number">1.10.</span> <span class="nav-text">按需换页</span></a></li><li class="nav-item nav-level-2"><a class="nav-link" href="#过度提交"><span class="nav-number">1.11.</span> <span class="nav-text">过度提交</span></a></li></ol></li><li class="nav-item nav-level-1"><a class="nav-link" href="#性能调优"><span class="nav-number">2.</span> <span class="nav-text">性能调优</span></a></li><li class="nav-item nav-level-1"><a class="nav-link" href="#特别说明"><span class="nav-number">3.</span> <span class="nav-text">特别说明</span></a><ol class="nav-child"><li class="nav-item nav-level-2"><a class="nav-link" href="#nice值"><span class="nav-number">3.1.</span> <span class="nav-text">nice值</span></a></li><li class="nav-item nav-level-2"><a class="nav-link" href="#缺页-1"><span class="nav-number">3.2.</span> <span class="nav-text">缺页</span></a></li></ol></li><li class="nav-item nav-level-1"><a class="nav-link" href="#参考文档"><span class="nav-number">4.</span> <span class="nav-text">参考文档</span></a></li></ol></div>
         
       </div>
       <!--/noindex-->
@@ -482,7 +492,7 @@
         
           <a href="/archives/">
         
-          <span class="site-state-item-count">76</span>
+          <span class="site-state-item-count">78</span>
           <span class="site-state-item-name">日志</span>
         </a>
       </div>

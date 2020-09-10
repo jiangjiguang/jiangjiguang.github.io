@@ -63,7 +63,7 @@
 <meta property="og:site_name" content="纪光的博客">
 <meta property="og:description" content="发布入口类解析 入口类：org.apache.flink.client.cli.CliFrontend   用于执行程序的简单命令行前端的实现。  main函数解析 12345#提交命令 /data/flink/test/jjg-test/flink-1.10.1/bin/flink run -d -m yarn-cluster -p 5 -yjm 2048 -ytm 8192 -ys 5 -yq">
 <meta property="og:locale" content="zh-CN">
-<meta property="og:updated_time" content="2020-09-08T08:17:19.926Z">
+<meta property="og:updated_time" content="2020-09-09T12:46:16.456Z">
 <meta name="twitter:card" content="summary">
 <meta name="twitter:title" content="Flink任务发布流程解析">
 <meta name="twitter:description" content="发布入口类解析 入口类：org.apache.flink.client.cli.CliFrontend   用于执行程序的简单命令行前端的实现。  main函数解析 12345#提交命令 /data/flink/test/jjg-test/flink-1.10.1/bin/flink run -d -m yarn-cluster -p 5 -yjm 2048 -ytm 8192 -ys 5 -yq">
@@ -277,11 +277,19 @@
                 
               
 
-              <time title="创建时间：2020-09-08 13:56:27 / 修改时间：16:17:19" itemprop="dateCreated datePublished" datetime="2020-09-08T13:56:27+08:00">2020-09-08</time>
+              <time title="创建时间：2020-09-08 13:56:27" itemprop="dateCreated datePublished" datetime="2020-09-08T13:56:27+08:00">2020-09-08</time>
             </span>
           
             
 
+            
+              <span class="post-meta-item">
+                <span class="post-meta-item-icon">
+                  <i class="fa fa-calendar-check-o"></i>
+                </span>
+                <span class="post-meta-item-text">更新于</span>
+                <time title="修改时间：2020-09-09 20:46:16" itemprop="dateModified" datetime="2020-09-09T20:46:16+08:00">2020-09-09</time>
+              </span>
             
           
             <span class="post-meta-item">
@@ -340,6 +348,36 @@
 </blockquote>
 </li>
 <li><p>获取FLINK_CONF_DIR 配置文件，得到全局配置</p>
+</li>
+</ul>
+<h1 id="生成StreamGraph"><a href="#生成StreamGraph" class="headerlink" title="生成StreamGraph"></a>生成StreamGraph</h1><h2 id="Transformation"><a href="#Transformation" class="headerlink" title="Transformation"></a>Transformation</h2><ul>
+<li><p>一共有11种Transformation</p>
+<blockquote>
+<p>1、PartitionTransformation：不是PhysicalTransformation，仅仅作用是上游operation如何连接下游operations</p>
+<p>2、SourceTransformation：是PhysicalTransformation，不会转变任何数据，但是是拓扑的root</p>
+<p>3、OneInputTransformation：是PhysicalTransformation</p>
+<p>4、TwoInputTransformation：是PhysicalTransformation</p>
+<p>5、SinkTransformation：是PhysicalTransformation</p>
+<p>6、UnionTransformation：不是PhysicalTransformation，多个Transformation的联合，仅仅作用是上游operation如何连接下游operations</p>
+<p>7、SplitTransformation：不是PhysicalTransformation，是将一个DataStream转化为多个DataStream，仅仅作用是上游operation如何连接下游operations</p>
+<p>8、SelectTransformation：不是PhysicalTransformation，选择上游的某种元素，然后转换成另一个DataStream</p>
+<p>9、</p>
+<p>​</p>
+</blockquote>
+</li>
+</ul>
+<ul>
+<li><p>重要属性</p>
+<blockquote>
+<p>1、每个Transformation都有个managedMemoryWeight的属性，也会设置到StreamGraph</p>
+<p>2、每个Transformation都有个input属性，input也是Transformation，是该Transformation的上游</p>
+<p>3、所有的Transformation是按照sink的在外层，上游是其input的规则链在一起</p>
+<p>​</p>
+</blockquote>
+</li>
+<li><p>Transformation就是创建DataStream的一个operation</p>
+</li>
+<li><p>Transformation分为：PhysicalTransformation</p>
 </li>
 <li><p>​</p>
 </li>
@@ -428,7 +466,7 @@
 
       <!--noindex-->
       <div class="post-toc-wrap sidebar-panel">
-          <div class="post-toc motion-element"><ol class="nav"><li class="nav-item nav-level-1"><a class="nav-link" href="#发布入口类解析"><span class="nav-number">1.</span> <span class="nav-text">发布入口类解析</span></a></li><li class="nav-item nav-level-1"><a class="nav-link" href="#参考文档"><span class="nav-number">2.</span> <span class="nav-text">参考文档</span></a></li></ol></div>
+          <div class="post-toc motion-element"><ol class="nav"><li class="nav-item nav-level-1"><a class="nav-link" href="#发布入口类解析"><span class="nav-number">1.</span> <span class="nav-text">发布入口类解析</span></a></li><li class="nav-item nav-level-1"><a class="nav-link" href="#生成StreamGraph"><span class="nav-number">2.</span> <span class="nav-text">生成StreamGraph</span></a><ol class="nav-child"><li class="nav-item nav-level-2"><a class="nav-link" href="#Transformation"><span class="nav-number">2.1.</span> <span class="nav-text">Transformation</span></a></li></ol></li><li class="nav-item nav-level-1"><a class="nav-link" href="#参考文档"><span class="nav-number">3.</span> <span class="nav-text">参考文档</span></a></li></ol></div>
         
       </div>
       <!--/noindex-->
@@ -444,7 +482,7 @@
         
           <a href="/archives/">
         
-          <span class="site-state-item-count">76</span>
+          <span class="site-state-item-count">78</span>
           <span class="site-state-item-name">日志</span>
         </a>
       </div>
