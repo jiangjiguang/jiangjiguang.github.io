@@ -66,7 +66,7 @@
 <meta property="og:image" content="http://yoursite.com/images/flink/%E5%86%85%E5%AD%98%E6%A8%A1%E5%9E%8B.png">
 <meta property="og:image" content="http://yoursite.com/images/flink/TaskMemory.png">
 <meta property="og:image" content="http://yoursite.com/images/flink/FrameworkTaskOff-HeapMemory.png">
-<meta property="og:updated_time" content="2020-09-09T08:21:17.376Z">
+<meta property="og:updated_time" content="2020-09-14T02:33:59.113Z">
 <meta name="twitter:card" content="summary">
 <meta name="twitter:title" content="Flink内存解析(Flink1.10)">
 <meta name="twitter:description" content="内存模型内存概览   Total Process Memory TaskExecutor的总内存，和TM内存一致  由三部分组成  Flink Total Memory + JVM Metaspace + JVM Overhead     内存设置参数  taskmanager.memory.process.size 不建议显示设置    Total Flink Memory TaskExecut">
@@ -292,7 +292,7 @@
                   <i class="fa fa-calendar-check-o"></i>
                 </span>
                 <span class="post-meta-item-text">更新于</span>
-                <time title="修改时间：2020-09-09 16:21:17" itemprop="dateModified" datetime="2020-09-09T16:21:17+08:00">2020-09-09</time>
+                <time title="修改时间：2020-09-14 10:33:59" itemprop="dateModified" datetime="2020-09-14T10:33:59+08:00">2020-09-14</time>
               </span>
             
           
@@ -374,6 +374,27 @@
 <blockquote>
 <p>taskmanager.memory.flink.size</p>
 <p>不建议显示设置</p>
+</blockquote>
+</li>
+</ul>
+<h2 id="Task-Heap"><a href="#Task-Heap" class="headerlink" title="Task Heap"></a>Task Heap</h2><ul>
+<li><p>TaskExecutors的heap内存大小，task使用</p>
+</li>
+<li><p>配置参数</p>
+<blockquote>
+<p>taskmanager.memory.task.heap.size</p>
+<p>如果没有显示配置，那么就等于</p>
+<p>Total Flink Memory - Framework Heap - Task Off-Heap -  Managed Memory - Network </p>
+</blockquote>
+</li>
+</ul>
+<h2 id="Task-Off-Heap"><a href="#Task-Off-Heap" class="headerlink" title="Task Off-Heap"></a>Task Off-Heap</h2><ul>
+<li><p>TaskExecutors的off-head内存大小</p>
+</li>
+<li><p>配置参数</p>
+<blockquote>
+<p>taskmanager.memory.task.off-heap.size</p>
+<p>默认值是零</p>
 </blockquote>
 </li>
 </ul>
@@ -553,6 +574,13 @@
 </li>
 </ul>
 <h1 id="JVM参数源码解析"><a href="#JVM参数源码解析" class="headerlink" title="JVM参数源码解析"></a>JVM参数源码解析</h1><p>flink升级到1.10后，内存管理和配置有很大的更改，下面进行具体的分析</p>
+<ul>
+<li><p>显示配置task堆内存和托管内存大小</p>
+<figure class="highlight shell"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br><span class="line">3</span><br><span class="line">4</span><br><span class="line">5</span><br><span class="line">6</span><br><span class="line">7</span><br><span class="line">8</span><br><span class="line">9</span><br><span class="line">10</span><br><span class="line">11</span><br><span class="line">12</span><br><span class="line">13</span><br><span class="line">14</span><br><span class="line">15</span><br><span class="line">16</span><br><span class="line">17</span><br><span class="line">18</span><br><span class="line">19</span><br><span class="line">20</span><br><span class="line">21</span><br><span class="line">22</span><br><span class="line">23</span><br><span class="line">24</span><br><span class="line">25</span><br><span class="line">26</span><br><span class="line">27</span><br><span class="line">28</span><br><span class="line">29</span><br><span class="line">30</span><br><span class="line">31</span><br><span class="line">32</span><br><span class="line">33</span><br><span class="line">34</span><br><span class="line">35</span><br><span class="line">36</span><br><span class="line">37</span><br><span class="line">38</span><br></pre></td><td class="code"><pre><span class="line">显示配置：taskmanager.memory.task.heap.size 和 taskmanager.memory.managed.size</span><br><span class="line">  计算其它部分内存：</span><br><span class="line">  taskmanager.memory.framework.heap.size=128m</span><br><span class="line">  taskmanager.memory.framework.off-heap.size=128m</span><br><span class="line">  taskmanager.memory.task.off-heap.size=0</span><br><span class="line">  非网络内存=taskmanager.memory.framework.heap.size </span><br><span class="line">             + taskmanager.memory.framework.off-heap.size </span><br><span class="line">             + taskmanager.memory.task.heap.size</span><br><span class="line">             + taskmanager.memory.task.off-heap.size</span><br><span class="line">             + taskmanager.memory.managed.size</span><br><span class="line"></span><br><span class="line">  若显示配置: taskmanager.memory.flink.size</span><br><span class="line">    则非网络内存 &lt;= taskmanager.memory.flink.size</span><br><span class="line">     那么网络内存 =taskmanager.memory.flink.size - 非网络内存</span><br><span class="line">     检查网络内存 满足 最大值(1gb) 最小值(64m) 和 taskmanager.memory.flink.size * 0.1</span><br><span class="line">  若没有显示配置，</span><br><span class="line">    那么网路内存 &gt; max = max; &lt; min = min; = 比例</span><br><span class="line">  taskmanager.memory.jvm-metaspace.size=256m</span><br><span class="line">  若显示配置: taskmanager.memory.process.size</span><br><span class="line">   overhead= taskmanager.memory.process.size </span><br><span class="line">			  - taskmanager.memory.flink.size </span><br><span class="line">			  - taskmanager.memory.jvm-metaspace.size</span><br><span class="line">   </span><br><span class="line">  最后结果：</span><br><span class="line">  		this.cpuCores = cpuCores;</span><br><span class="line">		this.frameworkHeapSize = frameworkHeapSize;</span><br><span class="line">		this.frameworkOffHeapMemorySize = frameworkOffHeapSize;</span><br><span class="line">		this.taskHeapSize = taskHeapSize;</span><br><span class="line">		this.taskOffHeapSize = taskOffHeapSize;</span><br><span class="line">		this.networkMemSize = networkMemSize;</span><br><span class="line">		this.managedMemorySize = managedMemorySize;</span><br><span class="line">		this.jvmMetaspaceSize = jvmMetaspaceSize;</span><br><span class="line">		this.jvmOverheadSize = jvmOverheadSize;</span><br><span class="line">若显示配置: taskmanager.memory.flink.size</span><br><span class="line"></span><br><span class="line">若显示配置: taskmanager.memory.process.size</span><br><span class="line">  计算其它内存部分: taskmanager.memory.jvm-metaspace.size=256m</span><br><span class="line">  根据比例抽取: overhead</span><br></pre></td></tr></table></figure>
+
+<p>​</p>
+</li>
+</ul>
 <h1 id="参考文档"><a href="#参考文档" class="headerlink" title="参考文档"></a>参考文档</h1><p><a href="https://www.bilibili.com/video/BV1At4y1U7vH/" target="_blank" rel="noopener">Flink TaskExecutor 内存管理与配置</a></p>
 <p><a href="https://cwiki.apache.org/confluence/display/FLINK/FLIP-49%3A+Unified+Memory+Configuration+for+TaskExecutors" target="_blank" rel="noopener">FLIP-49: Unified Memory Configuration for TaskExecutors</a></p>
 <p><a href="https://docs.google.com/spreadsheets/d/1mJaMkMPfDJJ-w6nMXALYmTc4XxiV30P5U7DzgwLkSoE/edit#gid=0" target="_blank" rel="noopener">Memory calculations</a></p>
@@ -640,7 +668,7 @@
 
       <!--noindex-->
       <div class="post-toc-wrap sidebar-panel">
-          <div class="post-toc motion-element"><ol class="nav"><li class="nav-item nav-level-1"><a class="nav-link" href="#内存模型"><span class="nav-number">1.</span> <span class="nav-text">内存模型</span></a><ol class="nav-child"><li class="nav-item nav-level-2"><a class="nav-link" href="#内存概览"><span class="nav-number">1.1.</span> <span class="nav-text">内存概览</span></a></li><li class="nav-item nav-level-2"><a class="nav-link" href="#Total-Process-Memory"><span class="nav-number">1.2.</span> <span class="nav-text">Total Process Memory</span></a></li><li class="nav-item nav-level-2"><a class="nav-link" href="#Total-Flink-Memory"><span class="nav-number">1.3.</span> <span class="nav-text">Total Flink Memory</span></a></li><li class="nav-item nav-level-2"><a class="nav-link" href="#Framework-Memory"><span class="nav-number">1.4.</span> <span class="nav-text">Framework Memory</span></a></li><li class="nav-item nav-level-2"><a class="nav-link" href="#Network-Memory"><span class="nav-number">1.5.</span> <span class="nav-text">Network Memory</span></a></li><li class="nav-item nav-level-2"><a class="nav-link" href="#Managed-Memory"><span class="nav-number">1.6.</span> <span class="nav-text">Managed Memory</span></a></li><li class="nav-item nav-level-2"><a class="nav-link" href="#JVM-Metaspace"><span class="nav-number">1.7.</span> <span class="nav-text">JVM Metaspace</span></a></li><li class="nav-item nav-level-2"><a class="nav-link" href="#JVM-Overhead"><span class="nav-number">1.8.</span> <span class="nav-text">JVM Overhead</span></a></li><li class="nav-item nav-level-2"><a class="nav-link" href="#Direct-Memory"><span class="nav-number">1.9.</span> <span class="nav-text">Direct Memory</span></a></li><li class="nav-item nav-level-2"><a class="nav-link" href="#Native-Memory"><span class="nav-number">1.10.</span> <span class="nav-text">Native Memory</span></a></li><li class="nav-item nav-level-2"><a class="nav-link" href="#Off-Heap-Memory"><span class="nav-number">1.11.</span> <span class="nav-text">Off-Heap Memory</span></a></li></ol></li><li class="nav-item nav-level-1"><a class="nav-link" href="#参数配置"><span class="nav-number">2.</span> <span class="nav-text">参数配置</span></a></li><li class="nav-item nav-level-1"><a class="nav-link" href="#JVM参数源码解析"><span class="nav-number">3.</span> <span class="nav-text">JVM参数源码解析</span></a></li><li class="nav-item nav-level-1"><a class="nav-link" href="#参考文档"><span class="nav-number">4.</span> <span class="nav-text">参考文档</span></a></li></ol></div>
+          <div class="post-toc motion-element"><ol class="nav"><li class="nav-item nav-level-1"><a class="nav-link" href="#内存模型"><span class="nav-number">1.</span> <span class="nav-text">内存模型</span></a><ol class="nav-child"><li class="nav-item nav-level-2"><a class="nav-link" href="#内存概览"><span class="nav-number">1.1.</span> <span class="nav-text">内存概览</span></a></li><li class="nav-item nav-level-2"><a class="nav-link" href="#Total-Process-Memory"><span class="nav-number">1.2.</span> <span class="nav-text">Total Process Memory</span></a></li><li class="nav-item nav-level-2"><a class="nav-link" href="#Total-Flink-Memory"><span class="nav-number">1.3.</span> <span class="nav-text">Total Flink Memory</span></a></li><li class="nav-item nav-level-2"><a class="nav-link" href="#Task-Heap"><span class="nav-number">1.4.</span> <span class="nav-text">Task Heap</span></a></li><li class="nav-item nav-level-2"><a class="nav-link" href="#Task-Off-Heap"><span class="nav-number">1.5.</span> <span class="nav-text">Task Off-Heap</span></a></li><li class="nav-item nav-level-2"><a class="nav-link" href="#Framework-Memory"><span class="nav-number">1.6.</span> <span class="nav-text">Framework Memory</span></a></li><li class="nav-item nav-level-2"><a class="nav-link" href="#Network-Memory"><span class="nav-number">1.7.</span> <span class="nav-text">Network Memory</span></a></li><li class="nav-item nav-level-2"><a class="nav-link" href="#Managed-Memory"><span class="nav-number">1.8.</span> <span class="nav-text">Managed Memory</span></a></li><li class="nav-item nav-level-2"><a class="nav-link" href="#JVM-Metaspace"><span class="nav-number">1.9.</span> <span class="nav-text">JVM Metaspace</span></a></li><li class="nav-item nav-level-2"><a class="nav-link" href="#JVM-Overhead"><span class="nav-number">1.10.</span> <span class="nav-text">JVM Overhead</span></a></li><li class="nav-item nav-level-2"><a class="nav-link" href="#Direct-Memory"><span class="nav-number">1.11.</span> <span class="nav-text">Direct Memory</span></a></li><li class="nav-item nav-level-2"><a class="nav-link" href="#Native-Memory"><span class="nav-number">1.12.</span> <span class="nav-text">Native Memory</span></a></li><li class="nav-item nav-level-2"><a class="nav-link" href="#Off-Heap-Memory"><span class="nav-number">1.13.</span> <span class="nav-text">Off-Heap Memory</span></a></li></ol></li><li class="nav-item nav-level-1"><a class="nav-link" href="#参数配置"><span class="nav-number">2.</span> <span class="nav-text">参数配置</span></a></li><li class="nav-item nav-level-1"><a class="nav-link" href="#JVM参数源码解析"><span class="nav-number">3.</span> <span class="nav-text">JVM参数源码解析</span></a></li><li class="nav-item nav-level-1"><a class="nav-link" href="#参考文档"><span class="nav-number">4.</span> <span class="nav-text">参考文档</span></a></li></ol></div>
         
       </div>
       <!--/noindex-->
@@ -656,7 +684,7 @@
         
           <a href="/archives/">
         
-          <span class="site-state-item-count">78</span>
+          <span class="site-state-item-count">82</span>
           <span class="site-state-item-name">日志</span>
         </a>
       </div>
@@ -682,7 +710,7 @@
             <a href="/tags/">
           
         
-        <span class="site-state-item-count">12</span>
+        <span class="site-state-item-count">14</span>
         <span class="site-state-item-name">标签</span>
         </a>
       </div>
