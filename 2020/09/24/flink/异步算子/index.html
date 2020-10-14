@@ -55,14 +55,18 @@
   };
 </script>
 
-  <meta property="og:type" content="article">
+  <meta name="description" content="简介接口类：org.apache.flink.streaming.api.functions.async.AsyncFunction 接口描述：  用来触发异步I/O操作 每当asyncInvoke调用，就会触发一次异步I/O操作，当执行结束，可以使用ResultFuture#complete获取到执行结果。执行期间，context存储在算子中，除非internal buffer已满，否则不会阻塞">
+<meta name="keywords" content="FLink基本知识">
+<meta property="og:type" content="article">
 <meta property="og:title" content="异步算子">
 <meta property="og:url" content="http://yoursite.com/2020/09/24/flink/异步算子/index.html">
 <meta property="og:site_name" content="纪光的博客">
+<meta property="og:description" content="简介接口类：org.apache.flink.streaming.api.functions.async.AsyncFunction 接口描述：  用来触发异步I/O操作 每当asyncInvoke调用，就会触发一次异步I/O操作，当执行结束，可以使用ResultFuture#complete获取到执行结果。执行期间，context存储在算子中，除非internal buffer已满，否则不会阻塞">
 <meta property="og:locale" content="zh-CN">
-<meta property="og:updated_time" content="2020-09-24T12:16:30.334Z">
+<meta property="og:updated_time" content="2020-09-29T07:31:24.064Z">
 <meta name="twitter:card" content="summary">
 <meta name="twitter:title" content="异步算子">
+<meta name="twitter:description" content="简介接口类：org.apache.flink.streaming.api.functions.async.AsyncFunction 接口描述：  用来触发异步I/O操作 每当asyncInvoke调用，就会触发一次异步I/O操作，当执行结束，可以使用ResultFuture#complete获取到执行结果。执行期间，context存储在算子中，除非internal buffer已满，否则不会阻塞">
   <link rel="canonical" href="http://yoursite.com/2020/09/24/flink/异步算子/">
 
 
@@ -276,6 +280,35 @@
               <time title="创建时间：2020-09-24 20:16:30" itemprop="dateCreated datePublished" datetime="2020-09-24T20:16:30+08:00">2020-09-24</time>
             </span>
           
+            
+
+            
+              <span class="post-meta-item">
+                <span class="post-meta-item-icon">
+                  <i class="fa fa-calendar-check-o"></i>
+                </span>
+                <span class="post-meta-item-text">更新于</span>
+                <time title="修改时间：2020-09-29 15:31:24" itemprop="dateModified" datetime="2020-09-29T15:31:24+08:00">2020-09-29</time>
+              </span>
+            
+          
+            <span class="post-meta-item">
+              <span class="post-meta-item-icon">
+                <i class="fa fa-folder-o"></i>
+              </span>
+              <span class="post-meta-item-text">分类于</span>
+              
+                <span itemprop="about" itemscope itemtype="http://schema.org/Thing">
+                  <a href="/categories/flink/" itemprop="url" rel="index">
+                    <span itemprop="name">flink</span>
+                  </a>
+                </span>
+
+                
+                
+              
+            </span>
+          
 
           
             <span id="/2020/09/24/flink/异步算子/" class="post-meta-item leancloud_visitors" data-flag-title="异步算子" title="阅读次数">
@@ -298,7 +331,17 @@
     <div class="post-body" itemprop="articleBody">
 
       
-        
+        <h1 id="简介"><a href="#简介" class="headerlink" title="简介"></a>简介</h1><p>接口类：<code>org.apache.flink.streaming.api.functions.async.AsyncFunction</code></p>
+<p>接口描述：</p>
+<ul>
+<li>用来触发<strong>异步I/O</strong>操作</li>
+<li>每当<strong>asyncInvoke</strong>调用，就会触发一次异步I/O操作，当执行结束，可以使用ResultFuture#complete获取到执行结果。执行期间，context存储在算子中，除非internal buffer已满，否则不会阻塞流</li>
+<li>使用案例请参见官方文档</li>
+</ul>
+<p>异步算子的目的是解决与外部系统交互时网络延时所导致的系统瓶颈问题</p>
+<p>注意：<strong>异步算子的ChainingStrategy是HEAD，也就是异步算子是不能和上游算子chain在一起的</strong></p>
+<h1 id="参考文档"><a href="#参考文档" class="headerlink" title="参考文档"></a>参考文档</h1><p><a href="https://ci.apache.org/projects/flink/flink-docs-release-1.11/zh/dev/stream/operators/asyncio.html" target="_blank" rel="noopener">用于外部数据访问的异步 I/O</a></p>
+
     </div>
 
     
@@ -308,6 +351,15 @@
       
 
       <footer class="post-footer">
+          
+            
+          
+          <div class="post-tags">
+            
+              <a href="/tags/FLink基本知识/" rel="tag"># FLink基本知识</a>
+            
+          </div>
+        
 
         
 
@@ -372,6 +424,8 @@
 
       <!--noindex-->
       <div class="post-toc-wrap sidebar-panel">
+          <div class="post-toc motion-element"><ol class="nav"><li class="nav-item nav-level-1"><a class="nav-link" href="#简介"><span class="nav-number">1.</span> <span class="nav-text">简介</span></a></li><li class="nav-item nav-level-1"><a class="nav-link" href="#参考文档"><span class="nav-number">2.</span> <span class="nav-text">参考文档</span></a></li></ol></div>
+        
       </div>
       <!--/noindex-->
 
@@ -386,7 +440,7 @@
         
           <a href="/archives/">
         
-          <span class="site-state-item-count">82</span>
+          <span class="site-state-item-count">84</span>
           <span class="site-state-item-name">日志</span>
         </a>
       </div>
@@ -412,7 +466,7 @@
             <a href="/tags/">
           
         
-        <span class="site-state-item-count">14</span>
+        <span class="site-state-item-count">15</span>
         <span class="site-state-item-name">标签</span>
         </a>
       </div>

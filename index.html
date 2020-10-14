@@ -241,6 +241,213 @@
   
   
   <article itemscope itemtype="http://schema.org/Article" class="post-block home" lang="zh-CN">
+    <link itemprop="mainEntityOfPage" href="http://yoursite.com/2020/10/14/flink/Checkpoint失败排查思路/">
+
+    <span hidden itemprop="author" itemscope itemtype="http://schema.org/Person">
+      <meta itemprop="name" content="姜纪光">
+      <meta itemprop="description" content="">
+      <meta itemprop="image" content="/images/avatar.gif">
+    </span>
+
+    <span hidden itemprop="publisher" itemscope itemtype="http://schema.org/Organization">
+      <meta itemprop="name" content="纪光的博客">
+    </span>
+      <header class="post-header">
+        <h1 class="post-title" itemprop="name headline">
+          
+            
+            <a href="/2020/10/14/flink/Checkpoint失败排查思路/" class="post-title-link" itemprop="url">Checkpoint失败排查思路</a>
+          
+        </h1>
+
+        <div class="post-meta">
+            <span class="post-meta-item">
+              <span class="post-meta-item-icon">
+                <i class="fa fa-calendar-o"></i>
+              </span>
+              <span class="post-meta-item-text">发表于</span>
+
+              
+                
+              
+
+              <time title="创建时间：2020-10-14 16:52:28 / 修改时间：17:31:10" itemprop="dateCreated datePublished" datetime="2020-10-14T16:52:28+08:00">2020-10-14</time>
+            </span>
+          
+            
+
+            
+          
+            <span class="post-meta-item">
+              <span class="post-meta-item-icon">
+                <i class="fa fa-folder-o"></i>
+              </span>
+              <span class="post-meta-item-text">分类于</span>
+              
+                <span itemprop="about" itemscope itemtype="http://schema.org/Thing">
+                  <a href="/categories/flink/" itemprop="url" rel="index">
+                    <span itemprop="name">flink</span>
+                  </a>
+                </span>
+
+                
+                
+              
+            </span>
+          
+
+          
+            <span id="/2020/10/14/flink/Checkpoint失败排查思路/" class="post-meta-item leancloud_visitors" data-flag-title="Checkpoint失败排查思路" title="阅读次数">
+              <span class="post-meta-item-icon">
+                <i class="fa fa-eye"></i>
+              </span>
+              <span class="post-meta-item-text">阅读次数：</span>
+              <span class="leancloud-visitors-count"></span>
+            </span>
+          
+  
+  
+
+        </div>
+      </header>
+
+    
+    
+    
+    <div class="post-body" itemprop="articleBody">
+
+      
+          <h1 id="问题描述"><a href="#问题描述" class="headerlink" title="问题描述"></a>问题描述</h1><p>如下图所示，checkpoint失败</p>
+<p>可见失败的checkpoint的ID是<strong>80631</strong>，触发时间是14:52:31  5分钟超时，那么失败时间是14:57:31</p>
+<p><img src="/images/flink/checkpoint_fail.png" alt></p>
+<h1 id="排查过程"><a href="#排查过程" class="headerlink" title="排查过程"></a>排查过程</h1><p>checkpoint的触发是在jobmanager中，因此首先查看jobmanager日志，根据80631进行全局搜索。结果如下：</p>
+<p><img src="/images/flink/checkpint_fail_log1.png" alt></p>
+<p>重点看以下日志</p>
+<figure class="highlight plain"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br><span class="line">3</span><br><span class="line">4</span><br><span class="line">5</span><br><span class="line">6</span><br></pre></td><td class="code"><pre><span class="line">//说明checkpoint超时了</span><br><span class="line">Checkpoint 80631 of job 4e792401d12aa8d225ba0198a7e6d0ab expired before completing.</span><br><span class="line">//在进行80632的checkpoint时，收到了80630,80631的延迟数据</span><br><span class="line">//延迟数据是来自container_e01_1596189456648_226840_01_000002</span><br><span class="line"> Received late message for now expired checkpoint attempt 80630 from task ddb6a88d96838b1f3d387b238967d0df of job 4e792401d12aa8d225ba0198a7e6d0ab at container_e01_1596189456648_226840_01_000002 @ emr-worker-8.cluster-183727 (dataPort=35632).</span><br><span class="line"> Received late message for now expired checkpoint attempt 80631 from task ddb6a88d96838b1f3d387b238967d0df of job 4e792401d12aa8d225ba0198a7e6d0ab at container_e01_1596189456648_226840_01_000002 @ emr-worker-8.cluster-183727 (dataPort=35632).</span><br></pre></td></tr></table></figure>
+
+<p>有了以上日志，那么我们去看一下 container_e01_1596189456648_226840_01_000002  在2020-10-14 15:02:10,164 发生了什么</p>
+<figure class="highlight plain"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br></pre></td><td class="code"><pre><span class="line">I/O exception (java.net.SocketException) caught when processing request to &#123;&#125;-&gt;http://172.20.16.50:8123: </span><br><span class="line">Connection timed out (Write failed)</span><br></pre></td></tr></table></figure>
+
+<p>至此，可以得出结论，是由于Socket连接超时，导致的checkpoint失败</p>
+
+        
+      
+    </div>
+
+    
+    
+    
+      <footer class="post-footer">
+        <div class="post-eof"></div>
+      </footer>
+  </article>
+  
+  
+  
+
+    
+        
+  
+  
+  <article itemscope itemtype="http://schema.org/Article" class="post-block home" lang="zh-CN">
+    <link itemprop="mainEntityOfPage" href="http://yoursite.com/2020/09/29/java/理解ForkJoin/">
+
+    <span hidden itemprop="author" itemscope itemtype="http://schema.org/Person">
+      <meta itemprop="name" content="姜纪光">
+      <meta itemprop="description" content="">
+      <meta itemprop="image" content="/images/avatar.gif">
+    </span>
+
+    <span hidden itemprop="publisher" itemscope itemtype="http://schema.org/Organization">
+      <meta itemprop="name" content="纪光的博客">
+    </span>
+      <header class="post-header">
+        <h1 class="post-title" itemprop="name headline">
+          
+            
+            <a href="/2020/09/29/java/理解ForkJoin/" class="post-title-link" itemprop="url">理解ForkJoin</a>
+          
+        </h1>
+
+        <div class="post-meta">
+            <span class="post-meta-item">
+              <span class="post-meta-item-icon">
+                <i class="fa fa-calendar-o"></i>
+              </span>
+              <span class="post-meta-item-text">发表于</span>
+
+              
+                
+              
+
+              <time title="创建时间：2020-09-29 15:33:40 / 修改时间：16:06:14" itemprop="dateCreated datePublished" datetime="2020-09-29T15:33:40+08:00">2020-09-29</time>
+            </span>
+          
+            
+
+            
+          
+            <span class="post-meta-item">
+              <span class="post-meta-item-icon">
+                <i class="fa fa-folder-o"></i>
+              </span>
+              <span class="post-meta-item-text">分类于</span>
+              
+                <span itemprop="about" itemscope itemtype="http://schema.org/Thing">
+                  <a href="/categories/java/" itemprop="url" rel="index">
+                    <span itemprop="name">java</span>
+                  </a>
+                </span>
+
+                
+                
+              
+            </span>
+          
+
+          
+            <span id="/2020/09/29/java/理解ForkJoin/" class="post-meta-item leancloud_visitors" data-flag-title="理解ForkJoin" title="阅读次数">
+              <span class="post-meta-item-icon">
+                <i class="fa fa-eye"></i>
+              </span>
+              <span class="post-meta-item-text">阅读次数：</span>
+              <span class="leancloud-visitors-count"></span>
+            </span>
+          
+  
+  
+
+        </div>
+      </header>
+
+    
+    
+    
+    <div class="post-body" itemprop="articleBody">
+
+      
+          <h1 id="参考文档"><a href="#参考文档" class="headerlink" title="参考文档"></a>参考文档</h1><p><a href="https://www.cnblogs.com/binghe001/p/12683253.html" target="_blank" rel="noopener">什么是ForkJoin？看这一篇就够了！</a></p>
+
+        
+      
+    </div>
+
+    
+    
+    
+      <footer class="post-footer">
+        <div class="post-eof"></div>
+      </footer>
+  </article>
+  
+  
+  
+
+    
+        
+  
+  
+  <article itemscope itemtype="http://schema.org/Article" class="post-block home" lang="zh-CN">
     <link itemprop="mainEntityOfPage" href="http://yoursite.com/2020/09/25/linux/火焰图/">
 
     <span hidden itemprop="author" itemscope itemtype="http://schema.org/Person">
@@ -579,6 +786,35 @@
               <time title="创建时间：2020-09-24 20:16:30" itemprop="dateCreated datePublished" datetime="2020-09-24T20:16:30+08:00">2020-09-24</time>
             </span>
           
+            
+
+            
+              <span class="post-meta-item">
+                <span class="post-meta-item-icon">
+                  <i class="fa fa-calendar-check-o"></i>
+                </span>
+                <span class="post-meta-item-text">更新于</span>
+                <time title="修改时间：2020-09-29 15:31:24" itemprop="dateModified" datetime="2020-09-29T15:31:24+08:00">2020-09-29</time>
+              </span>
+            
+          
+            <span class="post-meta-item">
+              <span class="post-meta-item-icon">
+                <i class="fa fa-folder-o"></i>
+              </span>
+              <span class="post-meta-item-text">分类于</span>
+              
+                <span itemprop="about" itemscope itemtype="http://schema.org/Thing">
+                  <a href="/categories/flink/" itemprop="url" rel="index">
+                    <span itemprop="name">flink</span>
+                  </a>
+                </span>
+
+                
+                
+              
+            </span>
+          
 
           
             <span id="/2020/09/24/flink/异步算子/" class="post-meta-item leancloud_visitors" data-flag-title="异步算子" title="阅读次数">
@@ -601,7 +837,17 @@
     <div class="post-body" itemprop="articleBody">
 
       
-          
+          <h1 id="简介"><a href="#简介" class="headerlink" title="简介"></a>简介</h1><p>接口类：<code>org.apache.flink.streaming.api.functions.async.AsyncFunction</code></p>
+<p>接口描述：</p>
+<ul>
+<li>用来触发<strong>异步I/O</strong>操作</li>
+<li>每当<strong>asyncInvoke</strong>调用，就会触发一次异步I/O操作，当执行结束，可以使用ResultFuture#complete获取到执行结果。执行期间，context存储在算子中，除非internal buffer已满，否则不会阻塞流</li>
+<li>使用案例请参见官方文档</li>
+</ul>
+<p>异步算子的目的是解决与外部系统交互时网络延时所导致的系统瓶颈问题</p>
+<p>注意：<strong>异步算子的ChainingStrategy是HEAD，也就是异步算子是不能和上游算子chain在一起的</strong></p>
+<h1 id="参考文档"><a href="#参考文档" class="headerlink" title="参考文档"></a>参考文档</h1><p><a href="https://ci.apache.org/projects/flink/flink-docs-release-1.11/zh/dev/stream/operators/asyncio.html" target="_blank" rel="noopener">用于外部数据访问的异步 I/O</a></p>
+
         
       
     </div>
@@ -663,7 +909,7 @@
                   <i class="fa fa-calendar-check-o"></i>
                 </span>
                 <span class="post-meta-item-text">更新于</span>
-                <time title="修改时间：2020-09-25 17:13:56" itemprop="dateModified" datetime="2020-09-25T17:13:56+08:00">2020-09-25</time>
+                <time title="修改时间：2020-09-25 17:57:47" itemprop="dateModified" datetime="2020-09-25T17:57:47+08:00">2020-09-25</time>
               </span>
             
           
@@ -733,7 +979,34 @@
 <li><p>生成的火焰图如下所示</p>
 </li>
 </ul>
-<p><img src="/images/flink/flink-cpu-flame-01.png" alt></p>
+<p><img src="/images/flink/flink-cpu-flame-01.png" alt="优化之前"></p>
+<ul>
+<li><p>可以看出任务的大部分CPU消耗都在kryo的序列化/反序列化上</p>
+<blockquote>
+<p>​    通过查看任务的代码，发现用户自定的Pojo类 使用 @Accessors(chain = true)、@AllArgsConstructor 等 导致 不能使用PojoSerializer  序列化器，使用了KryoSerializer 序列化器，而KryoSerializer序列化器是比较消耗性能的。</p>
+<p>​    去掉@Accessors(chain = true)、@AllArgsConstructor 后，已经显示用户自定义的Pojo类使用了PojoSerializer </p>
+</blockquote>
+</li>
+<li><p>优化之后的火焰图</p>
+<p>​                        <img src="/images/flink/flink-cpu-graph-02.png" alt="优化之后"></p>
+</li>
+<li><p>可见优化之后，自定义类已经使用了PojoSerializer序列化器，但是CPU消耗却没有降低，因为Pojo类的字段基本都是泛型类型，也是使用的KryoSerializer</p>
+</li>
+<li><p>继续排查问题，从任务本身入手</p>
+<blockquote>
+<p>​    通过Flink Dashboard看到 该任务中的5个task的收到和发送的数据量特别大，每小时达到5T，关键是这些Task没有chain在一起。这应该是造成kryo占用CPU高的主因。那么问题来了，为什么没有chain在一起？如果chain在了一起问题是否就解决了呢。</p>
+<p>   通过查看用户代码，发现用户使用的是异步算子<strong>RichAsyncFunction</strong>，除此之外，这些算子满足chain在一起的条件，那么是否是异步算子<strong>RichAsyncFunction</strong>本身有什么限制呢？继续查看源码，如下图所示：可以看到异步算子的chain策略是HEAD，而满足chain在一起的条件之一就是下游算子的chain策略必须是ALWAYS，现在<strong>罪魁祸首</strong>找到了，那么用户为什么要用异步算子呢，因为这是一个dmp任务，每条消息都是一条SQL，需要和数据库交互，异步算子里面使用了<strong>ForkJoinPool</strong>，加强数据的处理能力。</p>
+</blockquote>
+</li>
+</ul>
+<p><img src="/images/flink/flink-asyn-function-01.png" alt></p>
+<ul>
+<li><p>原因找到了，最后我们给用户的优化方案是</p>
+<blockquote>
+<p>​    不要使用异步算子<strong>RichAsyncFunction</strong>，改为同步，使之能chain在一起，减少序列化/反序列化，同时加大算子的并行度，提高消费能力</p>
+</blockquote>
+</li>
+</ul>
 <h1 id="参考文档"><a href="#参考文档" class="headerlink" title="参考文档"></a>参考文档</h1><p><a href="https://arthas.aliyun.com/doc/install-detail.html" target="_blank" rel="noopener">Arthas Install</a></p>
 <p><a href="https://arthas.aliyun.com/doc/profiler.html" target="_blank" rel="noopener">Arthas profiler</a></p>
 
@@ -1371,253 +1644,6 @@
   
 
     
-        
-  
-  
-  <article itemscope itemtype="http://schema.org/Article" class="post-block home" lang="zh-CN">
-    <link itemprop="mainEntityOfPage" href="http://yoursite.com/2020/09/09/linux/工具实践-vmstat/">
-
-    <span hidden itemprop="author" itemscope itemtype="http://schema.org/Person">
-      <meta itemprop="name" content="姜纪光">
-      <meta itemprop="description" content="">
-      <meta itemprop="image" content="/images/avatar.gif">
-    </span>
-
-    <span hidden itemprop="publisher" itemscope itemtype="http://schema.org/Organization">
-      <meta itemprop="name" content="纪光的博客">
-    </span>
-      <header class="post-header">
-        <h1 class="post-title" itemprop="name headline">
-          
-            
-            <a href="/2020/09/09/linux/工具实践-vmstat/" class="post-title-link" itemprop="url">工具实践-vmstat</a>
-          
-        </h1>
-
-        <div class="post-meta">
-            <span class="post-meta-item">
-              <span class="post-meta-item-icon">
-                <i class="fa fa-calendar-o"></i>
-              </span>
-              <span class="post-meta-item-text">发表于</span>
-
-              
-                
-              
-
-              <time title="创建时间：2020-09-09 09:16:33 / 修改时间：11:14:53" itemprop="dateCreated datePublished" datetime="2020-09-09T09:16:33+08:00">2020-09-09</time>
-            </span>
-          
-            
-
-            
-          
-            <span class="post-meta-item">
-              <span class="post-meta-item-icon">
-                <i class="fa fa-folder-o"></i>
-              </span>
-              <span class="post-meta-item-text">分类于</span>
-              
-                <span itemprop="about" itemscope itemtype="http://schema.org/Thing">
-                  <a href="/categories/linux/" itemprop="url" rel="index">
-                    <span itemprop="name">linux</span>
-                  </a>
-                </span>
-
-                
-                
-              
-            </span>
-          
-
-          
-            <span id="/2020/09/09/linux/工具实践-vmstat/" class="post-meta-item leancloud_visitors" data-flag-title="工具实践-vmstat" title="阅读次数">
-              <span class="post-meta-item-icon">
-                <i class="fa fa-eye"></i>
-              </span>
-              <span class="post-meta-item-text">阅读次数：</span>
-              <span class="leancloud-visitors-count"></span>
-            </span>
-          
-  
-  
-
-        </div>
-      </header>
-
-    
-    
-    
-    <div class="post-body" itemprop="articleBody">
-
-      
-          <h1 id="说明"><a href="#说明" class="headerlink" title="说明"></a>说明</h1><ul>
-<li><p>是虚拟内存统计信息的命令，提供CPU使用率、内存使用、虚拟内存交换、IO读写等信息</p>
-</li>
-<li><p>使用姿势：</p>
-<figure class="highlight shell"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br><span class="line">3</span><br><span class="line">4</span><br><span class="line">5</span><br><span class="line">6</span><br><span class="line">7</span><br><span class="line">8</span><br><span class="line">9</span><br><span class="line">10</span><br><span class="line">11</span><br><span class="line">12</span><br><span class="line">13</span><br><span class="line">14</span><br><span class="line">15</span><br><span class="line">16</span><br><span class="line">17</span><br><span class="line">18</span><br><span class="line">19</span><br><span class="line">20</span><br></pre></td><td class="code"><pre><span class="line"><span class="meta">#</span> vmstat -h</span><br><span class="line"></span><br><span class="line">Usage:</span><br><span class="line"> vmstat [options] [delay [count]]</span><br><span class="line"></span><br><span class="line">Options:</span><br><span class="line"> -a, --active           active/inactive memory      	#显示活跃和非活跃内存</span><br><span class="line"> -f, --forks            number of forks since boot		#系统启动以来fork的数量</span><br><span class="line"> -m, --slabs            slabinfo						#显示slabinfo</span><br><span class="line"> -n, --one-header       do not redisplay header			#只在开始时显示一次各字段名称</span><br><span class="line"> -s, --stats            event counter statistics   #显示内存相关统计信息及多种系统活动数量</span><br><span class="line"> -d, --disk             disk statistics					#显示磁盘相关统计信息。</span><br><span class="line"> -D, --disk-sum         summarize disk statistics		</span><br><span class="line"> -p, --partition &lt;dev&gt;  partition specific statistics</span><br><span class="line"> -S, --unit &lt;char&gt;      define display unit             #requires k, K, m or M 默认k</span><br><span class="line"> -w, --wide             wide output</span><br><span class="line"> -t, --timestamp        show timestamp</span><br><span class="line"></span><br><span class="line"> -h, --help     display this help and exit</span><br><span class="line"> -V, --version  output version information and exit</span><br></pre></td></tr></table></figure>
-</li>
-<li><p>字段说明</p>
-<figure class="highlight plain"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br><span class="line">3</span><br><span class="line">4</span><br><span class="line">5</span><br><span class="line">6</span><br><span class="line">7</span><br><span class="line">8</span><br><span class="line">9</span><br><span class="line">10</span><br><span class="line">11</span><br><span class="line">12</span><br><span class="line">13</span><br><span class="line">14</span><br><span class="line">15</span><br><span class="line">16</span><br><span class="line">17</span><br><span class="line">18</span><br><span class="line">19</span><br><span class="line">20</span><br><span class="line">21</span><br><span class="line">22</span><br></pre></td><td class="code"><pre><span class="line">------------------------procs---------------------------</span><br><span class="line">r: 等待运行的进程数，一般认为超过了CPU数目，就会出现CPU瓶颈了</span><br><span class="line">b: 阻塞的进程数</span><br><span class="line">------------------------memory--------------------------</span><br><span class="line">swpd: 交换出的内存量，如果大于0，说明物理内存不足，也可能是内存泄漏</span><br><span class="line">free: 空闲的物理内存大小</span><br><span class="line">buff: 用于缓冲缓存的内存，比如目录、权限等，当程序使用时，可以很快回收掉</span><br><span class="line">cache: 用于页缓存的内存，给文件本身做缓冲，当程序使用时，可以很快回收掉</span><br><span class="line">------------------------swap----------------------------</span><br><span class="line">si: 每秒从磁盘读入虚拟内存的大小，如果大于0，表示物理内存不够或者内存泄漏</span><br><span class="line">so: 每秒从虚拟内存写入磁盘的大小，如果大于0，表示物理内存不够或者内存泄漏</span><br><span class="line">-------------------------io-----------------------------</span><br><span class="line">bi: 每秒从块设备接收到的块数，即读块设备，块设备一般指磁盘，默认块大小1KB</span><br><span class="line">bo: 每秒发送到块设备的块数，即写块设备</span><br><span class="line">-------------------------system-----------------------------</span><br><span class="line">in: 每秒CPU中断次数，包括时间中断</span><br><span class="line">cs: 每秒上下文切换次数，例如调用系统函数、线程切换等都会导致上下线切换</span><br><span class="line">---------------------------cpu--------------------------------</span><br><span class="line">us: 运行非内核所占CPU</span><br><span class="line">sy: 系统CPU时间（内核），如果太高，表示系统调用时间过程</span><br><span class="line">id: 空闲CPU时间</span><br><span class="line">wa: 等待IO CPU时间</span><br></pre></td></tr></table></figure>
-
-</li>
-</ul>
-<h1 id="实践"><a href="#实践" class="headerlink" title="实践"></a>实践</h1><figure class="highlight shell"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br><span class="line">3</span><br><span class="line">4</span><br><span class="line">5</span><br><span class="line">6</span><br></pre></td><td class="code"><pre><span class="line"><span class="meta">#</span>每个3秒，输出5次</span><br><span class="line"><span class="meta">$</span> vmstat -wt -S m 3 5</span><br><span class="line"><span class="meta">#</span>显示内存相关统计信息及多种系统活动数量</span><br><span class="line"><span class="meta">$</span> vmstat -s -S m</span><br><span class="line"><span class="meta">#</span>显示磁盘相关统计信息</span><br><span class="line"><span class="meta">$</span> vmstat -d</span><br></pre></td></tr></table></figure>
-
-<h1 id="参考文档"><a href="#参考文档" class="headerlink" title="参考文档"></a>参考文档</h1><p><a href="http://www.361way.com/linux-context-switch/5131.html" target="_blank" rel="noopener">进程上下文频繁切换导致load average过高</a></p>
-<p><a href="https://access.redhat.com/solutions/1160343" target="_blank" rel="noopener">How to read Vmstat output</a></p>
-<p><a href="https://developer.aliyun.com/article/7990" target="_blank" rel="noopener">Linux vmstat命令详解</a></p>
-<p><a href="https://cloud.tencent.com/developer/article/1498377" target="_blank" rel="noopener">Linux fork那些隐藏的开销</a></p>
-<p><a href="https://fivezh.github.io/2017/06/25/Linux-slab-info/" target="_blank" rel="noopener">Linux内存之Slab</a></p>
-<p><a href="http://blog.sina.com.cn/s/blog_3dbab2840100j4fe.html" target="_blank" rel="noopener">vmstat工具</a></p>
-<p><a href="https://blog.csdn.net/longdel/article/details/7317511?utm_medium=distribute.pc_relevant.none-task-blog-BlogCommendFromMachineLearnPai2-1.channel_param&depth_1-utm_source=distribute.pc_relevant.none-task-blog-BlogCommendFromMachineLearnPai2-1.channel_param" target="_blank" rel="noopener">进程优先级，进程nice值和%nice的解释</a></p>
-
-        
-      
-    </div>
-
-    
-    
-    
-      <footer class="post-footer">
-        <div class="post-eof"></div>
-      </footer>
-  </article>
-  
-  
-  
-
-    
-        
-  
-  
-  <article itemscope itemtype="http://schema.org/Article" class="post-block home" lang="zh-CN">
-    <link itemprop="mainEntityOfPage" href="http://yoursite.com/2020/09/08/flink/Flink任务进程/">
-
-    <span hidden itemprop="author" itemscope itemtype="http://schema.org/Person">
-      <meta itemprop="name" content="姜纪光">
-      <meta itemprop="description" content="">
-      <meta itemprop="image" content="/images/avatar.gif">
-    </span>
-
-    <span hidden itemprop="publisher" itemscope itemtype="http://schema.org/Organization">
-      <meta itemprop="name" content="纪光的博客">
-    </span>
-      <header class="post-header">
-        <h1 class="post-title" itemprop="name headline">
-          
-            
-            <a href="/2020/09/08/flink/Flink任务进程/" class="post-title-link" itemprop="url">Flink任务进程</a>
-          
-        </h1>
-
-        <div class="post-meta">
-            <span class="post-meta-item">
-              <span class="post-meta-item-icon">
-                <i class="fa fa-calendar-o"></i>
-              </span>
-              <span class="post-meta-item-text">发表于</span>
-
-              
-                
-              
-
-              <time title="创建时间：2020-09-08 14:55:52 / 修改时间：16:06:43" itemprop="dateCreated datePublished" datetime="2020-09-08T14:55:52+08:00">2020-09-08</time>
-            </span>
-          
-            
-
-            
-          
-            <span class="post-meta-item">
-              <span class="post-meta-item-icon">
-                <i class="fa fa-folder-o"></i>
-              </span>
-              <span class="post-meta-item-text">分类于</span>
-              
-                <span itemprop="about" itemscope itemtype="http://schema.org/Thing">
-                  <a href="/categories/flink/" itemprop="url" rel="index">
-                    <span itemprop="name">flink</span>
-                  </a>
-                </span>
-
-                
-                
-              
-            </span>
-          
-
-          
-            <span id="/2020/09/08/flink/Flink任务进程/" class="post-meta-item leancloud_visitors" data-flag-title="Flink任务进程" title="阅读次数">
-              <span class="post-meta-item-icon">
-                <i class="fa fa-eye"></i>
-              </span>
-              <span class="post-meta-item-text">阅读次数：</span>
-              <span class="leancloud-visitors-count"></span>
-            </span>
-          
-  
-  
-
-        </div>
-      </header>
-
-    
-    
-    
-    <div class="post-body" itemprop="articleBody">
-
-      
-          <h1 id="简介"><a href="#简介" class="headerlink" title="简介"></a>简介</h1><ul>
-<li>如图所示，每个Flink任务的TaskManager的进程依赖：</li>
-</ul>
-<p><img src="/images/flink/flink-task-pid.png" alt="TM进程依赖"></p>
-<p>可见每个TM其实由4个进程依赖，分别是：</p>
-<ul>
-<li><p>12027</p>
-<blockquote>
-<p>NodeManager进程</p>
-</blockquote>
-</li>
-<li><p>40972，父进程12027</p>
-<blockquote>
-<p>由3个脚本组成：</p>
-<p>1、/data1/yarn/usercache/stream/appcache/application_1588838921607_3751/container_1588838921607_3751_01_000002/default_container_executor.sh</p>
-<p>  主要作用就是执行脚本2</p>
-<p>  $?：上个命令的退出状态，或函数的返回值。</p>
-<p>2、/data1/yarn/usercache/stream/appcache/application_1588838921607_3751/container_1588838921607_3751_01_000002/default_container_executor_session.sh</p>
-<p>  $$：当前Shell进程ID。对于 Shell 脚本，就是这些脚本所在的进程ID。</p>
-<p>  执行脚本3</p>
-<p>3、/data1/yarn/usercache/stream/appcache/application_1588838921607_3751/container_1588838921607_3751_01_000002/launch_container.sh </p>
-<p>   用于启动40973进程</p>
-</blockquote>
-</li>
-<li><p>40973，父进程40972</p>
-</li>
-<li><p>41005，父进程40973</p>
-<blockquote>
-<p>TM所属进程</p>
-</blockquote>
-</li>
-</ul>
-<h1 id="参考文档"><a href="#参考文档" class="headerlink" title="参考文档"></a>参考文档</h1><p><a href="http://c.biancheng.net/cpp/view/2739.html" target="_blank" rel="noopener">Shell教程</a></p>
-
-        
-      
-    </div>
-
-    
-    
-    
-      <footer class="post-footer">
-        <div class="post-eof"></div>
-      </footer>
-  </article>
-  
-  
-  
-
-    
   </div>
 
   
@@ -1667,7 +1693,7 @@
         
           <a href="/archives/">
         
-          <span class="site-state-item-count">82</span>
+          <span class="site-state-item-count">84</span>
           <span class="site-state-item-name">日志</span>
         </a>
       </div>
@@ -1693,7 +1719,7 @@
             <a href="/tags/">
           
         
-        <span class="site-state-item-count">14</span>
+        <span class="site-state-item-count">15</span>
         <span class="site-state-item-name">标签</span>
         </a>
       </div>
