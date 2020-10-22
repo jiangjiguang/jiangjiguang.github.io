@@ -241,6 +241,624 @@
   
   
   <article itemscope itemtype="http://schema.org/Article" class="post-block home" lang="zh-CN">
+    <link itemprop="mainEntityOfPage" href="http://yoursite.com/2020/09/22/linux/CPU探究/">
+
+    <span hidden itemprop="author" itemscope itemtype="http://schema.org/Person">
+      <meta itemprop="name" content="姜纪光">
+      <meta itemprop="description" content="">
+      <meta itemprop="image" content="/images/avatar.gif">
+    </span>
+
+    <span hidden itemprop="publisher" itemscope itemtype="http://schema.org/Organization">
+      <meta itemprop="name" content="纪光的博客">
+    </span>
+      <header class="post-header">
+        <h1 class="post-title" itemprop="name headline">
+          
+            
+            <a href="/2020/09/22/linux/CPU探究/" class="post-title-link" itemprop="url">CPU探究</a>
+          
+        </h1>
+
+        <div class="post-meta">
+            <span class="post-meta-item">
+              <span class="post-meta-item-icon">
+                <i class="fa fa-calendar-o"></i>
+              </span>
+              <span class="post-meta-item-text">发表于</span>
+
+              
+                
+              
+
+              <time title="创建时间：2020-09-22 09:46:22 / 修改时间：14:33:16" itemprop="dateCreated datePublished" datetime="2020-09-22T09:46:22+08:00">2020-09-22</time>
+            </span>
+          
+            
+
+            
+          
+            <span class="post-meta-item">
+              <span class="post-meta-item-icon">
+                <i class="fa fa-folder-o"></i>
+              </span>
+              <span class="post-meta-item-text">分类于</span>
+              
+                <span itemprop="about" itemscope itemtype="http://schema.org/Thing">
+                  <a href="/categories/linux/" itemprop="url" rel="index">
+                    <span itemprop="name">linux</span>
+                  </a>
+                </span>
+
+                
+                
+              
+            </span>
+          
+
+          
+            <span id="/2020/09/22/linux/CPU探究/" class="post-meta-item leancloud_visitors" data-flag-title="CPU探究" title="阅读次数">
+              <span class="post-meta-item-icon">
+                <i class="fa fa-eye"></i>
+              </span>
+              <span class="post-meta-item-text">阅读次数：</span>
+              <span class="leancloud-visitors-count"></span>
+            </span>
+          
+  
+  
+
+        </div>
+      </header>
+
+    
+    
+    
+    <div class="post-body" itemprop="articleBody">
+
+      
+          <h1 id="原理介绍"><a href="#原理介绍" class="headerlink" title="原理介绍"></a>原理介绍</h1><h1 id="实用工具"><a href="#实用工具" class="headerlink" title="实用工具"></a>实用工具</h1><h2 id="async-profiler"><a href="#async-profiler" class="headerlink" title="async-profiler"></a>async-profiler</h2><ul>
+<li><p>这是一个用于Java的低开销的采样探测器，没有<strong>Safepoint bias</strong>问题</p>
+</li>
+<li><p>适用于HotSpot JVM，收集<strong>stack traces and to track memory allocations</strong></p>
+</li>
+<li><p>可以跟踪以下事件</p>
+<blockquote>
+<p>1、CPU cycles(CPU周期)</p>
+<p>2、硬件和软件性能计数器，例如高速缓存未命中，分支未命中，页面错误，上下文切换等。</p>
+<p>3、Java堆分配</p>
+<p>4、<strong>Contented lock attempts</strong>，包括Java对象监视器和ReentrantLocks</p>
+</blockquote>
+</li>
+</ul>
+<h3 id="CPU-profiling"><a href="#CPU-profiling" class="headerlink" title="CPU profiling"></a>CPU profiling</h3><ul>
+<li><p>在这种模式下，profiler收集<strong>stack trace samples</strong></p>
+<blockquote>
+<p>包含了 <strong>Java</strong> methods, <strong>native</strong> calls, <strong>JVM</strong> code and <strong>kernel</strong> functions.</p>
+</blockquote>
+</li>
+<li><p>通常的方法是接收perf_events生成的调用堆栈，并将其与AsyncGetCallTrace生成的调用堆栈进行匹配</p>
+</li>
+<li><p>与直接将perf_events与将地址转换为Java方法名称的Java代理一起使用相比，此方法具有以下优点：</p>
+<blockquote>
+<p>1、不需要<strong>-XX:+PreserveFramePointer</strong> 参数，可以用在JDK 8u60 之前的版本</p>
+<p>2、不需要<strong>-XX:+PreserveFramePointer</strong> 参数，提高了性能</p>
+<p>3、不需要生成将Java代码地址映射到方法名称的映射文件。</p>
+<p>4、Works with interpreter frames.</p>
+<p>5、不需要写出perf.data文件以在用户空间脚本中进行进一步处理。</p>
+</blockquote>
+</li>
+</ul>
+<h3 id="ALLOCATION-profiling"><a href="#ALLOCATION-profiling" class="headerlink" title="ALLOCATION profiling"></a>ALLOCATION profiling</h3><ul>
+<li><p>除了可以进行CPU消耗检测，还可以收集分配了最大堆内存的调用站点</p>
+<blockquote>
+<p>async-profiler不使用侵入性技术，例如字节码检测工具或昂贵的DTrace探针，这些技术会对性能产生重大影响。它也不会影响转义分析或防止JIT优化（如分配消除）。 仅测量实际堆分配。</p>
+</blockquote>
+</li>
+<li><p>profiler具有TLAB驱动的采样功能。 它依赖于HotSpot特定的回调来接收两种通知：</p>
+<blockquote>
+<p>1、在新创建的TLAB中分配对象时（火焰图中的浅绿色帧）；</p>
+<p>2、当在TLAB之外的慢路径上分配对象时（棕色框架）。</p>
+<p>这意味着不计算每个分配，而仅计算每N kB的分配，其中N是TLAB的平均大小。</p>
+<p>这使得堆采样成本低并且适合于生产。 另一方面，所收集的数据可能不完整，尽管在实践中通常会反映出最主要的分配来源。</p>
+</blockquote>
+</li>
+<li><p>可以使用-i选项来调整采样间隔。</p>
+<blockquote>
+<p>例如，-i 500k将平均分配500 KB的分配空间后进行一次采样。 但是，小于TLAB大小的间隔不会生效。</p>
+<p>与使用类似方法的Java Mission Control不同，async-profiler不需要Java Flight Recorder或任何其他JDK商业功能。 它完全基于开源技术，并且可以与OpenJDK一起使用。</p>
+</blockquote>
+</li>
+<li><p>支持的最低JDK版本是7u40，其中会出现TLAB回调。</p>
+</li>
+</ul>
+<h4 id="Installing-Debug-Symbols"><a href="#Installing-Debug-Symbols" class="headerlink" title="Installing Debug Symbols"></a>Installing Debug Symbols</h4><ul>
+<li>分配分析器需要HotSpot调试符号。 Oracle JDK已经将它们嵌入libjvm.so中，但是在OpenJDK构建中，它们通常以单独的软件包提供。</li>
+</ul>
+<h3 id="Wall-clock-profiling"><a href="#Wall-clock-profiling" class="headerlink" title="Wall-clock profiling"></a>Wall-clock profiling</h3><ul>
+<li><p>-e wall选项告诉async-profiler在每个给定的时间段内平均采样所有线程，而不管线程状态如何：正在运行，正在睡眠或已阻塞。 例如，在分析应用程序启动时间时这可能会有所帮助。</p>
+</li>
+<li><p>Wall-clock Profiler在每个线程模式下最有用：-t</p>
+<blockquote>
+<p>Example: <code>./profiler.sh -e wall -t -i 5ms -f result.svg 8983</code></p>
+</blockquote>
+</li>
+</ul>
+<h3 id="Java-method-profiling"><a href="#Java-method-profiling" class="headerlink" title="Java method profiling"></a>Java method profiling</h3><ul>
+<li>-e ClassName.methodName选项用于检测给定的Java方法，以便使用堆栈跟踪记录该方法的所有调用。</li>
+<li>Only non-native Java methods are supported. To profile a native method, use hardware breakpoint event instead, e.g. <code>-e Java_java_lang_Throwable_fillInStackTrace</code></li>
+</ul>
+<h3 id="Building"><a href="#Building" class="headerlink" title="Building"></a>Building</h3><h3 id="Basic-Usage"><a href="#Basic-Usage" class="headerlink" title="Basic Usage"></a>Basic Usage</h3><ul>
+<li><p>start</p>
+<blockquote>
+<p>starts profiling in semi-automatic mode, i.e. profiler will run until <code>stop</code> command is explicitly called.</p>
+</blockquote>
+</li>
+<li><p>resume</p>
+<blockquote>
+<p>starts or resumes earlier profiling session that has been stopped. All the collected data remains valid. The profiling options are not preserved between sessions, and should be specified again.</p>
+</blockquote>
+</li>
+<li><p>stop</p>
+<blockquote>
+<p>stops profiling and prints the report</p>
+</blockquote>
+</li>
+<li><p>check</p>
+<blockquote>
+<p>check if the specified profiling event is available</p>
+</blockquote>
+</li>
+<li><p>status</p>
+<blockquote>
+<p>prints profiling status: whether profiler is active and for how long</p>
+</blockquote>
+</li>
+<li><p>list</p>
+<blockquote>
+<p>show the list of available profiling events. This option still requires PID, since supported events may differ depending on JVM version</p>
+</blockquote>
+</li>
+<li><p>-d N</p>
+<blockquote>
+<p>the profiling duration, in seconds. If no <code>start</code>, <code>resume</code>, <code>stop</code> or <code>status</code> option is given, the profiler will run for the specified period of time and then automatically stop</p>
+<p>./profiler.sh -d 30 8983</p>
+</blockquote>
+</li>
+<li><p>-e event</p>
+<blockquote>
+<p>the profiling event: <code>cpu</code>, <code>alloc</code>, <code>lock</code>, <code>cache-misses</code> etc. Use <code>list</code> to see the complete list of available events</p>
+</blockquote>
+</li>
+<li><p>​</p>
+</li>
+</ul>
+<h1 id="参考文档"><a href="#参考文档" class="headerlink" title="参考文档"></a>参考文档</h1><p><a href="https://tech.meituan.com/2019/10/10/jvm-cpu-profiler.html" target="_blank" rel="noopener">JVM CPU Profiler技术原理及源码深度解析</a></p>
+<p><a href="https://github.com/jvm-profiling-tools/async-profiler" target="_blank" rel="noopener">async-profiler</a></p>
+
+        
+      
+    </div>
+
+    
+    
+    
+      <footer class="post-footer">
+        <div class="post-eof"></div>
+      </footer>
+  </article>
+  
+  
+  
+
+    
+        
+  
+  
+  <article itemscope itemtype="http://schema.org/Article" class="post-block home" lang="zh-CN">
+    <link itemprop="mainEntityOfPage" href="http://yoursite.com/2020/09/09/linux/工具实践-ps/">
+
+    <span hidden itemprop="author" itemscope itemtype="http://schema.org/Person">
+      <meta itemprop="name" content="姜纪光">
+      <meta itemprop="description" content="">
+      <meta itemprop="image" content="/images/avatar.gif">
+    </span>
+
+    <span hidden itemprop="publisher" itemscope itemtype="http://schema.org/Organization">
+      <meta itemprop="name" content="纪光的博客">
+    </span>
+      <header class="post-header">
+        <h1 class="post-title" itemprop="name headline">
+          
+            
+            <a href="/2020/09/09/linux/工具实践-ps/" class="post-title-link" itemprop="url">工具实践-ps</a>
+          
+        </h1>
+
+        <div class="post-meta">
+            <span class="post-meta-item">
+              <span class="post-meta-item-icon">
+                <i class="fa fa-calendar-o"></i>
+              </span>
+              <span class="post-meta-item-text">发表于</span>
+
+              
+                
+              
+
+              <time title="创建时间：2020-09-09 17:45:11" itemprop="dateCreated datePublished" datetime="2020-09-09T17:45:11+08:00">2020-09-09</time>
+            </span>
+          
+            
+
+            
+              <span class="post-meta-item">
+                <span class="post-meta-item-icon">
+                  <i class="fa fa-calendar-check-o"></i>
+                </span>
+                <span class="post-meta-item-text">更新于</span>
+                <time title="修改时间：2020-09-10 11:31:39" itemprop="dateModified" datetime="2020-09-10T11:31:39+08:00">2020-09-10</time>
+              </span>
+            
+          
+            <span class="post-meta-item">
+              <span class="post-meta-item-icon">
+                <i class="fa fa-folder-o"></i>
+              </span>
+              <span class="post-meta-item-text">分类于</span>
+              
+                <span itemprop="about" itemscope itemtype="http://schema.org/Thing">
+                  <a href="/categories/linux/" itemprop="url" rel="index">
+                    <span itemprop="name">linux</span>
+                  </a>
+                </span>
+
+                
+                
+              
+            </span>
+          
+
+          
+            <span id="/2020/09/09/linux/工具实践-ps/" class="post-meta-item leancloud_visitors" data-flag-title="工具实践-ps" title="阅读次数">
+              <span class="post-meta-item-icon">
+                <i class="fa fa-eye"></i>
+              </span>
+              <span class="post-meta-item-text">阅读次数：</span>
+              <span class="leancloud-visitors-count"></span>
+            </span>
+          
+  
+  
+
+        </div>
+      </header>
+
+    
+    
+    
+    <div class="post-body" itemprop="articleBody">
+
+      
+          <h1 id="说明"><a href="#说明" class="headerlink" title="说明"></a>说明</h1><ul>
+<li><p>进程状态命令<strong>ps</strong>可以列出包括内存使用统计信息在内的所有进程细节</p>
+</li>
+<li><p>帮助命令</p>
+<figure class="highlight shell"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br></pre></td><td class="code"><pre><span class="line"><span class="meta">$</span> man ps</span><br><span class="line"><span class="meta">$</span> ps --help all</span><br></pre></td></tr></table></figure>
+
+</li>
+</ul>
+<h1 id="实用命令"><a href="#实用命令" class="headerlink" title="实用命令"></a>实用命令</h1><ul>
+<li><p>输出所有数据项</p>
+<figure class="highlight shell"><table><tr><td class="gutter"><pre><span class="line">1</span><br></pre></td><td class="code"><pre><span class="line"><span class="meta">$</span> ps L			#第一列是-o 选项的参数，第二列的大写字母是命令输出的结果集标题栏名称</span><br></pre></td></tr></table></figure>
+</li>
+<li><p>自定义输出选项</p>
+<figure class="highlight shell"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br></pre></td><td class="code"><pre><span class="line"><span class="meta">$</span> ps -o sid,pgid	#自定义输出选项</span><br><span class="line"><span class="meta">$</span> ps -O 			#添加默认输出选项</span><br></pre></td></tr></table></figure>
+</li>
+<li><p>字段修饰选项</p>
+<figure class="highlight shell"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br></pre></td><td class="code"><pre><span class="line"><span class="meta">#</span>w选项会拓宽屏幕，显示完整的进程命令信息</span><br><span class="line"><span class="meta">$</span> ps -e u wwww</span><br></pre></td></tr></table></figure>
+
+</li>
+</ul>
+<h1 id="常用字段"><a href="#常用字段" class="headerlink" title="常用字段"></a>常用字段</h1><ul>
+<li><p>进程ID类字段</p>
+<figure class="highlight shell"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br><span class="line">3</span><br><span class="line">4</span><br><span class="line">5</span><br><span class="line">6</span><br><span class="line">7</span><br></pre></td><td class="code"><pre><span class="line">pid:	进程ID</span><br><span class="line">ppid:	父进程ID</span><br><span class="line">pgid:	进程组ID</span><br><span class="line">tid: 	进程的线程ID</span><br><span class="line">nlwp:	当前线程组中线程的个数</span><br><span class="line">sid:	会话ID</span><br><span class="line">tpgid:	进程连接到的tty(终端)所在的前台进程组的ID</span><br></pre></td></tr></table></figure>
+</li>
+<li><p>CPU时间和使用率字段</p>
+<figure class="highlight shell"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br><span class="line">3</span><br><span class="line">4</span><br></pre></td><td class="code"><pre><span class="line"><span class="meta">#</span> 记录了进程所消耗的CPU时间片和CPU使用率信息</span><br><span class="line"><span class="meta">$</span> ps -e -o bsdtime,cputime,pcpu,cp,c</span><br><span class="line">cp:	单位是千分比，不能超过999</span><br><span class="line">c:	是百分比，不能超过99</span><br></pre></td></tr></table></figure>
+</li>
+<li><p>进程内存相关字段</p>
+<figure class="highlight shell"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br><span class="line">3</span><br><span class="line">4</span><br><span class="line">5</span><br><span class="line">6</span><br><span class="line">7</span><br><span class="line">8</span><br><span class="line">9</span><br><span class="line">10</span><br><span class="line">11</span><br></pre></td><td class="code"><pre><span class="line"><span class="meta">$</span> ps -e -o drs,vsz,size,sz,rss,trs,pmem,minflt,majflt k -rss</span><br><span class="line"></span><br><span class="line">vsz(virtual memory size):	表示进程所申请的虚拟地址空间的内存大小，单位KB。在64位系统中，每个进程都有128TB大小的堆内存虚拟地址空间的内存空间大小。vsz值并不反映进程占用的真正物理内存大小。</span><br><span class="line">rss(resident set size):	表示进程真正占用了的物理内存大小，单位KB</span><br><span class="line">pmem:	表示进程占用的物理内存大小(rss)占本机总物理内存大小百分比</span><br><span class="line">trs(text resident set size):	表示用于可执行代码的物理内存大小，约等于进程的程序尺寸大小</span><br><span class="line">drs(data resident set size):	表示可执行代码之外的内存大小，实际基本等于vsz减去trs的值</span><br><span class="line">size:	表示如果进程交换到磁盘所需的交换空间大小</span><br><span class="line">sz:		表示进程在物理页面中的核心镜像的大小</span><br><span class="line">minflt:	表示此进程中发生的次缺页异常的数量</span><br><span class="line">majflt:	表示此进程中发生的主缺页异常的数量</span><br></pre></td></tr></table></figure>
+
+<p>​</p>
+</li>
+<li><p>命令名字段</p>
+<figure class="highlight shell"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br><span class="line">3</span><br></pre></td><td class="code"><pre><span class="line"><span class="meta">$</span> ps -e -o fname,ucmd,cmd </span><br><span class="line">ucmd:	短命令名字段</span><br><span class="line">cmd:	长命令名字段</span><br></pre></td></tr></table></figure>
+</li>
+<li><p>进程状态字段</p>
+<figure class="highlight shell"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br><span class="line">3</span><br><span class="line">4</span><br><span class="line">5</span><br><span class="line">6</span><br><span class="line">7</span><br><span class="line">8</span><br><span class="line">9</span><br></pre></td><td class="code"><pre><span class="line"><span class="meta">$</span> ps -e -o s,state,stat</span><br><span class="line">字段s和state互为别名，值为单字节进程状态</span><br><span class="line">stat:	多字节进程状态</span><br><span class="line">&lt;:	表示nice值小于0，nice值最小为-20</span><br><span class="line">N: 	表示nice值大于0，nice值最大为19。因此字符'N'表示此进程可能在调度过程中不能获得优势。</span><br><span class="line">L:	表示进程vm_lock值为真，即此进程有内存页被锁在内存中，这些内存页不能通过换页换出</span><br><span class="line">s:	表示进程的tgid(pid)值等于进程的session(sid)值，这说明当前进程是会话的leader</span><br><span class="line">l:	表示进程中的线程数量大于1，这说明当前进程是一个多线程程序</span><br><span class="line">+:	表示进程的pgrp(pgid)值等于进程的tpgid前台进程组ID，这表示当前进程在前台进程组中</span><br></pre></td></tr></table></figure>
+</li>
+<li><p>时钟(系统)时间类字段</p>
+<figure class="highlight shell"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br></pre></td><td class="code"><pre><span class="line"><span class="meta">#</span> 记录了进程开始时间点和运行的时长信息，4个记录进程开始时间点，2个记录进程执行时长信息</span><br><span class="line"><span class="meta">$</span> ps -e -o lstart,start,bsdstart,stime,etimes,etime</span><br></pre></td></tr></table></figure>
+
+<p>​</p>
+</li>
+</ul>
+<h1 id="常用选项"><a href="#常用选项" class="headerlink" title="常用选项"></a>常用选项</h1><figure class="highlight shell"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br><span class="line">3</span><br><span class="line">4</span><br><span class="line">5</span><br><span class="line">6</span><br><span class="line">7</span><br></pre></td><td class="code"><pre><span class="line">-e: 显示所有进程的记录</span><br><span class="line">h:  隐藏输出结果的标题栏信息</span><br><span class="line">k:  对结果排序</span><br><span class="line">-L: 把多线程的进程展开每个线程的细颗粒度</span><br><span class="line">-l: 列出进程的最基本信息</span><br><span class="line">u:	列出cpu使用率、mem使用率、rss内存等字段信息</span><br><span class="line">-o: 自定义输出字段</span><br></pre></td></tr></table></figure>
+
+<h1 id="参考文档"><a href="#参考文档" class="headerlink" title="参考文档"></a>参考文档</h1><p><a href="https://blog.csdn.net/juS3Ve/article/details/89007912" target="_blank" rel="noopener">史上最全Linux ps命令详解</a></p>
+
+        
+      
+    </div>
+
+    
+    
+    
+      <footer class="post-footer">
+        <div class="post-eof"></div>
+      </footer>
+  </article>
+  
+  
+  
+
+    
+        
+  
+  
+  <article itemscope itemtype="http://schema.org/Article" class="post-block home" lang="zh-CN">
+    <link itemprop="mainEntityOfPage" href="http://yoursite.com/2020/09/09/linux/工具实践-slabtop/">
+
+    <span hidden itemprop="author" itemscope itemtype="http://schema.org/Person">
+      <meta itemprop="name" content="姜纪光">
+      <meta itemprop="description" content="">
+      <meta itemprop="image" content="/images/avatar.gif">
+    </span>
+
+    <span hidden itemprop="publisher" itemscope itemtype="http://schema.org/Organization">
+      <meta itemprop="name" content="纪光的博客">
+    </span>
+      <header class="post-header">
+        <h1 class="post-title" itemprop="name headline">
+          
+            
+            <a href="/2020/09/09/linux/工具实践-slabtop/" class="post-title-link" itemprop="url">工具实践-slabtop</a>
+          
+        </h1>
+
+        <div class="post-meta">
+            <span class="post-meta-item">
+              <span class="post-meta-item-icon">
+                <i class="fa fa-calendar-o"></i>
+              </span>
+              <span class="post-meta-item-text">发表于</span>
+
+              
+                
+              
+
+              <time title="创建时间：2020-09-09 17:34:05 / 修改时间：17:44:37" itemprop="dateCreated datePublished" datetime="2020-09-09T17:34:05+08:00">2020-09-09</time>
+            </span>
+          
+            
+
+            
+          
+            <span class="post-meta-item">
+              <span class="post-meta-item-icon">
+                <i class="fa fa-folder-o"></i>
+              </span>
+              <span class="post-meta-item-text">分类于</span>
+              
+                <span itemprop="about" itemscope itemtype="http://schema.org/Thing">
+                  <a href="/categories/linux/" itemprop="url" rel="index">
+                    <span itemprop="name">linux</span>
+                  </a>
+                </span>
+
+                
+                
+              
+            </span>
+          
+
+          
+            <span id="/2020/09/09/linux/工具实践-slabtop/" class="post-meta-item leancloud_visitors" data-flag-title="工具实践-slabtop" title="阅读次数">
+              <span class="post-meta-item-icon">
+                <i class="fa fa-eye"></i>
+              </span>
+              <span class="post-meta-item-text">阅读次数：</span>
+              <span class="leancloud-visitors-count"></span>
+            </span>
+          
+  
+  
+
+        </div>
+      </header>
+
+    
+    
+    
+    <div class="post-body" itemprop="articleBody">
+
+      
+          <h1 id="说明"><a href="#说明" class="headerlink" title="说明"></a>说明</h1><ul>
+<li><p>通过slab分配器输出内核slab缓存使用情况</p>
+<blockquote>
+<p>​</p>
+</blockquote>
+</li>
+<li><p>使用姿势</p>
+<figure class="highlight shell"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br><span class="line">3</span><br><span class="line">4</span><br><span class="line">5</span><br><span class="line">6</span><br><span class="line">7</span><br><span class="line">8</span><br><span class="line">9</span><br><span class="line">10</span><br><span class="line">11</span><br><span class="line">12</span><br><span class="line">13</span><br><span class="line">14</span><br><span class="line">15</span><br><span class="line">16</span><br><span class="line">17</span><br><span class="line">18</span><br><span class="line">19</span><br><span class="line">20</span><br><span class="line">21</span><br><span class="line">22</span><br><span class="line">23</span><br><span class="line">24</span><br><span class="line">25</span><br><span class="line">26</span><br></pre></td><td class="code"><pre><span class="line"><span class="meta">#</span> slabtop -h</span><br><span class="line"></span><br><span class="line">Usage:</span><br><span class="line"> slabtop [options]</span><br><span class="line"></span><br><span class="line">Options:</span><br><span class="line"> -d, --delay &lt;secs&gt;  delay updates</span><br><span class="line"> -o, --once          only display once, then exit</span><br><span class="line"> -s, --sort &lt;char&gt;   specify sort criteria by character (see below)</span><br><span class="line"></span><br><span class="line"> -h, --help     display this help and exit</span><br><span class="line"> -V, --version  output version information and exit</span><br><span class="line"></span><br><span class="line">The following are valid sort criteria:</span><br><span class="line"> a: sort by number of active objects</span><br><span class="line"> b: sort by objects per slab</span><br><span class="line"> c: sort by cache size</span><br><span class="line"> l: sort by number of slabs</span><br><span class="line"> v: sort by number of active slabs</span><br><span class="line"> n: sort by name</span><br><span class="line"> o: sort by number of objects (the default)</span><br><span class="line"> p: sort by pages per slab</span><br><span class="line"> s: sort by object size</span><br><span class="line"> u: sort by cache utilization</span><br><span class="line"></span><br><span class="line">For more details see slabtop(1).</span><br></pre></td></tr></table></figure>
+
+</li>
+</ul>
+<h1 id="参考文档"><a href="#参考文档" class="headerlink" title="参考文档"></a>参考文档</h1><p><a href="http://www.361way.com/slabtop/5023.html" target="_blank" rel="noopener">Linux slabtop显示内核片缓存信息</a></p>
+
+        
+      
+    </div>
+
+    
+    
+    
+      <footer class="post-footer">
+        <div class="post-eof"></div>
+      </footer>
+  </article>
+  
+  
+  
+
+    
+        
+  
+  
+  <article itemscope itemtype="http://schema.org/Article" class="post-block home" lang="zh-CN">
+    <link itemprop="mainEntityOfPage" href="http://yoursite.com/2020/09/09/linux/工具实践-sar/">
+
+    <span hidden itemprop="author" itemscope itemtype="http://schema.org/Person">
+      <meta itemprop="name" content="姜纪光">
+      <meta itemprop="description" content="">
+      <meta itemprop="image" content="/images/avatar.gif">
+    </span>
+
+    <span hidden itemprop="publisher" itemscope itemtype="http://schema.org/Organization">
+      <meta itemprop="name" content="纪光的博客">
+    </span>
+      <header class="post-header">
+        <h1 class="post-title" itemprop="name headline">
+          
+            
+            <a href="/2020/09/09/linux/工具实践-sar/" class="post-title-link" itemprop="url">工具实践-sar</a>
+          
+        </h1>
+
+        <div class="post-meta">
+            <span class="post-meta-item">
+              <span class="post-meta-item-icon">
+                <i class="fa fa-calendar-o"></i>
+              </span>
+              <span class="post-meta-item-text">发表于</span>
+
+              
+                
+              
+
+              <time title="创建时间：2020-09-09 11:16:12 / 修改时间：17:21:56" itemprop="dateCreated datePublished" datetime="2020-09-09T11:16:12+08:00">2020-09-09</time>
+            </span>
+          
+            
+
+            
+          
+            <span class="post-meta-item">
+              <span class="post-meta-item-icon">
+                <i class="fa fa-folder-o"></i>
+              </span>
+              <span class="post-meta-item-text">分类于</span>
+              
+                <span itemprop="about" itemscope itemtype="http://schema.org/Thing">
+                  <a href="/categories/linux/" itemprop="url" rel="index">
+                    <span itemprop="name">linux</span>
+                  </a>
+                </span>
+
+                
+                
+              
+            </span>
+          
+
+          
+            <span id="/2020/09/09/linux/工具实践-sar/" class="post-meta-item leancloud_visitors" data-flag-title="工具实践-sar" title="阅读次数">
+              <span class="post-meta-item-icon">
+                <i class="fa fa-eye"></i>
+              </span>
+              <span class="post-meta-item-text">阅读次数：</span>
+              <span class="leancloud-visitors-count"></span>
+            </span>
+          
+  
+  
+
+        </div>
+      </header>
+
+    
+    
+    
+    <div class="post-body" itemprop="articleBody">
+
+      
+          <h1 id="说明"><a href="#说明" class="headerlink" title="说明"></a>说明</h1><ul>
+<li><p>全称System Activity Reporter 系统活动情况报告，是linux上最为全面的系统性能分析工具之一</p>
+<blockquote>
+<p>可以从多方面对系统活动进行报告：</p>
+<p>1、文件的读写情况</p>
+<p>2、系统调用的使用情况</p>
+<p>3、磁盘I/O</p>
+<p>4、CPU效率</p>
+<p>5、内存使用状况</p>
+<p>6、进程活动以及IPC有关的活动</p>
+</blockquote>
+</li>
+<li><p>具体使用</p>
+<figure class="highlight shell"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br><span class="line">3</span><br><span class="line">4</span><br><span class="line">5</span><br><span class="line">6</span><br><span class="line">7</span><br><span class="line">8</span><br><span class="line">9</span><br><span class="line">10</span><br><span class="line">11</span><br><span class="line">12</span><br><span class="line">13</span><br><span class="line">14</span><br><span class="line">15</span><br><span class="line">16</span><br><span class="line">17</span><br><span class="line">18</span><br><span class="line">19</span><br><span class="line">20</span><br><span class="line">21</span><br><span class="line">22</span><br><span class="line">23</span><br><span class="line">24</span><br><span class="line">25</span><br><span class="line">26</span><br><span class="line">27</span><br><span class="line">28</span><br><span class="line">29</span><br><span class="line">30</span><br><span class="line">31</span><br><span class="line">32</span><br><span class="line">33</span><br><span class="line">34</span><br><span class="line">35</span><br><span class="line">36</span><br><span class="line">37</span><br><span class="line">38</span><br><span class="line">39</span><br><span class="line">40</span><br><span class="line">41</span><br><span class="line">42</span><br><span class="line">43</span><br><span class="line">44</span><br><span class="line">45</span><br><span class="line">46</span><br><span class="line">47</span><br><span class="line">48</span><br><span class="line">49</span><br><span class="line">50</span><br><span class="line">51</span><br></pre></td><td class="code"><pre><span class="line"><span class="meta">#</span> sar -h</span><br><span class="line">Usage: sar [ options ] [ &lt;interval&gt; [ &lt;count&gt; ] ]</span><br><span class="line">Main options and reports:</span><br><span class="line">        -b      I/O and transfer rate statistics</span><br><span class="line">        -B      Paging statistics</span><br><span class="line">        -d      Block device statistics</span><br><span class="line">        -F [ MOUNT ]</span><br><span class="line">                Filesystems statistics</span><br><span class="line">        -H      Hugepages utilization statistics</span><br><span class="line">        -I &#123; &lt;int&gt; | SUM | ALL | XALL &#125;</span><br><span class="line">                Interrupts statistics</span><br><span class="line">        -m &#123; &lt;keyword&gt; [,...] | ALL &#125;</span><br><span class="line">                Power management statistics</span><br><span class="line">                Keywords are:</span><br><span class="line">                CPU     CPU instantaneous clock frequency</span><br><span class="line">                FAN     Fans speed</span><br><span class="line">                FREQ    CPU average clock frequency</span><br><span class="line">                IN      Voltage inputs</span><br><span class="line">                TEMP    Devices temperature</span><br><span class="line">                USB     USB devices plugged into the system</span><br><span class="line">        -n &#123; &lt;keyword&gt; [,...] | ALL &#125;</span><br><span class="line">                Network statistics</span><br><span class="line">                Keywords are:</span><br><span class="line">                DEV     Network interfaces</span><br><span class="line">                EDEV    Network interfaces (errors)</span><br><span class="line">                NFS     NFS client</span><br><span class="line">                NFSD    NFS server</span><br><span class="line">                SOCK    Sockets (v4)</span><br><span class="line">                IP      IP traffic      (v4)</span><br><span class="line">                EIP     IP traffic      (v4) (errors)</span><br><span class="line">                ICMP    ICMP traffic    (v4)</span><br><span class="line">                EICMP   ICMP traffic    (v4) (errors)</span><br><span class="line">                TCP     TCP traffic     (v4)</span><br><span class="line">                ETCP    TCP traffic     (v4) (errors)</span><br><span class="line">                UDP     UDP traffic     (v4)</span><br><span class="line">                SOCK6   Sockets (v6)</span><br><span class="line">                IP6     IP traffic      (v6)</span><br><span class="line">                EIP6    IP traffic      (v6) (errors)</span><br><span class="line">                ICMP6   ICMP traffic    (v6)</span><br><span class="line">                EICMP6  ICMP traffic    (v6) (errors)</span><br><span class="line">                UDP6    UDP traffic     (v6)</span><br><span class="line">        -q      Queue length and load average statistics</span><br><span class="line">        -r      Memory utilization statistics</span><br><span class="line">        -R      Memory statistics</span><br><span class="line">        -S      Swap space utilization statistics</span><br><span class="line">        -u [ ALL ]</span><br><span class="line">                CPU utilization statistics</span><br><span class="line">        -v      Kernel table statistics</span><br><span class="line">        -w      Task creation and system switching statistics</span><br><span class="line">        -W      Swapping statistics</span><br><span class="line">        -y      TTY device statistics</span><br></pre></td></tr></table></figure>
+
+</li>
+</ul>
+<h1 id="使用实践"><a href="#使用实践" class="headerlink" title="使用实践"></a>使用实践</h1><ul>
+<li><p>CPU资源监控</p>
+<figure class="highlight shell"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br><span class="line">3</span><br><span class="line">4</span><br><span class="line">5</span><br><span class="line">6</span><br><span class="line">7</span><br><span class="line">8</span><br><span class="line">9</span><br></pre></td><td class="code"><pre><span class="line"><span class="meta">#</span>每3秒采样一次，采样5次</span><br><span class="line"><span class="meta">$</span> sar -u 3 5</span><br><span class="line">all: 表示统计信息为所有CPU的平均值</span><br><span class="line"><span class="meta">%</span>user: 显示在用户级别(application)运行使用 CPU 总时间的百分比</span><br><span class="line"><span class="meta">%</span>nice: 显示在用户级别，用于nice操作，所占用 CPU 总时间的百分比</span><br><span class="line"><span class="meta">%</span>system: 在核心级别(kernel)运行所使用 CPU 总时间的百分比</span><br><span class="line"><span class="meta">%</span>iowait: 等待I/O操作占用CPU总时间的百分比          			#值高，表示存在磁盘I/O瓶颈</span><br><span class="line"><span class="meta">%</span>steal: 管理程序(hypervisor)为另一个虚拟进程提供服务而等待虚拟 CPU 的百分比</span><br><span class="line"><span class="meta">%</span>idle: 显示 CPU 空闲时间占用 CPU 总时间的百分比			#值低，表示CPU的处理能力弱</span><br></pre></td></tr></table></figure>
+</li>
+<li><p>进程等待运行队列和平均负载状态监控</p>
+<figure class="highlight shell"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br><span class="line">3</span><br><span class="line">4</span><br><span class="line">5</span><br><span class="line">6</span><br><span class="line">7</span><br></pre></td><td class="code"><pre><span class="line"><span class="meta">#</span>每3秒采样一次，采样5次</span><br><span class="line"><span class="meta">$</span> sar -q 3 5</span><br><span class="line">runq-sz: 运行队列的长度（等待运行的进程数）</span><br><span class="line">plist-sz: 进程列表中进程（processes）和线程（threads）的数量</span><br><span class="line">ldavg-1: 最后1分钟的系统平均负载（System load average）</span><br><span class="line">ldavg-5: 过去5分钟的系统平均负载</span><br><span class="line">ldavg-15: 过去15分钟的系统平均负载</span><br></pre></td></tr></table></figure>
+</li>
+<li><p>内存和交换空间监控</p>
+<figure class="highlight shell"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br><span class="line">3</span><br><span class="line">4</span><br><span class="line">5</span><br><span class="line">6</span><br><span class="line">7</span><br></pre></td><td class="code"><pre><span class="line"><span class="meta">$</span> sar -r 3 5</span><br><span class="line">kbmemfree：这个值和free命令中的free值基本一致,所以它不包括buffer和cache的空间.</span><br><span class="line">kbmemused：这个值和free命令中的used值基本一致,所以它包括buffer和cache的空间.</span><br><span class="line"><span class="meta">%</span>memused：这个值是kbmemused和内存总量(不包括swap)的一个百分比.</span><br><span class="line">kbbuffers和kbcached：这两个值就是free命令中的buffer和cache.</span><br><span class="line">kbcommit：保证当前系统所需要的内存,即为了确保不溢出而需要的内存(RAM+swap).</span><br><span class="line"><span class="meta">%</span>commit：这个值是kbcommit与内存总量(包括swap)的一个百分比.</span><br></pre></td></tr></table></figure>
+</li>
+<li><p>内存分页监控</p>
+<figure class="highlight shell"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br><span class="line">3</span><br><span class="line">4</span><br><span class="line">5</span><br><span class="line">6</span><br><span class="line">7</span><br><span class="line">8</span><br><span class="line">9</span><br><span class="line">10</span><br><span class="line">11</span><br></pre></td><td class="code"><pre><span class="line"><span class="meta">$</span> sar -B 3 5</span><br><span class="line"></span><br><span class="line">pgpgin/s：表示每秒从磁盘或SWAP置换到内存的字节数(KB)</span><br><span class="line">pgpgout/s：表示每秒从内存置换到磁盘或SWAP的字节数(KB)</span><br><span class="line">fault/s：每秒钟系统产生的缺页数,即主缺页与次缺页之和(major + minor)</span><br><span class="line">majflt/s：每秒钟产生的主缺页数.</span><br><span class="line">pgfree/s：每秒被放入空闲队列中的页个数</span><br><span class="line">pgscank/s：每秒被kswapd扫描的页个数</span><br><span class="line">pgscand/s：每秒直接被扫描的页个数</span><br><span class="line">pgsteal/s：每秒钟从cache中被清除来满足内存需要的页个数</span><br><span class="line"><span class="meta">%</span>vmeff：每秒清除的页(pgsteal)占总扫描页(pgscank+pgscand)的百分比</span><br></pre></td></tr></table></figure>
+</li>
+<li><p>I/O和传送速率监控</p>
+<figure class="highlight shell"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br><span class="line">3</span><br><span class="line">4</span><br><span class="line">5</span><br><span class="line">6</span><br></pre></td><td class="code"><pre><span class="line"><span class="meta">$</span> sar -b 3 10 </span><br><span class="line">tps：每秒钟物理设备的 I/O 传输总量</span><br><span class="line">rtps：每秒钟从物理设备读入的数据总量</span><br><span class="line">wtps：每秒钟向物理设备写入的数据总量</span><br><span class="line">bread/s：每秒钟从物理设备读入的数据量，单位为 块/s</span><br><span class="line">bwrtn/s：每秒钟向物理设备写入的数据量，单位为 块/s</span><br></pre></td></tr></table></figure>
+</li>
+<li><p>设备使用情况监控</p>
+<figure class="highlight shell"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br><span class="line">3</span><br><span class="line">4</span><br><span class="line">5</span><br><span class="line">6</span><br><span class="line">7</span><br><span class="line">8</span><br><span class="line">9</span><br><span class="line">10</span><br><span class="line">11</span><br><span class="line">12</span><br><span class="line">13</span><br><span class="line">14</span><br><span class="line">15</span><br><span class="line">16</span><br><span class="line">17</span><br></pre></td><td class="code"><pre><span class="line"><span class="meta">$</span> sar -d 3 3 -p</span><br><span class="line">参数-p可以打印出sda,hdc等磁盘设备名称,如果不用参数-p,设备节点则有可能是dev8-0,dev22-0</span><br><span class="line"></span><br><span class="line">tps:每秒从物理磁盘I/O的次数.多个逻辑请求会被合并为一个I/O磁盘请求,一次传输的大小是不确定的.</span><br><span class="line">rd_sec/s:每秒读扇区的次数.</span><br><span class="line">wr_sec/s:每秒写扇区的次数.</span><br><span class="line">avgrq-sz:平均每次设备I/O操作的数据大小(扇区).</span><br><span class="line">avgqu-sz:磁盘请求队列的平均长度.</span><br><span class="line">await:从请求磁盘操作到系统完成处理,每次请求的平均消耗时间,包括请求队列等待时间,单位是毫秒(1秒=1000毫秒).</span><br><span class="line">svctm:系统处理每次请求的平均时间,不包括在请求队列中消耗的时间.</span><br><span class="line"><span class="meta">%</span>util:I/O请求占CPU的百分比,比率越大,说明越饱和.</span><br><span class="line">1. avgqu-sz 的值较低时，设备的利用率较高。</span><br><span class="line">2. 当%util的值接近 1% 时，表示设备带宽已经占满。</span><br><span class="line"></span><br><span class="line">怀疑CPU存在瓶颈，可用 sar -u 和 sar -q 等来查看</span><br><span class="line">怀疑内存存在瓶颈，可用 sar -B、sar -r 和 sar -W 等来查看</span><br><span class="line">怀疑I/O存在瓶颈，可用 sar -b、sar -u 和 sar -d 等来查看</span><br></pre></td></tr></table></figure>
+
+<p>​</p>
+</li>
+<li><p>inode、文件和其他内核表监控</p>
+<figure class="highlight shell"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br><span class="line">3</span><br><span class="line">4</span><br><span class="line">5</span><br><span class="line">6</span><br></pre></td><td class="code"><pre><span class="line"><span class="meta">#</span>每3秒采样一次，采样5次</span><br><span class="line"><span class="meta">$</span> sar -v 3 5</span><br><span class="line">dentunusd：目录高速缓存中未被使用的条目数量</span><br><span class="line">file-nr：文件句柄（file handle）的使用数量</span><br><span class="line">inode-nr：索引节点句柄（inode handle）的使用数量</span><br><span class="line">pty-nr：使用的pty数量</span><br></pre></td></tr></table></figure>
+
+<p>​</p>
+</li>
+</ul>
+<h1 id="参考文档"><a href="#参考文档" class="headerlink" title="参考文档"></a>参考文档</h1><p><a href="https://www.cnblogs.com/276815076/archive/2013/04/16/3024200.html" target="_blank" rel="noopener">linux sar命令详解</a></p>
+
+        
+      
+    </div>
+
+    
+    
+    
+      <footer class="post-footer">
+        <div class="post-eof"></div>
+      </footer>
+  </article>
+  
+  
+  
+
+    
+        
+  
+  
+  <article itemscope itemtype="http://schema.org/Article" class="post-block home" lang="zh-CN">
     <link itemprop="mainEntityOfPage" href="http://yoursite.com/2020/09/09/linux/工具实践-vmstat/">
 
     <span hidden itemprop="author" itemscope itemtype="http://schema.org/Person">
@@ -1296,604 +1914,6 @@
   
 
     
-        
-  
-  
-  <article itemscope itemtype="http://schema.org/Article" class="post-block home" lang="zh-CN">
-    <link itemprop="mainEntityOfPage" href="http://yoursite.com/2020/09/03/java/CMS日志解析/">
-
-    <span hidden itemprop="author" itemscope itemtype="http://schema.org/Person">
-      <meta itemprop="name" content="姜纪光">
-      <meta itemprop="description" content="">
-      <meta itemprop="image" content="/images/avatar.gif">
-    </span>
-
-    <span hidden itemprop="publisher" itemscope itemtype="http://schema.org/Organization">
-      <meta itemprop="name" content="纪光的博客">
-    </span>
-      <header class="post-header">
-        <h1 class="post-title" itemprop="name headline">
-          
-            
-            <a href="/2020/09/03/java/CMS日志解析/" class="post-title-link" itemprop="url">CMS小结</a>
-          
-        </h1>
-
-        <div class="post-meta">
-            <span class="post-meta-item">
-              <span class="post-meta-item-icon">
-                <i class="fa fa-calendar-o"></i>
-              </span>
-              <span class="post-meta-item-text">发表于</span>
-
-              
-                
-              
-
-              <time title="创建时间：2020-09-03 19:58:11" itemprop="dateCreated datePublished" datetime="2020-09-03T19:58:11+08:00">2020-09-03</time>
-            </span>
-          
-            
-
-            
-              <span class="post-meta-item">
-                <span class="post-meta-item-icon">
-                  <i class="fa fa-calendar-check-o"></i>
-                </span>
-                <span class="post-meta-item-text">更新于</span>
-                <time title="修改时间：2020-09-07 09:43:29" itemprop="dateModified" datetime="2020-09-07T09:43:29+08:00">2020-09-07</time>
-              </span>
-            
-          
-            <span class="post-meta-item">
-              <span class="post-meta-item-icon">
-                <i class="fa fa-folder-o"></i>
-              </span>
-              <span class="post-meta-item-text">分类于</span>
-              
-                <span itemprop="about" itemscope itemtype="http://schema.org/Thing">
-                  <a href="/categories/java/" itemprop="url" rel="index">
-                    <span itemprop="name">java</span>
-                  </a>
-                </span>
-
-                
-                
-              
-            </span>
-          
-
-          
-            <span id="/2020/09/03/java/CMS日志解析/" class="post-meta-item leancloud_visitors" data-flag-title="CMS小结" title="阅读次数">
-              <span class="post-meta-item-icon">
-                <i class="fa fa-eye"></i>
-              </span>
-              <span class="post-meta-item-text">阅读次数：</span>
-              <span class="leancloud-visitors-count"></span>
-            </span>
-          
-  
-  
-
-        </div>
-      </header>
-
-    
-    
-    
-    <div class="post-body" itemprop="articleBody">
-
-      
-          <h1 id="日志"><a href="#日志" class="headerlink" title="日志"></a>日志</h1><p>1234    333    222    eee</p>
-<h2 id="ygc日志分析"><a href="#ygc日志分析" class="headerlink" title="ygc日志分析"></a>ygc日志分析</h2><figure class="highlight java"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br><span class="line">3</span><br><span class="line">4</span><br><span class="line">5</span><br><span class="line">6</span><br><span class="line">7</span><br><span class="line">8</span><br><span class="line">9</span><br><span class="line">10</span><br><span class="line">11</span><br><span class="line">12</span><br><span class="line">13</span><br><span class="line">14</span><br><span class="line">15</span><br><span class="line">16</span><br><span class="line">17</span><br><span class="line">18</span><br></pre></td><td class="code"><pre><span class="line">&#123;Heap before GC invocations=<span class="number">653</span>【ygc次数】 (full <span class="number">68</span>)  【full gc次数】:</span><br><span class="line"> par <span class="keyword">new</span> generation   total <span class="number">2241344</span>K, used <span class="number">2136581</span>K [<span class="number">0x0000000628800000</span>, 【GC前堆的使用情况】<span class="number">0x00000006c0800000</span>, <span class="number">0x00000006c0800000</span>)</span><br><span class="line">  eden space <span class="number">1992320</span>K, <span class="number">100</span>% used [<span class="number">0x0000000628800000</span>, <span class="number">0x00000006a21a0000</span>, <span class="number">0x00000006a21a0000</span>)</span><br><span class="line">  from space <span class="number">249024</span>K,  <span class="number">57</span>% used [<span class="number">0x00000006b14d0000</span>, <span class="number">0x00000006ba1b16c0</span>, <span class="number">0x00000006c0800000</span>)</span><br><span class="line">  to   space <span class="number">249024</span>K,   <span class="number">0</span>% used [<span class="number">0x00000006a21a0000</span>, <span class="number">0x00000006a21a0000</span>, <span class="number">0x00000006b14d0000</span>)</span><br><span class="line"> concurrent mark-sweep generation total <span class="number">4980736</span>K, used <span class="number">3705088</span>K [<span class="number">0x00000006c0800000</span>, <span class="number">0x00000007f0800000</span>, <span class="number">0x00000007f0800000</span>) 【老年代使用情况】</span><br><span class="line"> Metaspace       used <span class="number">73039</span>K, capacity <span class="number">74698</span>K, committed <span class="number">76396</span>K, reserved <span class="number">1116160</span>K</span><br><span class="line">  <span class="class"><span class="keyword">class</span> <span class="title">space</span>    <span class="title">used</span> 8878<span class="title">K</span>, <span class="title">capacity</span> 9260<span class="title">K</span>, <span class="title">committed</span> 9668<span class="title">K</span>, <span class="title">reserved</span> 1048576<span class="title">K</span></span></span><br><span class="line">516.094: [GC (Allocation Failure) 【gc的原因，eden区空间不足】516.095: [ParNew: 2136581K-&gt;211389K(2241344K), 0.0476118 secs] 5841670K-&gt;3916478K(7222080K), 0.0479121 secs] [Times: user=0.19 sys=0.00, real=0.05 secs]</span><br><span class="line">Heap after GC invocations=<span class="number">654</span> (full <span class="number">68</span>)【GC后堆的使用情况】: </span><br><span class="line"> par <span class="keyword">new</span> generation   total <span class="number">2241344</span>K, used <span class="number">211389</span>K [<span class="number">0x0000000628800000</span>, <span class="number">0x00000006c0800000</span>, <span class="number">0x00000006c0800000</span>)</span><br><span class="line">  eden space <span class="number">1992320</span>K,   <span class="number">0</span>% used [<span class="number">0x0000000628800000</span>, <span class="number">0x0000000628800000</span>, <span class="number">0x00000006a21a0000</span>)</span><br><span class="line">  from space <span class="number">249024</span>K,  <span class="number">84</span>% used [<span class="number">0x00000006a21a0000</span>, <span class="number">0x00000006af00f6d8</span>, <span class="number">0x00000006b14d0000</span>)</span><br><span class="line">  to   space <span class="number">249024</span>K,   <span class="number">0</span>% used [<span class="number">0x00000006b14d0000</span>, <span class="number">0x00000006b14d0000</span>, <span class="number">0x00000006c0800000</span>)</span><br><span class="line"> concurrent mark-sweep generation total <span class="number">4980736</span>K, used <span class="number">3705088</span>K [<span class="number">0x00000006c0800000</span>, <span class="number">0x00000007f0800000</span>, <span class="number">0x00000007f0800000</span>)【老年代使用情况】</span><br><span class="line"> Metaspace       used <span class="number">73039</span>K, capacity <span class="number">74698</span>K, committed <span class="number">76396</span>K, reserved <span class="number">1116160</span>K</span><br><span class="line">  <span class="class"><span class="keyword">class</span> <span class="title">space</span>    <span class="title">used</span> 8878<span class="title">K</span>, <span class="title">capacity</span> 9260<span class="title">K</span>, <span class="title">committed</span> 9668<span class="title">K</span>, <span class="title">reserved</span> 1048576<span class="title">K</span></span></span><br><span class="line"><span class="class">&#125;</span></span><br></pre></td></tr></table></figure>
-
-<h2 id="fgc日志分析"><a href="#fgc日志分析" class="headerlink" title="fgc日志分析"></a>fgc日志分析</h2><figure class="highlight plain"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br><span class="line">3</span><br><span class="line">4</span><br><span class="line">5</span><br><span class="line">6</span><br><span class="line">7</span><br><span class="line">8</span><br><span class="line">9</span><br><span class="line">10</span><br><span class="line">11</span><br><span class="line">12</span><br><span class="line">13</span><br><span class="line">14</span><br><span class="line">15</span><br><span class="line">16</span><br><span class="line">17</span><br><span class="line">18</span><br><span class="line">19</span><br><span class="line">20</span><br></pre></td><td class="code"><pre><span class="line">219.906: [GC (CMS Initial Mark) [1 CMS-initial-mark: 3735984K(4980736K)] 3861099K(7222080K), 0.0046778 secs] [Times: user=0.01 sys=0.00, real=0.00 secs]</span><br><span class="line">219.911: [CMS-concurrent-mark-start]</span><br><span class="line">&#123;Heap before GC invocations=440 (full 5):</span><br><span class="line"> par new generation   total 2241344K, used 2098184K [0x0000000628800000, 0x00000006c0800000, 0x00000006c0800000)</span><br><span class="line">  eden space 1992320K, 100% used [0x0000000628800000, 0x00000006a21a0000, 0x00000006a21a0000)</span><br><span class="line">  from space 249024K,  42% used [0x00000006a21a0000, 0x00000006a8902048, 0x00000006b14d0000)</span><br><span class="line">  to   space 249024K,   0% used [0x00000006b14d0000, 0x00000006b14d0000, 0x00000006c0800000)</span><br><span class="line"> concurrent mark-sweep generation total 4980736K, used 3735984K [0x00000006c0800000, 0x00000007f0800000, 0x00000007f0800000)</span><br><span class="line"> Metaspace       used 71081K, capacity 72670K, committed 74476K, reserved 1114112K</span><br><span class="line">  class space    used 8721K, capacity 9094K, committed 9540K, reserved 1048576K</span><br><span class="line">220.408: [GC (Allocation Failure) 220.408: [ParNew: 2098184K-&gt;104320K(2241344K), 0.0269857 secs] 5834168K-&gt;3843492K(7222080K), 0.0275008 secs] [Times: user=0.10 sys=0.01, real=0.03 secs]</span><br><span class="line">Heap after GC invocations=441 (full 5):</span><br><span class="line"> par new generation   total 2241344K, used 104320K [0x0000000628800000, 0x00000006c0800000, 0x00000006c0800000)</span><br><span class="line">  eden space 1992320K,   0% used [0x0000000628800000, 0x0000000628800000, 0x00000006a21a0000)</span><br><span class="line">  from space 249024K,  41% used [0x00000006b14d0000, 0x00000006b7ab0290, 0x00000006c0800000)</span><br><span class="line">  to   space 249024K,   0% used [0x00000006a21a0000, 0x00000006a21a0000, 0x00000006b14d0000)</span><br><span class="line"> concurrent mark-sweep generation total 4980736K, used 3739171K [0x00000006c0800000, 0x00000007f0800000, 0x00000007f0800000)</span><br><span class="line"> Metaspace       used 71081K, capacity 72670K, committed 74476K, reserved 1114112K</span><br><span class="line">  class space    used 8721K, capacity 9094K, committed 9540K, reserved 1048576K</span><br><span class="line">&#125;</span><br></pre></td></tr></table></figure>
-
-<h1 id="参考文档"><a href="#参考文档" class="headerlink" title="参考文档"></a>参考文档</h1><p><a href="https://www.cnblogs.com/zhjh256/p/12077117.html" target="_blank" rel="noopener">gc日志深入解析-覆盖CMS、并行GC、G1、ZGC、openj9</a></p>
-<p><a href="https://cloud.tencent.com/developer/article/1413725" target="_blank" rel="noopener">一个 JVM 参数引发的频繁 CMS GC</a></p>
-
-        
-      
-    </div>
-
-    
-    
-    
-      <footer class="post-footer">
-        <div class="post-eof"></div>
-      </footer>
-  </article>
-  
-  
-  
-
-    
-        
-  
-  
-  <article itemscope itemtype="http://schema.org/Article" class="post-block home" lang="zh-CN">
-    <link itemprop="mainEntityOfPage" href="http://yoursite.com/2020/09/03/java/JVM垃圾收集器小结/">
-
-    <span hidden itemprop="author" itemscope itemtype="http://schema.org/Person">
-      <meta itemprop="name" content="姜纪光">
-      <meta itemprop="description" content="">
-      <meta itemprop="image" content="/images/avatar.gif">
-    </span>
-
-    <span hidden itemprop="publisher" itemscope itemtype="http://schema.org/Organization">
-      <meta itemprop="name" content="纪光的博客">
-    </span>
-      <header class="post-header">
-        <h1 class="post-title" itemprop="name headline">
-          
-            
-            <a href="/2020/09/03/java/JVM垃圾收集器小结/" class="post-title-link" itemprop="url">JVM垃圾收集器小结</a>
-          
-        </h1>
-
-        <div class="post-meta">
-            <span class="post-meta-item">
-              <span class="post-meta-item-icon">
-                <i class="fa fa-calendar-o"></i>
-              </span>
-              <span class="post-meta-item-text">发表于</span>
-
-              
-                
-              
-
-              <time title="创建时间：2020-09-03 11:39:45" itemprop="dateCreated datePublished" datetime="2020-09-03T11:39:45+08:00">2020-09-03</time>
-            </span>
-          
-            
-
-            
-              <span class="post-meta-item">
-                <span class="post-meta-item-icon">
-                  <i class="fa fa-calendar-check-o"></i>
-                </span>
-                <span class="post-meta-item-text">更新于</span>
-                <time title="修改时间：2020-09-07 12:10:31" itemprop="dateModified" datetime="2020-09-07T12:10:31+08:00">2020-09-07</time>
-              </span>
-            
-          
-            <span class="post-meta-item">
-              <span class="post-meta-item-icon">
-                <i class="fa fa-folder-o"></i>
-              </span>
-              <span class="post-meta-item-text">分类于</span>
-              
-                <span itemprop="about" itemscope itemtype="http://schema.org/Thing">
-                  <a href="/categories/java/" itemprop="url" rel="index">
-                    <span itemprop="name">java</span>
-                  </a>
-                </span>
-
-                
-                
-              
-            </span>
-          
-
-          
-            <span id="/2020/09/03/java/JVM垃圾收集器小结/" class="post-meta-item leancloud_visitors" data-flag-title="JVM垃圾收集器小结" title="阅读次数">
-              <span class="post-meta-item-icon">
-                <i class="fa fa-eye"></i>
-              </span>
-              <span class="post-meta-item-text">阅读次数：</span>
-              <span class="leancloud-visitors-count"></span>
-            </span>
-          
-  
-  
-
-        </div>
-      </header>
-
-    
-    
-    
-    <div class="post-body" itemprop="articleBody">
-
-      
-          <h1 id="概览"><a href="#概览" class="headerlink" title="概览"></a>概览</h1><h1 id="Serial"><a href="#Serial" class="headerlink" title="Serial"></a>Serial</h1><ul>
-<li>年轻代收集器</li>
-<li>是一个最基本、历史最悠久的单线程收集器</li>
-<li>垃圾收集时必须暂停其它工作线程直到收集结束</li>
-<li>是client模式下的默认新生代收集器</li>
-</ul>
-<h1 id="ParNew"><a href="#ParNew" class="headerlink" title="ParNew"></a>ParNew</h1><ul>
-<li><p>年轻代收集器</p>
-</li>
-<li><p>是Serial收集器的多线程版本</p>
-</li>
-<li><p>除了Serial之外，只有它能与CMS收集器配合工作，当使用CMS时，它是新生代默认的收集器</p>
-</li>
-<li><p>JVM配置参数</p>
-<figure class="highlight shell"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br><span class="line">3</span><br><span class="line">4</span><br><span class="line">5</span><br><span class="line">6</span><br><span class="line">7</span><br></pre></td><td class="code"><pre><span class="line">-XX:+UseParNewGC   			#使用ParNew对新生代进行回收</span><br><span class="line">-Xmn               			#新生代大小  等价于-XX:MaxNewSize、-XX:NewSize</span><br><span class="line">-XX:SurvivorRatio  			#Eden与两个Survivor区的比值，默认8</span><br><span class="line">-XX:ParallelGCThreads 		#YGC的线程数</span><br><span class="line">-XX:MaxTenuringThreshold 	#对象晋升到老年代的阈值默认15</span><br><span class="line">-XX:PretenureSizeThreshold  #对象直接在老年代分配的阈值</span><br><span class="line">-XX:HandlerPromotionFailure #值为true或false，空间分配担保，详情请见参考文档</span><br></pre></td></tr></table></figure>
-</li>
-<li><p>MinorGC发生的条件</p>
-<figure class="highlight plain"><table><tr><td class="gutter"><pre><span class="line">1</span><br></pre></td><td class="code"><pre><span class="line">1、当Eden区满时，触发Minor GC</span><br></pre></td></tr></table></figure>
-
-</li>
-</ul>
-<h1 id="Parallel-Scavenge"><a href="#Parallel-Scavenge" class="headerlink" title="Parallel Scavenge"></a>Parallel Scavenge</h1><ul>
-<li>年轻代收集器</li>
-<li>使用复制算法、多线程</li>
-<li>是一个以<strong>吞吐量优先</strong>的收集器，</li>
-<li>特点是拥有自适应调节策略，设置相应参数给虚拟机设立一个优化目标。</li>
-</ul>
-<h1 id="Serial-Old"><a href="#Serial-Old" class="headerlink" title="Serial Old"></a>Serial Old</h1><ul>
-<li>老年代收集器，是Serial的老年代版本</li>
-<li>单线程收集器，使用<strong>标记-整理</strong>算法，主要意义是Client模式下使用</li>
-<li>作为CMS收集器的后备预案，在并发收集发生时使用</li>
-</ul>
-<h1 id="Parallel-Old"><a href="#Parallel-Old" class="headerlink" title="Parallel Old"></a>Parallel Old</h1><ul>
-<li>老年代收集器</li>
-<li>Parallel Scavenge收集器的老年代版本，使用多线程和<strong>标记-整理</strong>算法</li>
-<li>在注重吞吐量和CPU资源敏感的场合，优先考虑Parallel Scavenge + Parallel Old的组合</li>
-</ul>
-<h1 id="CMS"><a href="#CMS" class="headerlink" title="CMS"></a>CMS</h1><ul>
-<li><p>老年代收集器</p>
-</li>
-<li><p>Concurrent Mark Sweep，并发-标记-清除</p>
-</li>
-<li><p>以获取最短回收停顿时间为目标</p>
-</li>
-<li><p>能与之配合使用的年轻代回收器只有Serial和ParNew</p>
-</li>
-<li><p>是一种基于并发、使用标记清楚算法的垃圾回收器，尽可能让GC线程和用户线程并发执行，减少STW时间</p>
-</li>
-<li><p>整个过程分为4个步骤</p>
-<figure class="highlight plain"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br><span class="line">3</span><br><span class="line">4</span><br><span class="line">5</span><br><span class="line">6</span><br><span class="line">7</span><br><span class="line">8</span><br></pre></td><td class="code"><pre><span class="line">1、初始标记(CMS initial mark)</span><br><span class="line">  会产生STW，仅仅是标记GC Roots能直接关联到的对象，速度很快。</span><br><span class="line">2、并发标记(CMS concurrent mark)</span><br><span class="line">  不会产生STW，就是进行GC Roots Tracing的过程。花费的时间最长,和用户线程一起工作</span><br><span class="line">3、重新标记(CMS remark)</span><br><span class="line">  会产生STW，就是为了修正并发标记期间因程序继续运行到导致标记产生变动的那一部分的标记记录。花费时间比初始标记长，远比并发标记短，</span><br><span class="line">4、并发清除(CMS concurrent sweep)</span><br><span class="line">  不会产生STW</span><br></pre></td></tr></table></figure>
-</li>
-<li><p>JVM配置参数</p>
-<figure class="highlight shell"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br><span class="line">3</span><br><span class="line">4</span><br><span class="line">5</span><br><span class="line">6</span><br><span class="line">7</span><br><span class="line">8</span><br><span class="line">9</span><br><span class="line">10</span><br><span class="line">11</span><br><span class="line">12</span><br><span class="line">13</span><br></pre></td><td class="code"><pre><span class="line">-XX:+UseConcMarkSweepGC  	#使用CMS对老年代进行回收</span><br><span class="line">-Xmx               			#JVM堆最大值  等价于-XX:MaxHeapSize</span><br><span class="line">-Xms               			#JVM堆初始值  等价于-XX:InitialHeapSize</span><br><span class="line">-Xss               			#线程栈大小    等价于-XX:ThreadStackSize</span><br><span class="line">-XX:ParallelCMSThreads   	#CMS的线程数</span><br><span class="line">-XX:+UseCMSCompactAtFullCollection  #开启 Full GC 时的压缩功能，减少内存碎片</span><br><span class="line">-XX:CMSFullGCsBeforeCompaction      #默认值是0，也就是每次full gc时都会压缩</span><br><span class="line">-XX:+UseCMSInitiatingOccupancyOnly  #表示 CMS GC 只基于 CMSInitiatingOccupancyFraction 触发，如果没设置，则只会自动触发</span><br><span class="line">-XX:CMSInitiatingOccupancyFraction  #触发CMS GC的老年代阈值 默认-1表示由JVM自动触发</span><br><span class="line">-XX:+CMSPermGenSweepingEnabled      #为了避免Perm区满引起的Full GC，开启并发收集器回收Perm区选项</span><br><span class="line">-XX:+CMSClassUnloadingEnabled       #表示开启 CMS 对永久代的垃圾回收（或元空间），避免由于永久代空间耗尽带来 Full GC</span><br><span class="line">-XX:+CMSScavengeBeforeRemark #在CMS GC前进行一次ygc，目的是降低remark时的开销，一般CMS的GC耗时 80%都在remark阶段</span><br><span class="line">-XX:CMSMaxAbortablePrecleanTime		#指定CMS-concurrent-abortable-preclean阶段执行的时间，该阶段主要是执行一些预清理，减少应用暂停的时间</span><br></pre></td></tr></table></figure>
-</li>
-<li><p>对象直接进入老年代的4中情况</p>
-<figure class="highlight plain"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br><span class="line">3</span><br><span class="line">4</span><br></pre></td><td class="code"><pre><span class="line">1、Minor GC时发现，存活的对象在ToSpace区中存不下，那么把存活的对象存入老年代</span><br><span class="line">2、大对象直接进入老年代(PretenureSizeThreshold)</span><br><span class="line">3、长期存活的对象将进入老年代(-XX:MaxTenuringThreshold)</span><br><span class="line">4、动态对象年龄判定</span><br></pre></td></tr></table></figure>
-</li>
-<li><p>Full GC的触发条件</p>
-<figure class="highlight plain"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br><span class="line">3</span><br><span class="line">4</span><br><span class="line">5</span><br></pre></td><td class="code"><pre><span class="line">1、老年代空间不足</span><br><span class="line">2、方法区空间不足</span><br><span class="line">3、通过Minor GC后进入老年代的平均大小大于老年代的可用内存(空间分配担保)</span><br><span class="line">4、由Eden区、From Space区向To Space区复制时，对象大小大于To Space可用内存，则把该对象转存到老年代，且老年代的可用内存小于该对象大小</span><br><span class="line">5、调用System.gc时，系统建议执行Full GC，但是不必然执行</span><br></pre></td></tr></table></figure>
-</li>
-<li><p>promotion failed &amp;&amp; concurrent mode failure</p>
-<figure class="highlight plain"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br></pre></td><td class="code"><pre><span class="line">1、当进行Minor GC时，to survivor 放不下，同时老年代也放不下，就会出现promotion failed</span><br><span class="line">2、紧接着concurrent mode failure，这时CMS失效，降级为使用Serail Old收集器</span><br></pre></td></tr></table></figure>
-</li>
-<li><p>CMS的缺点</p>
-<figure class="highlight plain"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br><span class="line">3</span><br></pre></td><td class="code"><pre><span class="line">1、对CPU资源敏感，在并发阶段虽然不会导致用户程序停顿，但是会占用一部分线程资源，而导致程序变慢，总吞吐量降低，因此要控制回收时的线程数。</span><br><span class="line">2、会导致concurrent mode failure</span><br><span class="line">3、因为是采用的 标记-清除 算法，可能会产生空间碎片</span><br></pre></td></tr></table></figure>
-
-</li>
-</ul>
-<h1 id="G1"><a href="#G1" class="headerlink" title="G1"></a>G1</h1><ul>
-<li><p>同时作为新生代和老年代使用</p>
-</li>
-<li><p>会产生STW，但是通过并发与并行会减少STW的时间</p>
-</li>
-<li><p>采用<strong>标记-整理</strong>算法，不会产生内存碎片</p>
-</li>
-<li><p>新生代和老年代不再是物理隔离的，而是将堆划分为多个大小相等的region，每个region可以当做新生代、也可以当做老年代使用</p>
-</li>
-<li><p>除了像CMS那样降低停顿时间，还能建立可预测的停顿时间模型</p>
-</li>
-<li><p>收集过程</p>
-<figure class="highlight plain"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br><span class="line">3</span><br><span class="line">4</span><br><span class="line">5</span><br><span class="line">6</span><br><span class="line">7</span><br></pre></td><td class="code"><pre><span class="line">1、初始标记(Initial Marking)</span><br><span class="line">  会产生STW，标记GC Roots能直接关联到的对象，并修改到TAMS(Next Top at Mark Start)，让下一阶段用户程序并发运行时，能在正确可用的region中创建新对象</span><br><span class="line">2、并发标记(Concurrent Marking)</span><br><span class="line">  不会产生STW，从GC Roots开始对堆中对象进行可达性分析，找出存活对象。</span><br><span class="line">3、最终标记(Final Marking)</span><br><span class="line">  </span><br><span class="line">4、筛选回收(Live Data Counting and Evacuation)</span><br></pre></td></tr></table></figure>
-
-</li>
-</ul>
-<h1 id="垃圾收集器参数"><a href="#垃圾收集器参数" class="headerlink" title="垃圾收集器参数"></a>垃圾收集器参数</h1><h2 id="搜集器参数"><a href="#搜集器参数" class="headerlink" title="搜集器参数"></a>搜集器参数</h2><ul>
-<li><p>UseSerialGC</p>
-<blockquote>
-<p>在client模式下的默认值，使用 <strong>Serial + Serial Old</strong> 收集器</p>
-</blockquote>
-</li>
-<li><p>UseParNewGC</p>
-<blockquote>
-<p>使用 <strong>ParNew + Serial Old</strong> 收集器</p>
-</blockquote>
-</li>
-<li><p>UseConcMarkSweepGC</p>
-<blockquote>
-<p>使用 <strong>ParNew + CMS + Serial Old</strong> 收集器</p>
-</blockquote>
-</li>
-<li><p>UseParallelGC</p>
-<blockquote>
-<p>在server模式下的默认值，使用 <strong>Parallel Scavenge + Serial Old</strong> 收集器</p>
-</blockquote>
-</li>
-<li><p>UseParallelOldGC</p>
-<blockquote>
-<p>使用 <strong>Parallel Scavenge + Parallel Old</strong> 收集器</p>
-</blockquote>
-</li>
-</ul>
-<h2 id="其它参数"><a href="#其它参数" class="headerlink" title="其它参数"></a>其它参数</h2><ul>
-<li><p>-XX:CICompilerCount</p>
-<blockquote>
-<p>特点代码的编译线程数</p>
-</blockquote>
-</li>
-</ul>
-<ul>
-<li><p>-XX:+UseCompressedClassPointers</p>
-<blockquote>
-<p>压缩类指针</p>
-</blockquote>
-</li>
-<li><p>-XX:+UseCompressedOops</p>
-<blockquote>
-<p>在64位机器中，压缩普通对象指针，节省空间</p>
-</blockquote>
-</li>
-<li><p>-XX:+UseFastUnorderedTimeStamps</p>
-</li>
-<li><p>-XX:MinHeapDeltaBytes</p>
-<blockquote>
-<p>GC导致的堆空间的最小变化（以字节为单位）</p>
-</blockquote>
-</li>
-</ul>
-<h1 id="参考文档"><a href="#参考文档" class="headerlink" title="参考文档"></a>参考文档</h1><p><a href="https://blog.csdn.net/yhyr_ycy/article/details/52566105" target="_blank" rel="noopener">GC详解及Minor GC和Full GC触发条件总结</a></p>
-
-        
-      
-    </div>
-
-    
-    
-    
-      <footer class="post-footer">
-        <div class="post-eof"></div>
-      </footer>
-  </article>
-  
-  
-  
-
-    
-        
-  
-  
-  <article itemscope itemtype="http://schema.org/Article" class="post-block home" lang="zh-CN">
-    <link itemprop="mainEntityOfPage" href="http://yoursite.com/2020/09/02/knowledge/内存探究/">
-
-    <span hidden itemprop="author" itemscope itemtype="http://schema.org/Person">
-      <meta itemprop="name" content="姜纪光">
-      <meta itemprop="description" content="">
-      <meta itemprop="image" content="/images/avatar.gif">
-    </span>
-
-    <span hidden itemprop="publisher" itemscope itemtype="http://schema.org/Organization">
-      <meta itemprop="name" content="纪光的博客">
-    </span>
-      <header class="post-header">
-        <h1 class="post-title" itemprop="name headline">
-          
-            
-            <a href="/2020/09/02/knowledge/内存探究/" class="post-title-link" itemprop="url">内存探究</a>
-          
-        </h1>
-
-        <div class="post-meta">
-            <span class="post-meta-item">
-              <span class="post-meta-item-icon">
-                <i class="fa fa-calendar-o"></i>
-              </span>
-              <span class="post-meta-item-text">发表于</span>
-
-              
-                
-              
-
-              <time title="创建时间：2020-09-02 16:09:32 / 修改时间：16:11:17" itemprop="dateCreated datePublished" datetime="2020-09-02T16:09:32+08:00">2020-09-02</time>
-            </span>
-          
-            
-
-            
-          
-            <span class="post-meta-item">
-              <span class="post-meta-item-icon">
-                <i class="fa fa-folder-o"></i>
-              </span>
-              <span class="post-meta-item-text">分类于</span>
-              
-                <span itemprop="about" itemscope itemtype="http://schema.org/Thing">
-                  <a href="/categories/内存/" itemprop="url" rel="index">
-                    <span itemprop="name">内存</span>
-                  </a>
-                </span>
-
-                
-                
-              
-            </span>
-          
-
-          
-            <span id="/2020/09/02/knowledge/内存探究/" class="post-meta-item leancloud_visitors" data-flag-title="内存探究" title="阅读次数">
-              <span class="post-meta-item-icon">
-                <i class="fa fa-eye"></i>
-              </span>
-              <span class="post-meta-item-text">阅读次数：</span>
-              <span class="leancloud-visitors-count"></span>
-            </span>
-          
-  
-  
-
-        </div>
-      </header>
-
-    
-    
-    
-    <div class="post-body" itemprop="articleBody">
-
-      
-          <h1 id="参考文档"><a href="#参考文档" class="headerlink" title="参考文档"></a>参考文档</h1><p><a href>性能之巅</a></p>
-
-        
-      
-    </div>
-
-    
-    
-    
-      <footer class="post-footer">
-        <div class="post-eof"></div>
-      </footer>
-  </article>
-  
-  
-  
-
-    
-        
-  
-  
-  <article itemscope itemtype="http://schema.org/Article" class="post-block home" lang="zh-CN">
-    <link itemprop="mainEntityOfPage" href="http://yoursite.com/2020/09/02/flink/SLS日志带来的问题/">
-
-    <span hidden itemprop="author" itemscope itemtype="http://schema.org/Person">
-      <meta itemprop="name" content="姜纪光">
-      <meta itemprop="description" content="">
-      <meta itemprop="image" content="/images/avatar.gif">
-    </span>
-
-    <span hidden itemprop="publisher" itemscope itemtype="http://schema.org/Organization">
-      <meta itemprop="name" content="纪光的博客">
-    </span>
-      <header class="post-header">
-        <h1 class="post-title" itemprop="name headline">
-          
-            
-            <a href="/2020/09/02/flink/SLS日志带来的问题/" class="post-title-link" itemprop="url">SLS日志带来的问题</a>
-          
-        </h1>
-
-        <div class="post-meta">
-            <span class="post-meta-item">
-              <span class="post-meta-item-icon">
-                <i class="fa fa-calendar-o"></i>
-              </span>
-              <span class="post-meta-item-text">发表于</span>
-
-              
-                
-              
-
-              <time title="创建时间：2020-09-02 10:16:59" itemprop="dateCreated datePublished" datetime="2020-09-02T10:16:59+08:00">2020-09-02</time>
-            </span>
-          
-            
-
-            
-              <span class="post-meta-item">
-                <span class="post-meta-item-icon">
-                  <i class="fa fa-calendar-check-o"></i>
-                </span>
-                <span class="post-meta-item-text">更新于</span>
-                <time title="修改时间：2020-09-06 15:52:54" itemprop="dateModified" datetime="2020-09-06T15:52:54+08:00">2020-09-06</time>
-              </span>
-            
-          
-            <span class="post-meta-item">
-              <span class="post-meta-item-icon">
-                <i class="fa fa-folder-o"></i>
-              </span>
-              <span class="post-meta-item-text">分类于</span>
-              
-                <span itemprop="about" itemscope itemtype="http://schema.org/Thing">
-                  <a href="/categories/flink/" itemprop="url" rel="index">
-                    <span itemprop="name">flink</span>
-                  </a>
-                </span>
-
-                
-                
-              
-            </span>
-          
-
-          
-            <span id="/2020/09/02/flink/SLS日志带来的问题/" class="post-meta-item leancloud_visitors" data-flag-title="SLS日志带来的问题" title="阅读次数">
-              <span class="post-meta-item-icon">
-                <i class="fa fa-eye"></i>
-              </span>
-              <span class="post-meta-item-text">阅读次数：</span>
-              <span class="leancloud-visitors-count"></span>
-            </span>
-          
-  
-  
-
-        </div>
-      </header>
-
-    
-    
-    
-    <div class="post-body" itemprop="articleBody">
-
-      
-          <h1 id="问题描述"><a href="#问题描述" class="headerlink" title="问题描述"></a>问题描述</h1><p>​    我司的实时计算平台的Flink任务是把日志打到阿里云的日志服务（SLS）上面的，相关基础知识请见参考文档。 </p>
-<p>​    在实时计算平台的Flink版本由1.9升级到1.10的过程中，发现某些写HDFS的任务经常重启，查看日志发现是255的问题，详细error日志如下：</p>
-<figure class="highlight plain"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br><span class="line">3</span><br><span class="line">4</span><br><span class="line">5</span><br><span class="line">6</span><br><span class="line">7</span><br><span class="line">8</span><br><span class="line">9</span><br><span class="line">10</span><br><span class="line">11</span><br><span class="line">12</span><br><span class="line">13</span><br><span class="line">14</span><br><span class="line">15</span><br><span class="line">16</span><br><span class="line">17</span><br><span class="line">18</span><br><span class="line">19</span><br><span class="line">20</span><br></pre></td><td class="code"><pre><span class="line">level: ERROR</span><br><span class="line">log: 2020-09-02 11:03:35,533 kafka2hive_ireport_jianduoduo_pb2_unfold_testf10 ERROR org.apache.flink.yarn.YarnResourceManager - Closing TaskExecutor connection container_1597847003686_0248_01_000005. Because: Exception from container-launch. Container id: container_1597847003686_0248_01_000005 Exit code: 255 Stack trace: ExitCodeException exitCode=255: at org.apache.hadoop.util.Shell.runCommand(Shell.java:604) at org.apache.hadoop.util.Shell.run(Shell.java:507) at org.apache.hadoop.util.Shell$ShellCommandExecutor.execute(Shell.java:789) at org.apache.hadoop.yarn.server.nodemanager.DefaultContainerExecutor.launchContainer(DefaultContainerExecutor.java:213) at org.apache.hadoop.yarn.server.nodemanager.containermanager.launcher.ContainerLaunch.call(ContainerLaunch.java:302) at org.apache.hadoop.yarn.server.nodemanager.containermanager.launcher.ContainerLaunch.call(ContainerLaunch.java:82) at java.util.concurrent.FutureTask.run(FutureTask.java:266) at java.util.concurrent.ThreadPoolExecutor.runWorker(ThreadPoolExecutor.java:1149) at java.util.concurrent.ThreadPoolExecutor$Worker.run(ThreadPoolExecutor.java:624) at java.lang.Thread.run(Thread.java:748) Container exited with a non-zero exit code 255</span><br><span class="line">location: org.apache.flink.runtime.resourcemanager.ResourceManager.closeTaskManagerConnection(ResourceManager.java:792)</span><br><span class="line">message: Closing TaskExecutor connection container_1597847003686_0248_01_000005. Because: Exception from container-launch.</span><br><span class="line">Container id: container_1597847003686_0248_01_000005</span><br><span class="line">Exit code: 255</span><br><span class="line">Stack trace: ExitCodeException exitCode=255:</span><br><span class="line">at org.apache.hadoop.util.Shell.runCommand(Shell.java:604)</span><br><span class="line">at org.apache.hadoop.util.Shell.run(Shell.java:507)</span><br><span class="line">at org.apache.hadoop.util.Shell$ShellCommandExecutor.execute(Shell.java:789)</span><br><span class="line">at org.apache.hadoop.yarn.server.nodemanager.DefaultContainerExecutor.launchContainer(DefaultContainerExecutor.java:213)</span><br><span class="line">at org.apache.hadoop.yarn.server.nodemanager.containermanager.launcher.ContainerLaunch.call(ContainerLaunch.java:302)</span><br><span class="line">at org.apache.hadoop.yarn.server.nodemanager.containermanager.launcher.ContainerLaunch.call(ContainerLaunch.java:82)</span><br><span class="line">at java.util.concurrent.FutureTask.run(FutureTask.java:266)</span><br><span class="line">at java.util.concurrent.ThreadPoolExecutor.runWorker(ThreadPoolExecutor.java:1149)</span><br><span class="line">at java.util.concurrent.ThreadPoolExecutor$Worker.run(ThreadPoolExecutor.java:624)</span><br><span class="line">at java.lang.Thread.run(Thread.java:748)</span><br><span class="line"></span><br><span class="line"></span><br><span class="line">Container exited with a non-zero exit code 255</span><br></pre></td></tr></table></figure>
-
-<p>从上述日志可见，是hadoop抛出的错误，但是对排查任务重启用途不大。</p>
-<p>除此之外就是container拒绝连接，原因是 container 被kill 掉。</p>
-<p>排查了几天，没有头绪，后来怀疑是否是有日志，但是没有打印出来，所以就在log4j.properties配置文件中，新增了个appender，把日志打印的文件，终于发现了问题，日志如下所示：</p>
-<figure class="highlight plain"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br><span class="line">3</span><br><span class="line">4</span><br><span class="line">5</span><br><span class="line">6</span><br><span class="line">7</span><br><span class="line">8</span><br><span class="line">9</span><br><span class="line">10</span><br><span class="line">11</span><br><span class="line">12</span><br><span class="line">13</span><br><span class="line">14</span><br><span class="line">15</span><br><span class="line">16</span><br><span class="line">17</span><br><span class="line">18</span><br><span class="line">19</span><br><span class="line">20</span><br><span class="line">21</span><br><span class="line">22</span><br><span class="line">23</span><br><span class="line">24</span><br><span class="line">25</span><br><span class="line">26</span><br><span class="line">27</span><br><span class="line">28</span><br><span class="line">29</span><br><span class="line">30</span><br><span class="line">31</span><br><span class="line">32</span><br><span class="line">33</span><br><span class="line">34</span><br><span class="line">35</span><br><span class="line">36</span><br><span class="line">37</span><br><span class="line">38</span><br><span class="line">39</span><br><span class="line">40</span><br><span class="line">41</span><br><span class="line">42</span><br><span class="line">43</span><br><span class="line">44</span><br><span class="line">45</span><br><span class="line">46</span><br><span class="line">47</span><br><span class="line">48</span><br><span class="line">49</span><br><span class="line">50</span><br></pre></td><td class="code"><pre><span class="line">2020-09-02 16:07:11,788 ERROR org.apache.flink.runtime.taskmanager.Task                     - Encountered fatal error java.lang.OutOfMemoryError - terminating the JVM</span><br><span class="line">java.lang.OutOfMemoryError: Direct buffer memory. The direct out-of-memory error has occurred. This can mean two things: either job(s) require(s) a larger size of JVM direct memory or there is a direct memory leak. The direct memory can be allocated by user code or some of its dependencies. In this case &apos;taskmanager.memory.task.off-heap.size&apos; configuration option should be increased. Flink framework and its dependencies also consume the direct memory, mostly for network communication. The most of network memory is managed by Flink and should not result in out-of-memory error. In certain special cases, in particular for jobs with high parallelism, the framework may require more direct memory which is not managed by Flink. In this case &apos;taskmanager.memory.framework.off-heap.size&apos; configuration option should be increased. If the error persists then there is probably a direct memory leak which has to be investigated and fixed. The task executor has to be shutdown...</span><br><span class="line">        at java.nio.Bits.reserveMemory(Bits.java:694)</span><br><span class="line">        at java.nio.DirectByteBuffer.&lt;init&gt;(DirectByteBuffer.java:123)</span><br><span class="line">        at java.nio.ByteBuffer.allocateDirect(ByteBuffer.java:311)</span><br><span class="line">        at org.apache.parquet.hadoop.codec.SnappyCompressor.setInput(SnappyCompressor.java:97)</span><br><span class="line">        at org.apache.parquet.hadoop.codec.NonBlockedCompressorStream.write(NonBlockedCompressorStream.java:48)</span><br><span class="line">        at org.apache.parquet.bytes.CapacityByteArrayOutputStream.writeToOutput(CapacityByteArrayOutputStream.java:227)</span><br><span class="line">        at org.apache.parquet.bytes.CapacityByteArrayOutputStream.writeTo(CapacityByteArrayOutputStream.java:249)</span><br><span class="line">        at org.apache.parquet.bytes.BytesInput$CapacityBAOSBytesInput.writeAllTo(BytesInput.java:405)</span><br><span class="line">        at org.apache.parquet.bytes.BytesInput$SequenceBytesIn.writeAllTo(BytesInput.java:296)</span><br><span class="line">        at org.apache.parquet.hadoop.CodecFactory$HeapBytesCompressor.compress(CodecFactory.java:164)</span><br><span class="line">        at org.apache.parquet.hadoop.ColumnChunkPageWriteStore$ColumnChunkPageWriter.writePage(ColumnChunkPageWriteStore.java:95)</span><br><span class="line">        at org.apache.parquet.column.impl.ColumnWriterV1.writePage(ColumnWriterV1.java:147)</span><br><span class="line">        at org.apache.parquet.column.impl.ColumnWriterV1.accountForValueWritten(ColumnWriterV1.java:106)</span><br><span class="line">        at org.apache.parquet.column.impl.ColumnWriterV1.write(ColumnWriterV1.java:200)</span><br><span class="line">        at org.apache.parquet.io.MessageColumnIO$MessageColumnIORecordConsumer.addBinary(MessageColumnIO.java:469)</span><br><span class="line">        at org.apache.parquet.avro.AvroWriteSupport.writeValueWithoutConversion(AvroWriteSupport.java:346)</span><br><span class="line">        at org.apache.parquet.avro.AvroWriteSupport.writeValue(AvroWriteSupport.java:278)</span><br><span class="line">        at org.apache.parquet.avro.AvroWriteSupport.writeRecordFields(AvroWriteSupport.java:191)</span><br><span class="line">        at org.apache.parquet.avro.AvroWriteSupport.write(AvroWriteSupport.java:165)</span><br><span class="line">        at org.apache.parquet.hadoop.InternalParquetRecordWriter.write(InternalParquetRecordWriter.java:128)</span><br><span class="line">        at org.apache.parquet.hadoop.ParquetWriter.write(ParquetWriter.java:299)</span><br><span class="line">        at org.apache.flink.formats.parquet.ParquetBulkWriter.addElement(ParquetBulkWriter.java:52)</span><br><span class="line">        at org.apache.flink.streaming.api.functions.sink.filesystem.BulkPartWriter.write(BulkPartWriter.java:50)</span><br><span class="line">        at org.apache.flink.streaming.api.functions.sink.filesystem.Bucket.write(Bucket.java:214)</span><br><span class="line">        at org.apache.flink.streaming.api.functions.sink.filesystem.Buckets.onElement(Buckets.java:274)</span><br><span class="line">        at org.apache.flink.streaming.api.functions.sink.filesystem.StreamingFileSink.invoke(StreamingFileSink.java:470)</span><br><span class="line">        at org.apache.flink.streaming.api.operators.StreamSink.processElement(StreamSink.java:56)</span><br><span class="line">        at org.apache.flink.streaming.runtime.tasks.OperatorChain$CopyingChainingOutput.pushToOperator(OperatorChain.java:641)</span><br><span class="line">        at org.apache.flink.streaming.runtime.tasks.OperatorChain$CopyingChainingOutput.collect(OperatorChain.java:616)</span><br><span class="line">        at org.apache.flink.streaming.runtime.tasks.OperatorChain$CopyingChainingOutput.collect(OperatorChain.java:596)</span><br><span class="line">        at org.apache.flink.streaming.api.operators.AbstractStreamOperator$CountingOutput.collect(AbstractStreamOperator.java:730)</span><br><span class="line">        at org.apache.flink.streaming.api.operators.AbstractStreamOperator$CountingOutput.collect(AbstractStreamOperator.java:708)</span><br><span class="line">        at org.apache.flink.streaming.api.operators.StreamMap.processElement(StreamMap.java:41)</span><br><span class="line">        at org.apache.flink.streaming.runtime.tasks.OperatorChain$CopyingChainingOutput.pushToOperator(OperatorChain.java:641)</span><br><span class="line">        at org.apache.flink.streaming.runtime.tasks.OperatorChain$CopyingChainingOutput.collect(OperatorChain.java:616)</span><br><span class="line">        at org.apache.flink.streaming.runtime.tasks.OperatorChain$CopyingChainingOutput.collect(OperatorChain.java:596)</span><br><span class="line">        at org.apache.flink.streaming.api.operators.AbstractStreamOperator$CountingOutput.collect(AbstractStreamOperator.java:730)</span><br><span class="line">        at org.apache.flink.streaming.api.operators.AbstractStreamOperator$CountingOutput.collect(AbstractStreamOperator.java:708)</span><br><span class="line">        at org.apache.flink.streaming.api.operators.StreamSourceContexts$NonTimestampContext.collect(StreamSourceContexts.java:104)</span><br><span class="line">        at org.apache.flink.streaming.api.operators.StreamSourceContexts$NonTimestampContext.collectWithTimestamp(StreamSourceContexts.java:111)</span><br><span class="line">        at org.apache.flink.streaming.connectors.kafka.internals.AbstractFetcher.emitRecordWithTimestamp(AbstractFetcher.java:398)</span><br><span class="line">        at org.apache.flink.streaming.connectors.kafka.internal.KafkaFetcher.emitRecord(KafkaFetcher.java:185)</span><br><span class="line">        at org.apache.flink.streaming.connectors.kafka.internal.KafkaFetcher.runFetchLoop(KafkaFetcher.java:150)</span><br><span class="line">        at org.apache.flink.streaming.connectors.kafka.FlinkKafkaConsumerBase.runWithPartitionDiscovery(FlinkKafkaConsumerBase.java:728)</span><br><span class="line">        at org.apache.flink.streaming.connectors.kafka.FlinkKafkaConsumerBase.run(FlinkKafkaConsumerBase.java:720)</span><br><span class="line">        at org.apache.flink.streaming.api.operators.StreamSource.run(StreamSource.java:100)</span><br><span class="line">        at org.apache.flink.streaming.api.operators.StreamSource.run(StreamSource.java:63)</span><br><span class="line">        at org.apache.flink.streaming.runtime.tasks.SourceStreamTask$LegacySourceFunctionThread.run(SourceStreamTask.java:200)</span><br></pre></td></tr></table></figure>
-
-<p>很明显，发生了OOM</p>
-<h1 id="内存总结"><a href="#内存总结" class="headerlink" title="内存总结"></a>内存总结</h1><p>1、flink1.10和flink1.9的TM都是15360MB，每个TM的slot数是：8</p>
-<p>2、根据jmap -heap pid 查看实际的堆的概要</p>
-<p>结论：使用CMS垃圾收集时，需要显示设置NewRatio</p>
-<figure class="highlight plain"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br><span class="line">3</span><br><span class="line">4</span><br><span class="line">5</span><br><span class="line">6</span><br><span class="line">7</span><br><span class="line">8</span><br><span class="line">9</span><br><span class="line">10</span><br></pre></td><td class="code"><pre><span class="line">              #Flink1.10     #Flink1.9      #Flink1.10(去掉CMS) #Flink1.10(CMS设置NewRatio)  </span><br><span class="line">MaxHeapSize   7296.0MB       10496.0MB          7296.0MB        7296.0MB</span><br><span class="line">NewSize       332.75MB       3498.5MB           2432.0MB        2432.0MB</span><br><span class="line">MaxNewSize    332.75MB       3498.5MB           2432.0MB        2432.0MB</span><br><span class="line">OldSize       6963.25MB      6997.5MB           4864.0MB        4864.0MB</span><br><span class="line">NewRatio      2              2                  2               2</span><br><span class="line">SurvivorRatio 8              8                  8               8</span><br><span class="line">MetaspaceSize 20.796875MB    20.796875MB        20.796875MB     20.796875MB</span><br><span class="line">CompressedClassSpaceSize 248.0MB 1024.0MB       248.0MB         248.0MB</span><br><span class="line">MaxMetaspaceSize 256.0MB     17592186044415 MB  256.0MB         256.0MB</span><br></pre></td></tr></table></figure>
-
-<h1 id="解决思路"><a href="#解决思路" class="headerlink" title="解决思路"></a>解决思路</h1><p>​    经过几天的努力，问题是找到了，但是如何解决呢？</p>
-<p>既然是SLS的日志没有打印出来，那么首先从日志入手，通过分析源码：</p>
-<figure class="highlight java"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br><span class="line">3</span><br><span class="line">4</span><br><span class="line">5</span><br><span class="line">6</span><br></pre></td><td class="code"><pre><span class="line"><span class="comment">//ProducerBatch类中，日志发送的条件：</span></span><br><span class="line"><span class="comment">//log4j.appender.loghub.batchCountThreshold </span></span><br><span class="line"><span class="comment">//log4j.appender.loghub.batchSizeThresholdInBytes</span></span><br><span class="line"><span class="function"><span class="keyword">public</span> <span class="keyword">boolean</span> <span class="title">isMeetSendCondition</span><span class="params">()</span> </span>&#123;</span><br><span class="line">    <span class="keyword">return</span> curBatchSizeInBytes &gt;= batchSizeThresholdInBytes || curBatchCount &gt;= batchCountThreshold;</span><br><span class="line">  &#125;</span><br></pre></td></tr></table></figure>
-
-<p>​    可见是要 缓存到达到 条数或者大小的阈值，那么就会发送。但是无论如何配置这两个参数，都不会在sls中打印日志，这个先放一放。</p>
-<p>​    既然是Direct buffer memory发生了OOM，那么入手点就从JVM的Direct内存着手吧。</p>
-<p>启动命令</p>
-<figure class="highlight shell"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br><span class="line">3</span><br><span class="line">4</span><br><span class="line">5</span><br><span class="line">6</span><br><span class="line">7</span><br><span class="line">8</span><br><span class="line">9</span><br><span class="line">10</span><br><span class="line">11</span><br><span class="line">12</span><br></pre></td><td class="code"><pre><span class="line"> 172.16.190.63</span><br><span class="line"> export HADOOP_USER_NAME=qttods</span><br><span class="line"> export HADOOP_CONF_DIR=/etc/apps/hadoop-conf</span><br><span class="line"> export FLINK_HOME=/data/flink/prd/flink-1.10.1-255</span><br><span class="line"> export FLINK_CONF_DIR=/data/flink/prd/flink-1.10.1-255/conf</span><br><span class="line"> </span><br><span class="line"> /data/flink/prd/flink-1.10.1-255/bin/flink run -d -m yarn-cluster -p 40 -yjm 2048 -ytm 15360 -ys 8 -yqu root.data.stream -ynm kafka2hive_ireport_jianduoduo_pb2_unfold_testf10_jiangjiguang -yD metrics.reporter.prom.labels="libra_job_name=kafka2hive_ireport_jianduoduo_pb2_unfold_testf10;libra_job_owner=yanggang@qutoutiao.net,chuyuqiao@qutoutiao.net,liuguiru@qutoutiao.net" -yD env.java.opts="-server -XX:+UseConcMarkSweepGC -XX:+UseCMSInitiatingOccupancyOnly -XX:CMSInitiatingOccupancyFraction=75 -XX:ParallelGCThreads=4 -XX:+AlwaysPreTouch -XX:+HeapDumpOnOutOfMemoryError -XX:HeapDumpPath=/tmp/test-255-01.hprof -Xloggc:/tmp/trace-test-255-01.log -XX:+PrintGCDetails -XX:+PrintGCTimeStamps -XX:+PrintHeapAtGC -DjobName=kafka2hive_ireport_jianduoduo_pb2_unfold_testf10" -s hdfs://rt2/user/flink/checkpoints/10a74a92f59f091b23bfedc5c5c6211c/chk-707 -c com.innotechx.Pb2UnfoldToHdfsV2 /tmp/aec4472990a347b5a2d279bc90e1551f-15990382903473729850800121691408.jar --jobConfigPath /tmp/aec4472990a347b5a2d279bc90e1551f-1599038298224329812466599395962.properties --job.name kafka2hive_ireport_jianduoduo_pb2_unfold_testf10</span><br><span class="line"> </span><br><span class="line">  /data/flink/prd/flink-1.10.1-255/bin/flink run -d -m yarn-cluster -p 40 -yjm 2048 -ytm 15360 -ys 8 -yqu root.data.stream -ynm kafka2hive_ireport_jianduoduo_pb2_unfold_testf10_jiangjiguang -yD metrics.reporter.prom.labels="libra_job_name=kafka2hive_ireport_jianduoduo_pb2_unfold_testf10;libra_job_owner=yanggang@qutoutiao.net,chuyuqiao@qutoutiao.net,liuguiru@qutoutiao.net" -yD env.java.opts="-server -DjobName=kafka2hive_ireport_jianduoduo_pb2_unfold_testf10" -s hdfs://rt2/user/flink/checkpoints/10a74a92f59f091b23bfedc5c5c6211c/chk-707 -c com.innotechx.Pb2UnfoldToHdfsV2 /tmp/aec4472990a347b5a2d279bc90e1551f-15990382903473729850800121691408.jar --jobConfigPath /tmp/aec4472990a347b5a2d279bc90e1551f-1599038298224329812466599395962.properties --job.name kafka2hive_ireport_jianduoduo_pb2_unfold_testf10</span><br><span class="line"></span><br><span class="line"></span><br><span class="line">/data/flink/prd/flink-1.10.1-255/bin/flink run -d -m yarn-cluster -p 40 -yjm 2048 -ytm 15360 -ys 8 -yqu root.data.stream -ynm kafka2hive_ireport_jianduoduo_pb2_unfold_testf10_jiangjiguang -yD taskmanager.memory.network.fraction="0.01" -yD taskmanager.memory.managed.fraction="0.1" -yD metrics.reporter.prom.labels="libra_job_name=kafka2hive_ireport_jianduoduo_pb2_unfold_testf10;libra_job_owner=yanggang@qutoutiao.net,chuyuqiao@qutoutiao.net,liuguiru@qutoutiao.net" -yD env.java.opts="-server -XX:+UseConcMarkSweepGC -XX:+UseCMSInitiatingOccupancyOnly -XX:CMSInitiatingOccupancyFraction=75 -XX:ParallelGCThreads=4 -XX:+AlwaysPreTouch -XX:NewRatio=1 -XX:MaxDirectMemorySize=4g  -XX:MaxMetaspaceSize=1g -XX:+HeapDumpOnOutOfMemoryError -XX:HeapDumpPath=/tmp -Xloggc:/tmp/trace-test-255-05.log -XX:+PrintGCDetails -XX:+PrintGCTimeStamps -XX:+PrintHeapAtGC -DjobName=kafka2hive_ireport_jianduoduo_pb2_unfold_testf10" -c com.innotechx.Pb2UnfoldToHdfsV2 /tmp/ec5ae33a1f0442e4bd05ed0db720fdd9-15993772169427635195942810927092.jar --jobConfigPath /tmp/ec5ae33a1f0442e4bd05ed0db720fdd9-15993772187798971639293380321851.properties --job.name kafka2hive_ireport_jianduoduo_pb2_unfold_testf10</span><br></pre></td></tr></table></figure>
-
-<p>查看堆的概要信息</p>
-<figure class="highlight shell"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br><span class="line">3</span><br><span class="line">4</span><br><span class="line">5</span><br><span class="line">6</span><br><span class="line">7</span><br><span class="line">8</span><br><span class="line">9</span><br><span class="line">10</span><br><span class="line">11</span><br><span class="line">12</span><br><span class="line">13</span><br><span class="line">14</span><br><span class="line">15</span><br><span class="line">16</span><br><span class="line">17</span><br><span class="line">18</span><br><span class="line">19</span><br><span class="line">20</span><br><span class="line">21</span><br><span class="line">22</span><br><span class="line">23</span><br><span class="line">24</span><br><span class="line">25</span><br><span class="line">26</span><br><span class="line">27</span><br><span class="line">28</span><br><span class="line">29</span><br><span class="line">30</span><br><span class="line">31</span><br><span class="line">32</span><br><span class="line">33</span><br><span class="line">34</span><br><span class="line">35</span><br><span class="line">36</span><br><span class="line">37</span><br><span class="line">38</span><br><span class="line">39</span><br><span class="line">40</span><br><span class="line">41</span><br><span class="line">42</span><br><span class="line">43</span><br><span class="line">44</span><br><span class="line">45</span><br><span class="line">46</span><br><span class="line">47</span><br><span class="line">48</span><br><span class="line">49</span><br><span class="line">50</span><br><span class="line">51</span><br><span class="line">52</span><br><span class="line">53</span><br><span class="line">54</span><br><span class="line">55</span><br><span class="line">56</span><br><span class="line">57</span><br><span class="line">58</span><br><span class="line">59</span><br><span class="line">60</span><br><span class="line">61</span><br><span class="line">62</span><br><span class="line">63</span><br><span class="line">64</span><br><span class="line">65</span><br><span class="line">66</span><br><span class="line">67</span><br><span class="line">68</span><br><span class="line">69</span><br><span class="line">70</span><br><span class="line">71</span><br><span class="line">72</span><br><span class="line">73</span><br><span class="line">74</span><br><span class="line">75</span><br><span class="line">76</span><br><span class="line">77</span><br><span class="line">78</span><br><span class="line">79</span><br><span class="line">80</span><br><span class="line">81</span><br><span class="line">82</span><br><span class="line">83</span><br><span class="line">84</span><br><span class="line">85</span><br><span class="line">86</span><br><span class="line">87</span><br><span class="line">88</span><br><span class="line">89</span><br><span class="line">90</span><br><span class="line">91</span><br><span class="line">92</span><br><span class="line">93</span><br><span class="line">94</span><br><span class="line">95</span><br><span class="line">96</span><br><span class="line">97</span><br><span class="line">98</span><br><span class="line">99</span><br><span class="line">100</span><br><span class="line">101</span><br><span class="line">102</span><br></pre></td><td class="code"><pre><span class="line"><span class="meta">#</span>flink1.10</span><br><span class="line"><span class="meta">#</span> jmap -heap 41010</span><br><span class="line">Attaching to process ID 41010, please wait...</span><br><span class="line">Debugger attached successfully.</span><br><span class="line">Server compiler detected.</span><br><span class="line">JVM version is 25.212-b10</span><br><span class="line"></span><br><span class="line">using parallel threads in the new generation.</span><br><span class="line">using thread-local object allocation.</span><br><span class="line">Concurrent Mark-Sweep GC</span><br><span class="line"></span><br><span class="line">Heap Configuration:</span><br><span class="line">   MinHeapFreeRatio         = 40</span><br><span class="line">   MaxHeapFreeRatio         = 70</span><br><span class="line">   MaxHeapSize              = 7650410496 (7296.0MB)</span><br><span class="line">   NewSize                  = 348913664 (332.75MB)</span><br><span class="line">   MaxNewSize               = 348913664 (332.75MB)</span><br><span class="line">   OldSize                  = 7301496832 (6963.25MB)</span><br><span class="line">   NewRatio                 = 2</span><br><span class="line">   SurvivorRatio            = 8</span><br><span class="line">   MetaspaceSize            = 21807104 (20.796875MB)</span><br><span class="line">   CompressedClassSpaceSize = 260046848 (248.0MB)</span><br><span class="line">   MaxMetaspaceSize         = 268435456 (256.0MB)</span><br><span class="line">   G1HeapRegionSize         = 0 (0.0MB)</span><br><span class="line"></span><br><span class="line">Heap Usage:</span><br><span class="line">New Generation (Eden + 1 Survivor Space):</span><br><span class="line">   capacity = 314048512 (299.5MB)</span><br><span class="line">   used     = 276619304 (263.80472564697266MB)</span><br><span class="line">   free     = 37429208 (35.695274353027344MB)</span><br><span class="line">   88.08171140132643% used</span><br><span class="line">Eden Space:</span><br><span class="line">   capacity = 279183360 (266.25MB)</span><br><span class="line">   used     = 269533872 (257.0475311279297MB)</span><br><span class="line">   free     = 9649488 (9.202468872070312MB)</span><br><span class="line">   96.54367366307218% used</span><br><span class="line">From Space:</span><br><span class="line">   capacity = 34865152 (33.25MB)</span><br><span class="line">   used     = 7085432 (6.757194519042969MB)</span><br><span class="line">   free     = 27779720 (26.49280548095703MB)</span><br><span class="line">   20.322389530956297% used</span><br><span class="line">To Space:</span><br><span class="line">   capacity = 34865152 (33.25MB)</span><br><span class="line">   used     = 0 (0.0MB)</span><br><span class="line">   free     = 34865152 (33.25MB)</span><br><span class="line">   0.0% used</span><br><span class="line">concurrent mark-sweep generation:</span><br><span class="line">   capacity = 7301496832 (6963.25MB)</span><br><span class="line">   used     = 2099979624 (2002.696632385254MB)</span><br><span class="line">   free     = 5201517208 (4960.553367614746MB)</span><br><span class="line">   28.760946862244698% used</span><br><span class="line"></span><br><span class="line">22116 interned Strings occupying 2178040 bytes.</span><br><span class="line"></span><br><span class="line"><span class="meta">#</span>flink1.9</span><br><span class="line"><span class="meta">#</span>   jmap -heap 14786</span><br><span class="line">Attaching to process ID 14786, please wait...</span><br><span class="line">Debugger attached successfully.</span><br><span class="line">Server compiler detected.</span><br><span class="line">JVM version is 25.212-b10</span><br><span class="line"></span><br><span class="line">using thread-local object allocation.</span><br><span class="line">Parallel GC with 35 thread(s)</span><br><span class="line"></span><br><span class="line">Heap Configuration:</span><br><span class="line">   MinHeapFreeRatio         = 0</span><br><span class="line">   MaxHeapFreeRatio         = 100</span><br><span class="line">   MaxHeapSize              = 11005853696 (10496.0MB)</span><br><span class="line">   NewSize                  = 3668443136 (3498.5MB)</span><br><span class="line">   MaxNewSize               = 3668443136 (3498.5MB)</span><br><span class="line">   OldSize                  = 7337410560 (6997.5MB)</span><br><span class="line">   NewRatio                 = 2</span><br><span class="line">   SurvivorRatio            = 8</span><br><span class="line">   MetaspaceSize            = 21807104 (20.796875MB)</span><br><span class="line">   CompressedClassSpaceSize = 1073741824 (1024.0MB)</span><br><span class="line">   MaxMetaspaceSize         = 17592186044415 MB</span><br><span class="line">   G1HeapRegionSize         = 0 (0.0MB)</span><br><span class="line"></span><br><span class="line">Heap Usage:</span><br><span class="line">PS Young Generation</span><br><span class="line">Eden Space:</span><br><span class="line">   capacity = 3603955712 (3437.0MB)</span><br><span class="line">   used     = 1283197528 (1223.7525253295898MB)</span><br><span class="line">   free     = 2320758184 (2213.24747467041MB)</span><br><span class="line">   35.60525240993861% used</span><br><span class="line">From Space:</span><br><span class="line">   capacity = 33030144 (31.5MB)</span><br><span class="line">   used     = 10240816 (9.766403198242188MB)</span><br><span class="line">   free     = 22789328 (21.733596801757812MB)</span><br><span class="line">   31.004454597594247% used</span><br><span class="line">To Space:</span><br><span class="line">   capacity = 31457280 (30.0MB)</span><br><span class="line">   used     = 0 (0.0MB)</span><br><span class="line">   free     = 31457280 (30.0MB)</span><br><span class="line">   0.0% used</span><br><span class="line">PS Old Generation</span><br><span class="line">   capacity = 7337410560 (6997.5MB)</span><br><span class="line">   used     = 4636194168 (4421.419303894043MB)</span><br><span class="line">   free     = 2701216392 (2576.080696105957MB)</span><br><span class="line">   63.18569923392702% used</span><br><span class="line"></span><br><span class="line">21238 interned Strings occupying 2216688 bytes.</span><br></pre></td></tr></table></figure>
-
-<p>gc分析：几个不同的地方</p>
-<p>1.flink1.10的ygc次数是 flink1.9的10倍</p>
-<p>2.flink1.10的fgc次数 是 flink1.9的3倍，并且每次都是两次</p>
-<p>3.老年代的内存差不多，但是年轻代差了一半</p>
-<figure class="highlight shell"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br><span class="line">3</span><br><span class="line">4</span><br><span class="line">5</span><br><span class="line">6</span><br><span class="line">7</span><br><span class="line">8</span><br><span class="line">9</span><br><span class="line">10</span><br><span class="line">11</span><br><span class="line">12</span><br><span class="line">13</span><br><span class="line">14</span><br><span class="line">15</span><br><span class="line">16</span><br><span class="line">17</span><br><span class="line">18</span><br><span class="line">19</span><br><span class="line">20</span><br><span class="line">21</span><br><span class="line">22</span><br><span class="line">23</span><br><span class="line">24</span><br><span class="line">25</span><br><span class="line">26</span><br><span class="line">27</span><br><span class="line">28</span><br><span class="line">29</span><br><span class="line">30</span><br><span class="line">31</span><br><span class="line">32</span><br><span class="line">33</span><br><span class="line">34</span><br><span class="line">35</span><br><span class="line">36</span><br><span class="line">37</span><br><span class="line">38</span><br><span class="line">39</span><br><span class="line">40</span><br><span class="line">41</span><br><span class="line">42</span><br><span class="line">43</span><br><span class="line">44</span><br><span class="line">45</span><br><span class="line">46</span><br></pre></td><td class="code"><pre><span class="line"><span class="meta">#</span>flink1.10</span><br><span class="line"><span class="meta">#</span> jstat -gc 44792  30000 3000</span><br><span class="line"> S0C    S1C    S0U    S1U      EC       EU        OC         OU       MC     MU    CCSC   CCSU   YGC     YGCT    FGC    FGCT     GCT   </span><br><span class="line">34048.0 34048.0  0.0   17960.2 272640.0   0.0    7130368.0  5053278.6  76692.0 73508.0 9676.0 8905.5   2853   56.498   6      0.161   56.659</span><br><span class="line">34048.0 34048.0 29066.3  0.0   272640.0   0.0    7130368.0  5156786.1  76692.0 73573.4 9676.0 8905.5   2946   57.906   6      0.161   58.067</span><br><span class="line">34048.0 34048.0 5823.6  0.0   272640.0 61497.6  7130368.0  5312845.3  76692.0 73580.0 9676.0 8905.5   3042   59.386   6      0.161   59.546</span><br><span class="line">34048.0 34048.0 2743.9  0.0   272640.0 103719.7 7130368.0  2150314.5  76692.0 73569.3 9676.0 8903.2   3136   60.875   8      0.230   61.105</span><br><span class="line">34048.0 34048.0  0.0   19973.2 272640.0 31938.8  7130368.0  2283274.4  76692.0 73569.3 9676.0 8903.2   3233   62.464   8      0.230   62.694</span><br><span class="line"> 34048.0 34048.0 2413.5  0.0   272640.0 190768.7 7130368.0  2357924.5  76948.0 73585.4 9676.0 8903.2   3330   63.882   8      0.230   64.112</span><br><span class="line">34048.0 34048.0 9923.9  0.0   272640.0 30765.9  7130368.0  2431965.7  76948.0 73586.8 9676.0 8903.2   3426   65.261   8      0.230   65.491</span><br><span class="line">34048.0 34048.0 20364.2  0.0   272640.0 168196.2 7130368.0  2503354.2  76948.0 73591.6 9676.0 8903.2   3522   66.737   8      0.230   66.967</span><br><span class="line">34048.0 34048.0 3730.0  0.0   272640.0 151194.1 7130368.0  2757946.3  76948.0 73601.7 9676.0 8904.7   3622   68.301   8      0.230   68.531</span><br><span class="line">34048.0 34048.0 11419.4  0.0   272640.0 107408.4 7130368.0  2856088.4  76948.0 73629.0 9676.0 8906.8   3712   69.647   8      0.230   69.877</span><br><span class="line">34048.0 34048.0 24781.5  0.0   272640.0 97438.2  7130368.0  3489299.4  76948.0 73674.3 9676.0 8908.4   3790   71.381   8      0.230   71.611</span><br><span class="line"> 34048.0 34048.0  0.0   23643.2 272640.0 168464.9 7130368.0  3965166.5  76948.0 73683.1 9676.0 8908.4   3915   74.000   8      0.230   74.230</span><br><span class="line">34048.0 34048.0  0.0   20655.7 272640.0 156331.2 7130368.0  4294415.6  76948.0 73694.9 9676.0 8908.9   4011   76.086   8      0.230   76.316</span><br><span class="line">34048.0 34048.0 15995.2  0.0   272640.0 61402.7  7130368.0  4462356.8  76948.0 73698.4 9676.0 8908.9   4108   78.165   8      0.230   78.395</span><br><span class="line">34048.0 34048.0  0.0   12337.9 272640.0 155669.1 7130368.0  4659455.5  76948.0 73700.0 9676.0 8908.9   4203   80.216   8      0.230   80.446</span><br><span class="line">34048.0 34048.0 5241.2  0.0   272640.0 131752.0 7130368.0  4952546.0  76948.0 73705.0 9676.0 8908.9   4302   82.322   8      0.230   82.552</span><br><span class="line"> 34048.0 34048.0 17571.9  0.0   272640.0 199313.0 7130368.0  5051570.2  76948.0 73710.2 9676.0 8908.9   4398   84.150   8      0.230   84.380</span><br><span class="line">34048.0 34048.0 6498.2  0.0   272640.0 52199.4  7130368.0  5104519.7  76948.0 73721.0 9676.0 8908.9   4496   85.667   8      0.230   85.897</span><br><span class="line">34048.0 34048.0 9111.9  0.0   272640.0 38502.6  7130368.0  5172029.1  76948.0 73735.4 9676.0 8908.9   4594   87.188   8      0.230   87.418</span><br><span class="line">34048.0 34048.0  0.0   18352.7 272640.0 43228.2  7130368.0  5284339.2  76948.0 73756.2 9676.0 8909.9   4689   88.728   8      0.230   88.958</span><br><span class="line"></span><br><span class="line"><span class="meta">#</span>flink1.9</span><br><span class="line"><span class="meta">#</span> jstat -gc 14786 30000 3000</span><br><span class="line"> S0C    S1C    S0U    S1U      EC       EU        OC         OU       MC     MU    CCSC   CCSU   YGC     YGCT    FGC    FGCT     GCT   </span><br><span class="line">45568.0 47616.0  0.0   12921.6 3484672.0 2503523.4 7165440.0  6326798.3  76464.0 73754.2 9392.0 8768.5 214470 3705.983  913   614.443 4320.426</span><br><span class="line">37888.0 37888.0 20193.8  0.0   3506688.0 3372237.9 7165440.0  6387704.6  76464.0 73754.2 9392.0 8768.5 214477 3706.050  913   614.443 4320.493</span><br><span class="line">31232.0 53760.0 31217.9  0.0   3474944.0 1101194.8 7165440.0  6523655.9  76464.0 73754.2 9392.0 8768.5 214485 3706.147  913   614.443 4320.590</span><br><span class="line">60928.0 62976.0  0.0   5540.4 3454976.0 2470735.1 7165440.0  6662801.3  76464.0 73754.2 9392.0 8768.5 214492 3706.219  913   614.443 4320.663</span><br><span class="line">47104.0 48128.0  0.0   7847.3 3483648.0 1235129.2 7165440.0  6788503.2  76464.0 73754.2 9392.0 8768.5 214500 3706.327  913   614.443 4320.770</span><br><span class="line">38400.0 36352.0 17337.3  0.0   3507712.0 3118907.9 7165440.0  6878117.3  76464.0 73754.2 9392.0 8768.5 214507 3706.393  913   614.443 4320.837</span><br><span class="line"> 30208.0 30208.0 4506.1  0.0   3522048.0 1054246.7 7165440.0  6953671.1  76464.0 73754.2 9392.0 8768.5 214515 3706.469  913   614.443 4320.912</span><br><span class="line">29184.0 30208.0  0.0   14626.4 3522048.0 2415288.5 7165440.0  7021759.4  76464.0 73754.2 9392.0 8768.5 214522 3706.536  913   614.443 4320.980</span><br><span class="line">44032.0 44544.0  0.0   4688.7 3493376.0 1107967.4 7165440.0  2424117.6  76464.0 73754.2 9392.0 8768.5 214530 3706.615  914   615.339 4321.954</span><br><span class="line">62976.0 61952.0 5851.1  0.0   3457536.0 3101201.1 7165440.0  2603456.1  76464.0 73754.2 9392.0 8768.5 214537 3706.674  914   615.339 4322.013</span><br><span class="line">47616.0 48640.0  0.0   22723.4 3484672.0 1595221.5 7165440.0  2682181.4  76464.0 73754.2 9392.0 8768.5 214544 3706.715  914   615.339 4322.054</span><br><span class="line"> 135680.0 143360.0  0.0   44444.4 3287552.0 1823553.8 7165440.0  3058429.9  76464.0 73754.2 9392.0 8768.5 214550 3706.810  914   615.339 4322.148</span><br><span class="line">116224.0 114176.0 38072.0  0.0   3352064.0 1633522.4 7165440.0  3630131.4  76464.0 73754.2 9392.0 8768.5 214561 3706.967  914   615.339 4322.306</span><br><span class="line">137216.0 134656.0 19009.1  0.0   3310592.0 2641954.6 7165440.0  3946309.7  76464.0 73754.2 9392.0 8768.5 214569 3707.077  914   615.339 4322.415</span><br><span class="line">106496.0 101888.0 16497.0  0.0   3374080.0 2348381.2 7165440.0  4078682.0  76464.0 73754.2 9392.0 8768.5 214577 3707.168  914   615.339 4322.507</span><br><span class="line">77312.0 75264.0 13088.7  0.0   3429888.0 1659629.8 7165440.0  4281662.3  76464.0 73754.2 9392.0 8768.5 214585 3707.267  914   615.339 4322.606</span><br><span class="line"> 120320.0 117248.0 10710.2  0.0   3344896.0 853387.3 7165440.0  4595702.3  76464.0 73754.2 9392.0 8768.5 214593 3707.378  914   615.339 4322.717</span><br><span class="line">87040.0 84480.0 5025.8  0.0   3410944.0 371810.7 7165440.0  4689140.2  76464.0 73754.2 9392.0 8768.5 214601 3707.449  914   615.339 4322.788</span><br><span class="line">60416.0 62976.0  0.0   21042.2 3452416.0 2314165.5 7165440.0  4736839.7  76464.0 73754.2 9392.0 8768.5 214608 3707.512  914   615.339 4322.851</span><br></pre></td></tr></table></figure>
-
-<p>GC配置参数对比</p>
-<figure class="highlight shell"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br><span class="line">3</span><br><span class="line">4</span><br><span class="line">5</span><br><span class="line">6</span><br><span class="line">7</span><br><span class="line">8</span><br><span class="line">9</span><br></pre></td><td class="code"><pre><span class="line"><span class="meta">#</span>jinfo 14874</span><br><span class="line">						flink1.10		flink1.9  flink1.10</span><br><span class="line">MaxHeapSize				7.125G			10.25G	  12.1G</span><br><span class="line">MaxNewSize				2.375G  		3.4G      6.05G</span><br><span class="line">OldSize					4.75G			6.8G      6.05G</span><br><span class="line">MaxDirectMemorySize		1.125G			4.75G	  4G</span><br><span class="line">CompressedClassSpaceSize 248M			</span><br><span class="line">MaxMetaspaceSize		256M					  1G</span><br><span class="line">pid</span><br></pre></td></tr></table></figure>
-
-<p>di-h4-dn-13.h.ab1.qttsite.net  29166,29200,29210</p>
-<h1 id="参考文档"><a href="#参考文档" class="headerlink" title="参考文档"></a>参考文档</h1><p><a href="https://cn.aliyun.com/product/sls" target="_blank" rel="noopener">日志服务（SLS）</a></p>
-<p><a href="https://github.com/aliyun/aliyun-log-log4j-appender/blob/master/README_CN.md" target="_blank" rel="noopener">ALIYUN Log4j Appender</a></p>
-<p><a href="https://github.com/aliyun/aliyun-log-java-producer" target="_blank" rel="noopener">aliyun-log-java-producer</a></p>
-
-        
-      
-    </div>
-
-    
-    
-    
-      <footer class="post-footer">
-        <div class="post-eof"></div>
-      </footer>
-  </article>
-  
-  
-  
-
-    
   </div>
 
   
@@ -1943,7 +1963,7 @@
         
           <a href="/archives/">
         
-          <span class="site-state-item-count">84</span>
+          <span class="site-state-item-count">88</span>
           <span class="site-state-item-name">日志</span>
         </a>
       </div>
@@ -1956,7 +1976,7 @@
             <a href="/categories/">
           
         
-        <span class="site-state-item-count">14</span>
+        <span class="site-state-item-count">15</span>
         <span class="site-state-item-name">分类</span>
         </a>
       </div>
