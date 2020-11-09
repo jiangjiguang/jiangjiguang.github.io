@@ -55,14 +55,17 @@
   };
 </script>
 
-  <meta property="og:type" content="article">
+  <meta name="description" content="高级和低级API消费者参数 fetch.min.bytes  Consumer在一次拉取请求（poll方法）中能拉取的最小数据量，默认1byte，若kafka中返回给Consumer的数据量小于该值，就需要等待。   fetch.max.bytes  Consumer在一次拉取请求（poll方法）中能拉取的最大数据量，默认50MB，当单条消息大于该值时也可正常消费消息。    参考文档Kafka技">
+<meta property="og:type" content="article">
 <meta property="og:title" content="kafka客户端">
 <meta property="og:url" content="http://yoursite.com/2020/10/21/kafka/kafka客户端/index.html">
 <meta property="og:site_name" content="纪光的博客">
+<meta property="og:description" content="高级和低级API消费者参数 fetch.min.bytes  Consumer在一次拉取请求（poll方法）中能拉取的最小数据量，默认1byte，若kafka中返回给Consumer的数据量小于该值，就需要等待。   fetch.max.bytes  Consumer在一次拉取请求（poll方法）中能拉取的最大数据量，默认50MB，当单条消息大于该值时也可正常消费消息。    参考文档Kafka技">
 <meta property="og:locale" content="zh-CN">
-<meta property="og:updated_time" content="2020-10-21T02:11:00.523Z">
+<meta property="og:updated_time" content="2020-10-23T03:03:11.240Z">
 <meta name="twitter:card" content="summary">
 <meta name="twitter:title" content="kafka客户端">
+<meta name="twitter:description" content="高级和低级API消费者参数 fetch.min.bytes  Consumer在一次拉取请求（poll方法）中能拉取的最小数据量，默认1byte，若kafka中返回给Consumer的数据量小于该值，就需要等待。   fetch.max.bytes  Consumer在一次拉取请求（poll方法）中能拉取的最大数据量，默认50MB，当单条消息大于该值时也可正常消费消息。    参考文档Kafka技">
   <link rel="canonical" href="http://yoursite.com/2020/10/21/kafka/kafka客户端/">
 
 
@@ -276,6 +279,35 @@
               <time title="创建时间：2020-10-21 10:11:00" itemprop="dateCreated datePublished" datetime="2020-10-21T10:11:00+08:00">2020-10-21</time>
             </span>
           
+            
+
+            
+              <span class="post-meta-item">
+                <span class="post-meta-item-icon">
+                  <i class="fa fa-calendar-check-o"></i>
+                </span>
+                <span class="post-meta-item-text">更新于</span>
+                <time title="修改时间：2020-10-23 11:03:11" itemprop="dateModified" datetime="2020-10-23T11:03:11+08:00">2020-10-23</time>
+              </span>
+            
+          
+            <span class="post-meta-item">
+              <span class="post-meta-item-icon">
+                <i class="fa fa-folder-o"></i>
+              </span>
+              <span class="post-meta-item-text">分类于</span>
+              
+                <span itemprop="about" itemscope itemtype="http://schema.org/Thing">
+                  <a href="/categories/kafka/" itemprop="url" rel="index">
+                    <span itemprop="name">kafka</span>
+                  </a>
+                </span>
+
+                
+                
+              
+            </span>
+          
 
           
             <span id="/2020/10/21/kafka/kafka客户端/" class="post-meta-item leancloud_visitors" data-flag-title="kafka客户端" title="阅读次数">
@@ -298,7 +330,21 @@
     <div class="post-body" itemprop="articleBody">
 
       
-        
+        <h1 id="高级和低级API"><a href="#高级和低级API" class="headerlink" title="高级和低级API"></a>高级和低级API</h1><h1 id="消费者参数"><a href="#消费者参数" class="headerlink" title="消费者参数"></a>消费者参数</h1><ul>
+<li><p>fetch.min.bytes</p>
+<blockquote>
+<p>Consumer在一次拉取请求（poll方法）中能拉取的最小数据量，默认1byte，若kafka中返回给Consumer的数据量小于该值，就需要等待。</p>
+</blockquote>
+</li>
+<li><p>fetch.max.bytes</p>
+<blockquote>
+<p>Consumer在一次拉取请求（poll方法）中能拉取的最大数据量，默认50MB，当单条消息大于该值时也可正常消费消息。</p>
+</blockquote>
+</li>
+</ul>
+<h1 id="参考文档"><a href="#参考文档" class="headerlink" title="参考文档"></a>参考文档</h1><p><a href="https://www.jianshu.com/p/b23b90144dab" target="_blank" rel="noopener">Kafka技术内幕：消费者（高级和低级API）和 协调者</a></p>
+<p><a href="https://www.cnblogs.com/alexzhang92/p/10894800.html" target="_blank" rel="noopener">Kafka高级API和低级API</a></p>
+
     </div>
 
     
@@ -323,6 +369,10 @@
             <span class="post-nav-divider"></span>
 
             <div class="post-nav-prev post-nav-item">
+              
+                <a href="/2020/10/26/k8s/k8s基础知识/" rel="prev" title="k8s基础知识">
+                  k8s基础知识 <i class="fa fa-chevron-right"></i>
+                </a>
               
             </div>
           </div>
@@ -368,6 +418,8 @@
 
       <!--noindex-->
       <div class="post-toc-wrap sidebar-panel">
+          <div class="post-toc motion-element"><ol class="nav"><li class="nav-item nav-level-1"><a class="nav-link" href="#高级和低级API"><span class="nav-number">1.</span> <span class="nav-text">高级和低级API</span></a></li><li class="nav-item nav-level-1"><a class="nav-link" href="#消费者参数"><span class="nav-number">2.</span> <span class="nav-text">消费者参数</span></a></li><li class="nav-item nav-level-1"><a class="nav-link" href="#参考文档"><span class="nav-number">3.</span> <span class="nav-text">参考文档</span></a></li></ol></div>
+        
       </div>
       <!--/noindex-->
 
@@ -382,7 +434,7 @@
         
           <a href="/archives/">
         
-          <span class="site-state-item-count">88</span>
+          <span class="site-state-item-count">105</span>
           <span class="site-state-item-name">日志</span>
         </a>
       </div>
@@ -395,7 +447,7 @@
             <a href="/categories/">
           
         
-        <span class="site-state-item-count">15</span>
+        <span class="site-state-item-count">16</span>
         <span class="site-state-item-name">分类</span>
         </a>
       </div>
@@ -408,7 +460,7 @@
             <a href="/tags/">
           
         
-        <span class="site-state-item-count">15</span>
+        <span class="site-state-item-count">16</span>
         <span class="site-state-item-name">标签</span>
         </a>
       </div>

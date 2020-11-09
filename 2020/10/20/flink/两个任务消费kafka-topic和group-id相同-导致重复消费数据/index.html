@@ -62,7 +62,7 @@
 <meta property="og:site_name" content="纪光的博客">
 <meta property="og:description" content="问题描述​        由于实时平台的代码bug、上游操作集群的HDFS未通知、管理员未能查看任务发布失败的原因就重新发布用户的实时任务等多种因素影响，导致任务在实时平台上发布了两次，生成了两个yarn实例，一直持续6个多小时，由于历史原因，监控没有发现。 ​        任务的逻辑比较简单，就是消费kafka数据。就是这期间的数据消费时重复的，也就是每个任务实例都消费了一份全量数据。咦！和想">
 <meta property="og:locale" content="zh-CN">
-<meta property="og:updated_time" content="2020-10-22T08:24:58.674Z">
+<meta property="og:updated_time" content="2020-10-23T01:57:14.503Z">
 <meta name="twitter:card" content="summary">
 <meta name="twitter:title" content="两个任务消费kafka,topic和group.id相同,导致重复消费数据">
 <meta name="twitter:description" content="问题描述​        由于实时平台的代码bug、上游操作集群的HDFS未通知、管理员未能查看任务发布失败的原因就重新发布用户的实时任务等多种因素影响，导致任务在实时平台上发布了两次，生成了两个yarn实例，一直持续6个多小时，由于历史原因，监控没有发现。 ​        任务的逻辑比较简单，就是消费kafka数据。就是这期间的数据消费时重复的，也就是每个任务实例都消费了一份全量数据。咦！和想">
@@ -287,7 +287,7 @@
                   <i class="fa fa-calendar-check-o"></i>
                 </span>
                 <span class="post-meta-item-text">更新于</span>
-                <time title="修改时间：2020-10-22 16:24:58" itemprop="dateModified" datetime="2020-10-22T16:24:58+08:00">2020-10-22</time>
+                <time title="修改时间：2020-10-23 09:57:14" itemprop="dateModified" datetime="2020-10-23T09:57:14+08:00">2020-10-23</time>
               </span>
             
           
@@ -337,7 +337,7 @@
 <li><p>subscribe即为通常理解的订阅模式</p>
 <blockquote>
 <p>即使多个消费实例，也不会重复消费</p>
-<p>主要特点是当消费的线程数 &lt;= topic的分区数时，会发生reblance，平均消费消息。</p>
+<p>主要特点是只要有新的消费者消费topic时就会发生reblance，平均消费消息。</p>
 <p>消费时只需要传入topic即可，不需要传入partition</p>
 </blockquote>
 </li>
@@ -362,6 +362,7 @@
 </blockquote>
 <h1 id="参考文档"><a href="#参考文档" class="headerlink" title="参考文档"></a>参考文档</h1><p><a href="http://apache-flink.147419.n8.nabble.com/FlinkKafkaConsumer-td6818.html" target="_blank" rel="noopener">FlinkKafkaConsumer问题</a></p>
 <p><a href="https://juejin.im/post/6844903733940191246" target="_blank" rel="noopener">KafkaConsumer assign VS subscribe</a></p>
+<p><a href="https://www.cnblogs.com/dongxiao-yang/p/7200971.html" target="_blank" rel="noopener">kafka consumer assign 和 subscribe模式差异分析</a></p>
 
     </div>
 
@@ -452,7 +453,7 @@
         
           <a href="/archives/">
         
-          <span class="site-state-item-count">88</span>
+          <span class="site-state-item-count">105</span>
           <span class="site-state-item-name">日志</span>
         </a>
       </div>
@@ -465,7 +466,7 @@
             <a href="/categories/">
           
         
-        <span class="site-state-item-count">15</span>
+        <span class="site-state-item-count">16</span>
         <span class="site-state-item-name">分类</span>
         </a>
       </div>
@@ -478,7 +479,7 @@
             <a href="/tags/">
           
         
-        <span class="site-state-item-count">15</span>
+        <span class="site-state-item-count">16</span>
         <span class="site-state-item-name">标签</span>
         </a>
       </div>
