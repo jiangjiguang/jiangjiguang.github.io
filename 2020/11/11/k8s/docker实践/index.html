@@ -55,14 +55,18 @@
   };
 </script>
 
-  <meta property="og:type" content="website">
-<meta property="og:title" content="纪光的博客">
-<meta property="og:url" content="http://yoursite.com/tags/Java基本知识/index.html">
+  <meta name="description" content="构建镜像 scratch是一个空白镜像，以这个镜像为基础，意味着不以任何镜像为基础。  实用命令 1234567# cd 到Dockerfile文件的目录$ docker build -t mynginx:v1.1 .# 或者通过-f 参数指定Dockerfile路径$ docker build -t mynginx:v1.1 . -f Dockerfile# 使用commit生成镜像$ dock">
+<meta property="og:type" content="article">
+<meta property="og:title" content="docker实践">
+<meta property="og:url" content="http://yoursite.com/2020/11/11/k8s/docker实践/index.html">
 <meta property="og:site_name" content="纪光的博客">
+<meta property="og:description" content="构建镜像 scratch是一个空白镜像，以这个镜像为基础，意味着不以任何镜像为基础。  实用命令 1234567# cd 到Dockerfile文件的目录$ docker build -t mynginx:v1.1 .# 或者通过-f 参数指定Dockerfile路径$ docker build -t mynginx:v1.1 . -f Dockerfile# 使用commit生成镜像$ dock">
 <meta property="og:locale" content="zh-CN">
+<meta property="og:updated_time" content="2020-11-11T08:54:49.126Z">
 <meta name="twitter:card" content="summary">
-<meta name="twitter:title" content="纪光的博客">
-  <link rel="canonical" href="http://yoursite.com/tags/Java基本知识/">
+<meta name="twitter:title" content="docker实践">
+<meta name="twitter:description" content="构建镜像 scratch是一个空白镜像，以这个镜像为基础，意味着不以任何镜像为基础。  实用命令 1234567# cd 到Dockerfile文件的目录$ docker build -t mynginx:v1.1 .# 或者通过-f 参数指定Dockerfile路径$ docker build -t mynginx:v1.1 . -f Dockerfile# 使用commit生成镜像$ dock">
+  <link rel="canonical" href="http://yoursite.com/2020/11/11/k8s/docker实践/">
 
 
 <script id="page-configurations">
@@ -70,13 +74,13 @@
   CONFIG.page = {
     sidebar: "",
     isHome: false,
-    isPost: false,
+    isPost: true,
     isPage: false,
     isArchive: false
   };
 </script>
 
-  <title>标签: Java基本知识 | 纪光的博客</title>
+  <title>docker实践 | 纪光的博客</title>
   
 
 
@@ -219,24 +223,6 @@
 
     
 
-  
-    
-    
-  
-    
-    
-  
-    
-    
-  
-    
-    
-  
-    
-    
-  
-  
-
 </nav>
 </div>
     </header>
@@ -254,235 +240,151 @@
           <div class="content">
             
 
+  <div class="posts-expand">
+      
   
   
-  
-  <div class="post-block">
-    <div class="posts-collapse">
-      <div class="collection-title">
-        <h1 class="collection-header">Java基本知识
-          <small>标签</small>
+  <article itemscope itemtype="http://schema.org/Article" class="post-block " lang="zh-CN">
+    <link itemprop="mainEntityOfPage" href="http://yoursite.com/2020/11/11/k8s/docker实践/">
+
+    <span hidden itemprop="author" itemscope itemtype="http://schema.org/Person">
+      <meta itemprop="name" content="姜纪光">
+      <meta itemprop="description" content="">
+      <meta itemprop="image" content="/images/avatar.gif">
+    </span>
+
+    <span hidden itemprop="publisher" itemscope itemtype="http://schema.org/Organization">
+      <meta itemprop="name" content="纪光的博客">
+    </span>
+      <header class="post-header">
+        <h1 class="post-title" itemprop="name headline">
+          
+            docker实践
+            
+
+          
         </h1>
-      </div>
+
+        <div class="post-meta">
+            <span class="post-meta-item">
+              <span class="post-meta-item-icon">
+                <i class="fa fa-calendar-o"></i>
+              </span>
+              <span class="post-meta-item-text">发表于</span>
+
+              
+                
+              
+
+              <time title="创建时间：2020-11-11 09:53:14 / 修改时间：16:54:49" itemprop="dateCreated datePublished" datetime="2020-11-11T09:53:14+08:00">2020-11-11</time>
+            </span>
+          
+            
+
+            
+          
+            <span class="post-meta-item">
+              <span class="post-meta-item-icon">
+                <i class="fa fa-folder-o"></i>
+              </span>
+              <span class="post-meta-item-text">分类于</span>
+              
+                <span itemprop="about" itemscope itemtype="http://schema.org/Thing">
+                  <a href="/categories/docker/" itemprop="url" rel="index">
+                    <span itemprop="name">docker</span>
+                  </a>
+                </span>
+
+                
+                
+              
+            </span>
+          
+
+          
+            <span id="/2020/11/11/k8s/docker实践/" class="post-meta-item leancloud_visitors" data-flag-title="docker实践" title="阅读次数">
+              <span class="post-meta-item-icon">
+                <i class="fa fa-eye"></i>
+              </span>
+              <span class="post-meta-item-text">阅读次数：</span>
+              <span class="leancloud-visitors-count"></span>
+            </span>
+          
+  
+  
+
+        </div>
+      </header>
+
+    
+    
+    
+    <div class="post-body" itemprop="articleBody">
 
       
+        <h1 id="构建镜像"><a href="#构建镜像" class="headerlink" title="构建镜像"></a>构建镜像</h1><ul>
+<li><p>scratch是一个空白镜像，以这个镜像为基础，意味着不以任何镜像为基础。</p>
+</li>
+<li><p>实用命令</p>
+<figure class="highlight shell"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br><span class="line">3</span><br><span class="line">4</span><br><span class="line">5</span><br><span class="line">6</span><br><span class="line">7</span><br></pre></td><td class="code"><pre><span class="line"><span class="meta">#</span> cd 到Dockerfile文件的目录</span><br><span class="line"><span class="meta">$</span> docker build -t mynginx:v1.1 .</span><br><span class="line"><span class="meta">#</span> 或者通过-f 参数指定Dockerfile路径</span><br><span class="line"><span class="meta">$</span> docker build -t mynginx:v1.1 . -f Dockerfile</span><br><span class="line"></span><br><span class="line"><span class="meta">#</span> 使用commit生成镜像</span><br><span class="line"><span class="meta">$</span> docker commit -a zuozhe -m "remarks" &lt;imageId&gt; &lt;imageName&gt;:&lt;tag&gt;</span><br></pre></td></tr></table></figure>
 
-  
-  
+<p>​</p>
+</li>
+</ul>
+<h1 id="本地镜像推送阿里云"><a href="#本地镜像推送阿里云" class="headerlink" title="本地镜像推送阿里云"></a>本地镜像推送阿里云</h1><ul>
+<li><p>登录<a href="https://cr.console.aliyun.com/cn-shanghai/instances/repositories" target="_blank" rel="noopener">阿里云镜像服务控制台</a></p>
+</li>
+<li><p>新建命名空间</p>
+</li>
+<li><p>创建镜像仓库</p>
+<blockquote>
+<p>1、镜像仓库可以不创建，在推送时可以自定义镜像仓库，阿里云会自动创建</p>
+<p>2、创建镜像仓库后，点击 具体的镜像仓库名称，进入操作指南</p>
+</blockquote>
+</li>
+<li><p>实用命令</p>
+<figure class="highlight shell"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br><span class="line">3</span><br><span class="line">4</span><br><span class="line">5</span><br><span class="line">6</span><br><span class="line">7</span><br><span class="line">8</span><br><span class="line">9</span><br><span class="line">10</span><br><span class="line">11</span><br><span class="line">12</span><br></pre></td><td class="code"><pre><span class="line"><span class="meta">#</span> 拉取镜像</span><br><span class="line"><span class="meta">$</span> docker pull registry.cn-shanghai.aliyuncs.com/[命名空间]/[镜像仓库名称]:[镜像版本号]</span><br><span class="line"></span><br><span class="line"><span class="meta">#</span> 推送镜像</span><br><span class="line"><span class="meta">#</span> 1、首先需要登录</span><br><span class="line"><span class="meta">$</span> docker login --username=[登录名] registry.cn-shanghai.aliyuncs.com</span><br><span class="line"><span class="meta">#</span> 推送到阿里云上的镜像和本地镜像关联：</span><br><span class="line"><span class="meta">#</span> ImageId为docker images 命令显示的IMAGE ID，不能随便填</span><br><span class="line"><span class="meta">#</span> 镜像版本号可以任意指定</span><br><span class="line"><span class="meta">$</span> docker tag [ImageId] registry.cn-shanghai.aliyuncs.com/[命名空间]/[镜像仓库名称]:[镜像版本号]</span><br><span class="line"><span class="meta">#</span> 推送镜像</span><br><span class="line"><span class="meta">$</span> docker push registry.cn-shanghai.aliyuncs.com/[命名空间]/[镜像仓库名称]:[镜像版本号]</span><br></pre></td></tr></table></figure>
 
-  
+<p>​</p>
+</li>
+</ul>
+<h1 id="参考文档"><a href="#参考文档" class="headerlink" title="参考文档"></a>参考文档</h1>
+    </div>
+
     
-    <div class="collection-year">
-      <h1 class="collection-header">2020</h1>
-    </div>
-  
-
-  <article itemscope itemtype="http://schema.org/Article">
-    <header class="post-header">
-
-      <div class="post-meta">
-        <time itemprop="dateCreated"
-              datetime="2020-09-29T15:33:40+08:00"
-              content="2020-09-29">
-          09-29
-        </time>
-      </div>
-
-      <h2 class="post-title">
+    
+    
         
-          <a class="post-title-link" href="/2020/09/29/java/理解ForkJoin/" itemprop="url">
-            <span itemprop="name">理解ForkJoin</span>
-          </a>
-        
-      </h2>
+      
 
-    </header>
+      <footer class="post-footer">
+
+        
+
+          <div class="post-nav">
+            <div class="post-nav-next post-nav-item">
+              
+                <a href="/2020/11/05/flink/flinkonk8s实践/" rel="next" title="flinkonk8s实践">
+                  <i class="fa fa-chevron-left"></i> flinkonk8s实践
+                </a>
+              
+            </div>
+
+            <span class="post-nav-divider"></span>
+
+            <div class="post-nav-prev post-nav-item">
+              
+            </div>
+          </div>
+        
+      </footer>
+    
   </article>
-
-
-
+  
   
   
 
-  
-
-  <article itemscope itemtype="http://schema.org/Article">
-    <header class="post-header">
-
-      <div class="post-meta">
-        <time itemprop="dateCreated"
-              datetime="2020-09-07T12:11:31+08:00"
-              content="2020-09-07">
-          09-07
-        </time>
-      </div>
-
-      <h2 class="post-title">
-        
-          <a class="post-title-link" href="/2020/09/07/java/GC基础知识/" itemprop="url">
-            <span itemprop="name">GC基础知识</span>
-          </a>
-        
-      </h2>
-
-    </header>
-  </article>
-
-
-
-  
-  
-
-  
-
-  <article itemscope itemtype="http://schema.org/Article">
-    <header class="post-header">
-
-      <div class="post-meta">
-        <time itemprop="dateCreated"
-              datetime="2020-09-06T16:08:42+08:00"
-              content="2020-09-06">
-          09-06
-        </time>
-      </div>
-
-      <h2 class="post-title">
-        
-          <a class="post-title-link" href="/2020/09/06/java/G1小结/" itemprop="url">
-            <span itemprop="name">G1小结</span>
-          </a>
-        
-      </h2>
-
-    </header>
-  </article>
-
-
-
-  
-  
-
-  
-
-  <article itemscope itemtype="http://schema.org/Article">
-    <header class="post-header">
-
-      <div class="post-meta">
-        <time itemprop="dateCreated"
-              datetime="2020-09-03T19:58:11+08:00"
-              content="2020-09-03">
-          09-03
-        </time>
-      </div>
-
-      <h2 class="post-title">
-        
-          <a class="post-title-link" href="/2020/09/03/java/CMS日志解析/" itemprop="url">
-            <span itemprop="name">CMS小结</span>
-          </a>
-        
-      </h2>
-
-    </header>
-  </article>
-
-
-
-  
-  
-
-  
-
-  <article itemscope itemtype="http://schema.org/Article">
-    <header class="post-header">
-
-      <div class="post-meta">
-        <time itemprop="dateCreated"
-              datetime="2020-09-03T11:39:45+08:00"
-              content="2020-09-03">
-          09-03
-        </time>
-      </div>
-
-      <h2 class="post-title">
-        
-          <a class="post-title-link" href="/2020/09/03/java/JVM垃圾收集器小结/" itemprop="url">
-            <span itemprop="name">JVM垃圾收集器小结</span>
-          </a>
-        
-      </h2>
-
-    </header>
-  </article>
-
-
-
-  
-  
-
-  
-
-  <article itemscope itemtype="http://schema.org/Article">
-    <header class="post-header">
-
-      <div class="post-meta">
-        <time itemprop="dateCreated"
-              datetime="2020-08-17T08:53:28+08:00"
-              content="2020-08-17">
-          08-17
-        </time>
-      </div>
-
-      <h2 class="post-title">
-        
-          <a class="post-title-link" href="/2020/08/17/java/JVM常用命令/" itemprop="url">
-            <span itemprop="name">JVM常用命令</span>
-          </a>
-        
-      </h2>
-
-    </header>
-  </article>
-
-
-
-  
-  
-
-  
-
-  <article itemscope itemtype="http://schema.org/Article">
-    <header class="post-header">
-
-      <div class="post-meta">
-        <time itemprop="dateCreated"
-              datetime="2020-08-12T10:29:03+08:00"
-              content="2020-08-12">
-          08-12
-        </time>
-      </div>
-
-      <h2 class="post-title">
-        
-          <a class="post-title-link" href="/2020/08/12/java/Java反射实践/" itemprop="url">
-            <span itemprop="name">Java反射实践</span>
-          </a>
-        
-      </h2>
-
-    </header>
-  </article>
-
-
-
-    </div>
   </div>
-  
-  
-  
-
-  
-
 
 
           </div>
@@ -499,6 +401,11 @@
 
   <aside class="sidebar">
     <div class="sidebar-inner">
+        
+        
+        
+        
+      
 
       <ul class="sidebar-nav motion-element">
         <li class="sidebar-nav-toc">
@@ -511,6 +418,8 @@
 
       <!--noindex-->
       <div class="post-toc-wrap sidebar-panel">
+          <div class="post-toc motion-element"><ol class="nav"><li class="nav-item nav-level-1"><a class="nav-link" href="#构建镜像"><span class="nav-number">1.</span> <span class="nav-text">构建镜像</span></a></li><li class="nav-item nav-level-1"><a class="nav-link" href="#本地镜像推送阿里云"><span class="nav-number">2.</span> <span class="nav-text">本地镜像推送阿里云</span></a></li><li class="nav-item nav-level-1"><a class="nav-link" href="#参考文档"><span class="nav-number">3.</span> <span class="nav-text">参考文档</span></a></li></ol></div>
+        
       </div>
       <!--/noindex-->
 

@@ -57,16 +57,16 @@
 
   <meta name="description" content="基本概念​    Docker包含三个基本概念：镜像（Image）、容器（Container）、仓库（Repository） 镜像（Image） 操作系统分为内核和用户空间。对于 Linux 而言，内核启动后，会挂载 root 文件系统为其提供用户空间支持。而 Docker 镜像（Image），就相当于是一个 root 文件系统。  Docker 镜像是一个特殊的文件系统，除了提供容器运行时所需的">
 <meta property="og:type" content="article">
-<meta property="og:title" content="docker实践">
-<meta property="og:url" content="http://yoursite.com/2020/10/27/k8s/docker实践/index.html">
+<meta property="og:title" content="docker基本知识">
+<meta property="og:url" content="http://yoursite.com/2020/10/27/k8s/docker基本知识/index.html">
 <meta property="og:site_name" content="纪光的博客">
 <meta property="og:description" content="基本概念​    Docker包含三个基本概念：镜像（Image）、容器（Container）、仓库（Repository） 镜像（Image） 操作系统分为内核和用户空间。对于 Linux 而言，内核启动后，会挂载 root 文件系统为其提供用户空间支持。而 Docker 镜像（Image），就相当于是一个 root 文件系统。  Docker 镜像是一个特殊的文件系统，除了提供容器运行时所需的">
 <meta property="og:locale" content="zh-CN">
-<meta property="og:updated_time" content="2020-11-05T09:14:15.832Z">
+<meta property="og:updated_time" content="2020-11-11T09:03:00.200Z">
 <meta name="twitter:card" content="summary">
-<meta name="twitter:title" content="docker实践">
+<meta name="twitter:title" content="docker基本知识">
 <meta name="twitter:description" content="基本概念​    Docker包含三个基本概念：镜像（Image）、容器（Container）、仓库（Repository） 镜像（Image） 操作系统分为内核和用户空间。对于 Linux 而言，内核启动后，会挂载 root 文件系统为其提供用户空间支持。而 Docker 镜像（Image），就相当于是一个 root 文件系统。  Docker 镜像是一个特殊的文件系统，除了提供容器运行时所需的">
-  <link rel="canonical" href="http://yoursite.com/2020/10/27/k8s/docker实践/">
+  <link rel="canonical" href="http://yoursite.com/2020/10/27/k8s/docker基本知识/">
 
 
 <script id="page-configurations">
@@ -80,7 +80,7 @@
   };
 </script>
 
-  <title>docker实践 | 纪光的博客</title>
+  <title>docker基本知识 | 纪光的博客</title>
   
 
 
@@ -245,7 +245,7 @@
   
   
   <article itemscope itemtype="http://schema.org/Article" class="post-block " lang="zh-CN">
-    <link itemprop="mainEntityOfPage" href="http://yoursite.com/2020/10/27/k8s/docker实践/">
+    <link itemprop="mainEntityOfPage" href="http://yoursite.com/2020/10/27/k8s/docker基本知识/">
 
     <span hidden itemprop="author" itemscope itemtype="http://schema.org/Person">
       <meta itemprop="name" content="姜纪光">
@@ -259,7 +259,7 @@
       <header class="post-header">
         <h1 class="post-title" itemprop="name headline">
           
-            docker实践
+            docker基本知识
             
 
           
@@ -287,7 +287,7 @@
                   <i class="fa fa-calendar-check-o"></i>
                 </span>
                 <span class="post-meta-item-text">更新于</span>
-                <time title="修改时间：2020-11-05 17:14:15" itemprop="dateModified" datetime="2020-11-05T17:14:15+08:00">2020-11-05</time>
+                <time title="修改时间：2020-11-11 17:03:00" itemprop="dateModified" datetime="2020-11-11T17:03:00+08:00">2020-11-11</time>
               </span>
             
           
@@ -310,7 +310,7 @@
           
 
           
-            <span id="/2020/10/27/k8s/docker实践/" class="post-meta-item leancloud_visitors" data-flag-title="docker实践" title="阅读次数">
+            <span id="/2020/10/27/k8s/docker基本知识/" class="post-meta-item leancloud_visitors" data-flag-title="docker基本知识" title="阅读次数">
               <span class="post-meta-item-icon">
                 <i class="fa fa-eye"></i>
               </span>
@@ -339,17 +339,8 @@
 <li><p>分层存储</p>
 <blockquote>
 <p>​    镜像包含操作系统完整的 <code>root</code> 文件系统，其体积往往是庞大的，因此在 Docker 设计时，就充分利用 <a href="https://en.wikipedia.org/wiki/Union_mount" target="_blank" rel="noopener">Union FS</a> 的技术，将其设计为分层存储的架构。所以严格来说，镜像并非是像一个 ISO 那样的打包文件，镜像只是一个虚拟的概念，其实际体现并非由一个文件组成，而是由一组文件系统组成，或者说，由多层文件系统联合组成。</p>
-<p>​    镜像构建时，会一层层构建，前一层是后一层的基础。每一层构建完就不会再发生改变，后一层上的任何改变只发生在自己这一层。比如，删除前一层文件的操作，实际不是真的删除前一层的文件，而是仅在当前层标记为该文件已删除。在最终容器运行的时候，虽然不会看到这个文件，但是实际上该文件会一直跟随镜像。因此，在构建镜像的时候，需要额外小心，每一层尽量只包含该层需要添加的东西，任何额外的东西应该在该层构建结束前清理掉。</p>
+<p>​    镜像构建时，会一层层构建，前一层是后一层的基础。每一层构建完就不会再发生改变，后一层上的任何改变只发生在自己这一层。比如，删除前一层文件的操作，实际不是真的删除前一层的文件，而是仅在当前层标记为该文件已删除。在最终容器运行的时候，虽然不会看到这个文件，但是实际上该文件会一直跟随镜像。因此在构建镜像的时候，需要额外小心，每一层尽量只包含该层需要添加的东西，任何额外的东西应该在该层构建结束前清理掉。</p>
 <p>​    分层存储的特征还使得镜像的复用、定制变的更为容易。甚至可以用之前构建好的镜像作为基础层，然后进一步添加新的层，以定制自己所需的内容，构建新的镜像。</p>
-</blockquote>
-</li>
-<li><p>实现原理</p>
-<blockquote>
-<p>​    每个镜像都由很多层次构成，Docker 使用 <a href="https://en.wikipedia.org/wiki/UnionFS" target="_blank" rel="noopener">Union FS</a> 将这些不同的层结合到一个镜像中去。</p>
-<p>​    Union FS 有两个用途：</p>
-<p>1、可以实现不借助 LVM、RAID 将多个 disk 挂到同一个目录下</p>
-<p>2、就是将一个只读的分支和一个可写的分支联合在一起，Live CD 正是基于此方法可以允许在镜像不变的基础上允许用户在其上进行一些写操作</p>
-<p>​    Docker 在 OverlayFS 上构建的容器也是利用了类似的原理。</p>
 </blockquote>
 </li>
 </ul>
@@ -388,6 +379,29 @@
 </blockquote>
 </li>
 </ul>
+<h1 id="Docker特性"><a href="#Docker特性" class="headerlink" title="Docker特性"></a>Docker特性</h1><ul>
+<li><p>Docker容器不仅拥有独立的文件系统，还有进程、用户、主机名和网络接口。</p>
+</li>
+<li><p>容器本质上是运行在操作系统的一个进程，但是加入了对资源的隔离和限制。Docker正是在这一思想记得基础上，基于linux container技术实现的核心管理引擎。</p>
+<blockquote>
+<p>linux操作系统从本身从操作系统层面就支持虚拟化技术，叫做linux container。</p>
+</blockquote>
+</li>
+</ul>
+<h2 id="cgroup"><a href="#cgroup" class="headerlink" title="cgroup"></a>cgroup</h2><ul>
+<li>全称control group，用来限定一个进程的资源使用，由linux内核支持，可以限制和隔离linux进程组（process groups）所使用的物理资源，比如cpu、内存、磁盘、网络I/O，是linux container技术的物理基础。</li>
+<li>用来隔离物理资源</li>
+</ul>
+<h2 id="namespace"><a href="#namespace" class="headerlink" title="namespace"></a>namespace</h2><ul>
+<li><p>用来隔离PID（进程ID），IPC，Network等系统资源</p>
+<p>​</p>
+</li>
+</ul>
+<h2 id="unionFS"><a href="#unionFS" class="headerlink" title="unionFS"></a>unionFS</h2><ul>
+<li>可以把文件系统上多个目录内容联合挂载到同一个目录下，而目录的物理位置是分开的</li>
+<li>借助于unionFS技术，宿主机只需要在磁盘上保存一个base镜像，内存中也只需要加载一份，就能被所有基于这个镜像的容器共享</li>
+<li>根据容器镜像的写时拷贝技术，某个容器对基础镜像的修改会被限制在单个容器内。</li>
+</ul>
 <h1 id="Docker安装"><a href="#Docker安装" class="headerlink" title="Docker安装"></a>Docker安装</h1><figure class="highlight shell"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br><span class="line">3</span><br><span class="line">4</span><br><span class="line">5</span><br><span class="line">6</span><br><span class="line">7</span><br><span class="line">8</span><br><span class="line">9</span><br><span class="line">10</span><br><span class="line">11</span><br></pre></td><td class="code"><pre><span class="line"><span class="meta">$</span> wget https://mirrors.aliyun.com/docker-ce/linux/centos/docker-ce.repo -O /etc/yum.repos.d/docker-ce.repo</span><br><span class="line"><span class="meta">$</span> yum -y install docker-ce-18.06.1.ce-3.el7</span><br><span class="line"><span class="meta">$</span> systemctl enable docker &amp;&amp; systemctl start docker</span><br><span class="line"><span class="meta">$</span> docker --version</span><br><span class="line"></span><br><span class="line"><span class="meta">#</span> 配置加速器</span><br><span class="line"><span class="meta">$</span> cat &gt; /etc/docker/daemon.json &lt;&lt; EOF</span><br><span class="line">&#123;</span><br><span class="line">  "registry-mirrors": ["https://b9pmyelo.mirror.aliyuncs.com"]</span><br><span class="line">&#125;</span><br><span class="line">EOF</span><br></pre></td></tr></table></figure>
 
 <h1 id="操作实践"><a href="#操作实践" class="headerlink" title="操作实践"></a>操作实践</h1><h2 id="使用镜像"><a href="#使用镜像" class="headerlink" title="使用镜像"></a>使用镜像</h2><ul>
@@ -398,7 +412,7 @@
 <figure class="highlight shell"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br><span class="line">3</span><br><span class="line">4</span><br><span class="line">5</span><br><span class="line">6</span><br><span class="line">7</span><br><span class="line">8</span><br><span class="line">9</span><br></pre></td><td class="code"><pre><span class="line"><span class="meta">#</span> 列出镜像</span><br><span class="line"><span class="meta">$</span> docker image ls</span><br><span class="line"><span class="meta">#</span> 仓库名、标签、镜像 ID、创建时间 以及 所占用的空间</span><br><span class="line"></span><br><span class="line"><span class="meta">#</span> 包含中间层镜像</span><br><span class="line"><span class="meta">$</span> docker image ls -a</span><br><span class="line"></span><br><span class="line"><span class="meta">#</span> 查看镜像、容器、数据卷所占用的空间</span><br><span class="line"><span class="meta">$</span> docker system df</span><br></pre></td></tr></table></figure>
 </li>
 <li><p>删除本地镜像</p>
-<figure class="highlight shell"><table><tr><td class="gutter"><pre><span class="line">1</span><br></pre></td><td class="code"><pre><span class="line"><span class="meta">#</span> docker image rm [选项] &lt;镜像1&gt; [&lt;镜像2&gt; ...]</span><br></pre></td></tr></table></figure>
+<figure class="highlight shell"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br></pre></td><td class="code"><pre><span class="line"><span class="meta">$</span> docker image rm nginx:v3</span><br><span class="line"><span class="meta">$</span> docker rmi -f nginx:v3</span><br></pre></td></tr></table></figure>
 </li>
 <li><p>虚悬镜像</p>
 <blockquote>
@@ -409,48 +423,39 @@
 </li>
 <li><p>理解镜像构成</p>
 <p>容器同样也是多层存储，是在以镜像为基础层，在其基础上加一层作为容器运行时的存储层</p>
-<figure class="highlight shell"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br><span class="line">3</span><br><span class="line">4</span><br><span class="line">5</span><br><span class="line">6</span><br><span class="line">7</span><br><span class="line">8</span><br><span class="line">9</span><br><span class="line">10</span><br><span class="line">11</span><br><span class="line">12</span><br><span class="line">13</span><br></pre></td><td class="code"><pre><span class="line"><span class="meta">#</span> 以交互式方式进入容器，并执行了bash命令</span><br><span class="line"><span class="meta">$</span> docker exec -it webserver bash</span><br><span class="line"></span><br><span class="line"><span class="meta">#</span> 查看容器文件修改</span><br><span class="line"><span class="meta">$</span> docker diff &#123;容器名&#125;</span><br><span class="line"><span class="meta">#</span> 当我们运行一个容器的时候（如果不使用卷的话），我们做的任何文件修改都会被记录于容器存储层里。</span><br><span class="line"><span class="meta">#</span> 而 Docker 提供了一个 docker commit 命令，可以将容器的存储层保存下来成为镜像。换句话说，就是在原有# 镜像的基础上，再叠加上容器的存储层，并构成新的镜像。</span><br><span class="line"><span class="meta">#</span> docker commit 的语法格式为：</span><br><span class="line"><span class="meta">#</span> docker commit [选项] &lt;容器ID或容器名&gt; [&lt;仓库名&gt;[:&lt;标签&gt;]]</span><br><span class="line"></span><br><span class="line"><span class="meta">$</span> docker history flink:1.11.2</span><br><span class="line"></span><br><span class="line"><span class="meta">#</span> 慎用 docker commit</span><br></pre></td></tr></table></figure>
+<figure class="highlight shell"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br><span class="line">3</span><br><span class="line">4</span><br><span class="line">5</span><br><span class="line">6</span><br><span class="line">7</span><br><span class="line">8</span><br><span class="line">9</span><br><span class="line">10</span><br><span class="line">11</span><br><span class="line">12</span><br><span class="line">13</span><br><span class="line">14</span><br><span class="line">15</span><br><span class="line">16</span><br></pre></td><td class="code"><pre><span class="line"><span class="meta">#</span> 以交互式方式进入容器，并执行了bash命令</span><br><span class="line"><span class="meta">$</span> docker exec -it webserver bash</span><br><span class="line"></span><br><span class="line"><span class="meta">#</span> 查看容器文件修改</span><br><span class="line"><span class="meta">$</span> docker diff &#123;容器名&#125;</span><br><span class="line"><span class="meta">#</span> 当我们运行一个容器的时候（如果不使用卷的话），我们做的任何文件修改都会被记录于容器存储层里。</span><br><span class="line"><span class="meta">#</span> 而 Docker 提供了一个 docker commit 命令，可以将容器的存储层保存下来成为镜像。换句话说，就是在原有# 镜像的基础上，再叠加上容器的存储层，并构成新的镜像。</span><br><span class="line"><span class="meta">#</span> docker commit 的语法格式为：</span><br><span class="line"><span class="meta">#</span> docker commit [选项] &lt;容器ID或容器名&gt; [&lt;仓库名&gt;[:&lt;标签&gt;]]</span><br><span class="line"></span><br><span class="line"><span class="meta">$</span> docker history flink:1.11.2</span><br><span class="line"></span><br><span class="line"><span class="meta">#</span> 慎用 docker commit</span><br><span class="line"></span><br><span class="line"><span class="meta">#</span> docker build [选项] &lt;上下文路径/URL/-&gt;</span><br><span class="line"><span class="meta">$</span> docker build -t nginx:v3 .</span><br></pre></td></tr></table></figure>
 
 </li>
 </ul>
-<h1 id="Dockerfile"><a href="#Dockerfile" class="headerlink" title="Dockerfile"></a>Dockerfile</h1><ul>
-<li><p>镜像的定制实际上就是定制每一层所添加的配置、文件</p>
+<h1 id="镜像构建原理"><a href="#镜像构建原理" class="headerlink" title="镜像构建原理"></a>镜像构建原理</h1><ul>
+<li><p>Docker 在运行时分为 Docker 引擎（也就是服务端守护进程）和客户端工具。</p>
+</li>
+<li><p>镜像构建不是在本地，而是在Docker服务端（Docker引擎）中构建的</p>
 <blockquote>
-<p>​    如果我们可以把每一层修改、安装、构建、操作的命令都写入一个脚本，用这个脚本来构建、定制镜像，那么之前提及的无法重复的问题、镜像构建透明性的问题、体积的问题就都会解决。这个脚本就是 Dockerfile。</p>
-<p>​    Dockerfile 是一个文本文件，其内包含了一条条的 <strong>指令(Instruction)</strong>，每一条指令构建一层，因此每一条指令的内容，就是描述该层应当如何构建。</p>
+<p>​      Docker 的引擎提供了一组 REST API，被称为 <a href="https://docs.docker.com/develop/sdk/" target="_blank" rel="noopener">Docker Remote API</a>，而如 <code>docker</code> 命令这样的客户端工具，则是通过这组 API 与 Docker 引擎交互，从而完成各种功能。</p>
 </blockquote>
 </li>
-<li><p>FROM 指定基础镜像</p>
+<li><p>构建上下文</p>
 <blockquote>
-<p>​    所谓定制镜像，那一定是以一个镜像为基础，在其上进行定制。就像我们之前运行了一个 <code>nginx</code> 镜像的容器，再进行修改一样，基础镜像是必须指定的。而 <code>FROM</code> 就是指定 <strong>基础镜像</strong>，因此一个 <code>Dockerfile</code> 中 <code>FROM</code> 是必备的指令，并且必须是第一条指令。</p>
-<p>   <code>scratch</code>表示一个空白的镜像，是一个虚拟概念。如果你以 <code>scratch</code> 为基础镜像的话，意味着你不以任何镜像为基础，接下来所写的指令将作为镜像第一层开始存在。</p>
+<p>当构建的时候，用户会指定构建镜像上下文的路径，<code>docker build</code> 命令得知这个路径后，会将路径下的所有内容打包，然后上传给 Docker 引擎。这样 Docker 引擎收到这个上下文包后，展开就会获得构建镜像所需的一切文件。命令 <code>docker build -t nginx:v3 .</code> 中的这个 <code>.</code>，实际上是在指定上下文的目录，<code>docker build</code> 命令会将该目录下的内容打包交给 Docker 引擎以帮助构建镜像。</p>
 </blockquote>
 </li>
-<li><p>RUN 执行命令</p>
+</ul>
+<ul>
+<li><p>上下文路径</p>
 <blockquote>
-<p><code>RUN</code> 指令是用来执行命令行命令的。由于命令行的强大能力，<code>RUN</code> 指令在定制镜像时是最常用的指令之一。</p>
-<p>其格式有两种：</p>
-<p>   1、<code>*shell* 格式：</code>RUN &lt;命令&gt;`</p>
-<p>   RUN echo ‘</p><h1>Hello, Docker!</h1>‘ &gt; /usr/share/nginx/html/index.html<p></p>
-<p>​    2、<em>exec</em> 格式：<code>RUN [&quot;可执行文件&quot;, &quot;参数1&quot;, &quot;参数2&quot;]</code>，这更像是函数调用中的格式</p>
-<p>  每执行一个<code>RUN</code>就会新建一层。   </p>
-<p>   <em>Union FS 是有最大层数限制的，比如 AUFS，曾经是最大不得超过 42 层，现在是不得超过 127 层。</em></p>
+<p>1、可以是任何路径，一般是<code>.</code> </p>
+<p>2、COPY等命令使用的路径，比如 <code>./ 和 /</code>都是 以上下文路径为基准   </p>
+<p>3、../是不被允许的</p>
+<p>4、-f Dockerfile  指定Dockerfile的路径，该路径和上下文路径无关，Dockerfile可以是别的名称</p>
 </blockquote>
 </li>
-<li><p>build构建镜像</p>
-<figure class="highlight shell"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br></pre></td><td class="code"><pre><span class="line"><span class="meta">#</span> docker build [选项] &lt;上下文路径/URL/-&gt;</span><br><span class="line"><span class="meta">$</span> docker build -t nginx:v3 .</span><br></pre></td></tr></table></figure>
+<li><p>一般来说，应该会将 <code>Dockerfile</code> 置于一个空目录下，或者项目根目录下。</p>
 </li>
-<li><p>镜像构建上下文（Context）</p>
-<blockquote>
-<p><code>docker build</code> 的工作原理：</p>
-<p>Docker 在运行时分为 Docker 引擎（也就是服务端守护进程）和客户端工具。。Docker 的引擎提供了一组 REST API，被称为 <a href="https://docs.docker.com/develop/sdk/" target="_blank" rel="noopener">Docker Remote API</a>，而如 <code>docker</code> 命令这样的客户端工具，则是通过这组 API 与 Docker 引擎交互，从而完成各种功能。而 <code>docker build</code> 命令构建镜像，其实并非在本地构建，而是在服务端，也就是 Docker 引擎中构建的。</p>
-<p>​    上下文的概念：</p>
-<p>当构建的时候，用户会指定构建镜像上下文的路径，<code>docker build</code> 命令得知这个路径后，会将路径下的所有内容打包，然后上传给 Docker 引擎。这样 Docker 引擎收到这个上下文包后，展开就会获得构建镜像所需的一切文件。</p>
-<p>   命令 <code>docker build -t nginx:v3 .</code> 中的这个 <code>.</code>，实际上是在指定上下文的目录，<code>docker build</code> 命令会将该目录下的内容打包交给 Docker 引擎以帮助构建镜像。</p>
-<p>  一般来说，应该会将 <code>Dockerfile</code> 置于一个空目录下，或者项目根目录下。</p>
-<p>  <code>.dockerignore</code>，该文件是用于剔除不需要作为上下文传递给 Docker 引擎的。</p>
-<p>  会将上下文目录下的名为 <code>Dockerfile</code> 的文件作为 Dockerfile</p>
-</blockquote>
+<li><p><code>.dockerignore</code>，该文件是用于剔除不需要作为上下文传递给 Docker 引擎的。</p>
+</li>
+<li><p>会将上下文目录下的名为 <code>Dockerfile</code> 的文件作为 Dockerfile</p>
+<p>​</p>
 </li>
 </ul>
 <h1 id="Dockerfile-指令详解"><a href="#Dockerfile-指令详解" class="headerlink" title="Dockerfile 指令详解"></a>Dockerfile 指令详解</h1><h2 id="COPY-复制文件"><a href="#COPY-复制文件" class="headerlink" title="COPY 复制文件"></a>COPY 复制文件</h2><ul>
@@ -533,6 +538,7 @@
 <p> <a href="https://cr.console.aliyun.com/#/accelerator" target="_blank" rel="noopener">阿里云加速器</a></p>
 <p><a href="https://www.daocloud.io/mirror#accelerator-doc" target="_blank" rel="noopener">DaoCloud 加速器</a></p>
 <h1 id="参考文档"><a href="#参考文档" class="headerlink" title="参考文档"></a>参考文档</h1><p><a href="https://yeasy.gitbook.io/docker_practice/contributing" target="_blank" rel="noopener">Docker–从入门到实践</a></p>
+<p><a href="https://zhuanlan.zhihu.com/p/52938416" target="_blank" rel="noopener">Docker技术三大要点：cgroup, namespace和unionFS的理解</a></p>
 
     </div>
 
@@ -607,7 +613,7 @@
 
       <!--noindex-->
       <div class="post-toc-wrap sidebar-panel">
-          <div class="post-toc motion-element"><ol class="nav"><li class="nav-item nav-level-1"><a class="nav-link" href="#基本概念"><span class="nav-number">1.</span> <span class="nav-text">基本概念</span></a><ol class="nav-child"><li class="nav-item nav-level-2"><a class="nav-link" href="#镜像（Image）"><span class="nav-number">1.1.</span> <span class="nav-text">镜像（Image）</span></a></li><li class="nav-item nav-level-2"><a class="nav-link" href="#容器（Container）"><span class="nav-number">1.2.</span> <span class="nav-text">容器（Container）</span></a></li><li class="nav-item nav-level-2"><a class="nav-link" href="#仓库（Repository）"><span class="nav-number">1.3.</span> <span class="nav-text">仓库（Repository）</span></a></li></ol></li><li class="nav-item nav-level-1"><a class="nav-link" href="#Docker安装"><span class="nav-number">2.</span> <span class="nav-text">Docker安装</span></a></li><li class="nav-item nav-level-1"><a class="nav-link" href="#操作实践"><span class="nav-number">3.</span> <span class="nav-text">操作实践</span></a><ol class="nav-child"><li class="nav-item nav-level-2"><a class="nav-link" href="#使用镜像"><span class="nav-number">3.1.</span> <span class="nav-text">使用镜像</span></a></li></ol></li><li class="nav-item nav-level-1"><a class="nav-link" href="#Dockerfile"><span class="nav-number">4.</span> <span class="nav-text">Dockerfile</span></a></li><li class="nav-item nav-level-1"><a class="nav-link" href="#null"><span class="nav-number">5.</span> <span class="nav-text">Hello, Docker!</span></a></li><li class="nav-item nav-level-1"><a class="nav-link" href="#Dockerfile-指令详解"><span class="nav-number">6.</span> <span class="nav-text">Dockerfile 指令详解</span></a><ol class="nav-child"><li class="nav-item nav-level-2"><a class="nav-link" href="#COPY-复制文件"><span class="nav-number">6.1.</span> <span class="nav-text">COPY 复制文件</span></a></li><li class="nav-item nav-level-2"><a class="nav-link" href="#CMD-容器启动命令"><span class="nav-number">6.2.</span> <span class="nav-text">CMD 容器启动命令</span></a></li><li class="nav-item nav-level-2"><a class="nav-link" href="#ENTRYPOINT-入口点"><span class="nav-number">6.3.</span> <span class="nav-text">ENTRYPOINT 入口点</span></a></li><li class="nav-item nav-level-2"><a class="nav-link" href="#VOLUME-定义匿名卷"><span class="nav-number">6.4.</span> <span class="nav-text">VOLUME 定义匿名卷</span></a></li><li class="nav-item nav-level-2"><a class="nav-link" href="#EXPOSE-暴露端口"><span class="nav-number">6.5.</span> <span class="nav-text">EXPOSE 暴露端口</span></a></li><li class="nav-item nav-level-2"><a class="nav-link" href="#WORKDIR-指定工作目录"><span class="nav-number">6.6.</span> <span class="nav-text">WORKDIR 指定工作目录</span></a></li><li class="nav-item nav-level-2"><a class="nav-link" href="#USER-指定当前用户"><span class="nav-number">6.7.</span> <span class="nav-text">USER 指定当前用户</span></a></li><li class="nav-item nav-level-2"><a class="nav-link" href="#HEALTHCHECK-健康检查"><span class="nav-number">6.8.</span> <span class="nav-text">HEALTHCHECK 健康检查</span></a></li></ol></li><li class="nav-item nav-level-1"><a class="nav-link" href="#操作容器"><span class="nav-number">7.</span> <span class="nav-text">操作容器</span></a></li><li class="nav-item nav-level-1"><a class="nav-link" href="#Docker-Registry-公开服务"><span class="nav-number">8.</span> <span class="nav-text">Docker Registry 公开服务</span></a></li><li class="nav-item nav-level-1"><a class="nav-link" href="#参考文档"><span class="nav-number">9.</span> <span class="nav-text">参考文档</span></a></li></ol></div>
+          <div class="post-toc motion-element"><ol class="nav"><li class="nav-item nav-level-1"><a class="nav-link" href="#基本概念"><span class="nav-number">1.</span> <span class="nav-text">基本概念</span></a><ol class="nav-child"><li class="nav-item nav-level-2"><a class="nav-link" href="#镜像（Image）"><span class="nav-number">1.1.</span> <span class="nav-text">镜像（Image）</span></a></li><li class="nav-item nav-level-2"><a class="nav-link" href="#容器（Container）"><span class="nav-number">1.2.</span> <span class="nav-text">容器（Container）</span></a></li><li class="nav-item nav-level-2"><a class="nav-link" href="#仓库（Repository）"><span class="nav-number">1.3.</span> <span class="nav-text">仓库（Repository）</span></a></li></ol></li><li class="nav-item nav-level-1"><a class="nav-link" href="#Docker特性"><span class="nav-number">2.</span> <span class="nav-text">Docker特性</span></a><ol class="nav-child"><li class="nav-item nav-level-2"><a class="nav-link" href="#cgroup"><span class="nav-number">2.1.</span> <span class="nav-text">cgroup</span></a></li><li class="nav-item nav-level-2"><a class="nav-link" href="#namespace"><span class="nav-number">2.2.</span> <span class="nav-text">namespace</span></a></li><li class="nav-item nav-level-2"><a class="nav-link" href="#unionFS"><span class="nav-number">2.3.</span> <span class="nav-text">unionFS</span></a></li></ol></li><li class="nav-item nav-level-1"><a class="nav-link" href="#Docker安装"><span class="nav-number">3.</span> <span class="nav-text">Docker安装</span></a></li><li class="nav-item nav-level-1"><a class="nav-link" href="#操作实践"><span class="nav-number">4.</span> <span class="nav-text">操作实践</span></a><ol class="nav-child"><li class="nav-item nav-level-2"><a class="nav-link" href="#使用镜像"><span class="nav-number">4.1.</span> <span class="nav-text">使用镜像</span></a></li></ol></li><li class="nav-item nav-level-1"><a class="nav-link" href="#镜像构建原理"><span class="nav-number">5.</span> <span class="nav-text">镜像构建原理</span></a></li><li class="nav-item nav-level-1"><a class="nav-link" href="#Dockerfile-指令详解"><span class="nav-number">6.</span> <span class="nav-text">Dockerfile 指令详解</span></a><ol class="nav-child"><li class="nav-item nav-level-2"><a class="nav-link" href="#COPY-复制文件"><span class="nav-number">6.1.</span> <span class="nav-text">COPY 复制文件</span></a></li><li class="nav-item nav-level-2"><a class="nav-link" href="#CMD-容器启动命令"><span class="nav-number">6.2.</span> <span class="nav-text">CMD 容器启动命令</span></a></li><li class="nav-item nav-level-2"><a class="nav-link" href="#ENTRYPOINT-入口点"><span class="nav-number">6.3.</span> <span class="nav-text">ENTRYPOINT 入口点</span></a></li><li class="nav-item nav-level-2"><a class="nav-link" href="#VOLUME-定义匿名卷"><span class="nav-number">6.4.</span> <span class="nav-text">VOLUME 定义匿名卷</span></a></li><li class="nav-item nav-level-2"><a class="nav-link" href="#EXPOSE-暴露端口"><span class="nav-number">6.5.</span> <span class="nav-text">EXPOSE 暴露端口</span></a></li><li class="nav-item nav-level-2"><a class="nav-link" href="#WORKDIR-指定工作目录"><span class="nav-number">6.6.</span> <span class="nav-text">WORKDIR 指定工作目录</span></a></li><li class="nav-item nav-level-2"><a class="nav-link" href="#USER-指定当前用户"><span class="nav-number">6.7.</span> <span class="nav-text">USER 指定当前用户</span></a></li><li class="nav-item nav-level-2"><a class="nav-link" href="#HEALTHCHECK-健康检查"><span class="nav-number">6.8.</span> <span class="nav-text">HEALTHCHECK 健康检查</span></a></li></ol></li><li class="nav-item nav-level-1"><a class="nav-link" href="#操作容器"><span class="nav-number">7.</span> <span class="nav-text">操作容器</span></a></li><li class="nav-item nav-level-1"><a class="nav-link" href="#Docker-Registry-公开服务"><span class="nav-number">8.</span> <span class="nav-text">Docker Registry 公开服务</span></a></li><li class="nav-item nav-level-1"><a class="nav-link" href="#参考文档"><span class="nav-number">9.</span> <span class="nav-text">参考文档</span></a></li></ol></div>
         
       </div>
       <!--/noindex-->
@@ -623,7 +629,7 @@
         
           <a href="/archives/">
         
-          <span class="site-state-item-count">105</span>
+          <span class="site-state-item-count">106</span>
           <span class="site-state-item-name">日志</span>
         </a>
       </div>
@@ -649,7 +655,7 @@
             <a href="/tags/">
           
         
-        <span class="site-state-item-count">16</span>
+        <span class="site-state-item-count">15</span>
         <span class="site-state-item-name">标签</span>
         </a>
       </div>

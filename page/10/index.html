@@ -241,6 +241,118 @@
   
   
   <article itemscope itemtype="http://schema.org/Article" class="post-block home" lang="zh-CN">
+    <link itemprop="mainEntityOfPage" href="http://yoursite.com/2020/07/06/hadoop/HDFS-Federation/">
+
+    <span hidden itemprop="author" itemscope itemtype="http://schema.org/Person">
+      <meta itemprop="name" content="姜纪光">
+      <meta itemprop="description" content="">
+      <meta itemprop="image" content="/images/avatar.gif">
+    </span>
+
+    <span hidden itemprop="publisher" itemscope itemtype="http://schema.org/Organization">
+      <meta itemprop="name" content="纪光的博客">
+    </span>
+      <header class="post-header">
+        <h1 class="post-title" itemprop="name headline">
+          
+            
+            <a href="/2020/07/06/hadoop/HDFS-Federation/" class="post-title-link" itemprop="url">HDFS Federation</a>
+          
+        </h1>
+
+        <div class="post-meta">
+            <span class="post-meta-item">
+              <span class="post-meta-item-icon">
+                <i class="fa fa-calendar-o"></i>
+              </span>
+              <span class="post-meta-item-text">发表于</span>
+
+              
+                
+              
+
+              <time title="创建时间：2020-07-06 11:36:07 / 修改时间：15:34:40" itemprop="dateCreated datePublished" datetime="2020-07-06T11:36:07+08:00">2020-07-06</time>
+            </span>
+          
+            
+
+            
+          
+            <span class="post-meta-item">
+              <span class="post-meta-item-icon">
+                <i class="fa fa-folder-o"></i>
+              </span>
+              <span class="post-meta-item-text">分类于</span>
+              
+                <span itemprop="about" itemscope itemtype="http://schema.org/Thing">
+                  <a href="/categories/hadoop/" itemprop="url" rel="index">
+                    <span itemprop="name">hadoop</span>
+                  </a>
+                </span>
+
+                
+                
+              
+            </span>
+          
+
+          
+            <span id="/2020/07/06/hadoop/HDFS-Federation/" class="post-meta-item leancloud_visitors" data-flag-title="HDFS Federation" title="阅读次数">
+              <span class="post-meta-item-icon">
+                <i class="fa fa-eye"></i>
+              </span>
+              <span class="post-meta-item-text">阅读次数：</span>
+              <span class="leancloud-visitors-count"></span>
+            </span>
+          
+  
+  
+
+        </div>
+      </header>
+
+    
+    
+    
+    <div class="post-body" itemprop="articleBody">
+
+      
+          <h1 id="面临的问题"><a href="#面临的问题" class="headerlink" title="面临的问题"></a>面临的问题</h1><ul>
+<li>HDFS中Datanode本身是可以横向扩展的，当存储不够的时候，可以扩展Datanode的数目达到物理存储的横向扩展。</li>
+<li>但是Namenode存在无法横向扩展，存在两个单点的问题。Namenode的内存主要是Namespace元数据，目录树和块映射信息</li>
+</ul>
+<h1 id="什么是HDFS-Federation"><a href="#什么是HDFS-Federation" class="headerlink" title="什么是HDFS Federation"></a>什么是HDFS Federation</h1><ul>
+<li>HDFS Federation更应该是NameNode Federation，就是NameNode有多个namespace。</li>
+<li>一个namespace对应一个block pool。Block Pool是同一个namespace下的block的集合。</li>
+</ul>
+<h1 id="HDFS-Federation的优势"><a href="#HDFS-Federation的优势" class="headerlink" title="HDFS Federation的优势"></a>HDFS Federation的优势</h1><ul>
+<li>HDFS Federation解决了Namenode的横向扩展（内存元数据的扩展，访问和块汇报的RPC压力的扩展分离）。</li>
+<li>多namespace的方式可以直接减轻单一NameNode的压力。</li>
+<li>在HDFS Federation的情况下,只有元数据的管理与存放被分隔开了,但真实数据的存储还是共用的</li>
+</ul>
+<h1 id="参考文档"><a href="#参考文档" class="headerlink" title="参考文档"></a>参考文档</h1><p><a href="https://blog.csdn.net/Androidlushangderen/article/details/52135506" target="_blank" rel="noopener">HDFS Federation机制</a></p>
+<p><a href="https://www.infoq.cn/article/7o96tvJwNelq4xp-7Puh" target="_blank" rel="noopener">唯品会 HDFS 性能挑战和优化实践</a></p>
+
+        
+      
+    </div>
+
+    
+    
+    
+      <footer class="post-footer">
+        <div class="post-eof"></div>
+      </footer>
+  </article>
+  
+  
+  
+
+    
+        
+  
+  
+  <article itemscope itemtype="http://schema.org/Article" class="post-block home" lang="zh-CN">
     <link itemprop="mainEntityOfPage" href="http://yoursite.com/2020/06/24/hadoop/HDFS路径/">
 
     <span hidden itemprop="author" itemscope itemtype="http://schema.org/Person">
@@ -1855,116 +1967,6 @@
   
 
     
-        
-  
-  
-  <article itemscope itemtype="http://schema.org/Article" class="post-block home" lang="zh-CN">
-    <link itemprop="mainEntityOfPage" href="http://yoursite.com/2020/06/22/hadoop/YARN-Node-Labels/">
-
-    <span hidden itemprop="author" itemscope itemtype="http://schema.org/Person">
-      <meta itemprop="name" content="姜纪光">
-      <meta itemprop="description" content="">
-      <meta itemprop="image" content="/images/avatar.gif">
-    </span>
-
-    <span hidden itemprop="publisher" itemscope itemtype="http://schema.org/Organization">
-      <meta itemprop="name" content="纪光的博客">
-    </span>
-      <header class="post-header">
-        <h1 class="post-title" itemprop="name headline">
-          
-            
-            <a href="/2020/06/22/hadoop/YARN-Node-Labels/" class="post-title-link" itemprop="url">YARN Node Labels调度策略</a>
-          
-        </h1>
-
-        <div class="post-meta">
-            <span class="post-meta-item">
-              <span class="post-meta-item-icon">
-                <i class="fa fa-calendar-o"></i>
-              </span>
-              <span class="post-meta-item-text">发表于</span>
-
-              
-                
-              
-
-              <time title="创建时间：2020-06-22 20:49:47" itemprop="dateCreated datePublished" datetime="2020-06-22T20:49:47+08:00">2020-06-22</time>
-            </span>
-          
-            
-
-            
-              <span class="post-meta-item">
-                <span class="post-meta-item-icon">
-                  <i class="fa fa-calendar-check-o"></i>
-                </span>
-                <span class="post-meta-item-text">更新于</span>
-                <time title="修改时间：2020-09-14 17:51:13" itemprop="dateModified" datetime="2020-09-14T17:51:13+08:00">2020-09-14</time>
-              </span>
-            
-          
-            <span class="post-meta-item">
-              <span class="post-meta-item-icon">
-                <i class="fa fa-folder-o"></i>
-              </span>
-              <span class="post-meta-item-text">分类于</span>
-              
-                <span itemprop="about" itemscope itemtype="http://schema.org/Thing">
-                  <a href="/categories/hadoop/" itemprop="url" rel="index">
-                    <span itemprop="name">hadoop</span>
-                  </a>
-                </span>
-
-                
-                
-              
-            </span>
-          
-
-          
-            <span id="/2020/06/22/hadoop/YARN-Node-Labels/" class="post-meta-item leancloud_visitors" data-flag-title="YARN Node Labels调度策略" title="阅读次数">
-              <span class="post-meta-item-icon">
-                <i class="fa fa-eye"></i>
-              </span>
-              <span class="post-meta-item-text">阅读次数：</span>
-              <span class="leancloud-visitors-count"></span>
-            </span>
-          
-  
-  
-
-        </div>
-      </header>
-
-    
-    
-    
-    <div class="post-body" itemprop="articleBody">
-
-      
-          <h1 id="简介"><a href="#简介" class="headerlink" title="简介"></a>简介</h1><p>Node Label是对具有相似特征的节点进行分组的一种方法，应用程序可以在指定的节点上执行。</p>
-<p>因为我司使用flink的yarn集群并没有采用node label，所以这里只是了解一下</p>
-<p>详情见参考文档</p>
-<h1 id="参考文档"><a href="#参考文档" class="headerlink" title="参考文档"></a>参考文档</h1><p><a href="http://cxy7.com/articles/2017/05/26/1495802106583.html" target="_blank" rel="noopener">YARN启用Node Labels标签调度策略</a></p>
-<p><a href="https://hadoop.apache.org/docs/r2.7.3/hadoop-yarn/hadoop-yarn-site/NodeLabel.htm" target="_blank" rel="noopener">YARN Node Labels</a></p>
-
-        
-      
-    </div>
-
-    
-    
-    
-      <footer class="post-footer">
-        <div class="post-eof"></div>
-      </footer>
-  </article>
-  
-  
-  
-
-    
   </div>
 
   
@@ -2014,7 +2016,7 @@
         
           <a href="/archives/">
         
-          <span class="site-state-item-count">105</span>
+          <span class="site-state-item-count">106</span>
           <span class="site-state-item-name">日志</span>
         </a>
       </div>
@@ -2040,7 +2042,7 @@
             <a href="/tags/">
           
         
-        <span class="site-state-item-count">16</span>
+        <span class="site-state-item-count">15</span>
         <span class="site-state-item-name">标签</span>
         </a>
       </div>

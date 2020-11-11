@@ -241,6 +241,144 @@
   
   
   <article itemscope itemtype="http://schema.org/Article" class="post-block home" lang="zh-CN">
+    <link itemprop="mainEntityOfPage" href="http://yoursite.com/2020/10/20/flink/两个任务消费kafka-topic和group-id相同-导致重复消费数据/">
+
+    <span hidden itemprop="author" itemscope itemtype="http://schema.org/Person">
+      <meta itemprop="name" content="姜纪光">
+      <meta itemprop="description" content="">
+      <meta itemprop="image" content="/images/avatar.gif">
+    </span>
+
+    <span hidden itemprop="publisher" itemscope itemtype="http://schema.org/Organization">
+      <meta itemprop="name" content="纪光的博客">
+    </span>
+      <header class="post-header">
+        <h1 class="post-title" itemprop="name headline">
+          
+            
+            <a href="/2020/10/20/flink/两个任务消费kafka-topic和group-id相同-导致重复消费数据/" class="post-title-link" itemprop="url">两个任务消费kafka,topic和group.id相同,导致重复消费数据</a>
+          
+        </h1>
+
+        <div class="post-meta">
+            <span class="post-meta-item">
+              <span class="post-meta-item-icon">
+                <i class="fa fa-calendar-o"></i>
+              </span>
+              <span class="post-meta-item-text">发表于</span>
+
+              
+                
+              
+
+              <time title="创建时间：2020-10-20 11:36:25" itemprop="dateCreated datePublished" datetime="2020-10-20T11:36:25+08:00">2020-10-20</time>
+            </span>
+          
+            
+
+            
+              <span class="post-meta-item">
+                <span class="post-meta-item-icon">
+                  <i class="fa fa-calendar-check-o"></i>
+                </span>
+                <span class="post-meta-item-text">更新于</span>
+                <time title="修改时间：2020-10-23 09:57:14" itemprop="dateModified" datetime="2020-10-23T09:57:14+08:00">2020-10-23</time>
+              </span>
+            
+          
+            <span class="post-meta-item">
+              <span class="post-meta-item-icon">
+                <i class="fa fa-folder-o"></i>
+              </span>
+              <span class="post-meta-item-text">分类于</span>
+              
+                <span itemprop="about" itemscope itemtype="http://schema.org/Thing">
+                  <a href="/categories/flink/" itemprop="url" rel="index">
+                    <span itemprop="name">flink</span>
+                  </a>
+                </span>
+
+                
+                
+              
+            </span>
+          
+
+          
+            <span id="/2020/10/20/flink/两个任务消费kafka-topic和group-id相同-导致重复消费数据/" class="post-meta-item leancloud_visitors" data-flag-title="两个任务消费kafka,topic和group.id相同,导致重复消费数据" title="阅读次数">
+              <span class="post-meta-item-icon">
+                <i class="fa fa-eye"></i>
+              </span>
+              <span class="post-meta-item-text">阅读次数：</span>
+              <span class="leancloud-visitors-count"></span>
+            </span>
+          
+  
+  
+
+        </div>
+      </header>
+
+    
+    
+    
+    <div class="post-body" itemprop="articleBody">
+
+      
+          <h1 id="问题描述"><a href="#问题描述" class="headerlink" title="问题描述"></a>问题描述</h1><p>​        由于实时平台的代码bug、上游操作集群的HDFS未通知、管理员未能查看任务发布失败的原因就重新发布用户的实时任务等多种因素影响，导致任务在实时平台上发布了两次，生成了两个yarn实例，一直持续6个多小时，由于历史原因，监控没有发现。</p>
+<p>​        任务的逻辑比较简单，就是消费kafka数据。就是这期间的数据消费时重复的，也就是每个任务实例都消费了一份全量数据。咦！和想象的不一样啊，既然任务本身是分布式的，即使多发布了一次，由于kafka确保每个topic的分区的数据只能被同一个线程消费，那么为什么kafka数据会被重复消费呢？</p>
+<h1 id="现象解释"><a href="#现象解释" class="headerlink" title="现象解释"></a>现象解释</h1><p>消费客户端可以通过两种方式消费topic：<code>assign和subscribe</code></p>
+<ul>
+<li><p>subscribe即为通常理解的订阅模式</p>
+<blockquote>
+<p>即使多个消费实例，也不会重复消费</p>
+<p>主要特点是只要有新的消费者消费topic时就会发生reblance，平均消费消息。</p>
+<p>消费时只需要传入topic即可，不需要传入partition</p>
+</blockquote>
+</li>
+</ul>
+<p>测试代码：</p>
+<figure class="highlight java"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br><span class="line">3</span><br><span class="line">4</span><br><span class="line">5</span><br><span class="line">6</span><br><span class="line">7</span><br><span class="line">8</span><br><span class="line">9</span><br><span class="line">10</span><br><span class="line">11</span><br><span class="line">12</span><br><span class="line">13</span><br><span class="line">14</span><br><span class="line">15</span><br><span class="line">16</span><br><span class="line">17</span><br><span class="line">18</span><br><span class="line">19</span><br><span class="line">20</span><br><span class="line">21</span><br><span class="line">22</span><br><span class="line">23</span><br><span class="line">24</span><br><span class="line">25</span><br><span class="line">26</span><br><span class="line">27</span><br><span class="line">28</span><br><span class="line">29</span><br><span class="line">30</span><br><span class="line">31</span><br><span class="line">32</span><br><span class="line">33</span><br><span class="line">34</span><br><span class="line">35</span><br><span class="line">36</span><br><span class="line">37</span><br><span class="line">38</span><br><span class="line">39</span><br><span class="line">40</span><br><span class="line">41</span><br><span class="line">42</span><br></pre></td><td class="code"><pre><span class="line"><span class="keyword">public</span> <span class="class"><span class="keyword">class</span> <span class="title">KafkaConsumerSubscribeApp</span> </span>&#123;</span><br><span class="line">    <span class="function"><span class="keyword">public</span> <span class="keyword">static</span> <span class="keyword">void</span> <span class="title">main</span><span class="params">(String[] args)</span> <span class="keyword">throws</span> Exception </span>&#123;</span><br><span class="line">        <span class="keyword">for</span> (<span class="keyword">int</span> i = <span class="number">0</span>; i &lt; <span class="number">1</span>; i++) &#123;</span><br><span class="line">            <span class="keyword">new</span> Thread(<span class="keyword">new</span> MyConsumer(i)).start();</span><br><span class="line">        &#125;</span><br><span class="line">        TimeUnit.DAYS.sleep(<span class="number">1</span>);</span><br><span class="line">    &#125;</span><br><span class="line">    <span class="keyword">static</span> <span class="class"><span class="keyword">class</span> <span class="title">MyConsumer</span> <span class="keyword">implements</span> <span class="title">Runnable</span> </span>&#123;</span><br><span class="line">        <span class="keyword">private</span> <span class="keyword">int</span> partition;</span><br><span class="line">        <span class="function"><span class="keyword">public</span> <span class="title">MyConsumer</span><span class="params">(<span class="keyword">int</span> partition)</span> </span>&#123;</span><br><span class="line">            <span class="keyword">this</span>.partition = partition;</span><br><span class="line">        &#125;</span><br><span class="line"></span><br><span class="line">        <span class="meta">@Override</span></span><br><span class="line">        <span class="function"><span class="keyword">public</span> <span class="keyword">void</span> <span class="title">run</span><span class="params">()</span> </span>&#123;</span><br><span class="line">            Consumer&lt;String, String&gt; consumer;</span><br><span class="line"></span><br><span class="line">            Properties props = <span class="keyword">new</span> Properties();</span><br><span class="line">            props.put(ConsumerConfig.BOOTSTRAP_SERVERS_CONFIG, KafkaConstant.SERVER_PUB);</span><br><span class="line">            props.put(ConsumerConfig.GROUP_ID_CONFIG, KafkaConstant.TOPIC_BIGDATA_LIBRA_LOG);</span><br><span class="line">            props.put(ConsumerConfig.AUTO_OFFSET_RESET_CONFIG, <span class="string">"latest"</span>);</span><br><span class="line">            props.put(ConsumerConfig.ENABLE_AUTO_COMMIT_CONFIG, <span class="string">"true"</span>);</span><br><span class="line">            props.put(ConsumerConfig.KEY_DESERIALIZER_CLASS_CONFIG, StringDeserializer.class.getName());</span><br><span class="line">            props.put(ConsumerConfig.VALUE_DESERIALIZER_CLASS_CONFIG, StringDeserializer.class.getName());</span><br><span class="line">            consumer = <span class="keyword">new</span> KafkaConsumer&lt;&gt;(props);</span><br><span class="line">            consumer.subscribe(Arrays.asList(KafkaConstant.TOPIC_BIGDATA_LIBRA_LOG));</span><br><span class="line">            <span class="keyword">while</span> (<span class="keyword">true</span>) &#123;</span><br><span class="line">                ConsumerRecords&lt;String, String&gt; consumerRecords = consumer.poll(<span class="number">1000L</span>);</span><br><span class="line">                <span class="keyword">if</span> (consumerRecords == <span class="keyword">null</span> || consumerRecords.count() == <span class="number">0</span>) &#123;</span><br><span class="line">                    <span class="keyword">continue</span>;</span><br><span class="line">                &#125;</span><br><span class="line">                Iterator&lt;ConsumerRecord&lt;String, String&gt;&gt; iterator = consumerRecords.iterator();</span><br><span class="line">                <span class="keyword">while</span> (iterator.hasNext()) &#123;</span><br><span class="line">                    ConsumerRecord&lt;String, String&gt; next = iterator.next();</span><br><span class="line">                    String content = String.format(<span class="string">"Subscribe: partition: %s, offset: %s, value: %s"</span>,</span><br><span class="line">                            next.partition(), next.offset(), next.value());</span><br><span class="line">                    System.out.println(content);</span><br><span class="line">                &#125;</span><br><span class="line">            &#125;</span><br><span class="line">        &#125;</span><br><span class="line">    &#125;</span><br><span class="line">&#125;</span><br></pre></td></tr></table></figure>
+
+<ul>
+<li><p>assign</p>
+<blockquote>
+<p>消费时必须要传递topic和partition（分区号），只会消费指定分区的数据</p>
+<p>没有为partition（分区号）建立消费者，那么该分区就不会消费，为分区指定多个消费者，那么每个消费者都会消费全量分区数据。</p>
+</blockquote>
+</li>
+</ul>
+<p>测试代码：</p>
+<figure class="highlight java"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br><span class="line">3</span><br><span class="line">4</span><br><span class="line">5</span><br><span class="line">6</span><br><span class="line">7</span><br><span class="line">8</span><br><span class="line">9</span><br><span class="line">10</span><br><span class="line">11</span><br><span class="line">12</span><br><span class="line">13</span><br><span class="line">14</span><br><span class="line">15</span><br><span class="line">16</span><br><span class="line">17</span><br><span class="line">18</span><br><span class="line">19</span><br><span class="line">20</span><br><span class="line">21</span><br><span class="line">22</span><br><span class="line">23</span><br><span class="line">24</span><br><span class="line">25</span><br><span class="line">26</span><br><span class="line">27</span><br><span class="line">28</span><br><span class="line">29</span><br><span class="line">30</span><br><span class="line">31</span><br><span class="line">32</span><br><span class="line">33</span><br><span class="line">34</span><br><span class="line">35</span><br><span class="line">36</span><br><span class="line">37</span><br><span class="line">38</span><br><span class="line">39</span><br><span class="line">40</span><br><span class="line">41</span><br></pre></td><td class="code"><pre><span class="line"><span class="keyword">public</span> <span class="class"><span class="keyword">class</span> <span class="title">KafkaConsumerAssignApp</span> </span>&#123;</span><br><span class="line">    <span class="function"><span class="keyword">public</span> <span class="keyword">static</span> <span class="keyword">void</span> <span class="title">main</span><span class="params">(String[] args)</span> <span class="keyword">throws</span> Exception </span>&#123;</span><br><span class="line">        <span class="keyword">for</span> (<span class="keyword">int</span> i = <span class="number">0</span>; i &lt; <span class="number">5</span>; i++) &#123;</span><br><span class="line">            <span class="keyword">new</span> Thread(<span class="keyword">new</span> MyConsumer(i)).start();</span><br><span class="line">        &#125;</span><br><span class="line">        TimeUnit.DAYS.sleep(<span class="number">1</span>);</span><br><span class="line">    &#125;</span><br><span class="line">    <span class="keyword">static</span> <span class="class"><span class="keyword">class</span> <span class="title">MyConsumer</span> <span class="keyword">implements</span> <span class="title">Runnable</span> </span>&#123;</span><br><span class="line">        <span class="keyword">private</span> <span class="keyword">int</span> partition;</span><br><span class="line">        <span class="function"><span class="keyword">public</span> <span class="title">MyConsumer</span><span class="params">(<span class="keyword">int</span> partition)</span> </span>&#123;</span><br><span class="line">            <span class="keyword">this</span>.partition = partition;</span><br><span class="line">        &#125;</span><br><span class="line">        <span class="meta">@Override</span></span><br><span class="line">        <span class="function"><span class="keyword">public</span> <span class="keyword">void</span> <span class="title">run</span><span class="params">()</span> </span>&#123;</span><br><span class="line">            Consumer&lt;String, String&gt; consumer;</span><br><span class="line"></span><br><span class="line">            Properties props = <span class="keyword">new</span> Properties();</span><br><span class="line">            props.put(ConsumerConfig.BOOTSTRAP_SERVERS_CONFIG, KafkaConstant.SERVER_PUB);</span><br><span class="line">            props.put(ConsumerConfig.GROUP_ID_CONFIG, KafkaConstant.TOPIC_BIGDATA_LIBRA_LOG);</span><br><span class="line">            props.put(ConsumerConfig.AUTO_OFFSET_RESET_CONFIG, <span class="string">"latest"</span>);</span><br><span class="line">            props.put(ConsumerConfig.ENABLE_AUTO_COMMIT_CONFIG, <span class="string">"true"</span>);</span><br><span class="line">            props.put(ConsumerConfig.KEY_DESERIALIZER_CLASS_CONFIG, StringDeserializer.class.getName());</span><br><span class="line">            props.put(ConsumerConfig.VALUE_DESERIALIZER_CLASS_CONFIG, StringDeserializer.class.getName());</span><br><span class="line">            consumer = <span class="keyword">new</span> KafkaConsumer&lt;&gt;(props);</span><br><span class="line">            consumer.assign(Arrays.asList(<span class="keyword">new</span> TopicPartition(KafkaConstant.TOPIC_BIGDATA_LIBRA_LOG, partition)));</span><br><span class="line">            <span class="keyword">while</span> (<span class="keyword">true</span>) &#123;</span><br><span class="line">                ConsumerRecords&lt;String, String&gt; consumerRecords = consumer.poll(<span class="number">1000L</span>);</span><br><span class="line">                <span class="keyword">if</span> (consumerRecords == <span class="keyword">null</span> || consumerRecords.count() == <span class="number">0</span>) &#123;</span><br><span class="line">                    <span class="keyword">continue</span>;</span><br><span class="line">                &#125;</span><br><span class="line">                Iterator&lt;ConsumerRecord&lt;String, String&gt;&gt; iterator = consumerRecords.iterator();</span><br><span class="line">                <span class="keyword">while</span> (iterator.hasNext()) &#123;</span><br><span class="line">                    ConsumerRecord&lt;String, String&gt; next = iterator.next();</span><br><span class="line">                    String content = String.format(<span class="string">"Assign: partition: %s, offset: %s, value: %s"</span>,</span><br><span class="line">                            next.partition(), next.offset(), next.value());</span><br><span class="line">                    System.out.println(content);</span><br><span class="line">                &#125;</span><br><span class="line">            &#125;</span><br><span class="line">        &#125;</span><br><span class="line">    &#125;</span><br><span class="line">&#125;</span><br></pre></td></tr></table></figure>
+
+<p>那么为什么flink要使用<code>assign</code>呢？</p>
+<blockquote>
+<p>为了保证 Flink 程序的 exactly-once，必须由各个 Kafka source  算子维护当前算子所消费的 partition 消费 offset 信息，并在每次checkpoint 时将这些信息写入到 state 中， 在从 checkpoint 恢复中从上次 commit 的位点开始消费，保证 exactly-once.  如果用 Kafka 消费组管理，那么 FlinkKafkaConsumer 内各个并发实例所分配的 partition 将由 Kafka 的消费组管理，且 offset 也由 Kafka 消费组管理者记录，Flink 无法维护这些信息。</p>
+</blockquote>
+<h1 id="参考文档"><a href="#参考文档" class="headerlink" title="参考文档"></a>参考文档</h1><p><a href="http://apache-flink.147419.n8.nabble.com/FlinkKafkaConsumer-td6818.html" target="_blank" rel="noopener">FlinkKafkaConsumer问题</a></p>
+<p><a href="https://juejin.im/post/6844903733940191246" target="_blank" rel="noopener">KafkaConsumer assign VS subscribe</a></p>
+<p><a href="https://www.cnblogs.com/dongxiao-yang/p/7200971.html" target="_blank" rel="noopener">kafka consumer assign 和 subscribe模式差异分析</a></p>
+
+        
+      
+    </div>
+
+    
+    
+    
+      <footer class="post-footer">
+        <div class="post-eof"></div>
+      </footer>
+  </article>
+  
+  
+  
+
+    
+        
+  
+  
+  <article itemscope itemtype="http://schema.org/Article" class="post-block home" lang="zh-CN">
     <link itemprop="mainEntityOfPage" href="http://yoursite.com/2020/10/15/flink/Log配置踩过的坑/">
 
     <span hidden itemprop="author" itemscope itemtype="http://schema.org/Person">
@@ -1492,115 +1630,6 @@
   
 
     
-        
-  
-  
-  <article itemscope itemtype="http://schema.org/Article" class="post-block home" lang="zh-CN">
-    <link itemprop="mainEntityOfPage" href="http://yoursite.com/2020/09/09/linux/工具实践-slabtop/">
-
-    <span hidden itemprop="author" itemscope itemtype="http://schema.org/Person">
-      <meta itemprop="name" content="姜纪光">
-      <meta itemprop="description" content="">
-      <meta itemprop="image" content="/images/avatar.gif">
-    </span>
-
-    <span hidden itemprop="publisher" itemscope itemtype="http://schema.org/Organization">
-      <meta itemprop="name" content="纪光的博客">
-    </span>
-      <header class="post-header">
-        <h1 class="post-title" itemprop="name headline">
-          
-            
-            <a href="/2020/09/09/linux/工具实践-slabtop/" class="post-title-link" itemprop="url">工具实践-slabtop</a>
-          
-        </h1>
-
-        <div class="post-meta">
-            <span class="post-meta-item">
-              <span class="post-meta-item-icon">
-                <i class="fa fa-calendar-o"></i>
-              </span>
-              <span class="post-meta-item-text">发表于</span>
-
-              
-                
-              
-
-              <time title="创建时间：2020-09-09 17:34:05 / 修改时间：17:44:37" itemprop="dateCreated datePublished" datetime="2020-09-09T17:34:05+08:00">2020-09-09</time>
-            </span>
-          
-            
-
-            
-          
-            <span class="post-meta-item">
-              <span class="post-meta-item-icon">
-                <i class="fa fa-folder-o"></i>
-              </span>
-              <span class="post-meta-item-text">分类于</span>
-              
-                <span itemprop="about" itemscope itemtype="http://schema.org/Thing">
-                  <a href="/categories/linux/" itemprop="url" rel="index">
-                    <span itemprop="name">linux</span>
-                  </a>
-                </span>
-
-                
-                
-              
-            </span>
-          
-
-          
-            <span id="/2020/09/09/linux/工具实践-slabtop/" class="post-meta-item leancloud_visitors" data-flag-title="工具实践-slabtop" title="阅读次数">
-              <span class="post-meta-item-icon">
-                <i class="fa fa-eye"></i>
-              </span>
-              <span class="post-meta-item-text">阅读次数：</span>
-              <span class="leancloud-visitors-count"></span>
-            </span>
-          
-  
-  
-
-        </div>
-      </header>
-
-    
-    
-    
-    <div class="post-body" itemprop="articleBody">
-
-      
-          <h1 id="说明"><a href="#说明" class="headerlink" title="说明"></a>说明</h1><ul>
-<li><p>通过slab分配器输出内核slab缓存使用情况</p>
-<blockquote>
-<p>​</p>
-</blockquote>
-</li>
-<li><p>使用姿势</p>
-<figure class="highlight shell"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br><span class="line">3</span><br><span class="line">4</span><br><span class="line">5</span><br><span class="line">6</span><br><span class="line">7</span><br><span class="line">8</span><br><span class="line">9</span><br><span class="line">10</span><br><span class="line">11</span><br><span class="line">12</span><br><span class="line">13</span><br><span class="line">14</span><br><span class="line">15</span><br><span class="line">16</span><br><span class="line">17</span><br><span class="line">18</span><br><span class="line">19</span><br><span class="line">20</span><br><span class="line">21</span><br><span class="line">22</span><br><span class="line">23</span><br><span class="line">24</span><br><span class="line">25</span><br><span class="line">26</span><br></pre></td><td class="code"><pre><span class="line"><span class="meta">#</span> slabtop -h</span><br><span class="line"></span><br><span class="line">Usage:</span><br><span class="line"> slabtop [options]</span><br><span class="line"></span><br><span class="line">Options:</span><br><span class="line"> -d, --delay &lt;secs&gt;  delay updates</span><br><span class="line"> -o, --once          only display once, then exit</span><br><span class="line"> -s, --sort &lt;char&gt;   specify sort criteria by character (see below)</span><br><span class="line"></span><br><span class="line"> -h, --help     display this help and exit</span><br><span class="line"> -V, --version  output version information and exit</span><br><span class="line"></span><br><span class="line">The following are valid sort criteria:</span><br><span class="line"> a: sort by number of active objects</span><br><span class="line"> b: sort by objects per slab</span><br><span class="line"> c: sort by cache size</span><br><span class="line"> l: sort by number of slabs</span><br><span class="line"> v: sort by number of active slabs</span><br><span class="line"> n: sort by name</span><br><span class="line"> o: sort by number of objects (the default)</span><br><span class="line"> p: sort by pages per slab</span><br><span class="line"> s: sort by object size</span><br><span class="line"> u: sort by cache utilization</span><br><span class="line"></span><br><span class="line">For more details see slabtop(1).</span><br></pre></td></tr></table></figure>
-
-</li>
-</ul>
-<h1 id="参考文档"><a href="#参考文档" class="headerlink" title="参考文档"></a>参考文档</h1><p><a href="http://www.361way.com/slabtop/5023.html" target="_blank" rel="noopener">Linux slabtop显示内核片缓存信息</a></p>
-
-        
-      
-    </div>
-
-    
-    
-    
-      <footer class="post-footer">
-        <div class="post-eof"></div>
-      </footer>
-  </article>
-  
-  
-  
-
-    
   </div>
 
   
@@ -1650,7 +1679,7 @@
         
           <a href="/archives/">
         
-          <span class="site-state-item-count">105</span>
+          <span class="site-state-item-count">106</span>
           <span class="site-state-item-name">日志</span>
         </a>
       </div>
@@ -1676,7 +1705,7 @@
             <a href="/tags/">
           
         
-        <span class="site-state-item-count">16</span>
+        <span class="site-state-item-count">15</span>
         <span class="site-state-item-name">标签</span>
         </a>
       </div>
