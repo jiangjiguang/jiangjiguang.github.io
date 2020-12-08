@@ -55,18 +55,18 @@
   };
 </script>
 
-  <meta name="description" content="构建镜像 scratch是一个空白镜像，以这个镜像为基础，意味着不以任何镜像为基础。  实用命令 1234567# cd 到Dockerfile文件的目录$ docker build -t mynginx:v1.1 .# 或者通过-f 参数指定Dockerfile路径$ docker build -t mynginx:v1.1 . -f Dockerfile# 使用commit生成镜像$ dock">
+  <meta name="description" content="YARNperjob说明： 1、flink版本1.10 命令分解： 12345678910111213-d #以分离模式运行任务-m #连接到不同的JobManager地址yarn-cluster #yarn-cluster模式运行任务-p 5 #设置任务的并行度为5-yjm 1024 #JobManager Container的内存配置(MB)-ytm 2048 #TaskManager Con">
 <meta property="og:type" content="article">
-<meta property="og:title" content="docker实践">
-<meta property="og:url" content="http://yoursite.com/2020/11/11/k8s/docker实践/index.html">
+<meta property="og:title" content="flink-任务发布命令总结">
+<meta property="og:url" content="http://yoursite.com/2020/11/30/flink/flink-任务发布命令总结/index.html">
 <meta property="og:site_name" content="纪光的博客">
-<meta property="og:description" content="构建镜像 scratch是一个空白镜像，以这个镜像为基础，意味着不以任何镜像为基础。  实用命令 1234567# cd 到Dockerfile文件的目录$ docker build -t mynginx:v1.1 .# 或者通过-f 参数指定Dockerfile路径$ docker build -t mynginx:v1.1 . -f Dockerfile# 使用commit生成镜像$ dock">
+<meta property="og:description" content="YARNperjob说明： 1、flink版本1.10 命令分解： 12345678910111213-d #以分离模式运行任务-m #连接到不同的JobManager地址yarn-cluster #yarn-cluster模式运行任务-p 5 #设置任务的并行度为5-yjm 1024 #JobManager Container的内存配置(MB)-ytm 2048 #TaskManager Con">
 <meta property="og:locale" content="zh-CN">
-<meta property="og:updated_time" content="2020-11-11T08:54:49.126Z">
+<meta property="og:updated_time" content="2020-11-30T09:45:48.721Z">
 <meta name="twitter:card" content="summary">
-<meta name="twitter:title" content="docker实践">
-<meta name="twitter:description" content="构建镜像 scratch是一个空白镜像，以这个镜像为基础，意味着不以任何镜像为基础。  实用命令 1234567# cd 到Dockerfile文件的目录$ docker build -t mynginx:v1.1 .# 或者通过-f 参数指定Dockerfile路径$ docker build -t mynginx:v1.1 . -f Dockerfile# 使用commit生成镜像$ dock">
-  <link rel="canonical" href="http://yoursite.com/2020/11/11/k8s/docker实践/">
+<meta name="twitter:title" content="flink-任务发布命令总结">
+<meta name="twitter:description" content="YARNperjob说明： 1、flink版本1.10 命令分解： 12345678910111213-d #以分离模式运行任务-m #连接到不同的JobManager地址yarn-cluster #yarn-cluster模式运行任务-p 5 #设置任务的并行度为5-yjm 1024 #JobManager Container的内存配置(MB)-ytm 2048 #TaskManager Con">
+  <link rel="canonical" href="http://yoursite.com/2020/11/30/flink/flink-任务发布命令总结/">
 
 
 <script id="page-configurations">
@@ -80,7 +80,7 @@
   };
 </script>
 
-  <title>docker实践 | 纪光的博客</title>
+  <title>flink-任务发布命令总结 | 纪光的博客</title>
   
 
 
@@ -245,7 +245,7 @@
   
   
   <article itemscope itemtype="http://schema.org/Article" class="post-block " lang="zh-CN">
-    <link itemprop="mainEntityOfPage" href="http://yoursite.com/2020/11/11/k8s/docker实践/">
+    <link itemprop="mainEntityOfPage" href="http://yoursite.com/2020/11/30/flink/flink-任务发布命令总结/">
 
     <span hidden itemprop="author" itemscope itemtype="http://schema.org/Person">
       <meta itemprop="name" content="姜纪光">
@@ -259,7 +259,7 @@
       <header class="post-header">
         <h1 class="post-title" itemprop="name headline">
           
-            docker实践
+            flink-任务发布命令总结
             
 
           
@@ -276,7 +276,7 @@
                 
               
 
-              <time title="创建时间：2020-11-11 09:53:14 / 修改时间：16:54:49" itemprop="dateCreated datePublished" datetime="2020-11-11T09:53:14+08:00">2020-11-11</time>
+              <time title="创建时间：2020-11-30 17:12:42 / 修改时间：17:45:48" itemprop="dateCreated datePublished" datetime="2020-11-30T17:12:42+08:00">2020-11-30</time>
             </span>
           
             
@@ -290,8 +290,8 @@
               <span class="post-meta-item-text">分类于</span>
               
                 <span itemprop="about" itemscope itemtype="http://schema.org/Thing">
-                  <a href="/categories/docker/" itemprop="url" rel="index">
-                    <span itemprop="name">docker</span>
+                  <a href="/categories/flink/" itemprop="url" rel="index">
+                    <span itemprop="name">flink</span>
                   </a>
                 </span>
 
@@ -302,7 +302,7 @@
           
 
           
-            <span id="/2020/11/11/k8s/docker实践/" class="post-meta-item leancloud_visitors" data-flag-title="docker实践" title="阅读次数">
+            <span id="/2020/11/30/flink/flink-任务发布命令总结/" class="post-meta-item leancloud_visitors" data-flag-title="flink-任务发布命令总结" title="阅读次数">
               <span class="post-meta-item-icon">
                 <i class="fa fa-eye"></i>
               </span>
@@ -322,33 +322,23 @@
     <div class="post-body" itemprop="articleBody">
 
       
-        <h1 id="构建镜像"><a href="#构建镜像" class="headerlink" title="构建镜像"></a>构建镜像</h1><ul>
-<li><p>scratch是一个空白镜像，以这个镜像为基础，意味着不以任何镜像为基础。</p>
-</li>
-<li><p>实用命令</p>
-<figure class="highlight shell"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br><span class="line">3</span><br><span class="line">4</span><br><span class="line">5</span><br><span class="line">6</span><br><span class="line">7</span><br></pre></td><td class="code"><pre><span class="line"><span class="meta">#</span> cd 到Dockerfile文件的目录</span><br><span class="line"><span class="meta">$</span> docker build -t mynginx:v1.1 .</span><br><span class="line"><span class="meta">#</span> 或者通过-f 参数指定Dockerfile路径</span><br><span class="line"><span class="meta">$</span> docker build -t mynginx:v1.1 . -f Dockerfile</span><br><span class="line"></span><br><span class="line"><span class="meta">#</span> 使用commit生成镜像</span><br><span class="line"><span class="meta">$</span> docker commit -a zuozhe -m "remarks" &lt;imageId&gt; &lt;imageName&gt;:&lt;tag&gt;</span><br></pre></td></tr></table></figure>
+        <h1 id="YARN"><a href="#YARN" class="headerlink" title="YARN"></a>YARN</h1><h2 id="perjob"><a href="#perjob" class="headerlink" title="perjob"></a>perjob</h2><p>说明：</p>
+<p>1、flink版本1.10</p>
+<p>命令分解：</p>
+<figure class="highlight shell"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br><span class="line">3</span><br><span class="line">4</span><br><span class="line">5</span><br><span class="line">6</span><br><span class="line">7</span><br><span class="line">8</span><br><span class="line">9</span><br><span class="line">10</span><br><span class="line">11</span><br><span class="line">12</span><br><span class="line">13</span><br></pre></td><td class="code"><pre><span class="line">-d #以分离模式运行任务</span><br><span class="line">-m #连接到不同的JobManager地址</span><br><span class="line">yarn-cluster #yarn-cluster模式运行任务</span><br><span class="line">-p 5 #设置任务的并行度为5</span><br><span class="line">-yjm 1024 #JobManager Container的内存配置(MB)</span><br><span class="line">-ytm 2048 #TaskManager Container的内存配置(MB)</span><br><span class="line">-ys 5 #每个TaskManager的Slot数量</span><br><span class="line">-yqu root.data.stream  #YARN队列的名称</span><br><span class="line">-ynm gapp_token_error_client #YARN上任务的名称</span><br><span class="line">-yD metrics.reporter.prom.labels #自定义监控指标</span><br><span class="line">-yD env.java.opts #指定Container JVM参数</span><br><span class="line">-c net.qutoutiao.libra.flink110.app.KafkaProducerDemo /tmp/81e801866f134fc384b3293a09ab60e5-1605774762298487566537968191214.jar #指定任务入口类和jar包</span><br><span class="line">--job.name jjg-test-1.10kafka-producer #任务名称 main参数</span><br></pre></td></tr></table></figure>
 
-<p>​</p>
-</li>
-</ul>
-<h1 id="本地镜像推送阿里云"><a href="#本地镜像推送阿里云" class="headerlink" title="本地镜像推送阿里云"></a>本地镜像推送阿里云</h1><ul>
-<li><p>登录<a href="https://cr.console.aliyun.com/cn-shanghai/instances/repositories" target="_blank" rel="noopener">阿里云镜像服务控制台</a></p>
-</li>
-<li><p>新建命名空间</p>
-</li>
-<li><p>创建镜像仓库</p>
-<blockquote>
-<p>1、镜像仓库可以不创建，在推送时可以自定义镜像仓库，阿里云会自动创建</p>
-<p>2、创建镜像仓库后，点击 具体的镜像仓库名称，进入操作指南</p>
-</blockquote>
-</li>
-<li><p>实用命令</p>
-<figure class="highlight shell"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br><span class="line">3</span><br><span class="line">4</span><br><span class="line">5</span><br><span class="line">6</span><br><span class="line">7</span><br><span class="line">8</span><br><span class="line">9</span><br><span class="line">10</span><br><span class="line">11</span><br><span class="line">12</span><br></pre></td><td class="code"><pre><span class="line"><span class="meta">#</span> 拉取镜像</span><br><span class="line"><span class="meta">$</span> docker pull registry.cn-shanghai.aliyuncs.com/[命名空间]/[镜像仓库名称]:[镜像版本号]</span><br><span class="line"></span><br><span class="line"><span class="meta">#</span> 推送镜像</span><br><span class="line"><span class="meta">#</span> 1、首先需要登录</span><br><span class="line"><span class="meta">$</span> docker login --username=[登录名] registry.cn-shanghai.aliyuncs.com</span><br><span class="line"><span class="meta">#</span> 推送到阿里云上的镜像和本地镜像关联：</span><br><span class="line"><span class="meta">#</span> ImageId为docker images 命令显示的IMAGE ID，不能随便填</span><br><span class="line"><span class="meta">#</span> 镜像版本号可以任意指定</span><br><span class="line"><span class="meta">$</span> docker tag [ImageId] registry.cn-shanghai.aliyuncs.com/[命名空间]/[镜像仓库名称]:[镜像版本号]</span><br><span class="line"><span class="meta">#</span> 推送镜像</span><br><span class="line"><span class="meta">$</span> docker push registry.cn-shanghai.aliyuncs.com/[命名空间]/[镜像仓库名称]:[镜像版本号]</span><br></pre></td></tr></table></figure>
+<p>命令示例：</p>
+<figure class="highlight shell"><table><tr><td class="gutter"><pre><span class="line">1</span><br></pre></td><td class="code"><pre><span class="line"><span class="meta">$</span> /data/flink/prd/flink-1.10.1/bin/flink run -d -m yarn-cluster -p 5 -yjm 1024 -ytm 2048 -ys 5 -yqu root.data.stream -ynm jjg-test-1.10kafka-producer -yD metrics.reporter.prom.labels="libra_job_name=jjg-test-1.10kafka-producer;libra_job_owner=jiangjiguang@qutoutiao.net" -yD env.java.opts="-server -XX:+UseConcMarkSweepGC -XX:+UseCMSInitiatingOccupancyOnly -XX:CMSInitiatingOccupancyFraction=75 -XX:ParallelGCThreads=4 -XX:+AlwaysPreTouch -XX:NewRatio=1 -DjobName=jjg-test-1.10kafka-producer" -c net.qutoutiao.libra.flink110.app.KafkaProducerDemo /tmp/81e801866f134fc384b3293a09ab60e5-1605774762298487566537968191214.jar --job.name jjg-test-1.10kafka-producer</span><br></pre></td></tr></table></figure>
 
-<p>​</p>
-</li>
-</ul>
-<h1 id="参考文档"><a href="#参考文档" class="headerlink" title="参考文档"></a>参考文档</h1>
+<h2 id="perjob-SQL"><a href="#perjob-SQL" class="headerlink" title="perjob SQL"></a>perjob SQL</h2><p>说明：</p>
+<p>1、flink版本1.11</p>
+<p>命令分解：</p>
+<figure class="highlight shell"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br><span class="line">3</span><br><span class="line">4</span><br><span class="line">5</span><br><span class="line">6</span><br><span class="line">7</span><br><span class="line">8</span><br><span class="line">9</span><br><span class="line">10</span><br><span class="line">11</span><br><span class="line">12</span><br><span class="line">13</span><br><span class="line">14</span><br></pre></td><td class="code"><pre><span class="line">-d #以分离模式运行任务</span><br><span class="line">-m #连接到不同的JobManager地址</span><br><span class="line">yarn-cluster #yarn-cluster模式运行任务</span><br><span class="line">-p 8 #设置任务的并行度为8</span><br><span class="line">-yjm 2048 #JobManager Container的内存配置(MB)</span><br><span class="line">-ytm 3072 #TaskManager Container的内存配置(MB)</span><br><span class="line">-ys 8 #每个TaskManager的Slot数量</span><br><span class="line">-yqu root.data.stream  #YARN队列的名称</span><br><span class="line">-ynm gapp_token_error_client #YARN上任务的名称</span><br><span class="line">-yD metrics.reporter.prom.labels #自定义监控指标</span><br><span class="line">-yD env.java.opts #指定Container JVM参数</span><br><span class="line">-c com.qtt.bigdata.sqlsubmit.SqlSubmit /data/flink/prd/flink-1.11.1-sql/flink-sql-submit-1.0-SNAPSHOT.jar #指定任务入口类和jar包</span><br><span class="line">-job_name gapp_token_error_client #任务名称 main参数</span><br><span class="line">-sql #base64编码的sql内容</span><br></pre></td></tr></table></figure>
+
+<p>命令示例：</p>
+<figure class="highlight shell"><table><tr><td class="gutter"><pre><span class="line">1</span><br></pre></td><td class="code"><pre><span class="line"><span class="meta">$</span> /data/flink/prd/flink-1.11.1-sql/bin/flink run -d -m yarn-cluster -p 8 -yjm 2048 -ytm 3072 -ys 8 -yqu root.data.stream -ynm gapp_token_error_client_zhangpei -yD metrics.reporter.prom.labels="libra_job_name=gapp_token_error_client;libra_job_owner=zhangpei@qutoutiao.net" -yD env.java.opts="-server -XX:+UseConcMarkSweepGC -XX:+UseCMSInitiatingOccupancyOnly -XX:CMSInitiatingOccupancyFraction=75 -XX:ParallelGCThreads=4 -XX:+AlwaysPreTouch -XX:NewRatio=1 -DjobName=gapp_token_error_client" -c com.qtt.bigdata.sqlsubmit.SqlSubmit /data/flink/prd/flink-1.11.1-sql/flink-sql-submit-1.0-SNAPSHOT.jar -job_name gapp_token_error_client -sql H4sIAAAAAAAAAOVUwW7bRhC98yv2RjkQCUtB0rguC6gOkQiQ5UCh20Nh0KvliN6I3GV2h66dj0hOLdB7+wEBAuQQ9HOM5jM6XEqqlMh2AuSUXERq9r2dmTdvaAGZAYvcYGDRcIT8MprJC8iCDAp+ue/ZLYhwDRFyRCgrtFFvd/cT4O6XsMzue4wxR4ALEDVKrUJxBmJeaalQqjyECwSjeCFfEP3/o8AAgmrw0SROBsNxejRODwbjg3g0GiTDo/H+jbfSA8w5L6K7rJTqZmypM4gGSTqKB08TSnMQ34LnF4HQStTGUIVrNZM8tzClCipeW4juO21uwqIsQdcY9foO6gkDJDRDPi2AzflszlOpOo287BTOqZBT9jSZDMePum2Mi+bSzWCjtcqIN9PscPDkh8VZ+/ixxVRGiyY345Y9mRwdJMPDuLPj7fwm8axN51PzCgRq47OI+a4WvyX7xK7AoAQbTrXGxh1VaGkUYKxDZzJQ9TPJVR44YngW8mkvfI5oJUKoAL/f293rb7kvN7quQpm5a3JeVSnqOagUjNEmFYUkDVIHWpJRV1I4eKHzlFKkOS9BQOONtLlhCZxpU3J0SEqIelrP1gpw/8PnNdI4JNdBCdbyHIKmJ5LY0Vax/kdEmSttgOZuLASu2FYJNDWswNzwooBC2tKd9e/53s6HQxfzlCpoZ/BMTzcmWwIaKexGrOBTKOy1g3ZSkdPmcHkt5rQ6P2UPj45/GsWtA9hWC1CvVMAZ1HbZEM8y+kK0jfa+64e9++G9vbD3YLeZbu+2tqUiyyCjTdCLrmlVCsrHBLfY8fPFDGmsUqWkhd+4ta18p3mlUHcrdqHTh/hFuMs8R1J1UTThj2Vx6FbYrkfHv/qNEcmU3fXlWkVPThr8mtLLDELXCjt33HWtvu61OvdmpOVqv71fHseTeLngje/Xu/E9rrLVpke++yL7nkvHppfbK+qy5PiQ8nWWi95lw3EST34ejGhUPjscjo+T+Brz9b9N9/Vvsl++/hn6HC9uEL9qYwquBBRtdKMa6j0tbe6fRP6/f767+uf3q79ev3/zd7eV5v3Lt1ev/mhDX8rW/wHTxxHaDQkAAA==</span><br></pre></td></tr></table></figure>
+
+<h1 id="K8S"><a href="#K8S" class="headerlink" title="K8S"></a>K8S</h1>
     </div>
 
     
@@ -364,8 +354,8 @@
           <div class="post-nav">
             <div class="post-nav-next post-nav-item">
               
-                <a href="/2020/11/04/k8s/k8s-Helm/" rel="next" title="k8s-Helm">
-                  <i class="fa fa-chevron-left"></i> k8s-Helm
+                <a href="/2020/11/28/k8s/k8s-组件架构图/" rel="next" title="k8s-组件架构图">
+                  <i class="fa fa-chevron-left"></i> k8s-组件架构图
                 </a>
               
             </div>
@@ -374,8 +364,8 @@
 
             <div class="post-nav-prev post-nav-item">
               
-                <a href="/2020/11/12/k8s/k8s-APIServer/" rel="prev" title="k8s-APIServer">
-                  k8s-APIServer <i class="fa fa-chevron-right"></i>
+                <a href="/2020/11/30/calcite/calcite-基本知识/" rel="prev" title="calcite-基本知识">
+                  calcite-基本知识 <i class="fa fa-chevron-right"></i>
                 </a>
               
             </div>
@@ -422,7 +412,7 @@
 
       <!--noindex-->
       <div class="post-toc-wrap sidebar-panel">
-          <div class="post-toc motion-element"><ol class="nav"><li class="nav-item nav-level-1"><a class="nav-link" href="#构建镜像"><span class="nav-number">1.</span> <span class="nav-text">构建镜像</span></a></li><li class="nav-item nav-level-1"><a class="nav-link" href="#本地镜像推送阿里云"><span class="nav-number">2.</span> <span class="nav-text">本地镜像推送阿里云</span></a></li><li class="nav-item nav-level-1"><a class="nav-link" href="#参考文档"><span class="nav-number">3.</span> <span class="nav-text">参考文档</span></a></li></ol></div>
+          <div class="post-toc motion-element"><ol class="nav"><li class="nav-item nav-level-1"><a class="nav-link" href="#YARN"><span class="nav-number">1.</span> <span class="nav-text">YARN</span></a><ol class="nav-child"><li class="nav-item nav-level-2"><a class="nav-link" href="#perjob"><span class="nav-number">1.1.</span> <span class="nav-text">perjob</span></a></li><li class="nav-item nav-level-2"><a class="nav-link" href="#perjob-SQL"><span class="nav-number">1.2.</span> <span class="nav-text">perjob SQL</span></a></li></ol></li><li class="nav-item nav-level-1"><a class="nav-link" href="#K8S"><span class="nav-number">2.</span> <span class="nav-text">K8S</span></a></li></ol></div>
         
       </div>
       <!--/noindex-->
@@ -438,7 +428,7 @@
         
           <a href="/archives/">
         
-          <span class="site-state-item-count">118</span>
+          <span class="site-state-item-count">123</span>
           <span class="site-state-item-name">日志</span>
         </a>
       </div>
