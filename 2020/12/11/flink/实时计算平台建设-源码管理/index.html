@@ -55,15 +55,18 @@
   };
 </script>
 
-  <meta name="keywords" content="实时计算平台建设系列">
+  <meta name="description" content="目的​    在建设实时计算平台过程中，经常需要根据自身需求修改flink源码，而这些源码是不需要共享给社区的。那么如果管理源码，多人协作开发就是需要考虑的问题。以下是要实现的目的：  flink代码仓库建在公司的git仓库中 实现多人协作开发，开启分支保护，新增代码必须经过review才能合并到生产分支中 可以从官方 github apache/flink中同步代码 可以把代码push到gith">
+<meta name="keywords" content="实时计算平台建设系列">
 <meta property="og:type" content="article">
 <meta property="og:title" content="实时计算平台建设-源码管理">
 <meta property="og:url" content="http://yoursite.com/2020/12/11/flink/实时计算平台建设-源码管理/index.html">
 <meta property="og:site_name" content="纪光的博客">
+<meta property="og:description" content="目的​    在建设实时计算平台过程中，经常需要根据自身需求修改flink源码，而这些源码是不需要共享给社区的。那么如果管理源码，多人协作开发就是需要考虑的问题。以下是要实现的目的：  flink代码仓库建在公司的git仓库中 实现多人协作开发，开启分支保护，新增代码必须经过review才能合并到生产分支中 可以从官方 github apache/flink中同步代码 可以把代码push到gith">
 <meta property="og:locale" content="zh-CN">
-<meta property="og:updated_time" content="2020-12-11T06:14:48.531Z">
+<meta property="og:updated_time" content="2020-12-11T08:06:49.222Z">
 <meta name="twitter:card" content="summary">
 <meta name="twitter:title" content="实时计算平台建设-源码管理">
+<meta name="twitter:description" content="目的​    在建设实时计算平台过程中，经常需要根据自身需求修改flink源码，而这些源码是不需要共享给社区的。那么如果管理源码，多人协作开发就是需要考虑的问题。以下是要实现的目的：  flink代码仓库建在公司的git仓库中 实现多人协作开发，开启分支保护，新增代码必须经过review才能合并到生产分支中 可以从官方 github apache/flink中同步代码 可以把代码push到gith">
   <link rel="canonical" href="http://yoursite.com/2020/12/11/flink/实时计算平台建设-源码管理/">
 
 
@@ -274,7 +277,7 @@
                 
               
 
-              <time title="创建时间：2020-12-11 14:02:18 / 修改时间：14:14:48" itemprop="dateCreated datePublished" datetime="2020-12-11T14:02:18+08:00">2020-12-11</time>
+              <time title="创建时间：2020-12-11 14:02:18 / 修改时间：16:06:49" itemprop="dateCreated datePublished" datetime="2020-12-11T14:02:18+08:00">2020-12-11</time>
             </span>
           
             
@@ -320,7 +323,29 @@
     <div class="post-body" itemprop="articleBody">
 
       
-        
+        <h1 id="目的"><a href="#目的" class="headerlink" title="目的"></a>目的</h1><p>​    在建设实时计算平台过程中，经常需要根据自身需求修改flink源码，而这些源码是不需要共享给社区的。那么如果管理源码，多人协作开发就是需要考虑的问题。以下是要实现的目的：</p>
+<ul>
+<li>flink代码仓库建在公司的git仓库中</li>
+<li>实现多人协作开发，开启分支保护，新增代码必须经过review才能合并到生产分支中</li>
+<li>可以从官方 github apache/flink中同步代码</li>
+<li>可以把代码push到github 的个人私有仓库中</li>
+</ul>
+<h1 id="仓库配置"><a href="#仓库配置" class="headerlink" title="仓库配置"></a>仓库配置</h1><figure class="highlight shell"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br><span class="line">3</span><br><span class="line">4</span><br><span class="line">5</span><br><span class="line">6</span><br><span class="line">7</span><br><span class="line">8</span><br><span class="line">9</span><br><span class="line">10</span><br><span class="line">11</span><br><span class="line">12</span><br><span class="line">13</span><br><span class="line">14</span><br><span class="line">15</span><br><span class="line">16</span><br><span class="line">17</span><br></pre></td><td class="code"><pre><span class="line"><span class="meta">#</span> ---------------------------------------------------</span><br><span class="line"><span class="meta">#</span> 1.在公司的git中，建立flink仓库，命名flink</span><br><span class="line"><span class="meta">#</span> 比如新仓库的地址为：git@git.jjg.net:platform/flink.git</span><br><span class="line"><span class="meta">#</span> ---------------------------------------------------</span><br><span class="line"><span class="meta">#</span> 2.clone官网 github apache/flink 代码</span><br><span class="line"><span class="meta">$</span> git clone https://github.com/apache/flink.git</span><br><span class="line"><span class="meta">#</span> ---------------------------------------------------</span><br><span class="line"><span class="meta">#</span> 3.把2中clone下来的代码加到1中的仓库中</span><br><span class="line"><span class="meta">#</span> 将原来origin仓库别名改为apache</span><br><span class="line"><span class="meta">$</span> git remote rename origin apache</span><br><span class="line"><span class="meta">#</span> 设置origin指向公司仓库</span><br><span class="line"><span class="meta">$</span> git remote add origin git@git.jjg.net:platform/flink.git</span><br><span class="line"><span class="meta">#</span> 推送所有分支</span><br><span class="line"><span class="meta">$</span> git push origin --all</span><br><span class="line"><span class="meta">#</span> 推送所有标记</span><br><span class="line"><span class="meta">$</span> git push origin --tags</span><br><span class="line"><span class="meta">#</span> ---------------------------------------------------</span><br></pre></td></tr></table></figure>
+
+<h2 id="代码提交-review规范"><a href="#代码提交-review规范" class="headerlink" title="代码提交/review规范"></a>代码提交/review规范</h2><ul>
+<li><p>尽量每个功能一次commit，即使为了修改bug进行了多次commit，<strong>也要在push的时候合并多次commit为一次</strong></p>
+<figure class="highlight shell"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br><span class="line">3</span><br><span class="line">4</span><br><span class="line">5</span><br><span class="line">6</span><br><span class="line">7</span><br><span class="line">8</span><br><span class="line">9</span><br><span class="line">10</span><br></pre></td><td class="code"><pre><span class="line"><span class="meta">#</span> 最佳使用方式有两种</span><br><span class="line"><span class="meta">#</span> 1.把最近commit，都合并到最近一次push 远程分支的commit，合并后push时加-f 参数 </span><br><span class="line">例如 git push -f origin jjg-dev-1208</span><br><span class="line">p c    #最近一次push</span><br><span class="line">s a1   #commit</span><br><span class="line">s a2   #commit</span><br><span class="line"><span class="meta">#</span> 2.还没有push的，合并一次commit</span><br><span class="line">r a1</span><br><span class="line">s a2</span><br><span class="line">s a3</span><br></pre></td></tr></table></figure>
+</li>
+<li><p>每次合并基础分支时使用<strong>rebase，不要使用merge</strong></p>
+<figure class="highlight shell"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br></pre></td><td class="code"><pre><span class="line"><span class="meta">#</span> rebase和merge的区别：rebase不会影响分支的commit，merge会把merge来的放在最新，会影响commit</span><br><span class="line"><span class="meta">$</span> git merge master</span><br></pre></td></tr></table></figure>
+
+</li>
+</ul>
+<h1 id="常用命令"><a href="#常用命令" class="headerlink" title="常用命令"></a>常用命令</h1><figure class="highlight shell"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br><span class="line">3</span><br><span class="line">4</span><br><span class="line">5</span><br><span class="line">6</span><br><span class="line">7</span><br><span class="line">8</span><br><span class="line">9</span><br><span class="line">10</span><br><span class="line">11</span><br><span class="line">12</span><br><span class="line">13</span><br><span class="line">14</span><br><span class="line">15</span><br><span class="line">16</span><br><span class="line">17</span><br><span class="line">18</span><br><span class="line">19</span><br><span class="line">20</span><br><span class="line">21</span><br><span class="line">22</span><br><span class="line">23</span><br><span class="line">24</span><br><span class="line">25</span><br><span class="line">26</span><br><span class="line">27</span><br></pre></td><td class="code"><pre><span class="line"><span class="meta">#</span> ----------------rebase使用------------------------</span><br><span class="line"><span class="meta">$</span> git rebase -i  [startpoint]  [endpoint]</span><br><span class="line"><span class="meta">#</span> 合并最近4次 commit记录</span><br><span class="line"><span class="meta">$</span> git rebase -i HEAD~4</span><br><span class="line"><span class="meta">#</span> 重新编辑</span><br><span class="line"><span class="meta">$</span> git rebase --edit-todo </span><br><span class="line"><span class="meta">#</span> 重新编辑后继续rebase</span><br><span class="line"><span class="meta">$</span> git rebase --continue</span><br><span class="line"><span class="meta">#</span> 终止rebase</span><br><span class="line"><span class="meta">$</span> git rebase --abort</span><br><span class="line"><span class="meta">#</span> ----------------rebase使用------------------------</span><br><span class="line"><span class="meta">#</span> 添加自己github仓库的远程分支</span><br><span class="line"><span class="meta">$</span> git remote add jjg https://github.com/jiangjiguang/flink.git</span><br><span class="line"><span class="meta">#</span> 查看现有的远程仓库</span><br><span class="line"><span class="meta">$</span> git remote -v </span><br><span class="line"><span class="meta">#</span> 添加远程仓库</span><br><span class="line"><span class="meta">$</span> git remote add #&#123;别名&#125; #&#123;地址&#125;</span><br><span class="line"><span class="meta">#</span> 删除远程仓库</span><br><span class="line"><span class="meta">$</span> git remote remove #&#123;别名&#125;</span><br><span class="line"><span class="meta">#</span> 从源仓库更新同步代码</span><br><span class="line"><span class="meta">$</span> git fetch #&#123;别名&#125;</span><br><span class="line"><span class="meta">#</span> 合并到本地代码</span><br><span class="line"><span class="meta">$</span> git merge #&#123;别名&#125;/#&#123;分支&#125;</span><br><span class="line"><span class="meta">#</span> 查看远程仓库</span><br><span class="line"><span class="meta">$</span> git remote show #&#123;别名&#125;</span><br><span class="line"><span class="meta">#</span> 重命名远程仓库</span><br><span class="line"><span class="meta">$</span> git remote rename old new</span><br></pre></td></tr></table></figure>
+
+<h1 id="参考文档"><a href="#参考文档" class="headerlink" title="参考文档"></a>参考文档</h1><p><a href="https://git-scm.com/book/zh/v2/Git-%E5%9F%BA%E7%A1%80-%E8%BF%9C%E7%A8%8B%E4%BB%93%E5%BA%93%E7%9A%84%E4%BD%BF%E7%94%A8" target="_blank" rel="noopener">Git 基础 - 远程仓库的使用</a></p>
+<p><a href="https://jiangjiguang.me/2020/07/20/tools/git%E5%AE%9E%E8%B7%B5/" target="_blank" rel="noopener">git实践</a></p>
+
     </div>
 
     
@@ -399,6 +424,8 @@
 
       <!--noindex-->
       <div class="post-toc-wrap sidebar-panel">
+          <div class="post-toc motion-element"><ol class="nav"><li class="nav-item nav-level-1"><a class="nav-link" href="#目的"><span class="nav-number">1.</span> <span class="nav-text">目的</span></a></li><li class="nav-item nav-level-1"><a class="nav-link" href="#仓库配置"><span class="nav-number">2.</span> <span class="nav-text">仓库配置</span></a><ol class="nav-child"><li class="nav-item nav-level-2"><a class="nav-link" href="#代码提交-review规范"><span class="nav-number">2.1.</span> <span class="nav-text">代码提交/review规范</span></a></li></ol></li><li class="nav-item nav-level-1"><a class="nav-link" href="#常用命令"><span class="nav-number">3.</span> <span class="nav-text">常用命令</span></a></li><li class="nav-item nav-level-1"><a class="nav-link" href="#参考文档"><span class="nav-number">4.</span> <span class="nav-text">参考文档</span></a></li></ol></div>
+        
       </div>
       <!--/noindex-->
 
@@ -426,7 +453,7 @@
             <a href="/categories/">
           
         
-        <span class="site-state-item-count">18</span>
+        <span class="site-state-item-count">17</span>
         <span class="site-state-item-name">分类</span>
         </a>
       </div>
