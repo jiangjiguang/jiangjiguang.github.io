@@ -241,6 +241,720 @@
   
   
   <article itemscope itemtype="http://schema.org/Article" class="post-block home" lang="zh-CN">
+    <link itemprop="mainEntityOfPage" href="http://yoursite.com/2020/11/04/k8s/k8s-ConfigMap/">
+
+    <span hidden itemprop="author" itemscope itemtype="http://schema.org/Person">
+      <meta itemprop="name" content="姜纪光">
+      <meta itemprop="description" content="">
+      <meta itemprop="image" content="/images/avatar.gif">
+    </span>
+
+    <span hidden itemprop="publisher" itemscope itemtype="http://schema.org/Organization">
+      <meta itemprop="name" content="纪光的博客">
+    </span>
+      <header class="post-header">
+        <h1 class="post-title" itemprop="name headline">
+          
+            
+            <a href="/2020/11/04/k8s/k8s-ConfigMap/" class="post-title-link" itemprop="url">k8s-ConfigMap</a>
+          
+        </h1>
+
+        <div class="post-meta">
+            <span class="post-meta-item">
+              <span class="post-meta-item-icon">
+                <i class="fa fa-calendar-o"></i>
+              </span>
+              <span class="post-meta-item-text">发表于</span>
+
+              
+                
+              
+
+              <time title="创建时间：2020-11-04 09:07:25 / 修改时间：09:42:34" itemprop="dateCreated datePublished" datetime="2020-11-04T09:07:25+08:00">2020-11-04</time>
+            </span>
+          
+            
+
+            
+          
+            <span class="post-meta-item">
+              <span class="post-meta-item-icon">
+                <i class="fa fa-folder-o"></i>
+              </span>
+              <span class="post-meta-item-text">分类于</span>
+              
+                <span itemprop="about" itemscope itemtype="http://schema.org/Thing">
+                  <a href="/categories/k8s/" itemprop="url" rel="index">
+                    <span itemprop="name">k8s</span>
+                  </a>
+                </span>
+
+                
+                
+              
+            </span>
+          
+
+          
+            <span id="/2020/11/04/k8s/k8s-ConfigMap/" class="post-meta-item leancloud_visitors" data-flag-title="k8s-ConfigMap" title="阅读次数">
+              <span class="post-meta-item-icon">
+                <i class="fa fa-eye"></i>
+              </span>
+              <span class="post-meta-item-text">阅读次数：</span>
+              <span class="leancloud-visitors-count"></span>
+            </span>
+          
+  
+  
+
+        </div>
+      </header>
+
+    
+    
+    
+    <div class="post-body" itemprop="articleBody">
+
+      
+          <h1 id="概述"><a href="#概述" class="headerlink" title="概述"></a>概述</h1><ul>
+<li><p>存储不加密数据到etcd，让Pod以变量或者Volume挂载到容器中。</p>
+</li>
+<li><p>场景</p>
+<blockquote>
+<p>配置文件</p>
+</blockquote>
+</li>
+</ul>
+<h1 id="创建配置文件"><a href="#创建配置文件" class="headerlink" title="创建配置文件"></a>创建配置文件</h1><ul>
+<li><p>创建配置文件</p>
+<p>redis.properties</p>
+<figure class="highlight plain"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br><span class="line">3</span><br></pre></td><td class="code"><pre><span class="line">redis.host=127.0.0.1</span><br><span class="line">redis.port=6379</span><br><span class="line">redis.password=123456</span><br></pre></td></tr></table></figure>
+</li>
+<li><p>创建ConfigMap</p>
+<figure class="highlight shell"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br><span class="line">3</span><br><span class="line">4</span><br><span class="line">5</span><br></pre></td><td class="code"><pre><span class="line"><span class="meta">#</span> 创建配置文件</span><br><span class="line"><span class="meta">$</span> kubectl create configmap redis-config --from-file=redis.properties </span><br><span class="line"></span><br><span class="line"><span class="meta">#</span> 查看配置文件详情</span><br><span class="line"><span class="meta">$</span> kubectl describe configmap redis-config</span><br></pre></td></tr></table></figure>
+
+</li>
+</ul>
+<h1 id="以Volume形式挂载到Pod容器"><a href="#以Volume形式挂载到Pod容器" class="headerlink" title="以Volume形式挂载到Pod容器"></a>以Volume形式挂载到Pod容器</h1><ul>
+<li>配置文件</li>
+</ul>
+<figure class="highlight yaml"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br><span class="line">3</span><br><span class="line">4</span><br><span class="line">5</span><br><span class="line">6</span><br><span class="line">7</span><br><span class="line">8</span><br><span class="line">9</span><br><span class="line">10</span><br><span class="line">11</span><br><span class="line">12</span><br><span class="line">13</span><br><span class="line">14</span><br><span class="line">15</span><br><span class="line">16</span><br><span class="line">17</span><br></pre></td><td class="code"><pre><span class="line"><span class="attr">apiVersion:</span> <span class="string">v1</span></span><br><span class="line"><span class="attr">kind:</span> <span class="string">Pod</span></span><br><span class="line"><span class="attr">metadata:</span></span><br><span class="line"><span class="attr">  name:</span> <span class="string">mypod</span></span><br><span class="line"><span class="attr">spec:</span></span><br><span class="line"><span class="attr">  containers:</span></span><br><span class="line"><span class="attr">    - name:</span> <span class="string">busybox</span></span><br><span class="line"><span class="attr">      image:</span> <span class="string">busybox</span></span><br><span class="line"><span class="attr">      command:</span> <span class="string">[</span> <span class="string">"/bin/sh"</span><span class="string">,"-c","cat</span> <span class="string">/etc/config/redis.properties"</span> <span class="string">]</span></span><br><span class="line"><span class="attr">      volumeMounts:</span></span><br><span class="line"><span class="attr">      - name:</span> <span class="string">config-volume</span></span><br><span class="line"><span class="attr">        mountPath:</span> <span class="string">/etc/config</span></span><br><span class="line"><span class="attr">  volumes:</span></span><br><span class="line"><span class="attr">    - name:</span> <span class="string">config-volume</span></span><br><span class="line"><span class="attr">      configMap:</span></span><br><span class="line"><span class="attr">        name:</span> <span class="string">redis-config</span></span><br><span class="line"><span class="attr">  restartPolicy:</span> <span class="string">Never</span></span><br></pre></td></tr></table></figure>
+
+<ul>
+<li><p>运行命令</p>
+<figure class="highlight shell"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br><span class="line">3</span><br><span class="line">4</span><br><span class="line">5</span><br><span class="line">6</span><br><span class="line">7</span><br></pre></td><td class="code"><pre><span class="line"><span class="meta">#</span> 创建Pod</span><br><span class="line"><span class="meta">$</span> kubectl apply -f cm.yaml </span><br><span class="line"></span><br><span class="line"><span class="meta">#</span> 因为Pod已经结束，不能再进入</span><br><span class="line"><span class="meta">$</span> kubectl exec -it mypod bash</span><br><span class="line"><span class="meta">#</span> 查看日志</span><br><span class="line"><span class="meta">$</span> kubectl logs mypod</span><br></pre></td></tr></table></figure>
+
+</li>
+</ul>
+<h1 id="以变量形式挂载"><a href="#以变量形式挂载" class="headerlink" title="以变量形式挂载"></a>以变量形式挂载</h1><h1 id="参考文档"><a href="#参考文档" class="headerlink" title="参考文档"></a>参考文档</h1>
+        
+      
+    </div>
+
+    
+    
+    
+      <footer class="post-footer">
+        <div class="post-eof"></div>
+      </footer>
+  </article>
+  
+  
+  
+
+    
+        
+  
+  
+  <article itemscope itemtype="http://schema.org/Article" class="post-block home" lang="zh-CN">
+    <link itemprop="mainEntityOfPage" href="http://yoursite.com/2020/11/03/k8s/k8s-Service/">
+
+    <span hidden itemprop="author" itemscope itemtype="http://schema.org/Person">
+      <meta itemprop="name" content="姜纪光">
+      <meta itemprop="description" content="">
+      <meta itemprop="image" content="/images/avatar.gif">
+    </span>
+
+    <span hidden itemprop="publisher" itemscope itemtype="http://schema.org/Organization">
+      <meta itemprop="name" content="纪光的博客">
+    </span>
+      <header class="post-header">
+        <h1 class="post-title" itemprop="name headline">
+          
+            
+            <a href="/2020/11/03/k8s/k8s-Service/" class="post-title-link" itemprop="url">k8s-Service</a>
+          
+        </h1>
+
+        <div class="post-meta">
+            <span class="post-meta-item">
+              <span class="post-meta-item-icon">
+                <i class="fa fa-calendar-o"></i>
+              </span>
+              <span class="post-meta-item-text">发表于</span>
+
+              
+                
+              
+
+              <time title="创建时间：2020-11-03 09:30:54" itemprop="dateCreated datePublished" datetime="2020-11-03T09:30:54+08:00">2020-11-03</time>
+            </span>
+          
+            
+
+            
+              <span class="post-meta-item">
+                <span class="post-meta-item-icon">
+                  <i class="fa fa-calendar-check-o"></i>
+                </span>
+                <span class="post-meta-item-text">更新于</span>
+                <time title="修改时间：2020-11-11 09:35:41" itemprop="dateModified" datetime="2020-11-11T09:35:41+08:00">2020-11-11</time>
+              </span>
+            
+          
+            <span class="post-meta-item">
+              <span class="post-meta-item-icon">
+                <i class="fa fa-folder-o"></i>
+              </span>
+              <span class="post-meta-item-text">分类于</span>
+              
+                <span itemprop="about" itemscope itemtype="http://schema.org/Thing">
+                  <a href="/categories/k8s/" itemprop="url" rel="index">
+                    <span itemprop="name">k8s</span>
+                  </a>
+                </span>
+
+                
+                
+              
+            </span>
+          
+
+          
+            <span id="/2020/11/03/k8s/k8s-Service/" class="post-meta-item leancloud_visitors" data-flag-title="k8s-Service" title="阅读次数">
+              <span class="post-meta-item-icon">
+                <i class="fa fa-eye"></i>
+              </span>
+              <span class="post-meta-item-text">阅读次数：</span>
+              <span class="leancloud-visitors-count"></span>
+            </span>
+          
+  
+  
+
+        </div>
+      </header>
+
+    
+    
+    
+    <div class="post-body" itemprop="articleBody">
+
+      
+          <h1 id="概述"><a href="#概述" class="headerlink" title="概述"></a>概述</h1><ul>
+<li><p>服务发现就是服务（应用）之间相互定位的过程</p>
+</li>
+<li><p>通过创建 Service,可以为一组具有相同功能的容器应 用提供一个统一的入口地 址，并且将请求负载分发到后端的各个容器应用上</p>
+<blockquote>
+<p>1、可以直接通过Pod的IP地址和端口号访问容器内的服务，但是Pod的IP地址是不可靠的，当Pod发生故障被重新调度时，IP地址会发生变化</p>
+<p>2、直接使用Pod的IP发生也不能实现负载均衡</p>
+</blockquote>
+</li>
+<li><p>每个Pod都有一个Ip地址，但是这个地址不是固定的</p>
+</li>
+<li><p>Pod注册Ip到Service，Service做服务发现，防止Pod失联</p>
+</li>
+<li><p>定义一组Pod访问策略（负载均衡）</p>
+</li>
+<li><p>Pod和Service通过label和selector建立关联</p>
+</li>
+<li><p>访问服务时先要进入Service，Service有其自己的ip（vip）</p>
+</li>
+</ul>
+<h1 id="Service类型"><a href="#Service类型" class="headerlink" title="Service类型"></a>Service类型</h1><ul>
+<li><p>ClusterIP</p>
+<blockquote>
+<p>集群内部使用，虚拟的服务IP地址，用于k8s集群内部的Pod访问，在Node上kube-proxy通过设置的iptables规则进行转发。</p>
+</blockquote>
+</li>
+<li><p>NodePort</p>
+<blockquote>
+<p>外部访问应用时使用。使用宿主机的端口，通过Node的IP地址和端口号就能访问服务。</p>
+</blockquote>
+</li>
+<li><p>LoadBalancer</p>
+<blockquote>
+<p>外部访问应用时使用，共有云。使用外接负载均衡器完成到服务的负载分发，需要在spec.status.loadBalancer字段外指定外部负载均衡器的IP地址，并同时定义nodePort和clusterIP，用于公有云环境。</p>
+</blockquote>
+</li>
+</ul>
+<h1 id="Headless-Service"><a href="#Headless-Service" class="headerlink" title="Headless Service"></a>Headless Service</h1><ul>
+<li><p>不为Service设置ClusterIP，仅通过Label Selector将后端的Pod列表返回给调用的客户端</p>
+</li>
+<li><p>Service不再具有一个特定的ClusterIP地址，客户端获取到全部Pod列表，然后自行处理Pod列表。</p>
+</li>
+<li><p>应用场景：</p>
+<blockquote>
+<p>1、自己控制负载均衡策略，不适用Service提供的默认负载均衡功能</p>
+<p>2、应用程序希望知道属于同组服务的其他实例</p>
+</blockquote>
+</li>
+</ul>
+<h1 id="集群外部访问"><a href="#集群外部访问" class="headerlink" title="集群外部访问"></a>集群外部访问</h1><ul>
+<li><p>Pod和Service都是k8s集群范围内的虚拟概念，集群外的客户端无法通过Pod或Service的虚拟IP地址和端口号访问它们</p>
+</li>
+<li><p>映射容器端口号到物理机</p>
+<figure class="highlight yaml"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br><span class="line">3</span><br></pre></td><td class="code"><pre><span class="line"><span class="attr">ports:</span></span><br><span class="line"><span class="attr">- containerPort:</span> <span class="number">8080</span>   <span class="string">容器端口号</span></span><br><span class="line"><span class="attr">  hostPort:</span> <span class="number">8081</span>  <span class="string">//物理机端口号</span></span><br></pre></td></tr></table></figure>
+</li>
+<li><p>映射Service端口号到物理机</p>
+<figure class="highlight yaml"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br><span class="line">3</span><br><span class="line">4</span><br><span class="line">5</span><br></pre></td><td class="code"><pre><span class="line"><span class="attr">type:</span> <span class="string">NodePort</span></span><br><span class="line"><span class="attr">ports:</span> </span><br><span class="line"><span class="attr">- port:</span> <span class="number">8080</span></span><br><span class="line"><span class="attr">  targetPort:</span> <span class="number">8080</span></span><br><span class="line"><span class="attr">  nodePort:</span> <span class="number">8081</span></span><br></pre></td></tr></table></figure>
+
+</li>
+</ul>
+<h1 id="DNS服务"><a href="#DNS服务" class="headerlink" title="DNS服务"></a>DNS服务</h1><ul>
+<li><p><code>在集群内</code>完成从服务名到ClusterIP的解析</p>
+<blockquote>
+<p>只负责维护”服务名”到”集群网络IP”之间的关系。</p>
+</blockquote>
+</li>
+<li><p>至今共经历了3个版本</p>
+<blockquote>
+<p>1、1.2版本时是SkyDNS</p>
+<p>2、1.4版本时是KubeDNS</p>
+<p>3、1.11版本开始是CoreDNS</p>
+</blockquote>
+</li>
+<li><p>配置：<a href="https://github.com/kubernetes/kubernetes/blob/master/cluster/addons/dns/coredns/coredns.yaml.base" target="_blank" rel="noopener">coredns.yaml.base</a></p>
+</li>
+<li><p>除了使用DNS可以发现服务外，使用<code>环境变量</code>也可以发现Pod创建之前的服务</p>
+</li>
+<li><p>客户端Pod可以通过全限定域名（FQDN）来访问其它Pod。</p>
+<blockquote>
+<p>FQDN的组成：&lt;服务名称&gt;.<namespace>.svc.cluster.local</namespace></p>
+</blockquote>
+</li>
+</ul>
+<h1 id="endpoint"><a href="#endpoint" class="headerlink" title="endpoint"></a>endpoint</h1><ul>
+<li><p>Service服务并不是和Pod直接相连，二者之间是Endpoint资源</p>
+</li>
+<li><p>Endpoint资源就是暴露一个服务的IP地址和端口的列表</p>
+<blockquote>
+<p>尽管在spec中定义了pod选择器，但在重定向传入连接时不会直接使用它，相反选择器用于构建IP和端口列表，然后存储在Endpoint资源中。</p>
+</blockquote>
+</li>
+<li><p>Endpoint是一个单独的资源并不是服务的一个属性</p>
+</li>
+<li><p>​</p>
+</li>
+</ul>
+<h1 id="Ingress"><a href="#Ingress" class="headerlink" title="Ingress"></a>Ingress</h1><ul>
+<li>Ingress资源对象用于将不同URL的访问请求转发到后端不同的Service，以实现HTTP层的业务路由机制。</li>
+</ul>
+<h1 id="就绪探针"><a href="#就绪探针" class="headerlink" title="就绪探针"></a>就绪探针</h1><h1 id="常用命令"><a href="#常用命令" class="headerlink" title="常用命令"></a>常用命令</h1><figure class="highlight shell"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br><span class="line">3</span><br><span class="line">4</span><br><span class="line">5</span><br><span class="line">6</span><br><span class="line">7</span><br><span class="line">8</span><br><span class="line">9</span><br><span class="line">10</span><br><span class="line">11</span><br><span class="line">12</span><br><span class="line">13</span><br><span class="line">14</span><br><span class="line">15</span><br><span class="line">16</span><br><span class="line">17</span><br></pre></td><td class="code"><pre><span class="line"><span class="meta">#</span> 删除pod</span><br><span class="line"><span class="meta">$</span> kubectl delete deployment web</span><br><span class="line"></span><br><span class="line"><span class="meta">#</span> 创建pod</span><br><span class="line"><span class="meta">$</span> kubectl apply -f web.yaml </span><br><span class="line"></span><br><span class="line"><span class="meta">#</span> 得出的IP地址应该是Pod的IP，在k8s内部可以访问</span><br><span class="line"><span class="meta">$</span> kubectl get pod -o wide</span><br><span class="line"><span class="meta">#</span> 得出的CLUSTER-IP 是什么IP呢？只能在Pod所在节点访问</span><br><span class="line"><span class="meta">$</span> kubectl get svc -o wide </span><br><span class="line"></span><br><span class="line"><span class="meta">#</span> 列出容器的环境变量，获取的是该Pod创建之前已经存在的环境变量</span><br><span class="line"><span class="meta">$</span> kubectl exec &lt;pod-name&gt; env</span><br><span class="line"></span><br><span class="line"><span class="meta">$</span> kubectl get endpoints kubia</span><br><span class="line"></span><br><span class="line"><span class="meta">$</span> kubectl get pods --all-namespaces -o -wide</span><br></pre></td></tr></table></figure>
+
+<h1 id="3个端口说明"><a href="#3个端口说明" class="headerlink" title="3个端口说明"></a>3个端口说明</h1><h2 id="port"><a href="#port" class="headerlink" title="port"></a>port</h2><p>​    The port that the service is exposed on the service’s cluster ip (virsual ip). Port is the service port which is accessed by others with cluster ip.</p>
+<p>​    这里的port表示：service暴露在cluster ip上的端口，<strong><cluster ip>:port</cluster></strong> 是提供给集群内部客户访问service的入口。</p>
+<h2 id="targetPort"><a href="#targetPort" class="headerlink" title="targetPort"></a>targetPort</h2><p>​    The port on the pod that the service should proxy traffic to.</p>
+<p>​    targetPort是pod上的端口，从port和nodePort上到来的数据最终经过kube-proxy流入到后端pod的targetPort上进入容器。</p>
+<h2 id="nodePort"><a href="#nodePort" class="headerlink" title="nodePort"></a>nodePort</h2><p>​    On top of having a cluster-internal IP, expose the service on a port on each node of the cluster (the same port on each node). You’ll be able to contact the service on any<strong><nodeip>:nodePort</nodeip></strong>address. So nodePort is alse the service port which can be accessed by the node ip by others with external ip.</p>
+<p>​    首先，nodePort是kubernetes提供给集群外部客户访问service入口的一种方式（另一种方式是LoadBalancer），所以，<nodeip>:nodePort 是提供给集群外部客户访问service的入口。</nodeip></p>
+<h2 id="总结"><a href="#总结" class="headerlink" title="总结"></a>总结</h2><h1 id="参考文档"><a href="#参考文档" class="headerlink" title="参考文档"></a>参考文档</h1><p><a href="https://blog.csdn.net/xinghun_4/article/details/50492041" target="_blank" rel="noopener">kubernetes中port、target port、node port的对比分析，以及kube-proxy代理</a></p>
+
+        
+      
+    </div>
+
+    
+    
+    
+      <footer class="post-footer">
+        <div class="post-eof"></div>
+      </footer>
+  </article>
+  
+  
+  
+
+    
+        
+  
+  
+  <article itemscope itemtype="http://schema.org/Article" class="post-block home" lang="zh-CN">
+    <link itemprop="mainEntityOfPage" href="http://yoursite.com/2020/11/02/k8s/k8s-Controller控制器/">
+
+    <span hidden itemprop="author" itemscope itemtype="http://schema.org/Person">
+      <meta itemprop="name" content="姜纪光">
+      <meta itemprop="description" content="">
+      <meta itemprop="image" content="/images/avatar.gif">
+    </span>
+
+    <span hidden itemprop="publisher" itemscope itemtype="http://schema.org/Organization">
+      <meta itemprop="name" content="纪光的博客">
+    </span>
+      <header class="post-header">
+        <h1 class="post-title" itemprop="name headline">
+          
+            
+            <a href="/2020/11/02/k8s/k8s-Controller控制器/" class="post-title-link" itemprop="url">k8s-Controller Manager</a>
+          
+        </h1>
+
+        <div class="post-meta">
+            <span class="post-meta-item">
+              <span class="post-meta-item-icon">
+                <i class="fa fa-calendar-o"></i>
+              </span>
+              <span class="post-meta-item-text">发表于</span>
+
+              
+                
+              
+
+              <time title="创建时间：2020-11-02 20:19:25" itemprop="dateCreated datePublished" datetime="2020-11-02T20:19:25+08:00">2020-11-02</time>
+            </span>
+          
+            
+
+            
+              <span class="post-meta-item">
+                <span class="post-meta-item-icon">
+                  <i class="fa fa-calendar-check-o"></i>
+                </span>
+                <span class="post-meta-item-text">更新于</span>
+                <time title="修改时间：2020-11-12 09:56:56" itemprop="dateModified" datetime="2020-11-12T09:56:56+08:00">2020-11-12</time>
+              </span>
+            
+          
+            <span class="post-meta-item">
+              <span class="post-meta-item-icon">
+                <i class="fa fa-folder-o"></i>
+              </span>
+              <span class="post-meta-item-text">分类于</span>
+              
+                <span itemprop="about" itemscope itemtype="http://schema.org/Thing">
+                  <a href="/categories/k8s/" itemprop="url" rel="index">
+                    <span itemprop="name">k8s</span>
+                  </a>
+                </span>
+
+                
+                
+              
+            </span>
+          
+
+          
+            <span id="/2020/11/02/k8s/k8s-Controller控制器/" class="post-meta-item leancloud_visitors" data-flag-title="k8s-Controller Manager" title="阅读次数">
+              <span class="post-meta-item-icon">
+                <i class="fa fa-eye"></i>
+              </span>
+              <span class="post-meta-item-text">阅读次数：</span>
+              <span class="leancloud-visitors-count"></span>
+            </span>
+          
+  
+  
+
+        </div>
+      </header>
+
+    
+    
+    
+    <div class="post-body" itemprop="articleBody">
+
+      
+          <h1 id="概述"><a href="#概述" class="headerlink" title="概述"></a>概述</h1><ul>
+<li>Pod和Controller之间通过selector和label标签建立关系。</li>
+<li>Pod通过Controller实现应用的运维，比如伸缩、滚动升级等。</li>
+</ul>
+<h1 id="deployment-应用场景"><a href="#deployment-应用场景" class="headerlink" title="deployment 应用场景"></a>deployment 应用场景</h1><ul>
+<li><p>部署无状态应用</p>
+</li>
+<li><p>管理Pod和ReplicaSet</p>
+</li>
+<li><p>部署、滚动升级等功能</p>
+</li>
+<li><p>应用场景</p>
+<blockquote>
+<p>web服务、微服务</p>
+</blockquote>
+</li>
+</ul>
+<h1 id="StatefulSet部署有状态应用"><a href="#StatefulSet部署有状态应用" class="headerlink" title="StatefulSet部署有状态应用"></a>StatefulSet部署有状态应用</h1><ul>
+<li><p>部署有状态应用</p>
+<blockquote>
+<p>让每个Pod独立，保持Pod启动顺序和唯一性</p>
+<p>唯一的网络标识符，持久存储</p>
+<p>有序</p>
+</blockquote>
+</li>
+</ul>
+<h1 id="DaemonSet-部署守护进程"><a href="#DaemonSet-部署守护进程" class="headerlink" title="DaemonSet 部署守护进程"></a>DaemonSet 部署守护进程</h1><ul>
+<li><p>在每个node上面都会运行一个pod，例如日志采集工具</p>
+</li>
+<li><p>yaml文件</p>
+<figure class="highlight yaml"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br><span class="line">3</span><br><span class="line">4</span><br><span class="line">5</span><br><span class="line">6</span><br><span class="line">7</span><br><span class="line">8</span><br><span class="line">9</span><br><span class="line">10</span><br><span class="line">11</span><br><span class="line">12</span><br><span class="line">13</span><br><span class="line">14</span><br><span class="line">15</span><br><span class="line">16</span><br><span class="line">17</span><br><span class="line">18</span><br><span class="line">19</span><br><span class="line">20</span><br><span class="line">21</span><br><span class="line">22</span><br><span class="line">23</span><br><span class="line">24</span><br><span class="line">25</span><br><span class="line">26</span><br><span class="line">27</span><br></pre></td><td class="code"><pre><span class="line"><span class="attr">apiVersion:</span> <span class="string">apps/v1</span></span><br><span class="line"><span class="attr">kind:</span> <span class="string">DaemonSet</span></span><br><span class="line"><span class="attr">metadata:</span></span><br><span class="line"><span class="attr">  name:</span> <span class="string">dt-test</span></span><br><span class="line"><span class="attr">  labels:</span> </span><br><span class="line"><span class="attr">    app:</span> <span class="string">filebeat</span></span><br><span class="line"><span class="attr">spec:</span></span><br><span class="line"><span class="attr">  selector:</span></span><br><span class="line"><span class="attr">    matchLabels:</span></span><br><span class="line"><span class="attr">      app:</span> <span class="string">filebeat</span></span><br><span class="line"><span class="attr">  template:</span></span><br><span class="line"><span class="attr">    metadata:</span></span><br><span class="line"><span class="attr">      labels:</span> </span><br><span class="line"><span class="attr">        app:</span> <span class="string">filebeat</span></span><br><span class="line"><span class="attr">    spec:</span></span><br><span class="line"><span class="attr">      containers:</span></span><br><span class="line"><span class="attr">      - name:</span> <span class="string">logs</span></span><br><span class="line"><span class="attr">        image:</span> <span class="string">nginx</span></span><br><span class="line"><span class="attr">        ports:</span></span><br><span class="line"><span class="attr">        - containerPort:</span> <span class="number">80</span></span><br><span class="line"><span class="attr">        volumeMounts:</span></span><br><span class="line"><span class="attr">        - name:</span> <span class="string">varlog</span></span><br><span class="line"><span class="attr">          mountPath:</span> <span class="string">/tmp/log</span></span><br><span class="line"><span class="attr">      volumes:</span></span><br><span class="line"><span class="attr">      - name:</span> <span class="string">varlog</span></span><br><span class="line"><span class="attr">        hostPath:</span> </span><br><span class="line"><span class="attr">          path:</span> <span class="string">/var/log</span></span><br></pre></td></tr></table></figure>
+
+</li>
+</ul>
+<h1 id="实用命令"><a href="#实用命令" class="headerlink" title="实用命令"></a>实用命令</h1><figure class="highlight shell"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br><span class="line">3</span><br><span class="line">4</span><br><span class="line">5</span><br><span class="line">6</span><br><span class="line">7</span><br><span class="line">8</span><br><span class="line">9</span><br><span class="line">10</span><br><span class="line">11</span><br><span class="line">12</span><br><span class="line">13</span><br><span class="line">14</span><br><span class="line">15</span><br><span class="line">16</span><br><span class="line">17</span><br><span class="line">18</span><br><span class="line">19</span><br><span class="line">20</span><br><span class="line">21</span><br><span class="line">22</span><br><span class="line">23</span><br><span class="line">24</span><br><span class="line">25</span><br><span class="line">26</span><br><span class="line">27</span><br><span class="line">28</span><br><span class="line">29</span><br><span class="line">30</span><br><span class="line">31</span><br><span class="line">32</span><br><span class="line">33</span><br><span class="line">34</span><br><span class="line">35</span><br><span class="line">36</span><br></pre></td><td class="code"><pre><span class="line"><span class="meta">#</span> 生成yaml文件</span><br><span class="line"><span class="meta">$</span> kubectl create deployment web2 --image=nginx --dry-run -o yaml &gt; web2.yaml</span><br><span class="line"><span class="meta">#</span> 应用部署</span><br><span class="line"><span class="meta">$</span> kubectl apply -f web.yaml</span><br><span class="line"><span class="meta">#</span> 对外发布</span><br><span class="line"><span class="meta">$</span> kubectl expose deployment web --port=80 --type=NodePort --target-port=80 --name=web1</span><br><span class="line">  -o yaml &gt; pp.yaml</span><br><span class="line"><span class="meta">#</span> 查看发布的端口号 </span><br><span class="line"><span class="meta">$</span> kubectl get pods,svc</span><br><span class="line"></span><br><span class="line"><span class="meta">#</span> docker命令只能在具体的节点查看镜像的版本</span><br><span class="line"><span class="meta">$</span> docker images</span><br><span class="line"></span><br><span class="line"><span class="meta">#</span> 升级版本</span><br><span class="line"><span class="meta">$</span> kubectl set image deployment web nginx=nginx:1.15</span><br><span class="line"></span><br><span class="line"><span class="meta">#</span> 查看升级状态</span><br><span class="line"><span class="meta">$</span> kubectl rollout status deployment web</span><br><span class="line"><span class="meta">#</span> 查看历史版本</span><br><span class="line"><span class="meta">$</span> kubectl rollout history deployment web</span><br><span class="line"></span><br><span class="line"><span class="meta">#</span> 回滚到上一个版本</span><br><span class="line"><span class="meta">$</span> kubectl rollout undo deployment web</span><br><span class="line"></span><br><span class="line"><span class="meta">#</span> 回滚到指定版本</span><br><span class="line"><span class="meta">$</span> kubectl rollout undo deployment web --to-revision=2</span><br><span class="line"></span><br><span class="line"><span class="meta">#</span> 弹性伸缩</span><br><span class="line"><span class="meta">$</span> kubectl scale deployment web --replicas=2</span><br><span class="line"></span><br><span class="line"><span class="meta">#</span> 进入Pod，查看采集数据</span><br><span class="line"><span class="meta">$</span> kubectl exec -it dt-test-v8wjp bash</span><br><span class="line"></span><br><span class="line"><span class="meta">#</span> -it是下面两个选项的缩写</span><br><span class="line"><span class="meta">#</span> 1、-i 确保标准输入流保持开放，需要在shell中输入命令</span><br><span class="line"><span class="meta">#</span> 2、-t 分配一个伪终端(TTY)</span><br></pre></td></tr></table></figure>
+
+<h1 id="参考文档"><a href="#参考文档" class="headerlink" title="参考文档"></a>参考文档</h1>
+        
+      
+    </div>
+
+    
+    
+    
+      <footer class="post-footer">
+        <div class="post-eof"></div>
+      </footer>
+  </article>
+  
+  
+  
+
+    
+        
+  
+  
+  <article itemscope itemtype="http://schema.org/Article" class="post-block home" lang="zh-CN">
+    <link itemprop="mainEntityOfPage" href="http://yoursite.com/2020/11/02/k8s/k8s-调度器/">
+
+    <span hidden itemprop="author" itemscope itemtype="http://schema.org/Person">
+      <meta itemprop="name" content="姜纪光">
+      <meta itemprop="description" content="">
+      <meta itemprop="image" content="/images/avatar.gif">
+    </span>
+
+    <span hidden itemprop="publisher" itemscope itemtype="http://schema.org/Organization">
+      <meta itemprop="name" content="纪光的博客">
+    </span>
+      <header class="post-header">
+        <h1 class="post-title" itemprop="name headline">
+          
+            
+            <a href="/2020/11/02/k8s/k8s-调度器/" class="post-title-link" itemprop="url">k8s-调度器</a>
+          
+        </h1>
+
+        <div class="post-meta">
+            <span class="post-meta-item">
+              <span class="post-meta-item-icon">
+                <i class="fa fa-calendar-o"></i>
+              </span>
+              <span class="post-meta-item-text">发表于</span>
+
+              
+                
+              
+
+              <time title="创建时间：2020-11-02 19:36:58 / 修改时间：20:17:58" itemprop="dateCreated datePublished" datetime="2020-11-02T19:36:58+08:00">2020-11-02</time>
+            </span>
+          
+            
+
+            
+          
+            <span class="post-meta-item">
+              <span class="post-meta-item-icon">
+                <i class="fa fa-folder-o"></i>
+              </span>
+              <span class="post-meta-item-text">分类于</span>
+              
+                <span itemprop="about" itemscope itemtype="http://schema.org/Thing">
+                  <a href="/categories/k8s/" itemprop="url" rel="index">
+                    <span itemprop="name">k8s</span>
+                  </a>
+                </span>
+
+                
+                
+              
+            </span>
+          
+
+          
+            <span id="/2020/11/02/k8s/k8s-调度器/" class="post-meta-item leancloud_visitors" data-flag-title="k8s-调度器" title="阅读次数">
+              <span class="post-meta-item-icon">
+                <i class="fa fa-eye"></i>
+              </span>
+              <span class="post-meta-item-text">阅读次数：</span>
+              <span class="leancloud-visitors-count"></span>
+            </span>
+          
+  
+  
+
+        </div>
+      </header>
+
+    
+    
+    
+    <div class="post-body" itemprop="articleBody">
+
+      
+          <h1 id="概述"><a href="#概述" class="headerlink" title="概述"></a>概述</h1><ul>
+<li>kube-scheduler 是 kubernetes 系统的核心组件之一，主要负责整个集群资源的调 度功能，根据特定的调度算法和策略，将 Pod 调度到最优的工作节点上面去</li>
+<li>容器平台的主要功能就是为容器分配运行时所需要的计算，存储和网络资源。</li>
+<li>容器调 度系统负责选择在最合适的主机上启动容器，并且将它们关联起来。</li>
+<li>它必须能够自动的处 理容器故障并且能够在更多的主机上自动启动更多的容器来应对更多的应用访问。</li>
+<li>k8s采用了Pod和Label这样的概念把容器组合成一个个的相互存在依赖关系的逻辑单元。相关容器被组合成Pod后被共同部署和调度，形成服务（Service）。</li>
+</ul>
+<h1 id="调度工作方式"><a href="#调度工作方式" class="headerlink" title="调度工作方式"></a>调度工作方式</h1><p>​    调度器作为集群的大脑，在如何提高集群的资源利用率、保证集群中服务的稳 定运行中也会变得越来越重要。</p>
+<p>k8s的资源分为两种属性：</p>
+<ul>
+<li><p>可压缩资源</p>
+<blockquote>
+<p>例如CPU、Disk和I/O带宽，都是可以被限制和被回收的，可以降低Pod对这些资源的使用量而不用杀掉Pod。</p>
+</blockquote>
+</li>
+<li><p>不可压缩资源</p>
+<blockquote>
+<p>例如内存、磁盘空间，一般不杀掉Pod就无法回收。</p>
+</blockquote>
+</li>
+</ul>
+<h1 id="节点调度亲和性"><a href="#节点调度亲和性" class="headerlink" title="节点调度亲和性"></a>节点调度亲和性</h1><h1 id="Pod资源亲和调度"><a href="#Pod资源亲和调度" class="headerlink" title="Pod资源亲和调度"></a>Pod资源亲和调度</h1><h1 id="污点和容忍度"><a href="#污点和容忍度" class="headerlink" title="污点和容忍度"></a>污点和容忍度</h1><ul>
+<li><p>节点不做普通分配调度，是节点属性</p>
+</li>
+<li><p>污点值有三个</p>
+<blockquote>
+<p>NoSchedule：一定不被调度</p>
+<p>PreferNoSchedule：尽量不被调度</p>
+<p>NoExecute：不会调度，并且还会驱逐Node上已有的Pod</p>
+</blockquote>
+</li>
+<li><p>污点容忍</p>
+<p>​</p>
+</li>
+</ul>
+<h1 id="实用命令"><a href="#实用命令" class="headerlink" title="实用命令"></a>实用命令</h1><figure class="highlight shell"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br><span class="line">3</span><br><span class="line">4</span><br><span class="line">5</span><br><span class="line">6</span><br><span class="line">7</span><br><span class="line">8</span><br><span class="line">9</span><br><span class="line">10</span><br><span class="line">11</span><br><span class="line">12</span><br></pre></td><td class="code"><pre><span class="line"><span class="meta">#</span> 查看节点污点情况</span><br><span class="line"><span class="meta">$</span> kubectl describe node node21 | grep Taints</span><br><span class="line"></span><br><span class="line"><span class="meta">#</span> 为节点添加污点</span><br><span class="line"><span class="meta">$</span> kubectl taint node node21 env_role=yes:NoSchedule</span><br><span class="line"></span><br><span class="line"><span class="meta">$</span> kubectl create deployment web --image=niginx</span><br><span class="line"><span class="meta">$</span> kubectl get pods -o wide</span><br><span class="line"><span class="meta">$</span> kubectl get pods -o wide     </span><br><span class="line"></span><br><span class="line"><span class="meta">#</span> 删除污点</span><br><span class="line"><span class="meta">$</span> kubectl taint node node21 env_role:NoSchedule-</span><br></pre></td></tr></table></figure>
+
+<h1 id="参考文档"><a href="#参考文档" class="headerlink" title="参考文档"></a>参考文档</h1>
+        
+      
+    </div>
+
+    
+    
+    
+      <footer class="post-footer">
+        <div class="post-eof"></div>
+      </footer>
+  </article>
+  
+  
+  
+
+    
+        
+  
+  
+  <article itemscope itemtype="http://schema.org/Article" class="post-block home" lang="zh-CN">
+    <link itemprop="mainEntityOfPage" href="http://yoursite.com/2020/11/02/k8s/k8s-Label/">
+
+    <span hidden itemprop="author" itemscope itemtype="http://schema.org/Person">
+      <meta itemprop="name" content="姜纪光">
+      <meta itemprop="description" content="">
+      <meta itemprop="image" content="/images/avatar.gif">
+    </span>
+
+    <span hidden itemprop="publisher" itemscope itemtype="http://schema.org/Organization">
+      <meta itemprop="name" content="纪光的博客">
+    </span>
+      <header class="post-header">
+        <h1 class="post-title" itemprop="name headline">
+          
+            
+            <a href="/2020/11/02/k8s/k8s-Label/" class="post-title-link" itemprop="url">k8s-Label</a>
+          
+        </h1>
+
+        <div class="post-meta">
+            <span class="post-meta-item">
+              <span class="post-meta-item-icon">
+                <i class="fa fa-calendar-o"></i>
+              </span>
+              <span class="post-meta-item-text">发表于</span>
+
+              
+                
+              
+
+              <time title="创建时间：2020-11-02 17:53:24 / 修改时间：17:59:19" itemprop="dateCreated datePublished" datetime="2020-11-02T17:53:24+08:00">2020-11-02</time>
+            </span>
+          
+            
+
+            
+          
+            <span class="post-meta-item">
+              <span class="post-meta-item-icon">
+                <i class="fa fa-folder-o"></i>
+              </span>
+              <span class="post-meta-item-text">分类于</span>
+              
+                <span itemprop="about" itemscope itemtype="http://schema.org/Thing">
+                  <a href="/categories/k8s/" itemprop="url" rel="index">
+                    <span itemprop="name">k8s</span>
+                  </a>
+                </span>
+
+                
+                
+              
+            </span>
+          
+
+          
+            <span id="/2020/11/02/k8s/k8s-Label/" class="post-meta-item leancloud_visitors" data-flag-title="k8s-Label" title="阅读次数">
+              <span class="post-meta-item-icon">
+                <i class="fa fa-eye"></i>
+              </span>
+              <span class="post-meta-item-text">阅读次数：</span>
+              <span class="leancloud-visitors-count"></span>
+            </span>
+          
+  
+  
+
+        </div>
+      </header>
+
+    
+    
+    
+    <div class="post-body" itemprop="articleBody">
+
+      
+          <h1 id="简介"><a href="#简介" class="headerlink" title="简介"></a>简介</h1><h1 id="常用命令"><a href="#常用命令" class="headerlink" title="常用命令"></a>常用命令</h1><figure class="highlight shell"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br><span class="line">3</span><br><span class="line">4</span><br><span class="line">5</span><br><span class="line">6</span><br></pre></td><td class="code"><pre><span class="line"><span class="meta">#</span> 显示节点标签</span><br><span class="line"><span class="meta">$</span> kubectl get nodes --show-labels</span><br><span class="line"><span class="meta">$</span> kubectl get nodes node21 --show-labels</span><br><span class="line"></span><br><span class="line"><span class="meta">#</span>为节点添加标签</span><br><span class="line"><span class="meta">$</span> kubectl label node node21 env_role=dev</span><br></pre></td></tr></table></figure>
+
+<h1 id="参考文档"><a href="#参考文档" class="headerlink" title="参考文档"></a>参考文档</h1>
+        
+      
+    </div>
+
+    
+    
+    
+      <footer class="post-footer">
+        <div class="post-eof"></div>
+      </footer>
+  </article>
+  
+  
+  
+
+    
+        
+  
+  
+  <article itemscope itemtype="http://schema.org/Article" class="post-block home" lang="zh-CN">
     <link itemprop="mainEntityOfPage" href="http://yoursite.com/2020/11/02/k8s/k8s-Pod/">
 
     <span hidden itemprop="author" itemscope itemtype="http://schema.org/Person">
@@ -1348,677 +2062,6 @@
   
 
     
-        
-  
-  
-  <article itemscope itemtype="http://schema.org/Article" class="post-block home" lang="zh-CN">
-    <link itemprop="mainEntityOfPage" href="http://yoursite.com/2020/10/21/kafka/kafka客户端/">
-
-    <span hidden itemprop="author" itemscope itemtype="http://schema.org/Person">
-      <meta itemprop="name" content="姜纪光">
-      <meta itemprop="description" content="">
-      <meta itemprop="image" content="/images/avatar.gif">
-    </span>
-
-    <span hidden itemprop="publisher" itemscope itemtype="http://schema.org/Organization">
-      <meta itemprop="name" content="纪光的博客">
-    </span>
-      <header class="post-header">
-        <h1 class="post-title" itemprop="name headline">
-          
-            
-            <a href="/2020/10/21/kafka/kafka客户端/" class="post-title-link" itemprop="url">kafka客户端</a>
-          
-        </h1>
-
-        <div class="post-meta">
-            <span class="post-meta-item">
-              <span class="post-meta-item-icon">
-                <i class="fa fa-calendar-o"></i>
-              </span>
-              <span class="post-meta-item-text">发表于</span>
-
-              
-                
-              
-
-              <time title="创建时间：2020-10-21 10:11:00" itemprop="dateCreated datePublished" datetime="2020-10-21T10:11:00+08:00">2020-10-21</time>
-            </span>
-          
-            
-
-            
-              <span class="post-meta-item">
-                <span class="post-meta-item-icon">
-                  <i class="fa fa-calendar-check-o"></i>
-                </span>
-                <span class="post-meta-item-text">更新于</span>
-                <time title="修改时间：2020-10-23 11:03:11" itemprop="dateModified" datetime="2020-10-23T11:03:11+08:00">2020-10-23</time>
-              </span>
-            
-          
-            <span class="post-meta-item">
-              <span class="post-meta-item-icon">
-                <i class="fa fa-folder-o"></i>
-              </span>
-              <span class="post-meta-item-text">分类于</span>
-              
-                <span itemprop="about" itemscope itemtype="http://schema.org/Thing">
-                  <a href="/categories/kafka/" itemprop="url" rel="index">
-                    <span itemprop="name">kafka</span>
-                  </a>
-                </span>
-
-                
-                
-              
-            </span>
-          
-
-          
-            <span id="/2020/10/21/kafka/kafka客户端/" class="post-meta-item leancloud_visitors" data-flag-title="kafka客户端" title="阅读次数">
-              <span class="post-meta-item-icon">
-                <i class="fa fa-eye"></i>
-              </span>
-              <span class="post-meta-item-text">阅读次数：</span>
-              <span class="leancloud-visitors-count"></span>
-            </span>
-          
-  
-  
-
-        </div>
-      </header>
-
-    
-    
-    
-    <div class="post-body" itemprop="articleBody">
-
-      
-          <h1 id="高级和低级API"><a href="#高级和低级API" class="headerlink" title="高级和低级API"></a>高级和低级API</h1><h1 id="消费者参数"><a href="#消费者参数" class="headerlink" title="消费者参数"></a>消费者参数</h1><ul>
-<li><p>fetch.min.bytes</p>
-<blockquote>
-<p>Consumer在一次拉取请求（poll方法）中能拉取的最小数据量，默认1byte，若kafka中返回给Consumer的数据量小于该值，就需要等待。</p>
-</blockquote>
-</li>
-<li><p>fetch.max.bytes</p>
-<blockquote>
-<p>Consumer在一次拉取请求（poll方法）中能拉取的最大数据量，默认50MB，当单条消息大于该值时也可正常消费消息。</p>
-</blockquote>
-</li>
-</ul>
-<h1 id="参考文档"><a href="#参考文档" class="headerlink" title="参考文档"></a>参考文档</h1><p><a href="https://www.jianshu.com/p/b23b90144dab" target="_blank" rel="noopener">Kafka技术内幕：消费者（高级和低级API）和 协调者</a></p>
-<p><a href="https://www.cnblogs.com/alexzhang92/p/10894800.html" target="_blank" rel="noopener">Kafka高级API和低级API</a></p>
-
-        
-      
-    </div>
-
-    
-    
-    
-      <footer class="post-footer">
-        <div class="post-eof"></div>
-      </footer>
-  </article>
-  
-  
-  
-
-    
-        
-  
-  
-  <article itemscope itemtype="http://schema.org/Article" class="post-block home" lang="zh-CN">
-    <link itemprop="mainEntityOfPage" href="http://yoursite.com/2020/10/21/kafka/kafka基本知识/">
-
-    <span hidden itemprop="author" itemscope itemtype="http://schema.org/Person">
-      <meta itemprop="name" content="姜纪光">
-      <meta itemprop="description" content="">
-      <meta itemprop="image" content="/images/avatar.gif">
-    </span>
-
-    <span hidden itemprop="publisher" itemscope itemtype="http://schema.org/Organization">
-      <meta itemprop="name" content="纪光的博客">
-    </span>
-      <header class="post-header">
-        <h1 class="post-title" itemprop="name headline">
-          
-            
-            <a href="/2020/10/21/kafka/kafka基本知识/" class="post-title-link" itemprop="url">kafka基本知识</a>
-          
-        </h1>
-
-        <div class="post-meta">
-            <span class="post-meta-item">
-              <span class="post-meta-item-icon">
-                <i class="fa fa-calendar-o"></i>
-              </span>
-              <span class="post-meta-item-text">发表于</span>
-
-              
-                
-              
-
-              <time title="创建时间：2020-10-21 10:10:49" itemprop="dateCreated datePublished" datetime="2020-10-21T10:10:49+08:00">2020-10-21</time>
-            </span>
-          
-            
-
-            
-              <span class="post-meta-item">
-                <span class="post-meta-item-icon">
-                  <i class="fa fa-calendar-check-o"></i>
-                </span>
-                <span class="post-meta-item-text">更新于</span>
-                <time title="修改时间：2020-10-23 09:28:51" itemprop="dateModified" datetime="2020-10-23T09:28:51+08:00">2020-10-23</time>
-              </span>
-            
-          
-            <span class="post-meta-item">
-              <span class="post-meta-item-icon">
-                <i class="fa fa-folder-o"></i>
-              </span>
-              <span class="post-meta-item-text">分类于</span>
-              
-                <span itemprop="about" itemscope itemtype="http://schema.org/Thing">
-                  <a href="/categories/kafka/" itemprop="url" rel="index">
-                    <span itemprop="name">kafka</span>
-                  </a>
-                </span>
-
-                
-                
-              
-            </span>
-          
-
-          
-            <span id="/2020/10/21/kafka/kafka基本知识/" class="post-meta-item leancloud_visitors" data-flag-title="kafka基本知识" title="阅读次数">
-              <span class="post-meta-item-icon">
-                <i class="fa fa-eye"></i>
-              </span>
-              <span class="post-meta-item-text">阅读次数：</span>
-              <span class="leancloud-visitors-count"></span>
-            </span>
-          
-  
-  
-
-        </div>
-      </header>
-
-    
-    
-    
-    <div class="post-body" itemprop="articleBody">
-
-      
-          <h1 id="基本概念"><a href="#基本概念" class="headerlink" title="基本概念"></a>基本概念</h1><ul>
-<li><p>topic</p>
-<blockquote>
-<p>主题是一个逻辑概念，消息以主题为单位进行归类，消费者订阅主题并进行消费。</p>
-<p>主题可以分为多个分区，一个分区只属于单个主题，同一主题不同分区包含的消息是不同的。</p>
-</blockquote>
-</li>
-<li><p>partition</p>
-<blockquote>
-<p>分区在存储层面可以看做一个可追加的日志文件，</p>
-<p>消息被追加到分区日志文件时会分配一个特定的偏移量（offset）</p>
-<p>offset是消息在分区中的唯一标识，用来保证消息在分区内的顺序性，但是不能跨分区</p>
-<p>kafka保证的是分区有序而不是主题有序</p>
-<p>每个分区包含多个副本（Replica），可以提高容灾能力</p>
-</blockquote>
-</li>
-<li><p>replica</p>
-<blockquote>
-<p>同一分区不同副本保存的是相同的消息，但是同一时刻，副本之间并非完全一样</p>
-<p>副本之间是<code>一主多从</code>的关系，leader副本负责读写请求，follower副本只负责与leader副本的消息同步</p>
-</blockquote>
-</li>
-<li><p>AR(Assigned Replicas)</p>
-<blockquote>
-<p>分区中所有副本的统称。</p>
-<p>leader副本负责维护和跟踪ISR集合中所有follower副本的滞后状态，当落后太多时从ISR中剔除，</p>
-<p>如果OSR中有副本追上leader副本，那么就会从OSR中移到ISR中。</p>
-<p>默认情况下，当leader副本失效，只有ISR中的副本才能有资格成为新leader副本。</p>
-</blockquote>
-</li>
-<li><p>ISR(In-Sync Replicas)</p>
-<blockquote>
-<p>所有与leader副本保持<code>一定程度</code>同步的副本（包括leader副本）组成ISR.</p>
-<p>ISR集合是AR集合中的一个子集。</p>
-<p><code>一定程度的同步</code>是指可忍受的滞后范围，可以通过参数配置。</p>
-<p>使用这种ISR的方式有效地权衡了数据可靠性和性能之间的关系。</p>
-</blockquote>
-</li>
-<li><p>OSR(Out-of-Sync Replicas)</p>
-<blockquote>
-<p>与leader副本同步滞后过多的副本（不包括leader副本）组成OSR。</p>
-</blockquote>
-</li>
-<li><p>HW(High Watermark)</p>
-<blockquote>
-<p>俗称高水位，标识了一个特定的消息偏移量（offset），消费者只能拉取到这个offset（不包括）之前的消息。</p>
-</blockquote>
-</li>
-<li><p>LEO(Log End Offset)</p>
-<blockquote>
-<p>标识当前日志文件中下一条待写入消息的offset。</p>
-<p>LEO的大小相当于当前日志分区中最后一条消息的offset值加1。</p>
-<p><code>ISR集合中每个副本都会维护自身的LEO，其中最小的LEO即为分区的HW。</code>就是最多能消费到ISR集合中最小的HW。</p>
-</blockquote>
-</li>
-</ul>
-<h1 id="kafka体系结构"><a href="#kafka体系结构" class="headerlink" title="kafka体系结构"></a>kafka体系结构</h1><ul>
-<li><p>zookeeper</p>
-<blockquote>
-<p>用来管理集群元数据、控制器的选举等操作</p>
-</blockquote>
-</li>
-<li><p>producer</p>
-<blockquote>
-<p>产生消息，并发送到broker</p>
-<p>消息被发到broker之前，根据分区规则选择存储到具体分区。</p>
-<p>消息在通过send方法发往broker的过程中，可能经过拦截器（Interceptor），序列化器（Serializer），和分区器（Partitioner）。</p>
-<p>生产者客户端是与具体的broker节点建立连接，直接向具体的broker节点发送消息，不关心消息属于哪个分区。</p>
-<p>KafkaProducer是线程安全的。</p>
-</blockquote>
-</li>
-<li><p>broker</p>
-<blockquote>
-<p>负责将收到的消息存储到磁盘中</p>
-</blockquote>
-</li>
-<li><p>consumer</p>
-<blockquote>
-<p>负责从broker订阅并消费消息。</p>
-<p>KafkaConsumer是非线程安全的，</p>
-<p>多线程的实现方式有多种：</p>
-<p>1、线程封闭，即为每个线程实例化一个KafkaConsumer对象，一个线程可以消费同一个消费组的一个或者多个分区中的消息，这种方式受限于分区个数。</p>
-<p>2、多个线程同时消费一个分区，通过assign和seek方法实现，但是对于位移提交和顺序控制会变得非常复杂，一般不推荐使用。</p>
-</blockquote>
-</li>
-<li><p>分区器</p>
-<blockquote>
-<p>分区器的作用就是为消息分配分区。</p>
-<p>如果消息ProducerRecord中指定了partition字段，就不需要分区器，partition字段代表的就是分区号。</p>
-<p>如果消息中没有指定partition字段，就需要分区器，根据key字段来计算partition的值。</p>
-</blockquote>
-</li>
-<li><p>元数据</p>
-<blockquote>
-<p>元数据是指kafka集群的元数据，记录了集群中的主题，主题分区，每个分区的leader副本分配的节点，follower副本分配的节点，哪些副本在AR IST OSR集合中。</p>
-<p>InFlightRequests缓存了生产者客户端已经发出但是还没有收到相应请求。从中可以获得leastLoadedNode，即Node节点中负载最小的一个Node。</p>
-<p>选择leastLoadedNode发送请求可以使消息尽快发出</p>
-</blockquote>
-</li>
-</ul>
-<h1 id="参考文档"><a href="#参考文档" class="headerlink" title="参考文档"></a>参考文档</h1><p><a href>深入理解Kafka核心设计与实践原理</a></p>
-
-        
-      
-    </div>
-
-    
-    
-    
-      <footer class="post-footer">
-        <div class="post-eof"></div>
-      </footer>
-  </article>
-  
-  
-  
-
-    
-        
-  
-  
-  <article itemscope itemtype="http://schema.org/Article" class="post-block home" lang="zh-CN">
-    <link itemprop="mainEntityOfPage" href="http://yoursite.com/2020/10/20/flink/两个任务消费kafka-topic和group-id相同-导致重复消费数据/">
-
-    <span hidden itemprop="author" itemscope itemtype="http://schema.org/Person">
-      <meta itemprop="name" content="姜纪光">
-      <meta itemprop="description" content="">
-      <meta itemprop="image" content="/images/avatar.gif">
-    </span>
-
-    <span hidden itemprop="publisher" itemscope itemtype="http://schema.org/Organization">
-      <meta itemprop="name" content="纪光的博客">
-    </span>
-      <header class="post-header">
-        <h1 class="post-title" itemprop="name headline">
-          
-            
-            <a href="/2020/10/20/flink/两个任务消费kafka-topic和group-id相同-导致重复消费数据/" class="post-title-link" itemprop="url">两个任务消费kafka,topic和group.id相同,导致重复消费数据</a>
-          
-        </h1>
-
-        <div class="post-meta">
-            <span class="post-meta-item">
-              <span class="post-meta-item-icon">
-                <i class="fa fa-calendar-o"></i>
-              </span>
-              <span class="post-meta-item-text">发表于</span>
-
-              
-                
-              
-
-              <time title="创建时间：2020-10-20 11:36:25" itemprop="dateCreated datePublished" datetime="2020-10-20T11:36:25+08:00">2020-10-20</time>
-            </span>
-          
-            
-
-            
-              <span class="post-meta-item">
-                <span class="post-meta-item-icon">
-                  <i class="fa fa-calendar-check-o"></i>
-                </span>
-                <span class="post-meta-item-text">更新于</span>
-                <time title="修改时间：2020-10-23 09:57:14" itemprop="dateModified" datetime="2020-10-23T09:57:14+08:00">2020-10-23</time>
-              </span>
-            
-          
-            <span class="post-meta-item">
-              <span class="post-meta-item-icon">
-                <i class="fa fa-folder-o"></i>
-              </span>
-              <span class="post-meta-item-text">分类于</span>
-              
-                <span itemprop="about" itemscope itemtype="http://schema.org/Thing">
-                  <a href="/categories/flink/" itemprop="url" rel="index">
-                    <span itemprop="name">flink</span>
-                  </a>
-                </span>
-
-                
-                
-              
-            </span>
-          
-
-          
-            <span id="/2020/10/20/flink/两个任务消费kafka-topic和group-id相同-导致重复消费数据/" class="post-meta-item leancloud_visitors" data-flag-title="两个任务消费kafka,topic和group.id相同,导致重复消费数据" title="阅读次数">
-              <span class="post-meta-item-icon">
-                <i class="fa fa-eye"></i>
-              </span>
-              <span class="post-meta-item-text">阅读次数：</span>
-              <span class="leancloud-visitors-count"></span>
-            </span>
-          
-  
-  
-
-        </div>
-      </header>
-
-    
-    
-    
-    <div class="post-body" itemprop="articleBody">
-
-      
-          <h1 id="问题描述"><a href="#问题描述" class="headerlink" title="问题描述"></a>问题描述</h1><p>​        由于实时平台的代码bug、上游操作集群的HDFS未通知、管理员未能查看任务发布失败的原因就重新发布用户的实时任务等多种因素影响，导致任务在实时平台上发布了两次，生成了两个yarn实例，一直持续6个多小时，由于历史原因，监控没有发现。</p>
-<p>​        任务的逻辑比较简单，就是消费kafka数据。就是这期间的数据消费时重复的，也就是每个任务实例都消费了一份全量数据。咦！和想象的不一样啊，既然任务本身是分布式的，即使多发布了一次，由于kafka确保每个topic的分区的数据只能被同一个线程消费，那么为什么kafka数据会被重复消费呢？</p>
-<h1 id="现象解释"><a href="#现象解释" class="headerlink" title="现象解释"></a>现象解释</h1><p>消费客户端可以通过两种方式消费topic：<code>assign和subscribe</code></p>
-<ul>
-<li><p>subscribe即为通常理解的订阅模式</p>
-<blockquote>
-<p>即使多个消费实例，也不会重复消费</p>
-<p>主要特点是只要有新的消费者消费topic时就会发生reblance，平均消费消息。</p>
-<p>消费时只需要传入topic即可，不需要传入partition</p>
-</blockquote>
-</li>
-</ul>
-<p>测试代码：</p>
-<figure class="highlight java"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br><span class="line">3</span><br><span class="line">4</span><br><span class="line">5</span><br><span class="line">6</span><br><span class="line">7</span><br><span class="line">8</span><br><span class="line">9</span><br><span class="line">10</span><br><span class="line">11</span><br><span class="line">12</span><br><span class="line">13</span><br><span class="line">14</span><br><span class="line">15</span><br><span class="line">16</span><br><span class="line">17</span><br><span class="line">18</span><br><span class="line">19</span><br><span class="line">20</span><br><span class="line">21</span><br><span class="line">22</span><br><span class="line">23</span><br><span class="line">24</span><br><span class="line">25</span><br><span class="line">26</span><br><span class="line">27</span><br><span class="line">28</span><br><span class="line">29</span><br><span class="line">30</span><br><span class="line">31</span><br><span class="line">32</span><br><span class="line">33</span><br><span class="line">34</span><br><span class="line">35</span><br><span class="line">36</span><br><span class="line">37</span><br><span class="line">38</span><br><span class="line">39</span><br><span class="line">40</span><br><span class="line">41</span><br><span class="line">42</span><br></pre></td><td class="code"><pre><span class="line"><span class="keyword">public</span> <span class="class"><span class="keyword">class</span> <span class="title">KafkaConsumerSubscribeApp</span> </span>&#123;</span><br><span class="line">    <span class="function"><span class="keyword">public</span> <span class="keyword">static</span> <span class="keyword">void</span> <span class="title">main</span><span class="params">(String[] args)</span> <span class="keyword">throws</span> Exception </span>&#123;</span><br><span class="line">        <span class="keyword">for</span> (<span class="keyword">int</span> i = <span class="number">0</span>; i &lt; <span class="number">1</span>; i++) &#123;</span><br><span class="line">            <span class="keyword">new</span> Thread(<span class="keyword">new</span> MyConsumer(i)).start();</span><br><span class="line">        &#125;</span><br><span class="line">        TimeUnit.DAYS.sleep(<span class="number">1</span>);</span><br><span class="line">    &#125;</span><br><span class="line">    <span class="keyword">static</span> <span class="class"><span class="keyword">class</span> <span class="title">MyConsumer</span> <span class="keyword">implements</span> <span class="title">Runnable</span> </span>&#123;</span><br><span class="line">        <span class="keyword">private</span> <span class="keyword">int</span> partition;</span><br><span class="line">        <span class="function"><span class="keyword">public</span> <span class="title">MyConsumer</span><span class="params">(<span class="keyword">int</span> partition)</span> </span>&#123;</span><br><span class="line">            <span class="keyword">this</span>.partition = partition;</span><br><span class="line">        &#125;</span><br><span class="line"></span><br><span class="line">        <span class="meta">@Override</span></span><br><span class="line">        <span class="function"><span class="keyword">public</span> <span class="keyword">void</span> <span class="title">run</span><span class="params">()</span> </span>&#123;</span><br><span class="line">            Consumer&lt;String, String&gt; consumer;</span><br><span class="line"></span><br><span class="line">            Properties props = <span class="keyword">new</span> Properties();</span><br><span class="line">            props.put(ConsumerConfig.BOOTSTRAP_SERVERS_CONFIG, KafkaConstant.SERVER_PUB);</span><br><span class="line">            props.put(ConsumerConfig.GROUP_ID_CONFIG, KafkaConstant.TOPIC_BIGDATA_LIBRA_LOG);</span><br><span class="line">            props.put(ConsumerConfig.AUTO_OFFSET_RESET_CONFIG, <span class="string">"latest"</span>);</span><br><span class="line">            props.put(ConsumerConfig.ENABLE_AUTO_COMMIT_CONFIG, <span class="string">"true"</span>);</span><br><span class="line">            props.put(ConsumerConfig.KEY_DESERIALIZER_CLASS_CONFIG, StringDeserializer.class.getName());</span><br><span class="line">            props.put(ConsumerConfig.VALUE_DESERIALIZER_CLASS_CONFIG, StringDeserializer.class.getName());</span><br><span class="line">            consumer = <span class="keyword">new</span> KafkaConsumer&lt;&gt;(props);</span><br><span class="line">            consumer.subscribe(Arrays.asList(KafkaConstant.TOPIC_BIGDATA_LIBRA_LOG));</span><br><span class="line">            <span class="keyword">while</span> (<span class="keyword">true</span>) &#123;</span><br><span class="line">                ConsumerRecords&lt;String, String&gt; consumerRecords = consumer.poll(<span class="number">1000L</span>);</span><br><span class="line">                <span class="keyword">if</span> (consumerRecords == <span class="keyword">null</span> || consumerRecords.count() == <span class="number">0</span>) &#123;</span><br><span class="line">                    <span class="keyword">continue</span>;</span><br><span class="line">                &#125;</span><br><span class="line">                Iterator&lt;ConsumerRecord&lt;String, String&gt;&gt; iterator = consumerRecords.iterator();</span><br><span class="line">                <span class="keyword">while</span> (iterator.hasNext()) &#123;</span><br><span class="line">                    ConsumerRecord&lt;String, String&gt; next = iterator.next();</span><br><span class="line">                    String content = String.format(<span class="string">"Subscribe: partition: %s, offset: %s, value: %s"</span>,</span><br><span class="line">                            next.partition(), next.offset(), next.value());</span><br><span class="line">                    System.out.println(content);</span><br><span class="line">                &#125;</span><br><span class="line">            &#125;</span><br><span class="line">        &#125;</span><br><span class="line">    &#125;</span><br><span class="line">&#125;</span><br></pre></td></tr></table></figure>
-
-<ul>
-<li><p>assign</p>
-<blockquote>
-<p>消费时必须要传递topic和partition（分区号），只会消费指定分区的数据</p>
-<p>没有为partition（分区号）建立消费者，那么该分区就不会消费，为分区指定多个消费者，那么每个消费者都会消费全量分区数据。</p>
-</blockquote>
-</li>
-</ul>
-<p>测试代码：</p>
-<figure class="highlight java"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br><span class="line">3</span><br><span class="line">4</span><br><span class="line">5</span><br><span class="line">6</span><br><span class="line">7</span><br><span class="line">8</span><br><span class="line">9</span><br><span class="line">10</span><br><span class="line">11</span><br><span class="line">12</span><br><span class="line">13</span><br><span class="line">14</span><br><span class="line">15</span><br><span class="line">16</span><br><span class="line">17</span><br><span class="line">18</span><br><span class="line">19</span><br><span class="line">20</span><br><span class="line">21</span><br><span class="line">22</span><br><span class="line">23</span><br><span class="line">24</span><br><span class="line">25</span><br><span class="line">26</span><br><span class="line">27</span><br><span class="line">28</span><br><span class="line">29</span><br><span class="line">30</span><br><span class="line">31</span><br><span class="line">32</span><br><span class="line">33</span><br><span class="line">34</span><br><span class="line">35</span><br><span class="line">36</span><br><span class="line">37</span><br><span class="line">38</span><br><span class="line">39</span><br><span class="line">40</span><br><span class="line">41</span><br></pre></td><td class="code"><pre><span class="line"><span class="keyword">public</span> <span class="class"><span class="keyword">class</span> <span class="title">KafkaConsumerAssignApp</span> </span>&#123;</span><br><span class="line">    <span class="function"><span class="keyword">public</span> <span class="keyword">static</span> <span class="keyword">void</span> <span class="title">main</span><span class="params">(String[] args)</span> <span class="keyword">throws</span> Exception </span>&#123;</span><br><span class="line">        <span class="keyword">for</span> (<span class="keyword">int</span> i = <span class="number">0</span>; i &lt; <span class="number">5</span>; i++) &#123;</span><br><span class="line">            <span class="keyword">new</span> Thread(<span class="keyword">new</span> MyConsumer(i)).start();</span><br><span class="line">        &#125;</span><br><span class="line">        TimeUnit.DAYS.sleep(<span class="number">1</span>);</span><br><span class="line">    &#125;</span><br><span class="line">    <span class="keyword">static</span> <span class="class"><span class="keyword">class</span> <span class="title">MyConsumer</span> <span class="keyword">implements</span> <span class="title">Runnable</span> </span>&#123;</span><br><span class="line">        <span class="keyword">private</span> <span class="keyword">int</span> partition;</span><br><span class="line">        <span class="function"><span class="keyword">public</span> <span class="title">MyConsumer</span><span class="params">(<span class="keyword">int</span> partition)</span> </span>&#123;</span><br><span class="line">            <span class="keyword">this</span>.partition = partition;</span><br><span class="line">        &#125;</span><br><span class="line">        <span class="meta">@Override</span></span><br><span class="line">        <span class="function"><span class="keyword">public</span> <span class="keyword">void</span> <span class="title">run</span><span class="params">()</span> </span>&#123;</span><br><span class="line">            Consumer&lt;String, String&gt; consumer;</span><br><span class="line"></span><br><span class="line">            Properties props = <span class="keyword">new</span> Properties();</span><br><span class="line">            props.put(ConsumerConfig.BOOTSTRAP_SERVERS_CONFIG, KafkaConstant.SERVER_PUB);</span><br><span class="line">            props.put(ConsumerConfig.GROUP_ID_CONFIG, KafkaConstant.TOPIC_BIGDATA_LIBRA_LOG);</span><br><span class="line">            props.put(ConsumerConfig.AUTO_OFFSET_RESET_CONFIG, <span class="string">"latest"</span>);</span><br><span class="line">            props.put(ConsumerConfig.ENABLE_AUTO_COMMIT_CONFIG, <span class="string">"true"</span>);</span><br><span class="line">            props.put(ConsumerConfig.KEY_DESERIALIZER_CLASS_CONFIG, StringDeserializer.class.getName());</span><br><span class="line">            props.put(ConsumerConfig.VALUE_DESERIALIZER_CLASS_CONFIG, StringDeserializer.class.getName());</span><br><span class="line">            consumer = <span class="keyword">new</span> KafkaConsumer&lt;&gt;(props);</span><br><span class="line">            consumer.assign(Arrays.asList(<span class="keyword">new</span> TopicPartition(KafkaConstant.TOPIC_BIGDATA_LIBRA_LOG, partition)));</span><br><span class="line">            <span class="keyword">while</span> (<span class="keyword">true</span>) &#123;</span><br><span class="line">                ConsumerRecords&lt;String, String&gt; consumerRecords = consumer.poll(<span class="number">1000L</span>);</span><br><span class="line">                <span class="keyword">if</span> (consumerRecords == <span class="keyword">null</span> || consumerRecords.count() == <span class="number">0</span>) &#123;</span><br><span class="line">                    <span class="keyword">continue</span>;</span><br><span class="line">                &#125;</span><br><span class="line">                Iterator&lt;ConsumerRecord&lt;String, String&gt;&gt; iterator = consumerRecords.iterator();</span><br><span class="line">                <span class="keyword">while</span> (iterator.hasNext()) &#123;</span><br><span class="line">                    ConsumerRecord&lt;String, String&gt; next = iterator.next();</span><br><span class="line">                    String content = String.format(<span class="string">"Assign: partition: %s, offset: %s, value: %s"</span>,</span><br><span class="line">                            next.partition(), next.offset(), next.value());</span><br><span class="line">                    System.out.println(content);</span><br><span class="line">                &#125;</span><br><span class="line">            &#125;</span><br><span class="line">        &#125;</span><br><span class="line">    &#125;</span><br><span class="line">&#125;</span><br></pre></td></tr></table></figure>
-
-<p>那么为什么flink要使用<code>assign</code>呢？</p>
-<blockquote>
-<p>为了保证 Flink 程序的 exactly-once，必须由各个 Kafka source  算子维护当前算子所消费的 partition 消费 offset 信息，并在每次checkpoint 时将这些信息写入到 state 中， 在从 checkpoint 恢复中从上次 commit 的位点开始消费，保证 exactly-once.  如果用 Kafka 消费组管理，那么 FlinkKafkaConsumer 内各个并发实例所分配的 partition 将由 Kafka 的消费组管理，且 offset 也由 Kafka 消费组管理者记录，Flink 无法维护这些信息。</p>
-</blockquote>
-<h1 id="参考文档"><a href="#参考文档" class="headerlink" title="参考文档"></a>参考文档</h1><p><a href="http://apache-flink.147419.n8.nabble.com/FlinkKafkaConsumer-td6818.html" target="_blank" rel="noopener">FlinkKafkaConsumer问题</a></p>
-<p><a href="https://juejin.im/post/6844903733940191246" target="_blank" rel="noopener">KafkaConsumer assign VS subscribe</a></p>
-<p><a href="https://www.cnblogs.com/dongxiao-yang/p/7200971.html" target="_blank" rel="noopener">kafka consumer assign 和 subscribe模式差异分析</a></p>
-
-        
-      
-    </div>
-
-    
-    
-    
-      <footer class="post-footer">
-        <div class="post-eof"></div>
-      </footer>
-  </article>
-  
-  
-  
-
-    
-        
-  
-  
-  <article itemscope itemtype="http://schema.org/Article" class="post-block home" lang="zh-CN">
-    <link itemprop="mainEntityOfPage" href="http://yoursite.com/2020/10/15/flink/Log配置踩过的坑/">
-
-    <span hidden itemprop="author" itemscope itemtype="http://schema.org/Person">
-      <meta itemprop="name" content="姜纪光">
-      <meta itemprop="description" content="">
-      <meta itemprop="image" content="/images/avatar.gif">
-    </span>
-
-    <span hidden itemprop="publisher" itemscope itemtype="http://schema.org/Organization">
-      <meta itemprop="name" content="纪光的博客">
-    </span>
-      <header class="post-header">
-        <h1 class="post-title" itemprop="name headline">
-          
-            
-            <a href="/2020/10/15/flink/Log配置踩过的坑/" class="post-title-link" itemprop="url">Log配置踩过的坑</a>
-          
-        </h1>
-
-        <div class="post-meta">
-            <span class="post-meta-item">
-              <span class="post-meta-item-icon">
-                <i class="fa fa-calendar-o"></i>
-              </span>
-              <span class="post-meta-item-text">发表于</span>
-
-              
-                
-              
-
-              <time title="创建时间：2020-10-15 17:21:30 / 修改时间：17:23:37" itemprop="dateCreated datePublished" datetime="2020-10-15T17:21:30+08:00">2020-10-15</time>
-            </span>
-          
-            
-
-            
-          
-            <span class="post-meta-item">
-              <span class="post-meta-item-icon">
-                <i class="fa fa-folder-o"></i>
-              </span>
-              <span class="post-meta-item-text">分类于</span>
-              
-                <span itemprop="about" itemscope itemtype="http://schema.org/Thing">
-                  <a href="/categories/flink/" itemprop="url" rel="index">
-                    <span itemprop="name">flink</span>
-                  </a>
-                </span>
-
-                
-                
-              
-            </span>
-          
-
-          
-            <span id="/2020/10/15/flink/Log配置踩过的坑/" class="post-meta-item leancloud_visitors" data-flag-title="Log配置踩过的坑" title="阅读次数">
-              <span class="post-meta-item-icon">
-                <i class="fa fa-eye"></i>
-              </span>
-              <span class="post-meta-item-text">阅读次数：</span>
-              <span class="leancloud-visitors-count"></span>
-            </span>
-          
-  
-  
-
-        </div>
-      </header>
-
-    
-    
-    
-    <div class="post-body" itemprop="articleBody">
-
-      
-          <h1 id="flink1-10日志配置"><a href="#flink1-10日志配置" class="headerlink" title="flink1.10日志配置"></a>flink1.10日志配置</h1><h1 id="flink1-11日志配置"><a href="#flink1-11日志配置" class="headerlink" title="flink1.11日志配置"></a>flink1.11日志配置</h1><h1 id="参考文档"><a href="#参考文档" class="headerlink" title="参考文档"></a>参考文档</h1><p><a href="https://ci.apache.org/projects/flink/flink-docs-release-1.11/zh/monitoring/logging.html" target="_blank" rel="noopener">flink1.11日志配置</a></p>
-<p><a href="https://ci.apache.org/projects/flink/flink-docs-release-1.10/zh/monitoring/logging.html" target="_blank" rel="noopener">flink1.10日志配置</a></p>
-
-        
-      
-    </div>
-
-    
-    
-    
-      <footer class="post-footer">
-        <div class="post-eof"></div>
-      </footer>
-  </article>
-  
-  
-  
-
-    
-        
-  
-  
-  <article itemscope itemtype="http://schema.org/Article" class="post-block home" lang="zh-CN">
-    <link itemprop="mainEntityOfPage" href="http://yoursite.com/2020/10/14/flink/Checkpoint失败排查思路/">
-
-    <span hidden itemprop="author" itemscope itemtype="http://schema.org/Person">
-      <meta itemprop="name" content="姜纪光">
-      <meta itemprop="description" content="">
-      <meta itemprop="image" content="/images/avatar.gif">
-    </span>
-
-    <span hidden itemprop="publisher" itemscope itemtype="http://schema.org/Organization">
-      <meta itemprop="name" content="纪光的博客">
-    </span>
-      <header class="post-header">
-        <h1 class="post-title" itemprop="name headline">
-          
-            
-            <a href="/2020/10/14/flink/Checkpoint失败排查思路/" class="post-title-link" itemprop="url">Checkpoint失败排查思路</a>
-          
-        </h1>
-
-        <div class="post-meta">
-            <span class="post-meta-item">
-              <span class="post-meta-item-icon">
-                <i class="fa fa-calendar-o"></i>
-              </span>
-              <span class="post-meta-item-text">发表于</span>
-
-              
-                
-              
-
-              <time title="创建时间：2020-10-14 16:52:28 / 修改时间：17:31:10" itemprop="dateCreated datePublished" datetime="2020-10-14T16:52:28+08:00">2020-10-14</time>
-            </span>
-          
-            
-
-            
-          
-            <span class="post-meta-item">
-              <span class="post-meta-item-icon">
-                <i class="fa fa-folder-o"></i>
-              </span>
-              <span class="post-meta-item-text">分类于</span>
-              
-                <span itemprop="about" itemscope itemtype="http://schema.org/Thing">
-                  <a href="/categories/flink/" itemprop="url" rel="index">
-                    <span itemprop="name">flink</span>
-                  </a>
-                </span>
-
-                
-                
-              
-            </span>
-          
-
-          
-            <span id="/2020/10/14/flink/Checkpoint失败排查思路/" class="post-meta-item leancloud_visitors" data-flag-title="Checkpoint失败排查思路" title="阅读次数">
-              <span class="post-meta-item-icon">
-                <i class="fa fa-eye"></i>
-              </span>
-              <span class="post-meta-item-text">阅读次数：</span>
-              <span class="leancloud-visitors-count"></span>
-            </span>
-          
-  
-  
-
-        </div>
-      </header>
-
-    
-    
-    
-    <div class="post-body" itemprop="articleBody">
-
-      
-          <h1 id="问题描述"><a href="#问题描述" class="headerlink" title="问题描述"></a>问题描述</h1><p>如下图所示，checkpoint失败</p>
-<p>可见失败的checkpoint的ID是<strong>80631</strong>，触发时间是14:52:31  5分钟超时，那么失败时间是14:57:31</p>
-<p><img src="/images/flink/checkpoint_fail.png" alt></p>
-<h1 id="排查过程"><a href="#排查过程" class="headerlink" title="排查过程"></a>排查过程</h1><p>checkpoint的触发是在jobmanager中，因此首先查看jobmanager日志，根据80631进行全局搜索。结果如下：</p>
-<p><img src="/images/flink/checkpint_fail_log1.png" alt></p>
-<p>重点看以下日志</p>
-<figure class="highlight plain"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br><span class="line">3</span><br><span class="line">4</span><br><span class="line">5</span><br><span class="line">6</span><br></pre></td><td class="code"><pre><span class="line">//说明checkpoint超时了</span><br><span class="line">Checkpoint 80631 of job 4e792401d12aa8d225ba0198a7e6d0ab expired before completing.</span><br><span class="line">//在进行80632的checkpoint时，收到了80630,80631的延迟数据</span><br><span class="line">//延迟数据是来自container_e01_1596189456648_226840_01_000002</span><br><span class="line"> Received late message for now expired checkpoint attempt 80630 from task ddb6a88d96838b1f3d387b238967d0df of job 4e792401d12aa8d225ba0198a7e6d0ab at container_e01_1596189456648_226840_01_000002 @ emr-worker-8.cluster-183727 (dataPort=35632).</span><br><span class="line"> Received late message for now expired checkpoint attempt 80631 from task ddb6a88d96838b1f3d387b238967d0df of job 4e792401d12aa8d225ba0198a7e6d0ab at container_e01_1596189456648_226840_01_000002 @ emr-worker-8.cluster-183727 (dataPort=35632).</span><br></pre></td></tr></table></figure>
-
-<p>有了以上日志，那么我们去看一下 container_e01_1596189456648_226840_01_000002  在2020-10-14 15:02:10,164 发生了什么</p>
-<figure class="highlight plain"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br></pre></td><td class="code"><pre><span class="line">I/O exception (java.net.SocketException) caught when processing request to &#123;&#125;-&gt;http://172.20.16.50:8123: </span><br><span class="line">Connection timed out (Write failed)</span><br></pre></td></tr></table></figure>
-
-<p>至此，可以得出结论，是由于Socket连接超时，导致的checkpoint失败</p>
-
-        
-      
-    </div>
-
-    
-    
-    
-      <footer class="post-footer">
-        <div class="post-eof"></div>
-      </footer>
-  </article>
-  
-  
-  
-
-    
   </div>
 
   
@@ -2068,7 +2111,7 @@
         
           <a href="/archives/">
         
-          <span class="site-state-item-count">123</span>
+          <span class="site-state-item-count">125</span>
           <span class="site-state-item-name">日志</span>
         </a>
       </div>
@@ -2081,7 +2124,7 @@
             <a href="/categories/">
           
         
-        <span class="site-state-item-count">17</span>
+        <span class="site-state-item-count">18</span>
         <span class="site-state-item-name">分类</span>
         </a>
       </div>

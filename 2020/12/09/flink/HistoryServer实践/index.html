@@ -55,19 +55,18 @@
   };
 </script>
 
-  <meta name="description" content="Sidecar​    connects to Prometheus, reads its data for query and/or uploads it to cloud storage. Sidecar和Prometheus servers运行在相同的机器或者pod中。其作用就是备份prometheus的数据到对象存储桶中，并且给Thanos其他组件通过gRPC读取Prometheus指标的">
-<meta name="keywords" content="promethues">
+  <meta name="description" content="简介 History Server用来查询已完成任务的统计（Flink Dashboard）信息  配置参考文档History Server">
 <meta property="og:type" content="article">
-<meta property="og:title" content="thanos学习笔记">
-<meta property="og:url" content="http://yoursite.com/2020/07/21/flink/Thanos学习笔记/index.html">
+<meta property="og:title" content="History Server实践">
+<meta property="og:url" content="http://yoursite.com/2020/12/09/flink/HistoryServer实践/index.html">
 <meta property="og:site_name" content="纪光的博客">
-<meta property="og:description" content="Sidecar​    connects to Prometheus, reads its data for query and/or uploads it to cloud storage. Sidecar和Prometheus servers运行在相同的机器或者pod中。其作用就是备份prometheus的数据到对象存储桶中，并且给Thanos其他组件通过gRPC读取Prometheus指标的">
+<meta property="og:description" content="简介 History Server用来查询已完成任务的统计（Flink Dashboard）信息  配置参考文档History Server">
 <meta property="og:locale" content="zh-CN">
-<meta property="og:updated_time" content="2020-09-02T08:02:26.117Z">
+<meta property="og:updated_time" content="2020-12-09T07:51:12.898Z">
 <meta name="twitter:card" content="summary">
-<meta name="twitter:title" content="thanos学习笔记">
-<meta name="twitter:description" content="Sidecar​    connects to Prometheus, reads its data for query and/or uploads it to cloud storage. Sidecar和Prometheus servers运行在相同的机器或者pod中。其作用就是备份prometheus的数据到对象存储桶中，并且给Thanos其他组件通过gRPC读取Prometheus指标的">
-  <link rel="canonical" href="http://yoursite.com/2020/07/21/flink/Thanos学习笔记/">
+<meta name="twitter:title" content="History Server实践">
+<meta name="twitter:description" content="简介 History Server用来查询已完成任务的统计（Flink Dashboard）信息  配置参考文档History Server">
+  <link rel="canonical" href="http://yoursite.com/2020/12/09/flink/HistoryServer实践/">
 
 
 <script id="page-configurations">
@@ -81,7 +80,7 @@
   };
 </script>
 
-  <title>thanos学习笔记 | 纪光的博客</title>
+  <title>History Server实践 | 纪光的博客</title>
   
 
 
@@ -246,7 +245,7 @@
   
   
   <article itemscope itemtype="http://schema.org/Article" class="post-block " lang="zh-CN">
-    <link itemprop="mainEntityOfPage" href="http://yoursite.com/2020/07/21/flink/Thanos学习笔记/">
+    <link itemprop="mainEntityOfPage" href="http://yoursite.com/2020/12/09/flink/HistoryServer实践/">
 
     <span hidden itemprop="author" itemscope itemtype="http://schema.org/Person">
       <meta itemprop="name" content="姜纪光">
@@ -260,7 +259,7 @@
       <header class="post-header">
         <h1 class="post-title" itemprop="name headline">
           
-            thanos学习笔记
+            History Server实践
             
 
           
@@ -277,19 +276,11 @@
                 
               
 
-              <time title="创建时间：2020-07-21 09:38:34" itemprop="dateCreated datePublished" datetime="2020-07-21T09:38:34+08:00">2020-07-21</time>
+              <time title="创建时间：2020-12-09 15:42:39 / 修改时间：15:51:12" itemprop="dateCreated datePublished" datetime="2020-12-09T15:42:39+08:00">2020-12-09</time>
             </span>
           
             
 
-            
-              <span class="post-meta-item">
-                <span class="post-meta-item-icon">
-                  <i class="fa fa-calendar-check-o"></i>
-                </span>
-                <span class="post-meta-item-text">更新于</span>
-                <time title="修改时间：2020-09-02 16:02:26" itemprop="dateModified" datetime="2020-09-02T16:02:26+08:00">2020-09-02</time>
-              </span>
             
           
             <span class="post-meta-item">
@@ -311,7 +302,7 @@
           
 
           
-            <span id="/2020/07/21/flink/Thanos学习笔记/" class="post-meta-item leancloud_visitors" data-flag-title="thanos学习笔记" title="阅读次数">
+            <span id="/2020/12/09/flink/HistoryServer实践/" class="post-meta-item leancloud_visitors" data-flag-title="History Server实践" title="阅读次数">
               <span class="post-meta-item-icon">
                 <i class="fa fa-eye"></i>
               </span>
@@ -331,113 +322,10 @@
     <div class="post-body" itemprop="articleBody">
 
       
-        <h1 id="Sidecar"><a href="#Sidecar" class="headerlink" title="Sidecar"></a>Sidecar</h1><p>​    connects to Prometheus, reads its data for query and/or uploads it to cloud storage.</p>
-<p>Sidecar和Prometheus servers运行在相同的机器或者pod中。其作用就是备份prometheus的数据到对象存储桶中，并且给Thanos其他组件通过gRPC读取Prometheus指标的权限。</p>
-<p>thanos sidecar 命令运行thanos的一个组件，该组件和prometheus实例一起部署。</p>
-<p>这使得sidecar可选的可以上传指标到对象存储，并且允许使用storeapi查询prometheus数据。</p>
-<p>详细：</p>
-<p>​    它在Prometheus的远程读取API之上实现Thanos的Store API。 这使Queriers可以将Prometheus服务器视为时间序列数据的另一个来源，而无需直接与其API对话。</p>
-<p>​    可选地，在Prometheus每2小时生成一次TSDB块时，Sidecar将TSDB块上载到对象存储桶中。 这使得Prometheus服务器可以以相对较低的保留时间运行，同时使其历史数据持久且可通过对象存储查询。</p>
-<p>​        注意：这仍然并不意味着Prometheus可以是完全无状态的，因为如果它崩溃并重新启动，您将损失大约2个小时的指标，因此强烈建议使用Prometheus的永久磁盘。 您可以得到的最接近无状态的状态是使用远程写入（Thanos实验支持，请参阅此信息。远程写入还有其他风险和后果，而且即使崩溃了，也可能在积极的情况下丢失度量数据，因此在所有情况下都建议使用永久磁盘 。</p>
-<p>​    可选地，Thanos sidecar能够查看Prometheus规则和配置，在需要时解压缩和替换环境变量，并ping Prometheus重新加载它们。 在这里阅读更多关于此的信息</p>
-<p>通过Sidecar连接到Thanos集群的Prometheus服务器受一些限制和安全操作建议：</p>
-<p>​    Prometheus版本在2.2.1 或以上</p>
-<p>​    Prometheus配置文件的Prometheus external_labels部分在整个Thanos系统中具有唯一的标签。 这些外部标签将由sidecar使用，然后由Thanos在许多地方使用：</p>
-<p>​        <a href="https://github.com/thanos-io/thanos/blob/master/docs/components/query.md" target="_blank" rel="noopener">Querier</a> to filter out store APIs to touch during query requests.<br>​        许多对象存储读取器（如压缩器和存储网关）都按Prometheus源对块进行分组。 在上载到对象存储之前，Prometheus制作的每个TSDB块都由sidecar进行了外部标签标记。</p>
-<ul>
-<li><p>启动命令</p>
-<blockquote>
-<p>/data/app/thanos/thanos sidecar –grpc-address=0.0.0.0:19091 –http-address=0.0.0.0:19192 –prometheus.url=<a href="http://127.0.0.1:9090/" target="_blank" rel="noopener">http://127.0.0.1:9090</a> –tsdb.path=/data/app/prometheus/data –log.level=info</p>
-</blockquote>
-</li>
+        <h1 id="简介"><a href="#简介" class="headerlink" title="简介"></a>简介</h1><ul>
+<li>History Server用来查询已完成任务的统计（Flink Dashboard）信息</li>
 </ul>
-<table>
-<thead>
-<tr>
-<th align="left">命令行参数</th>
-<th align="left">参数值</th>
-<th align="left">参数作用</th>
-</tr>
-</thead>
-<tbody><tr>
-<td align="left">–prometheus.url</td>
-<td align="left"><a href="http://127.0.0.1:9090" target="_blank" rel="noopener">http://127.0.0.1:9090</a></td>
-<td align="left">Prometheus’s API，用于Sidecar查询指标数据<br>local network是性能更好的</td>
-</tr>
-<tr>
-<td align="left">–tsdb.path</td>
-<td align="left">data/app/prometheus/data</td>
-<td align="left">Data directory of TSDB</td>
-</tr>
-<tr>
-<td align="left">–http-address</td>
-<td align="left">0.0.0.0:19192</td>
-<td align="left">HTTP endpoint for collecting metrics on the Sidecar</td>
-</tr>
-<tr>
-<td align="left">–grpc-address</td>
-<td align="left">0.0.0.0:19091</td>
-<td align="left">GRPC endpoint for StoreAPI</td>
-</tr>
-<tr>
-<td align="left">–web.enable-lifecycle</td>
-<td align="left"></td>
-<td align="left">Thanos can watch changes in Prometheus configuration and refresh Prometheus configuration if</td>
-</tr>
-</tbody></table>
-<h1 id="Ruler-Rule"><a href="#Ruler-Rule" class="headerlink" title="Ruler/Rule"></a>Ruler/Rule</h1><p>evaluates recording and alerting rules against data in Thanos for exposition and/or upload.</p>
-<p>注意：建议将规则保留在本地相关Prometheus服务器中。 仅在特定情况下使用情况。 请阅读下面的详细信息。</p>
-<p>thanos rule 命令评估prometheus记录和规则，通过选择的query API.</p>
-<p>可以把规则看做简化的Prometheus，不需要sidecar、scrape、PromQL</p>
-<p>规则数据可以被标注为满足集群标签。ha对模式可以并行运行，应该通过副本标签来区分</p>
-<ul>
-<li><p>启动命令</p>
-<blockquote>
-<p>/data/app/thanos/thanos rule –http-address=0.0.0.0:10902 –grpc-address=0.0.0.0:10901 –query=172.16.xxx.xxx:80 –log.level=info –data-dir=”/data/app/thanos” –rule-file=/data/app/prometheus/rules/* –alert.query-url=<a href="http://thanos-query-xxxx.xxxx.net" target="_blank" rel="noopener">http://thanos-query-xxxx.xxxx.net</a> —alertmanagers.url=<a href="http://172.16.xxx.xxx:80" target="_blank" rel="noopener">http://172.16.xxx.xxx:80</a></p>
-</blockquote>
-</li>
-</ul>
-<table>
-<thead>
-<tr>
-<th align="left">参数</th>
-<th align="left">参数值</th>
-<th align="left">参数作用</th>
-</tr>
-</thead>
-<tbody><tr>
-<td align="left">–http-address</td>
-<td align="left">19192</td>
-<td align="left">Listen host:port for HTTP endpoints.</td>
-</tr>
-<tr>
-<td align="left">–grpc-address</td>
-<td align="left">10901</td>
-<td align="left">Listen ip:port address for gRPC endpoints (StoreAPI)</td>
-</tr>
-<tr>
-<td align="left">–query</td>
-<td align="left">172.16.xxx.xxx:80</td>
-<td align="left">Addresses of statically configured query API servers (repeatable)</td>
-</tr>
-<tr>
-<td align="left">–data-dir</td>
-<td align="left">/data/app/thanos</td>
-<td align="left">data directory（没有改目录）</td>
-</tr>
-<tr>
-<td align="left">–rule-file</td>
-<td align="left">/data/app/prometheus</td>
-<td align="left"></td>
-</tr>
-</tbody></table>
-<h1 id="Querier-Query"><a href="#Querier-Query" class="headerlink" title="Querier/Query"></a>Querier/Query</h1><p>implements Prometheus’s v1 API to aggregate data from the underlying components.</p>
-<h1 id="命令"><a href="#命令" class="headerlink" title="命令"></a>命令</h1><p>systemctl status thanos-rule -l</p>
-<p>systemctl status prometheus -l</p>
-<h1 id="参考文档"><a href="#参考文档" class="headerlink" title="参考文档"></a>参考文档</h1><p><a href="http://dockone.io/article/6019" target="_blank" rel="noopener">Thanos：开源的大规模Prometheus集群解决方案</a></p>
-<p><a href="https://thanos.io/" target="_blank" rel="noopener">thnos.io</a></p>
-<p><a href="https://github.com/thanos-io/thanos/blob/master/docs/components/rule.md" target="_blank" rel="noopener">rule</a></p>
-<p><a href="https://github.com/thanos-io/thanos/blob/master/docs/components/sidecar.md" target="_blank" rel="noopener">sidecar.md</a></p>
+<h1 id="配置"><a href="#配置" class="headerlink" title="配置"></a>配置</h1><h1 id="参考文档"><a href="#参考文档" class="headerlink" title="参考文档"></a>参考文档</h1><p><a href="https://ci.apache.org/projects/flink/flink-docs-release-1.12/deployment/advanced/historyserver.html" target="_blank" rel="noopener">History Server</a></p>
 
     </div>
 
@@ -448,23 +336,14 @@
       
 
       <footer class="post-footer">
-          
-            
-          
-          <div class="post-tags">
-            
-              <a href="/tags/promethues/" rel="tag"># promethues</a>
-            
-          </div>
-        
 
         
 
           <div class="post-nav">
             <div class="post-nav-next post-nav-item">
               
-                <a href="/2020/07/21/flink/prometheus学习笔记/" rel="next" title="prometheus学习笔记">
-                  <i class="fa fa-chevron-left"></i> prometheus学习笔记
+                <a href="/2020/12/04/tools/maven实践/" rel="next" title="maven实践">
+                  <i class="fa fa-chevron-left"></i> maven实践
                 </a>
               
             </div>
@@ -473,8 +352,8 @@
 
             <div class="post-nav-prev post-nav-item">
               
-                <a href="/2020/07/21/flink/consul学习笔记/" rel="prev" title="consul学习笔记">
-                  consul学习笔记 <i class="fa fa-chevron-right"></i>
+                <a href="/2020/12/09/hadoop/Hadoop操作实践/" rel="prev" title="Hadoop操作实践">
+                  Hadoop操作实践 <i class="fa fa-chevron-right"></i>
                 </a>
               
             </div>
@@ -521,7 +400,7 @@
 
       <!--noindex-->
       <div class="post-toc-wrap sidebar-panel">
-          <div class="post-toc motion-element"><ol class="nav"><li class="nav-item nav-level-1"><a class="nav-link" href="#Sidecar"><span class="nav-number">1.</span> <span class="nav-text">Sidecar</span></a></li><li class="nav-item nav-level-1"><a class="nav-link" href="#Ruler-Rule"><span class="nav-number">2.</span> <span class="nav-text">Ruler/Rule</span></a></li><li class="nav-item nav-level-1"><a class="nav-link" href="#Querier-Query"><span class="nav-number">3.</span> <span class="nav-text">Querier/Query</span></a></li><li class="nav-item nav-level-1"><a class="nav-link" href="#命令"><span class="nav-number">4.</span> <span class="nav-text">命令</span></a></li><li class="nav-item nav-level-1"><a class="nav-link" href="#参考文档"><span class="nav-number">5.</span> <span class="nav-text">参考文档</span></a></li></ol></div>
+          <div class="post-toc motion-element"><ol class="nav"><li class="nav-item nav-level-1"><a class="nav-link" href="#简介"><span class="nav-number">1.</span> <span class="nav-text">简介</span></a></li><li class="nav-item nav-level-1"><a class="nav-link" href="#配置"><span class="nav-number">2.</span> <span class="nav-text">配置</span></a></li><li class="nav-item nav-level-1"><a class="nav-link" href="#参考文档"><span class="nav-number">3.</span> <span class="nav-text">参考文档</span></a></li></ol></div>
         
       </div>
       <!--/noindex-->
@@ -537,7 +416,7 @@
         
           <a href="/archives/">
         
-          <span class="site-state-item-count">123</span>
+          <span class="site-state-item-count">125</span>
           <span class="site-state-item-name">日志</span>
         </a>
       </div>
@@ -550,7 +429,7 @@
             <a href="/categories/">
           
         
-        <span class="site-state-item-count">17</span>
+        <span class="site-state-item-count">18</span>
         <span class="site-state-item-name">分类</span>
         </a>
       </div>

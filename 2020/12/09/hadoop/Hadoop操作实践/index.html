@@ -55,15 +55,18 @@
   };
 </script>
 
-  <meta property="og:type" content="article">
-<meta property="og:title" content="yarn-site常用配置">
-<meta property="og:url" content="http://yoursite.com/2020/06/24/hadoop/yarn-site常用配置/index.html">
+  <meta name="description" content="常用操作12345# 查询rm-id$ cat /etc/apps/hadoop-conf/yarn-site.xml | grep &apos;yarn.resourcemanager.ha.rm-ids&apos;# 查看rm-id的状态：active、standby$ yarn rmadmin -getServiceState rm1  为Yarn队列授权提交用户公平调度器 在所有的rm 机器上执行以下操作：">
+<meta property="og:type" content="article">
+<meta property="og:title" content="Hadoop操作实践">
+<meta property="og:url" content="http://yoursite.com/2020/12/09/hadoop/Hadoop操作实践/index.html">
 <meta property="og:site_name" content="纪光的博客">
+<meta property="og:description" content="常用操作12345# 查询rm-id$ cat /etc/apps/hadoop-conf/yarn-site.xml | grep &apos;yarn.resourcemanager.ha.rm-ids&apos;# 查看rm-id的状态：active、standby$ yarn rmadmin -getServiceState rm1  为Yarn队列授权提交用户公平调度器 在所有的rm 机器上执行以下操作：">
 <meta property="og:locale" content="zh-CN">
-<meta property="og:updated_time" content="2020-06-24T06:28:40.165Z">
+<meta property="og:updated_time" content="2020-12-09T09:03:30.289Z">
 <meta name="twitter:card" content="summary">
-<meta name="twitter:title" content="yarn-site常用配置">
-  <link rel="canonical" href="http://yoursite.com/2020/06/24/hadoop/yarn-site常用配置/">
+<meta name="twitter:title" content="Hadoop操作实践">
+<meta name="twitter:description" content="常用操作12345# 查询rm-id$ cat /etc/apps/hadoop-conf/yarn-site.xml | grep &apos;yarn.resourcemanager.ha.rm-ids&apos;# 查看rm-id的状态：active、standby$ yarn rmadmin -getServiceState rm1  为Yarn队列授权提交用户公平调度器 在所有的rm 机器上执行以下操作：">
+  <link rel="canonical" href="http://yoursite.com/2020/12/09/hadoop/Hadoop操作实践/">
 
 
 <script id="page-configurations">
@@ -77,7 +80,7 @@
   };
 </script>
 
-  <title>yarn-site常用配置 | 纪光的博客</title>
+  <title>Hadoop操作实践 | 纪光的博客</title>
   
 
 
@@ -242,7 +245,7 @@
   
   
   <article itemscope itemtype="http://schema.org/Article" class="post-block " lang="zh-CN">
-    <link itemprop="mainEntityOfPage" href="http://yoursite.com/2020/06/24/hadoop/yarn-site常用配置/">
+    <link itemprop="mainEntityOfPage" href="http://yoursite.com/2020/12/09/hadoop/Hadoop操作实践/">
 
     <span hidden itemprop="author" itemscope itemtype="http://schema.org/Person">
       <meta itemprop="name" content="姜纪光">
@@ -256,7 +259,7 @@
       <header class="post-header">
         <h1 class="post-title" itemprop="name headline">
           
-            yarn-site常用配置
+            Hadoop操作实践
             
 
           
@@ -273,12 +276,33 @@
                 
               
 
-              <time title="创建时间：2020-06-24 14:28:40" itemprop="dateCreated datePublished" datetime="2020-06-24T14:28:40+08:00">2020-06-24</time>
+              <time title="创建时间：2020-12-09 15:57:51 / 修改时间：17:03:30" itemprop="dateCreated datePublished" datetime="2020-12-09T15:57:51+08:00">2020-12-09</time>
+            </span>
+          
+            
+
+            
+          
+            <span class="post-meta-item">
+              <span class="post-meta-item-icon">
+                <i class="fa fa-folder-o"></i>
+              </span>
+              <span class="post-meta-item-text">分类于</span>
+              
+                <span itemprop="about" itemscope itemtype="http://schema.org/Thing">
+                  <a href="/categories/hadoop/" itemprop="url" rel="index">
+                    <span itemprop="name">hadoop</span>
+                  </a>
+                </span>
+
+                
+                
+              
             </span>
           
 
           
-            <span id="/2020/06/24/hadoop/yarn-site常用配置/" class="post-meta-item leancloud_visitors" data-flag-title="yarn-site常用配置" title="阅读次数">
+            <span id="/2020/12/09/hadoop/Hadoop操作实践/" class="post-meta-item leancloud_visitors" data-flag-title="Hadoop操作实践" title="阅读次数">
               <span class="post-meta-item-icon">
                 <i class="fa fa-eye"></i>
               </span>
@@ -298,7 +322,30 @@
     <div class="post-body" itemprop="articleBody">
 
       
-        
+        <h1 id="常用操作"><a href="#常用操作" class="headerlink" title="常用操作"></a>常用操作</h1><figure class="highlight shell"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br><span class="line">3</span><br><span class="line">4</span><br><span class="line">5</span><br></pre></td><td class="code"><pre><span class="line"><span class="meta">#</span> 查询rm-id</span><br><span class="line"><span class="meta">$</span> cat /etc/apps/hadoop-conf/yarn-site.xml | grep 'yarn.resourcemanager.ha.rm-ids'</span><br><span class="line"></span><br><span class="line"><span class="meta">#</span> 查看rm-id的状态：active、standby</span><br><span class="line"><span class="meta">$</span> yarn rmadmin -getServiceState rm1</span><br></pre></td></tr></table></figure>
+
+<h1 id="为Yarn队列授权提交用户"><a href="#为Yarn队列授权提交用户" class="headerlink" title="为Yarn队列授权提交用户"></a>为Yarn队列授权提交用户</h1><h2 id="公平调度器"><a href="#公平调度器" class="headerlink" title="公平调度器"></a>公平调度器</h2><ul>
+<li><p>在所有的rm 机器上执行以下操作：</p>
+<p>例如，新增flink-dev用户</p>
+<p>aclSubmitApps：授权可以提交应用程序</p>
+<p>aclAdministerApps：授权管理此队列的管理任务</p>
+<figure class="highlight xml"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br><span class="line">3</span><br><span class="line">4</span><br><span class="line">5</span><br><span class="line">6</span><br><span class="line">7</span><br><span class="line">8</span><br><span class="line">9</span><br></pre></td><td class="code"><pre><span class="line"><span class="tag">&lt;<span class="name">queue</span> <span class="attr">name</span>=<span class="string">"stream"</span>&gt;</span></span><br><span class="line">       <span class="tag">&lt;<span class="name">minResources</span>&gt;</span>0 mb, 0 vcores<span class="tag">&lt;/<span class="name">minResources</span>&gt;</span></span><br><span class="line">       <span class="tag">&lt;<span class="name">maxResources</span>&gt;</span>21450000 mb,41250 vcores<span class="tag">&lt;/<span class="name">maxResources</span>&gt;</span></span><br><span class="line">       <span class="tag">&lt;<span class="name">weight</span>&gt;</span>1.0<span class="tag">&lt;/<span class="name">weight</span>&gt;</span></span><br><span class="line">       <span class="tag">&lt;<span class="name">allowPreemptionFrom</span>&gt;</span>false<span class="tag">&lt;/<span class="name">allowPreemptionFrom</span>&gt;</span></span><br><span class="line">       <span class="tag">&lt;<span class="name">schedulingPolicy</span>&gt;</span>fair<span class="tag">&lt;/<span class="name">schedulingPolicy</span>&gt;</span></span><br><span class="line">       <span class="tag">&lt;<span class="name">aclSubmitApps</span>&gt;</span>stream,flink-dev <span class="tag">&lt;/<span class="name">aclSubmitApps</span>&gt;</span></span><br><span class="line">       <span class="tag">&lt;<span class="name">aclAdministerApps</span>&gt;</span>stream,flink-dev <span class="tag">&lt;/<span class="name">aclAdministerApps</span>&gt;</span></span><br><span class="line"><span class="tag">&lt;/<span class="name">queue</span>&gt;</span></span><br></pre></td></tr></table></figure>
+</li>
+<li><p>切换到<code>active</code>的rm机器上，执行命令让授权生效</p>
+<figure class="highlight shell"><table><tr><td class="gutter"><pre><span class="line">1</span><br></pre></td><td class="code"><pre><span class="line"><span class="meta">$</span> yarn rmadmin -refreshQueues</span><br></pre></td></tr></table></figure>
+
+</li>
+</ul>
+<h1 id="添加HDFS用户"><a href="#添加HDFS用户" class="headerlink" title="添加HDFS用户"></a>添加HDFS用户</h1><ul>
+<li><p>登录任意一台可以连接到HDFS环境的机器，</p>
+<p>执行脚本：<code>bash /data/shells/hdfs/add_flink_user.sh {username}</code></p>
+<p>脚本内容如下：</p>
+<figure class="highlight shell"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br><span class="line">3</span><br><span class="line">4</span><br><span class="line">5</span><br><span class="line">6</span><br><span class="line">7</span><br></pre></td><td class="code"><pre><span class="line"><span class="meta">#</span>!/bin/bash</span><br><span class="line">user=$1</span><br><span class="line">export HADOOP_USER_NAME=hadoop</span><br><span class="line">hdfs dfs -mkdir hdfs://rt2/user/$user</span><br><span class="line">hadoop fs -setfacl -R -m user:$user:rwx hdfs://rt2/user/$user</span><br><span class="line">hadoop fs -setfacl -m user:$user:rwx hdfs://rt2/user/flink/checkpoints</span><br><span class="line">hadoop fs -setfacl -m user:$user:rwx hdfs://rt2/user/flink/savepoints</span><br></pre></td></tr></table></figure>
+
+</li>
+</ul>
+<h1 id="参考文档"><a href="#参考文档" class="headerlink" title="参考文档"></a>参考文档</h1><p><a href>Hadoop专家</a></p>
+
     </div>
 
     
@@ -314,8 +361,8 @@
           <div class="post-nav">
             <div class="post-nav-next post-nav-item">
               
-                <a href="/2020/06/24/hadoop/core-site最佳实践/" rel="next" title="core-site最佳实践">
-                  <i class="fa fa-chevron-left"></i> core-site最佳实践
+                <a href="/2020/12/09/flink/HistoryServer实践/" rel="next" title="History Server实践">
+                  <i class="fa fa-chevron-left"></i> History Server实践
                 </a>
               
             </div>
@@ -324,8 +371,8 @@
 
             <div class="post-nav-prev post-nav-item">
               
-                <a href="/2020/06/24/flink/flink-conf常用配置/" rel="prev" title="flink-conf常用配置">
-                  flink-conf常用配置 <i class="fa fa-chevron-right"></i>
+                <a href="/2020/12/09/hadoop/Web-Application-Proxy/" rel="prev" title="Web Application Proxy">
+                  Web Application Proxy <i class="fa fa-chevron-right"></i>
                 </a>
               
             </div>
@@ -372,6 +419,8 @@
 
       <!--noindex-->
       <div class="post-toc-wrap sidebar-panel">
+          <div class="post-toc motion-element"><ol class="nav"><li class="nav-item nav-level-1"><a class="nav-link" href="#常用操作"><span class="nav-number">1.</span> <span class="nav-text">常用操作</span></a></li><li class="nav-item nav-level-1"><a class="nav-link" href="#为Yarn队列授权提交用户"><span class="nav-number">2.</span> <span class="nav-text">为Yarn队列授权提交用户</span></a><ol class="nav-child"><li class="nav-item nav-level-2"><a class="nav-link" href="#公平调度器"><span class="nav-number">2.1.</span> <span class="nav-text">公平调度器</span></a></li></ol></li><li class="nav-item nav-level-1"><a class="nav-link" href="#添加HDFS用户"><span class="nav-number">3.</span> <span class="nav-text">添加HDFS用户</span></a></li><li class="nav-item nav-level-1"><a class="nav-link" href="#参考文档"><span class="nav-number">4.</span> <span class="nav-text">参考文档</span></a></li></ol></div>
+        
       </div>
       <!--/noindex-->
 
@@ -386,7 +435,7 @@
         
           <a href="/archives/">
         
-          <span class="site-state-item-count">123</span>
+          <span class="site-state-item-count">125</span>
           <span class="site-state-item-name">日志</span>
         </a>
       </div>
@@ -399,7 +448,7 @@
             <a href="/categories/">
           
         
-        <span class="site-state-item-count">17</span>
+        <span class="site-state-item-count">18</span>
         <span class="site-state-item-name">分类</span>
         </a>
       </div>
