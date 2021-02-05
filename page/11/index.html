@@ -241,7 +241,7 @@
   
   
   <article itemscope itemtype="http://schema.org/Article" class="post-block home" lang="zh-CN">
-    <link itemprop="mainEntityOfPage" href="http://yoursite.com/2020/07/15/数据库/OrientDB概览/">
+    <link itemprop="mainEntityOfPage" href="http://yoursite.com/2020/08/06/flink/Flink从checkpoint恢复失败-EOFException/">
 
     <span hidden itemprop="author" itemscope itemtype="http://schema.org/Person">
       <meta itemprop="name" content="姜纪光">
@@ -256,7 +256,7 @@
         <h1 class="post-title" itemprop="name headline">
           
             
-            <a href="/2020/07/15/数据库/OrientDB概览/" class="post-title-link" itemprop="url">OrientDB学习笔记</a>
+            <a href="/2020/08/06/flink/Flink从checkpoint恢复失败-EOFException/" class="post-title-link" itemprop="url">Flink从checkpoint恢复失败-EOFException</a>
           
         </h1>
 
@@ -271,1417 +271,7 @@
                 
               
 
-              <time title="创建时间：2020-07-15 09:54:53 / 修改时间：15:56:54" itemprop="dateCreated datePublished" datetime="2020-07-15T09:54:53+08:00">2020-07-15</time>
-            </span>
-          
-            
-
-            
-          
-            <span class="post-meta-item">
-              <span class="post-meta-item-icon">
-                <i class="fa fa-folder-o"></i>
-              </span>
-              <span class="post-meta-item-text">分类于</span>
-              
-                <span itemprop="about" itemscope itemtype="http://schema.org/Thing">
-                  <a href="/categories/数据库/" itemprop="url" rel="index">
-                    <span itemprop="name">数据库</span>
-                  </a>
-                </span>
-
-                
-                
-              
-            </span>
-          
-
-          
-            <span id="/2020/07/15/数据库/OrientDB概览/" class="post-meta-item leancloud_visitors" data-flag-title="OrientDB学习笔记" title="阅读次数">
-              <span class="post-meta-item-icon">
-                <i class="fa fa-eye"></i>
-              </span>
-              <span class="post-meta-item-text">阅读次数：</span>
-              <span class="leancloud-visitors-count"></span>
-            </span>
-          
-  
-  
-
-        </div>
-      </header>
-
-    
-    
-    
-    <div class="post-body" itemprop="articleBody">
-
-      
-          <h1 id="概览"><a href="#概览" class="headerlink" title="概览"></a>概览</h1><ul>
-<li><p>OrientDB 是一款 NoSQL 数据库。是一种文档-图数据库。既具有文档数据库的特性，又具有图数据库的功能。</p>
-</li>
-<li><p>端口</p>
-<blockquote>
-<p>2424  OrientDB 监听 二进制 访问的的端口 （即：通过程序访问）</p>
-<p>2480  OrientDB 监听 HTTP 访问的端口。（即通过web）存储模式</p>
-</blockquote>
-</li>
-</ul>
-<h2 id="存储模式"><a href="#存储模式" class="headerlink" title="存储模式"></a>存储模式</h2><ul>
-<li><p>Graph 图模式</p>
-<blockquote>
-<p>顶点</p>
-<p>边缘</p>
-</blockquote>
-</li>
-<li><p>Document 文档模式</p>
-<blockquote>
-<p>类或集群</p>
-<p>文档</p>
-<p>文档字段</p>
-<p>链接</p>
-</blockquote>
-</li>
-<li><p>Key/Value 键/值对模式</p>
-<blockquote>
-<p>键/值模型意味着数据可以以键/值对的形式存储，其中值可以是简单和复杂类型。 它可以支持文档和图形元素作为值。</p>
-<p>类或集群</p>
-<p>文档</p>
-<p>文档字段或顶点/边缘属性</p>
-<p>链接</p>
-</blockquote>
-</li>
-<li><p>Object 对象模式</p>
-<blockquote>
-<p>类或集群</p>
-<p>文档或顶点</p>
-<p>文档字段或顶点/边缘属性</p>
-<p>链接</p>
-</blockquote>
-</li>
-</ul>
-<h1 id="基本概念"><a href="#基本概念" class="headerlink" title="基本概念"></a>基本概念</h1><h2 id="记录（Record）"><a href="#记录（Record）" class="headerlink" title="记录（Record）"></a>记录（Record）</h2><ul>
-<li>数据库加载和存储的最小单位</li>
-<li>一条记录可以使 a Document, a Blob,  a Vertex or even an Edge</li>
-</ul>
-<p>###文档（Document）</p>
-<ul>
-<li>文档是最灵活的记录（Record）类型</li>
-<li>文档既可以是有模式的，也可以使无模式的</li>
-</ul>
-<p>###二进制（BLOB）</p>
-<ul>
-<li>BLOB是二进制形式的记录（Record）类型</li>
-<li>v2.2版本之前也叫RecordBytes</li>
-</ul>
-<h3 id="顶点（Vertex）"><a href="#顶点（Vertex）" class="headerlink" title="顶点（Vertex）"></a>顶点（Vertex）</h3><ul>
-<li>图数据库中最基本的单元是node，在OrientDB中称为vertex</li>
-<li>vertex也是文档（Document），所以可以存储embedded records 和 arbitrary properties</li>
-</ul>
-<h3 id="边（Edge）"><a href="#边（Edge）" class="headerlink" title="边（Edge）"></a>边（Edge）</h3><ul>
-<li>图数据库中，arc用于连接nodes，在OrientDB中称为edge</li>
-<li>edge是双向的，仅仅能连接两个vertex</li>
-<li>edge又分为两类：regular 和 lightweight</li>
-<li>regular Edge 是个文档（Document）</li>
-<li>Lightweight Edge 不是文档</li>
-</ul>
-<h2 id="Record-ID"><a href="#Record-ID" class="headerlink" title="Record ID"></a>Record ID</h2><ul>
-<li>每当OrientDB产生一个record，同时自动生成一个唯一的标识符，称为Record ID</li>
-<li>Record ID由集群（cluster）和位置（position）组成：<code>#&lt;cluster&gt;:&lt;position&gt;</code></li>
-<li>Cluster Identifier  指明Record属于哪个Cluster，正数表示持久化存储，负数表示临时存储</li>
-<li>position 指明Record在Cluster中的绝对位置</li>
-</ul>
-<h2 id="Record-Version"><a href="#Record-Version" class="headerlink" title="Record Version"></a>Record Version</h2><ul>
-<li>记录（Record）有自己的版本号，每当更新后会递增</li>
-</ul>
-<p>##Class</p>
-<ul>
-<li>Class用于定于Record</li>
-<li>Classes can be schema-less, schema-full or a mix</li>
-<li>和java中一样，类是可继承的，可以继承父类的属性</li>
-<li>每个非抽象类必须有至少一个自己的clusters (data files)，也可以有多个clusters</li>
-<li>当对类执行查询时，自动传播到该类的所有clusters</li>
-<li>创建Record时，该Record选择保存的clusters<a href="http://www.orientdb.com/docs/last/misc/Cluster-Selection.md" target="_blank" rel="noopener">configurable strategy</a></li>
-<li>当新建Class后，默认创建一个同名的持久化的cluster</li>
-</ul>
-<h3 id="Abstract-Class"><a href="#Abstract-Class" class="headerlink" title="Abstract Class"></a>Abstract Class</h3><ul>
-<li>和java中的抽象类的概念类似</li>
-<li>不能实例化</li>
-</ul>
-<h2 id="Cluster"><a href="#Cluster" class="headerlink" title="Cluster"></a>Cluster</h2><ul>
-<li>类Class提供了组织数据的逻辑结构</li>
-<li>集群clusters提供了存储数据的物理结构或内存空间，类似于关系型数据库中的表概念</li>
-<li>当创建Class时，也会创建物理的clusters，用于存储该class的数据</li>
-<li>cluster的命名方式是类Class转小写</li>
-</ul>
-<h2 id="Materialized-View"><a href="#Materialized-View" class="headerlink" title="Materialized View"></a>Materialized View</h2><ul>
-<li>是a persistent object that contains the result of a query</li>
-<li>在SQL查询中，可以作为class的等价</li>
-<li>可以使配置为只读和可更新的</li>
-<li>向class一样，可以有索引</li>
-</ul>
-<p>#Relationships</p>
-<ul>
-<li>支持两种类型的relationships，referenced 和 embedded</li>
-</ul>
-<p>###Referenced Relationships</p>
-<ul>
-<li>关系型数据库中，table通用join连接，这可能会在计算资源上造成高昂的代价</li>
-<li>OrientDB通过直接存储目标对象的连接</li>
-<li>使用LINK类型表示引用连接关系：LINKLIST、LINKSET、LINKMAP</li>
-<li>Edges仅仅连接两个vertices</li>
-<li>两个vertice都有Record ID</li>
-</ul>
-<h3 id="Embedded-Relationships"><a href="#Embedded-Relationships" class="headerlink" title="Embedded Relationships"></a>Embedded Relationships</h3><ul>
-<li>和Referenced Relationships不同，被嵌入的record 没有自己的Record ID</li>
-<li>当嵌入的Record删除后，被嵌入的Record也会被删除</li>
-<li>EMBEDDEDLIST、EMBEDDEDSET、EMBEDDEDMAP表示连接关系</li>
-</ul>
-<h3 id="Inverse-Relationships"><a href="#Inverse-Relationships" class="headerlink" title="Inverse Relationships"></a>Inverse Relationships</h3><ul>
-<li>OrientDB中所有的Edges都是双向的</li>
-</ul>
-<h1 id="使用"><a href="#使用" class="headerlink" title="使用"></a>使用</h1><h2 id="Tutorial-Clusters"><a href="#Tutorial-Clusters" class="headerlink" title="Tutorial-Clusters"></a>Tutorial-Clusters</h2><p>参考文档：<a href="http://www.orientdb.com/docs/last/gettingstarted/Tutorial-Clusters.md" target="_blank" rel="noopener">Tutorial-Clusters</a></p>
-<h1 id="集群模式安装"><a href="#集群模式安装" class="headerlink" title="集群模式安装"></a>集群模式安装</h1><p>##</p>
-<h1 id="参考文档"><a href="#参考文档" class="headerlink" title="参考文档"></a>参考文档</h1><p><a href="http://www.orientdb.com/docs/last/datamodeling/Concepts.html" target="_blank" rel="noopener">官网</a></p>
-<p><a href="https://www.cnblogs.com/jijizhazha/p/6656049.html" target="_blank" rel="noopener">orientdb 学习</a></p>
-<p><a href="https://www.howtoing.com/how-to-configure-an-orientdb-cluster-on-ubuntu-16-04" target="_blank" rel="noopener">如何在Ubuntu 16.04上配置OrientDB群集</a></p>
-<p><a href="https://orientdb.org/docs/3.0.x/distributed/Distributed-Architecture.html" target="_blank" rel="noopener">Distributed Architecture</a></p>
-
-        
-      
-    </div>
-
-    
-    
-    
-      <footer class="post-footer">
-        <div class="post-eof"></div>
-      </footer>
-  </article>
-  
-  
-  
-
-    
-        
-  
-  
-  <article itemscope itemtype="http://schema.org/Article" class="post-block home" lang="zh-CN">
-    <link itemprop="mainEntityOfPage" href="http://yoursite.com/2020/07/13/数据库/Neo4j学习笔记/">
-
-    <span hidden itemprop="author" itemscope itemtype="http://schema.org/Person">
-      <meta itemprop="name" content="姜纪光">
-      <meta itemprop="description" content="">
-      <meta itemprop="image" content="/images/avatar.gif">
-    </span>
-
-    <span hidden itemprop="publisher" itemscope itemtype="http://schema.org/Organization">
-      <meta itemprop="name" content="纪光的博客">
-    </span>
-      <header class="post-header">
-        <h1 class="post-title" itemprop="name headline">
-          
-            
-            <a href="/2020/07/13/数据库/Neo4j学习笔记/" class="post-title-link" itemprop="url">Neo4j学习笔记</a>
-          
-        </h1>
-
-        <div class="post-meta">
-            <span class="post-meta-item">
-              <span class="post-meta-item-icon">
-                <i class="fa fa-calendar-o"></i>
-              </span>
-              <span class="post-meta-item-text">发表于</span>
-
-              
-                
-              
-
-              <time title="创建时间：2020-07-13 18:53:49" itemprop="dateCreated datePublished" datetime="2020-07-13T18:53:49+08:00">2020-07-13</time>
-            </span>
-          
-            
-
-            
-              <span class="post-meta-item">
-                <span class="post-meta-item-icon">
-                  <i class="fa fa-calendar-check-o"></i>
-                </span>
-                <span class="post-meta-item-text">更新于</span>
-                <time title="修改时间：2020-07-14 10:43:09" itemprop="dateModified" datetime="2020-07-14T10:43:09+08:00">2020-07-14</time>
-              </span>
-            
-          
-            <span class="post-meta-item">
-              <span class="post-meta-item-icon">
-                <i class="fa fa-folder-o"></i>
-              </span>
-              <span class="post-meta-item-text">分类于</span>
-              
-                <span itemprop="about" itemscope itemtype="http://schema.org/Thing">
-                  <a href="/categories/数据库/" itemprop="url" rel="index">
-                    <span itemprop="name">数据库</span>
-                  </a>
-                </span>
-
-                
-                
-              
-            </span>
-          
-
-          
-            <span id="/2020/07/13/数据库/Neo4j学习笔记/" class="post-meta-item leancloud_visitors" data-flag-title="Neo4j学习笔记" title="阅读次数">
-              <span class="post-meta-item-icon">
-                <i class="fa fa-eye"></i>
-              </span>
-              <span class="post-meta-item-text">阅读次数：</span>
-              <span class="leancloud-visitors-count"></span>
-            </span>
-          
-  
-  
-
-        </div>
-      </header>
-
-    
-    
-    
-    <div class="post-body" itemprop="articleBody">
-
-      
-          <h1 id="简介"><a href="#简介" class="headerlink" title="简介"></a>简介</h1><h2 id="免索引邻接"><a href="#免索引邻接" class="headerlink" title="免索引邻接"></a>免索引邻接</h2><ul>
-<li>数据库中的每个节点都会维护与它相邻节点的引用</li>
-<li>这意味着查询时间和图的整体规模无关，只与它附近节点的数量成正比</li>
-</ul>
-<h2 id="底层存储结构"><a href="#底层存储结构" class="headerlink" title="底层存储结构"></a>底层存储结构</h2><ul>
-<li>标签用来区分不同类型的节点</li>
-<li>​</li>
-</ul>
-
-        
-      
-    </div>
-
-    
-    
-    
-      <footer class="post-footer">
-        <div class="post-eof"></div>
-      </footer>
-  </article>
-  
-  
-  
-
-    
-        
-  
-  
-  <article itemscope itemtype="http://schema.org/Article" class="post-block home" lang="zh-CN">
-    <link itemprop="mainEntityOfPage" href="http://yoursite.com/2020/07/13/es/搜索数据/">
-
-    <span hidden itemprop="author" itemscope itemtype="http://schema.org/Person">
-      <meta itemprop="name" content="姜纪光">
-      <meta itemprop="description" content="">
-      <meta itemprop="image" content="/images/avatar.gif">
-    </span>
-
-    <span hidden itemprop="publisher" itemscope itemtype="http://schema.org/Organization">
-      <meta itemprop="name" content="纪光的博客">
-    </span>
-      <header class="post-header">
-        <h1 class="post-title" itemprop="name headline">
-          
-            
-            <a href="/2020/07/13/es/搜索数据/" class="post-title-link" itemprop="url">搜索数据</a>
-          
-        </h1>
-
-        <div class="post-meta">
-            <span class="post-meta-item">
-              <span class="post-meta-item-icon">
-                <i class="fa fa-calendar-o"></i>
-              </span>
-              <span class="post-meta-item-text">发表于</span>
-
-              
-                
-              
-
-              <time title="创建时间：2020-07-13 14:25:33" itemprop="dateCreated datePublished" datetime="2020-07-13T14:25:33+08:00">2020-07-13</time>
-            </span>
-          
-            
-
-            
-              <span class="post-meta-item">
-                <span class="post-meta-item-icon">
-                  <i class="fa fa-calendar-check-o"></i>
-                </span>
-                <span class="post-meta-item-text">更新于</span>
-                <time title="修改时间：2020-09-12 15:09:26" itemprop="dateModified" datetime="2020-09-12T15:09:26+08:00">2020-09-12</time>
-              </span>
-            
-          
-            <span class="post-meta-item">
-              <span class="post-meta-item-icon">
-                <i class="fa fa-folder-o"></i>
-              </span>
-              <span class="post-meta-item-text">分类于</span>
-              
-                <span itemprop="about" itemscope itemtype="http://schema.org/Thing">
-                  <a href="/categories/es/" itemprop="url" rel="index">
-                    <span itemprop="name">es</span>
-                  </a>
-                </span>
-
-                
-                
-              
-            </span>
-          
-
-          
-            <span id="/2020/07/13/es/搜索数据/" class="post-meta-item leancloud_visitors" data-flag-title="搜索数据" title="阅读次数">
-              <span class="post-meta-item-icon">
-                <i class="fa fa-eye"></i>
-              </span>
-              <span class="post-meta-item-text">阅读次数：</span>
-              <span class="leancloud-visitors-count"></span>
-            </span>
-          
-  
-  
-
-        </div>
-      </header>
-
-    
-    
-    
-    <div class="post-body" itemprop="articleBody">
-
-      
-          <h1 id="参考文档"><a href="#参考文档" class="headerlink" title="参考文档"></a>参考文档</h1>
-        
-      
-    </div>
-
-    
-    
-    
-      <footer class="post-footer">
-        <div class="post-eof"></div>
-      </footer>
-  </article>
-  
-  
-  
-
-    
-        
-  
-  
-  <article itemscope itemtype="http://schema.org/Article" class="post-block home" lang="zh-CN">
-    <link itemprop="mainEntityOfPage" href="http://yoursite.com/2020/07/13/数据库/图数据库概览/">
-
-    <span hidden itemprop="author" itemscope itemtype="http://schema.org/Person">
-      <meta itemprop="name" content="姜纪光">
-      <meta itemprop="description" content="">
-      <meta itemprop="image" content="/images/avatar.gif">
-    </span>
-
-    <span hidden itemprop="publisher" itemscope itemtype="http://schema.org/Organization">
-      <meta itemprop="name" content="纪光的博客">
-    </span>
-      <header class="post-header">
-        <h1 class="post-title" itemprop="name headline">
-          
-            
-            <a href="/2020/07/13/数据库/图数据库概览/" class="post-title-link" itemprop="url">图数据库概览</a>
-          
-        </h1>
-
-        <div class="post-meta">
-            <span class="post-meta-item">
-              <span class="post-meta-item-icon">
-                <i class="fa fa-calendar-o"></i>
-              </span>
-              <span class="post-meta-item-text">发表于</span>
-
-              
-                
-              
-
-              <time title="创建时间：2020-07-13 14:24:32 / 修改时间：18:53:22" itemprop="dateCreated datePublished" datetime="2020-07-13T14:24:32+08:00">2020-07-13</time>
-            </span>
-          
-            
-
-            
-          
-            <span class="post-meta-item">
-              <span class="post-meta-item-icon">
-                <i class="fa fa-folder-o"></i>
-              </span>
-              <span class="post-meta-item-text">分类于</span>
-              
-                <span itemprop="about" itemscope itemtype="http://schema.org/Thing">
-                  <a href="/categories/图数据库/" itemprop="url" rel="index">
-                    <span itemprop="name">图数据库</span>
-                  </a>
-                </span>
-
-                
-                
-              
-            </span>
-          
-
-          
-            <span id="/2020/07/13/数据库/图数据库概览/" class="post-meta-item leancloud_visitors" data-flag-title="图数据库概览" title="阅读次数">
-              <span class="post-meta-item-icon">
-                <i class="fa fa-eye"></i>
-              </span>
-              <span class="post-meta-item-text">阅读次数：</span>
-              <span class="leancloud-visitors-count"></span>
-            </span>
-          
-  
-  
-
-        </div>
-      </header>
-
-    
-    
-    
-    <div class="post-body" itemprop="articleBody">
-
-      
-          <h1 id="图是什么"><a href="#图是什么" class="headerlink" title="图是什么"></a>图是什么</h1><ul>
-<li>图将实体表现为节点，实体与其它实体连接的方式表现为联系</li>
-<li>天生不需要模式</li>
-</ul>
-<p>现在最流行的图模型形式-带标签的属性图</p>
-<ul>
-<li>它包含节点和联系</li>
-<li>节点上有属性（键值对）</li>
-<li>节点可以有一个或多个标签</li>
-<li>联系有名字和方向，并总是有一个开始节点和一个结束节点</li>
-<li>联系也可以有属性</li>
-<li>使用labels表示节点在图中扮演的角色</li>
-</ul>
-<p>图领域的分类</p>
-<ul>
-<li>主要用于联机事务图的持久化技术，通常直接实时地被应用程序访问</li>
-<li>主要用于离线图分析的技术，通常按一系列步骤执行</li>
-</ul>
-<p>图数据库</p>
-<ul>
-<li>一般用于事务（OLTP）系统中</li>
-<li>原生图存储的好处是，它的栈是专门为性能和扩展性设计建造的</li>
-<li>非原生图存储通常建立在非常成熟的非图后端之上</li>
-<li>原生图处理（免索引邻接）虽然在遍历查询时性能优势很大，但代价是一些未使用遍历的查询会比较难，并且需要占据巨大的内存</li>
-<li>联系是图数据模型中的一等公民</li>
-<li>图数据库通过将节点和联系的简单抽象组装为相互关系的结构，是我们能够建造任意复杂的模型，形象地映射我们的问题域</li>
-<li>图天生是可扩展的，可以对已经存在的结构添加不同种类的新联系、新节点、新标签和新子图。</li>
-<li>图数据库是处理复杂的、结构可变的、密集关联的数据的最好的技术</li>
-</ul>
-<p>图计算引擎</p>
-<ul>
-<li>偏重于全局查询</li>
-<li>通常为扫描和批处理大规模信息做过优化</li>
-</ul>
-<h1 id="图建模"><a href="#图建模" class="headerlink" title="图建模"></a>图建模</h1><ul>
-<li>带标签的属性图模型</li>
-<li>图查询语言cypher</li>
-<li>建模是为了让不规则的领域的一些具体方面变成结构化的、可操从的空间</li>
-<li>图建模与其他建模技术的不同之处在于其逻辑模型和物理模型之间有更加密切的关系</li>
-</ul>
-<h2 id="带标签的属性图模型"><a href="#带标签的属性图模型" class="headerlink" title="带标签的属性图模型"></a>带标签的属性图模型</h2><ul>
-<li>带标签的属性图是由节点、联系、属性和标签组成</li>
-<li>节点上包含属性。我们可以把节点想象成存储属性的文件，属性可以以任何键值对的形式存在，在Neo4j中，键一般是字符串，值则可以使java字符串和基元数据，或是这些数据类型的数组</li>
-<li>节点可以被打上一个或多个标签。标签把节点组织在一起，并表示它们在这个数据集中的角色</li>
-<li>联系连接节点，从而构成图。每条联系都有一个方向、一个名字、一个开始和一个结束节点</li>
-<li>联系也有属性，通过在联系上增加属性，可以给图算法提供元数据，也可以给联系增加额外的语义，还可以用于运行时的约束查询</li>
-</ul>
-
-        
-      
-    </div>
-
-    
-    
-    
-      <footer class="post-footer">
-        <div class="post-eof"></div>
-      </footer>
-  </article>
-  
-  
-  
-
-    
-        
-  
-  
-  <article itemscope itemtype="http://schema.org/Article" class="post-block home" lang="zh-CN">
-    <link itemprop="mainEntityOfPage" href="http://yoursite.com/2020/07/13/es/映射/">
-
-    <span hidden itemprop="author" itemscope itemtype="http://schema.org/Person">
-      <meta itemprop="name" content="姜纪光">
-      <meta itemprop="description" content="">
-      <meta itemprop="image" content="/images/avatar.gif">
-    </span>
-
-    <span hidden itemprop="publisher" itemscope itemtype="http://schema.org/Organization">
-      <meta itemprop="name" content="纪光的博客">
-    </span>
-      <header class="post-header">
-        <h1 class="post-title" itemprop="name headline">
-          
-            
-            <a href="/2020/07/13/es/映射/" class="post-title-link" itemprop="url">映射</a>
-          
-        </h1>
-
-        <div class="post-meta">
-            <span class="post-meta-item">
-              <span class="post-meta-item-icon">
-                <i class="fa fa-calendar-o"></i>
-              </span>
-              <span class="post-meta-item-text">发表于</span>
-
-              
-                
-              
-
-              <time title="创建时间：2020-07-13 09:13:46" itemprop="dateCreated datePublished" datetime="2020-07-13T09:13:46+08:00">2020-07-13</time>
-            </span>
-          
-            
-
-            
-              <span class="post-meta-item">
-                <span class="post-meta-item-icon">
-                  <i class="fa fa-calendar-check-o"></i>
-                </span>
-                <span class="post-meta-item-text">更新于</span>
-                <time title="修改时间：2020-08-18 16:33:26" itemprop="dateModified" datetime="2020-08-18T16:33:26+08:00">2020-08-18</time>
-              </span>
-            
-          
-            <span class="post-meta-item">
-              <span class="post-meta-item-icon">
-                <i class="fa fa-folder-o"></i>
-              </span>
-              <span class="post-meta-item-text">分类于</span>
-              
-                <span itemprop="about" itemscope itemtype="http://schema.org/Thing">
-                  <a href="/categories/es/" itemprop="url" rel="index">
-                    <span itemprop="name">es</span>
-                  </a>
-                </span>
-
-                
-                
-              
-            </span>
-          
-
-          
-            <span id="/2020/07/13/es/映射/" class="post-meta-item leancloud_visitors" data-flag-title="映射" title="阅读次数">
-              <span class="post-meta-item-icon">
-                <i class="fa fa-eye"></i>
-              </span>
-              <span class="post-meta-item-text">阅读次数：</span>
-              <span class="leancloud-visitors-count"></span>
-            </span>
-          
-  
-  
-
-        </div>
-      </header>
-
-    
-    
-    
-    <div class="post-body" itemprop="articleBody">
-
-      
-          <h1 id="映射操作"><a href="#映射操作" class="headerlink" title="映射操作"></a>映射操作</h1><p>获取映射</p>
-<figure class="highlight plain"><table><tr><td class="gutter"><pre><span class="line">1</span><br></pre></td><td class="code"><pre><span class="line">http://localhost:9200/get-together/_mapping</span><br></pre></td></tr></table></figure>
-
-<p>定义映射</p>
-<figure class="highlight plain"><table><tr><td class="gutter"><pre><span class="line">1</span><br></pre></td><td class="code"><pre><span class="line">http://localhost:9200/get-together/_mapping/group?include_type_name=true</span><br></pre></td></tr></table></figure>
-
-<ul>
-<li>无法改变现有字段的数据类型</li>
-<li>无法改变一个字段被索引的方式</li>
-<li>删除数据也将删除映射</li>
-</ul>
-<h1 id="字段类型"><a href="#字段类型" class="headerlink" title="字段类型"></a>字段类型</h1><h2 id="核心类型"><a href="#核心类型" class="headerlink" title="核心类型"></a>核心类型</h2><ul>
-<li><p>keyword</p>
-<blockquote>
-<p>用于存储字符串，不会分词建立索引，用于聚合和排序</p>
-</blockquote>
-</li>
-<li><p>text</p>
-<blockquote>
-<p>用于存储字符串，会分词建立索引，用于全文检索</p>
-<p>index选项可以被设置为：<br>analyzed(默认):分析器将多有字符转为小写，并将字符串分解为单词<br>net_analyzed:分析过程被略过，整个字符串被当做单独的词条进行索引<br>no:索引被忽略，即无法在该字段索引</p>
-</blockquote>
-</li>
-<li><p>数值</p>
-<figure class="highlight plain"><table><tr><td class="gutter"><pre><span class="line">1</span><br></pre></td><td class="code"><pre><span class="line">包括byte、short、int、long、float、double</span><br></pre></td></tr></table></figure>
-</li>
-<li><p>日期</p>
-<figure class="highlight plain"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br><span class="line">3</span><br></pre></td><td class="code"><pre><span class="line">通常提供一个表示日期的字符串，es解析这个字符串，将其作为long的数值存储在lucene的索引</span><br><span class="line">是从1970年1月1日到所提供时间的毫秒数</span><br><span class="line">使用format选项指定日期格式</span><br></pre></td></tr></table></figure>
-</li>
-<li><p>布尔</p>
-<figure class="highlight plain"><table><tr><td class="gutter"><pre><span class="line">1</span><br></pre></td><td class="code"><pre><span class="line">在lucene索引中将T代表true，F代表false</span><br></pre></td></tr></table></figure>
-</li>
-<li><p>数组</p>
-<figure class="highlight plain"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br></pre></td><td class="code"><pre><span class="line">如果要索引拥有多个值的字段，将这些值放入到方括号中。</span><br><span class="line">映射将标签字段定义为字符串型，和单个值同样处理</span><br></pre></td></tr></table></figure>
-</li>
-<li><p>多字段</p>
-<figure class="highlight plain"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br><span class="line">3</span><br></pre></td><td class="code"><pre><span class="line">多字段允许使用不同的设置，对同一项数据索引多次</span><br><span class="line">analyzed针对每个单词进行匹配</span><br><span class="line">not_analyed针对完整标签名称的精确匹配</span><br></pre></td></tr></table></figure>
-
-</li>
-</ul>
-<h2 id="预定义字段"><a href="#预定义字段" class="headerlink" title="预定义字段"></a>预定义字段</h2><ul>
-<li>通常，不用部署预定义字段</li>
-<li>揭示了字段的相关的功能，如_ttl</li>
-<li>预定义的字段总是以下划线开头</li>
-</ul>
-<p>预定义字段类型：</p>
-<ul>
-<li><p>控制如何存储和搜索你的文档</p>
-<figure class="highlight plain"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br><span class="line">3</span><br></pre></td><td class="code"><pre><span class="line">_source在索引文档的时候，存储原始的JSON文档，_all将所有的字段一起索引</span><br><span class="line">_source设置为true或false来指定是否想要存储原始文档：强烈建议开启</span><br><span class="line">_include_in_all控制哪些字段包_all包含，哪些字段不被_all包含</span><br></pre></td></tr></table></figure>
-</li>
-<li><p>唯一识别文档</p>
-<figure class="highlight plain"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br></pre></td><td class="code"><pre><span class="line">有些特别的字段，包含了文档索引位置的数据：_uid、_id、_type和_index</span><br><span class="line">可以依靠es生成唯一的ID</span><br></pre></td></tr></table></figure>
-</li>
-<li><p>为文档增加新的属性</p>
-<figure class="highlight plain"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br></pre></td><td class="code"><pre><span class="line">_size索引原始JSON内容的大小</span><br><span class="line">_timestamp索引文档索引的时间</span><br></pre></td></tr></table></figure>
-</li>
-<li><p>控制文档路由到哪些分片</p>
-<figure class="highlight plain"><table><tr><td class="gutter"><pre><span class="line">1</span><br></pre></td><td class="code"><pre><span class="line">_routing和_parent</span><br></pre></td></tr></table></figure>
-
-</li>
-</ul>
-<h1 id="更新现有文档"><a href="#更新现有文档" class="headerlink" title="更新现有文档"></a>更新现有文档</h1><p>文档的更新包括检索文档、处理文档、并重新索引文档，直至先前的文档被覆盖</p>
-<ul>
-<li><p>es自动重试</p>
-<figure class="highlight plain"><table><tr><td class="gutter"><pre><span class="line">1</span><br></pre></td><td class="code"><pre><span class="line">retry_on_conflict</span><br></pre></td></tr></table></figure>
-</li>
-<li><p>并发版本控制</p>
-<figure class="highlight plain"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br></pre></td><td class="code"><pre><span class="line">http://localhost:9200/get-together/group/4/_update?if_seq_no=25&amp;if_primary_term=2</span><br><span class="line">不支持upsert模式</span><br></pre></td></tr></table></figure>
-
-</li>
-</ul>
-<h1 id="删除文档"><a href="#删除文档" class="headerlink" title="删除文档"></a>删除文档</h1><ul>
-<li><p>删除单个文档或一组文档</p>
-<blockquote>
-<p>es只是标记为删除，只是不会出现在搜索结果中，稍后es通过异步的方式彻底地从索引中移除</p>
-<p>删除文档可能的问题是，删除文档后，再通过更新添加文档，为了防止这一问题的发生，通过index.gc_deletes设置删除文档的保留时间</p>
-</blockquote>
-</li>
-<li><p>删除整个索引</p>
-<blockquote>
-<p>性能更好，主要工作就是移除和那个索引相关的文件</p>
-<p>文件只是被标记为已删除，在分段进行合并时，才被真正删除</p>
-<p>合并是指将多个lucene小分段组合为一个更大的分段的过程</p>
-</blockquote>
-</li>
-<li><p>关闭索引</p>
-<blockquote>
-<p>关闭的索引不允许读取或者写入操作，数据也不会加载到内存，还是会保留到磁盘上，只需要打开索引即可恢复</p>
-</blockquote>
-</li>
-<li><p>删除类型</p>
-<blockquote>
-<p>类型名称只是文档中的另一个字段。</p>
-<p>索引中的所有文档，无论它们属于哪个映射类型，都存放在同一分片中。</p>
-<p>es只能查询属于那个类型的文档，然后删除它们</p>
-<p>因此，删除类型通常要耗费更长的时间和更多的资源</p>
-</blockquote>
-</li>
-</ul>
-<h1 id="分段与合并"><a href="#分段与合并" class="headerlink" title="分段与合并"></a>分段与合并</h1><p>分段就是建立索引的时候所创建的一块lucene索引（es成为分片）。</p>
-
-        
-      
-    </div>
-
-    
-    
-    
-      <footer class="post-footer">
-        <div class="post-eof"></div>
-      </footer>
-  </article>
-  
-  
-  
-
-    
-        
-  
-  
-  <article itemscope itemtype="http://schema.org/Article" class="post-block home" lang="zh-CN">
-    <link itemprop="mainEntityOfPage" href="http://yoursite.com/2020/07/10/es/es概览/">
-
-    <span hidden itemprop="author" itemscope itemtype="http://schema.org/Person">
-      <meta itemprop="name" content="姜纪光">
-      <meta itemprop="description" content="">
-      <meta itemprop="image" content="/images/avatar.gif">
-    </span>
-
-    <span hidden itemprop="publisher" itemscope itemtype="http://schema.org/Organization">
-      <meta itemprop="name" content="纪光的博客">
-    </span>
-      <header class="post-header">
-        <h1 class="post-title" itemprop="name headline">
-          
-            
-            <a href="/2020/07/10/es/es概览/" class="post-title-link" itemprop="url">es概览</a>
-          
-        </h1>
-
-        <div class="post-meta">
-            <span class="post-meta-item">
-              <span class="post-meta-item-icon">
-                <i class="fa fa-calendar-o"></i>
-              </span>
-              <span class="post-meta-item-text">发表于</span>
-
-              
-                
-              
-
-              <time title="创建时间：2020-07-10 18:04:55" itemprop="dateCreated datePublished" datetime="2020-07-10T18:04:55+08:00">2020-07-10</time>
-            </span>
-          
-            
-
-            
-              <span class="post-meta-item">
-                <span class="post-meta-item-icon">
-                  <i class="fa fa-calendar-check-o"></i>
-                </span>
-                <span class="post-meta-item-text">更新于</span>
-                <time title="修改时间：2020-08-11 09:21:58" itemprop="dateModified" datetime="2020-08-11T09:21:58+08:00">2020-08-11</time>
-              </span>
-            
-          
-            <span class="post-meta-item">
-              <span class="post-meta-item-icon">
-                <i class="fa fa-folder-o"></i>
-              </span>
-              <span class="post-meta-item-text">分类于</span>
-              
-                <span itemprop="about" itemscope itemtype="http://schema.org/Thing">
-                  <a href="/categories/es/" itemprop="url" rel="index">
-                    <span itemprop="name">es</span>
-                  </a>
-                </span>
-
-                
-                
-              
-            </span>
-          
-
-          
-            <span id="/2020/07/10/es/es概览/" class="post-meta-item leancloud_visitors" data-flag-title="es概览" title="阅读次数">
-              <span class="post-meta-item-icon">
-                <i class="fa fa-eye"></i>
-              </span>
-              <span class="post-meta-item-text">阅读次数：</span>
-              <span class="leancloud-visitors-count"></span>
-            </span>
-          
-  
-  
-
-        </div>
-      </header>
-
-    
-    
-    
-    <div class="post-body" itemprop="articleBody">
-
-      
-          <h1 id="简介"><a href="#简介" class="headerlink" title="简介"></a>简介</h1><p>计算文档相关性得分的算法：TF-IDF(term frequency-inverse document frequency)词频-逆文档频率</p>
-<ul>
-<li>词频：所查找的单词在文档中出现的次数越多，得分越高</li>
-<li>逆文档词频：如果某个词频在所有文档中比较少见，那么该词的权重越高，得分也会越高</li>
-</ul>
-<p>使用案例：</p>
-<ul>
-<li>不光能在完善的数据存储之上提供搜索能力，更能提供持久化数据的能力、统计能力</li>
-<li>版本1中不支持事务和复杂关系</li>
-<li>提供REST API服务，返回数据格式可以使JSON或YAML</li>
-</ul>
-<p>主要特性：</p>
-<ul>
-<li>es默认是面向文档的、可扩展的，没有固定的schema</li>
-<li>在多个字段中搜索多个关键字，一些是必须的，一些是可选的</li>
-<li>搜索可以同时包含查询、过滤器、聚集、聚集从匹配的文档中生成统计数据</li>
-<li>以文档的形式存储数据，文档可以是具有层次的，这种灵活性非常高，鼓励将所有属于一个逻辑实体的数据保存在同一个文档中。</li>
-<li>每个集群都有一个主节点，负责了解集群中的所有节点以及分片位置</li>
-<li>端口9300用于节点之间的通讯、java api</li>
-<li>端口9200用于http通讯</li>
-<li>gateway负责将数据持久化到磁盘</li>
-<li>es自动将数据划分为分片，做负载均衡，使得动态添加和移除服务器变动容易，分片可以复制，提高容错性</li>
-</ul>
-<h1 id="安装"><a href="#安装" class="headerlink" title="安装"></a>安装</h1><h2 id="mac下安装"><a href="#mac下安装" class="headerlink" title="mac下安装"></a>mac下安装</h2><h3 id="最新版本安装"><a href="#最新版本安装" class="headerlink" title="最新版本安装"></a>最新版本安装</h3><figure class="highlight shell"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br><span class="line">3</span><br><span class="line">4</span><br><span class="line">5</span><br></pre></td><td class="code"><pre><span class="line"><span class="meta">$</span> brew install elasticsearch  #安装</span><br><span class="line"><span class="meta">$</span> brew info elasticsearch     #查看安装信息</span><br><span class="line"><span class="meta">$</span> brew services start elasticsearch   #运行  http://localhost:9200/</span><br><span class="line"><span class="meta">$</span> brew install kibana         #安装kibana</span><br><span class="line"><span class="meta">$</span> brew services start kibana  #启用kibana    http://localhost:5601/</span><br></pre></td></tr></table></figure>
-
-<h3 id="5-6-9版本安装"><a href="#5-6-9版本安装" class="headerlink" title="5.6.9版本安装"></a>5.6.9版本安装</h3><figure class="highlight shell"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br></pre></td><td class="code"><pre><span class="line"><span class="meta">#</span>下载地址</span><br><span class="line"><span class="meta">$</span> https://www.elastic.co/cn/downloads/past-releases/elasticsearch-5-6-9</span><br></pre></td></tr></table></figure>
-
-<h2 id="配置"><a href="#配置" class="headerlink" title="配置"></a>配置</h2><h1 id="功能"><a href="#功能" class="headerlink" title="功能"></a>功能</h1><h2 id="逻辑设计"><a href="#逻辑设计" class="headerlink" title="逻辑设计"></a>逻辑设计</h2><ul>
-<li>文档是搜索和索引的基本单位，类似关系数据库中的一行</li>
-<li>类型用来分组文档，可以包含若干文档，类似表格包含若干行，类似表</li>
-<li>索引是更大的容器，一个或多个类型位于同一索引中，类似数据库</li>
-</ul>
-<h2 id="物理设计"><a href="#物理设计" class="headerlink" title="物理设计"></a>物理设计</h2><ul>
-<li>es将每个索引划分为分片</li>
-<li>每份分片可以在集群间的不同服务器上迁移</li>
-<li>物理配置的设计方式决定了集群的性能、可扩展性和可用性</li>
-</ul>
-<h2 id="文档"><a href="#文档" class="headerlink" title="文档"></a>文档</h2><ul>
-<li>文档由索引名称 + 类型名称 + 文档ID 唯一确定</li>
-<li>文档是无模式的，不是所有文档都需要相同的字段</li>
-<li>文档是层次型的，即文档中可以包含文档</li>
-<li>文档拥有灵活的结构，不依赖于预先定义的模式</li>
-<li>文档中的字段是有字段类型的，字符串、整数等</li>
-<li>一个词条是文本中的一个单词，是搜索的基本单位</li>
-</ul>
-<h2 id="类型"><a href="#类型" class="headerlink" title="类型"></a>类型</h2><ul>
-<li>类型是映射类型，要和字段类型区分开来</li>
-<li>类型是文档的逻辑容器，类似于表格是行的容器。</li>
-<li>相同结构（模式）的文档最好是放入到相同的类型中</li>
-<li>映射是指每个类型中字段的定义，包含类型中所有文档的所有字段</li>
-<li>多个类型中出现同名字段时，同名字段应该有同样的类型，因为两个字段属于同一个lucene索引，若类型不同，es将很难辨别</li>
-</ul>
-<p>既然es是无模式的，那么相同结构（模式）的文档要放到同一类型中吗？</p>
-<ul>
-<li>无模式是指文档不受模式的限制，文档不需要映射中定义的所有字段，当然也可以使用新字段。</li>
-<li>既然每个字段都需要在类型中定义映射，那么对于新字段，es会自动地将新字段加入映射</li>
-<li>es在加入新字段时，将会猜测该字段的字段类型，可能会猜不对</li>
-<li>最佳的方式是索引数据之前，就定义好所需映射</li>
-</ul>
-<h2 id="索引"><a href="#索引" class="headerlink" title="索引"></a>索引</h2><ul>
-<li>索引是映射类型的容器</li>
-<li>是独立的大量文档的集合</li>
-<li>每个索引存储在磁盘上的同组文件中</li>
-<li>索引可以设置分片的数量</li>
-</ul>
-<h2 id="节点"><a href="#节点" class="headerlink" title="节点"></a>节点</h2><ul>
-<li>一个节点是一个es实例</li>
-<li>多个节点可以加入同一个集群</li>
-<li>默认情况下，可以连接集群的任一节点，并访问完整的数据集</li>
-</ul>
-<h2 id="分片"><a href="#分片" class="headerlink" title="分片"></a>分片</h2><ul>
-<li>分片是es处理的最小单元</li>
-<li>一份分片是一个lucene的索引：一个包含倒排索引的文档目录</li>
-<li>一个索引（es）是由多个lucene的索引组成</li>
-<li>主分片必须是在创建索引之前就确定</li>
-<li>过少的分片影响扩展性，过多的分片影响性能</li>
-<li>新节点加入到集群后，现有的分片将在所有节点上进行负载均衡</li>
-<li>对于每篇文档，分片是通过其ID字符串的散列决定的</li>
-<li>每份分片拥有相同的散列范围，接受新文档的机会均等</li>
-</ul>
-<h2 id="副本分片"><a href="#副本分片" class="headerlink" title="副本分片"></a>副本分片</h2><ul>
-<li>副本分片是主分片的完整副本</li>
-<li>副本分片用于搜索，或主分片丢失后成为新的主分片</li>
-<li>副本分片可以在任何时候进行数量的改变</li>
-<li>搜索时会通过轮询机制选中主分片和副本分片</li>
-</ul>
-<h1 id="操作"><a href="#操作" class="headerlink" title="操作"></a>操作</h1><h2 id="字段含义"><a href="#字段含义" class="headerlink" title="字段含义"></a>字段含义</h2><ul>
-<li><p>_shard</p>
-<blockquote>
-<p>一共有多少分片，虽然默认有5个shard和3个replica，但是一个document只会存放在一个shard里面，而一个shard有多个replica，而我这只有个shard，没有replica，所有只有一个成功。</p>
-</blockquote>
-</li>
-<li><p>_version</p>
-<blockquote>
-<p>表示当前数据的版本号，数据发生变更时，递增</p>
-</blockquote>
-</li>
-<li><p>_seq_no</p>
-<blockquote>
-<p>严格递增的顺序号，每个文档一个，Shard级别严格递增，保证后写入的Doc的_seq_no大于先写入的Doc的_seq_no。任何类型的写操作，包括index、create、update和Delete，都会生成一个seq_no.这个是不可改的，而_version这个版本号是可以改的</p>
-</blockquote>
-</li>
-<li><p>_primary_term</p>
-<blockquote>
-<p>primary_term也和_seq_no一样是一个整数，每当Primary Shard发生重新分配时，比如重启，Primary选举等，_primary_term会递增1。_primary_term主要是用来恢复数据时处理当多个文档的_seq_no一样时的冲突，比如当一个shard宕机了，raplica需要用到最新的数据，就会根据_primary_term和_seq_no这两个值来拿到最新的document</p>
-</blockquote>
-</li>
-</ul>
-<h2 id="常用请求"><a href="#常用请求" class="headerlink" title="常用请求"></a>常用请求</h2><ul>
-<li><p>常用请求参数</p>
-<figure class="highlight plain"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br><span class="line">3</span><br><span class="line">4</span><br><span class="line">5</span><br></pre></td><td class="code"><pre><span class="line">所有的搜索选项都在URL里设置</span><br><span class="line">q=searchkey</span><br><span class="line">&amp;pretty</span><br><span class="line">&amp;timeout=3s</span><br><span class="line">&amp;size=1</span><br></pre></td></tr></table></figure>
-</li>
-<li><p>返回结果</p>
-<figure class="highlight plain"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br><span class="line">3</span><br><span class="line">4</span><br></pre></td><td class="code"><pre><span class="line">took: 花费时间毫秒</span><br><span class="line">time_out: 是否超时，超时只能返回超时前的结果</span><br><span class="line">_shards: 分片信息</span><br><span class="line">_source: 存储原始JSON文档</span><br></pre></td></tr></table></figure>
-</li>
-<li><p>获取索引的所有映射</p>
-<blockquote>
-<p><a href="http://localhost:9200/get-together/_mapping" target="_blank" rel="noopener">http://localhost:9200/get-together/_mapping</a></p>
-</blockquote>
-</li>
-<li><p>占位符_all</p>
-<blockquote>
-<p><a href="http://localhost:9200/_all/group/_search?q=jiang" target="_blank" rel="noopener">http://localhost:9200/_all/group/_search?q=jiang</a></p>
-</blockquote>
-</li>
-</ul>
-<h1 id="参考文档"><a href="#参考文档" class="headerlink" title="参考文档"></a>参考文档</h1><p><a href="https://blog.csdn.net/haozhishang/article/details/80032889" target="_blank" rel="noopener">ElasticSearch6.2.4(2)——核心概念和文档实操</a></p>
-<p><a href="https://doc.yonyoucloud.com/doc/mastering-elasticsearch/index.html" target="_blank" rel="noopener">Mastering Elasticsearch(中文版)</a></p>
-
-        
-      
-    </div>
-
-    
-    
-    
-      <footer class="post-footer">
-        <div class="post-eof"></div>
-      </footer>
-  </article>
-  
-  
-  
-
-    
-        
-  
-  
-  <article itemscope itemtype="http://schema.org/Article" class="post-block home" lang="zh-CN">
-    <link itemprop="mainEntityOfPage" href="http://yoursite.com/2020/07/10/life/interesting-site/">
-
-    <span hidden itemprop="author" itemscope itemtype="http://schema.org/Person">
-      <meta itemprop="name" content="姜纪光">
-      <meta itemprop="description" content="">
-      <meta itemprop="image" content="/images/avatar.gif">
-    </span>
-
-    <span hidden itemprop="publisher" itemscope itemtype="http://schema.org/Organization">
-      <meta itemprop="name" content="纪光的博客">
-    </span>
-      <header class="post-header">
-        <h1 class="post-title" itemprop="name headline">
-          
-            
-            <a href="/2020/07/10/life/interesting-site/" class="post-title-link" itemprop="url">有趣的网站</a>
-          
-        </h1>
-
-        <div class="post-meta">
-            <span class="post-meta-item">
-              <span class="post-meta-item-icon">
-                <i class="fa fa-calendar-o"></i>
-              </span>
-              <span class="post-meta-item-text">发表于</span>
-
-              
-                
-              
-
-              <time title="创建时间：2020-07-10 16:58:54" itemprop="dateCreated datePublished" datetime="2020-07-10T16:58:54+08:00">2020-07-10</time>
-            </span>
-          
-            
-
-            
-              <span class="post-meta-item">
-                <span class="post-meta-item-icon">
-                  <i class="fa fa-calendar-check-o"></i>
-                </span>
-                <span class="post-meta-item-text">更新于</span>
-                <time title="修改时间：2020-08-23 09:29:18" itemprop="dateModified" datetime="2020-08-23T09:29:18+08:00">2020-08-23</time>
-              </span>
-            
-          
-            <span class="post-meta-item">
-              <span class="post-meta-item-icon">
-                <i class="fa fa-folder-o"></i>
-              </span>
-              <span class="post-meta-item-text">分类于</span>
-              
-                <span itemprop="about" itemscope itemtype="http://schema.org/Thing">
-                  <a href="/categories/life/" itemprop="url" rel="index">
-                    <span itemprop="name">life</span>
-                  </a>
-                </span>
-
-                
-                
-              
-            </span>
-          
-
-          
-            <span id="/2020/07/10/life/interesting-site/" class="post-meta-item leancloud_visitors" data-flag-title="有趣的网站" title="阅读次数">
-              <span class="post-meta-item-icon">
-                <i class="fa fa-eye"></i>
-              </span>
-              <span class="post-meta-item-text">阅读次数：</span>
-              <span class="leancloud-visitors-count"></span>
-            </span>
-          
-  
-  
-
-        </div>
-      </header>
-
-    
-    
-    
-    <div class="post-body" itemprop="articleBody">
-
-      
-          <p>本文用来收藏常用的网站</p>
-<ul>
-<li><p>FLIP</p>
-<blockquote>
-<p><a href="https://cwiki.apache.org/confluence/display/FLINK/Flink+Improvement+Proposals" target="_blank" rel="noopener">https://cwiki.apache.org/confluence/display/FLINK/Flink+Improvement+Proposals</a></p>
-</blockquote>
-</li>
-</ul>
-<ul>
-<li><p>find great things to read</p>
-<blockquote>
-<p><a href="https://medium.com" target="_blank" rel="noopener">https://medium.com</a></p>
-</blockquote>
-</li>
-<li><p>Java Thread Dump Analyzer</p>
-<blockquote>
-<p><a href="https://fastthread.io/" target="_blank" rel="noopener">https://fastthread.io/</a></p>
-</blockquote>
-</li>
-<li><p>JSON Patch Generator</p>
-<blockquote>
-<p><a href="https://extendsclass.com/json-patch.html" target="_blank" rel="noopener">https://extendsclass.com/json-patch.html</a></p>
-</blockquote>
-</li>
-<li></li>
-</ul>
-
-        
-      
-    </div>
-
-    
-    
-    
-      <footer class="post-footer">
-        <div class="post-eof"></div>
-      </footer>
-  </article>
-  
-  
-  
-
-    
-        
-  
-  
-  <article itemscope itemtype="http://schema.org/Article" class="post-block home" lang="zh-CN">
-    <link itemprop="mainEntityOfPage" href="http://yoursite.com/2020/07/10/linux/工具实践-printf/">
-
-    <span hidden itemprop="author" itemscope itemtype="http://schema.org/Person">
-      <meta itemprop="name" content="姜纪光">
-      <meta itemprop="description" content="">
-      <meta itemprop="image" content="/images/avatar.gif">
-    </span>
-
-    <span hidden itemprop="publisher" itemscope itemtype="http://schema.org/Organization">
-      <meta itemprop="name" content="纪光的博客">
-    </span>
-      <header class="post-header">
-        <h1 class="post-title" itemprop="name headline">
-          
-            
-            <a href="/2020/07/10/linux/工具实践-printf/" class="post-title-link" itemprop="url">工具实践-printf</a>
-          
-        </h1>
-
-        <div class="post-meta">
-            <span class="post-meta-item">
-              <span class="post-meta-item-icon">
-                <i class="fa fa-calendar-o"></i>
-              </span>
-              <span class="post-meta-item-text">发表于</span>
-
-              
-                
-              
-
-              <time title="创建时间：2020-07-10 14:26:09 / 修改时间：14:34:04" itemprop="dateCreated datePublished" datetime="2020-07-10T14:26:09+08:00">2020-07-10</time>
-            </span>
-          
-            
-
-            
-          
-            <span class="post-meta-item">
-              <span class="post-meta-item-icon">
-                <i class="fa fa-folder-o"></i>
-              </span>
-              <span class="post-meta-item-text">分类于</span>
-              
-                <span itemprop="about" itemscope itemtype="http://schema.org/Thing">
-                  <a href="/categories/hadoop/" itemprop="url" rel="index">
-                    <span itemprop="name">hadoop</span>
-                  </a>
-                </span>
-
-                
-                
-              
-            </span>
-          
-
-          
-            <span id="/2020/07/10/linux/工具实践-printf/" class="post-meta-item leancloud_visitors" data-flag-title="工具实践-printf" title="阅读次数">
-              <span class="post-meta-item-icon">
-                <i class="fa fa-eye"></i>
-              </span>
-              <span class="post-meta-item-text">阅读次数：</span>
-              <span class="leancloud-visitors-count"></span>
-            </span>
-          
-  
-  
-
-        </div>
-      </header>
-
-    
-    
-    
-    <div class="post-body" itemprop="articleBody">
-
-      
-          <h1 id="最佳使用"><a href="#最佳使用" class="headerlink" title="最佳使用"></a>最佳使用</h1><blockquote>
-<p>打印基本输出 printf “hello,world\n”</p>
-<p>十进制转16进制 printf “%x\n” 27</p>
-<p>16进制转十进制 printf “%d\n” 0x1b</p>
-</blockquote>
-<p>%x 十六进制</p>
-<p>%d 十进制</p>
-<p>%o 八进制</p>
-<h1 id="参考文档"><a href="#参考文档" class="headerlink" title="参考文档"></a>参考文档</h1><p><a href="https://blog.51cto.com/cuidehua/1890139" target="_blank" rel="noopener">总结linux下printf命令的用法</a></p>
-<p><a href="https://www.computerhope.com/unix/uprintf.htm" target="_blank" rel="noopener">Linux printf command</a></p>
-
-        
-      
-    </div>
-
-    
-    
-    
-      <footer class="post-footer">
-        <div class="post-eof"></div>
-      </footer>
-  </article>
-  
-  
-  
-
-    
-        
-  
-  
-  <article itemscope itemtype="http://schema.org/Article" class="post-block home" lang="zh-CN">
-    <link itemprop="mainEntityOfPage" href="http://yoursite.com/2020/07/10/linux/工具实践-top/">
-
-    <span hidden itemprop="author" itemscope itemtype="http://schema.org/Person">
-      <meta itemprop="name" content="姜纪光">
-      <meta itemprop="description" content="">
-      <meta itemprop="image" content="/images/avatar.gif">
-    </span>
-
-    <span hidden itemprop="publisher" itemscope itemtype="http://schema.org/Organization">
-      <meta itemprop="name" content="纪光的博客">
-    </span>
-      <header class="post-header">
-        <h1 class="post-title" itemprop="name headline">
-          
-            
-            <a href="/2020/07/10/linux/工具实践-top/" class="post-title-link" itemprop="url">工具实践-top</a>
-          
-        </h1>
-
-        <div class="post-meta">
-            <span class="post-meta-item">
-              <span class="post-meta-item-icon">
-                <i class="fa fa-calendar-o"></i>
-              </span>
-              <span class="post-meta-item-text">发表于</span>
-
-              
-                
-              
-
-              <time title="创建时间：2020-07-10 11:20:40 / 修改时间：14:21:56" itemprop="dateCreated datePublished" datetime="2020-07-10T11:20:40+08:00">2020-07-10</time>
-            </span>
-          
-            
-
-            
-          
-            <span class="post-meta-item">
-              <span class="post-meta-item-icon">
-                <i class="fa fa-folder-o"></i>
-              </span>
-              <span class="post-meta-item-text">分类于</span>
-              
-                <span itemprop="about" itemscope itemtype="http://schema.org/Thing">
-                  <a href="/categories/linux/" itemprop="url" rel="index">
-                    <span itemprop="name">linux</span>
-                  </a>
-                </span>
-
-                
-                
-              
-            </span>
-          
-
-          
-            <span id="/2020/07/10/linux/工具实践-top/" class="post-meta-item leancloud_visitors" data-flag-title="工具实践-top" title="阅读次数">
-              <span class="post-meta-item-icon">
-                <i class="fa fa-eye"></i>
-              </span>
-              <span class="post-meta-item-text">阅读次数：</span>
-              <span class="leancloud-visitors-count"></span>
-            </span>
-          
-  
-  
-
-        </div>
-      </header>
-
-    
-    
-    
-    <div class="post-body" itemprop="articleBody">
-
-      
-          <h1 id="最佳使用"><a href="#最佳使用" class="headerlink" title="最佳使用"></a>最佳使用</h1><p>top使用按键和用户交互</p>
-<blockquote>
-<p>h 显示命令帮助信息</p>
-<p>f  add/remove/order/sort 列</p>
-<p>R 切换正序/倒序排序</p>
-</blockquote>
-<p>常用命令</p>
-<blockquote>
-<p>显示进程的所有线程：top -H -p <pid></pid></p>
-</blockquote>
-<h1 id="命令简介"><a href="#命令简介" class="headerlink" title="命令简介"></a>命令简介</h1><p>​    top能够实时显示系统中各个进程的资源占用状况。是一个动态过程，即可以通过用户按键来不断刷新当前状态。</p>
-<p>​    下面介绍参数结果的具体含义：</p>
-<blockquote>
-<p><img src="/images/linux/tools-top.png" alt></p>
-</blockquote>
-<p>信息统计区分为五行，第一行：</p>
-<blockquote>
-<p>当前时间、系统运行时间、当前登录用户数、系统负载，三个数值分别为 1分钟、5分钟、15分钟前到现在的平均值。</p>
-</blockquote>
-<p>第二行：</p>
-<blockquote>
-<p>total 进程总数，running 正在运行的进程数，sleeping 睡眠的进程数，stopped 停止的进程数，zombie 僵尸进程数</p>
-</blockquote>
-<p>第三行：</p>
-<blockquote>
-<p>us 用户空间占用CPU百分比，sy 内核空间占用CPU百分比，</p>
-<p>ni 用户进程空间内改变过优先级的进程占用CPU百分比，id 空闲CPU百分比，</p>
-<p>wa 等待输入输出的CPU时间百分比，hi 硬件CPU中断占用百分比</p>
-<p>si 软中断占用百分比，st 虚拟机占用百分比</p>
-</blockquote>
-<p>第四行 内存KB：</p>
-<blockquote>
-<p>total    物理内存总量</p>
-<p>free    空闲内存总量</p>
-<p>used    已使用的物理内存总量</p>
-<p>buffers    用作内核缓存的内存量</p>
-</blockquote>
-<p>第五行 交换去KB</p>
-<blockquote>
-<p>total    交换区总量</p>
-<p>free    空闲交换区总量</p>
-<p>used    使用的交换区总量</p>
-<p>cached    缓冲的交换区总量,内存中的内容被换出到交换区，而后又被换入到内存，但使用过的交换区尚未被覆盖，该数值即为这些内容已存在于内存中的交换区的大小,相应的内存再次被换出时可不必再对交换区写入。</p>
-</blockquote>
-<p>进程信息统计区个列的含义：</p>
-<blockquote>
-<p>PID     进程id<br>PPID    父进程id<br>RUSER   Real user name<br>UID     进程所有者的用户id<br>USER    进程所有者的用户名<br>GROUP   进程所有者的组名<br>TTY     启动进程的终端名。不是从终端启动的进程则显示为 ?<br>PR      优先级<br>NI      nice值。负值表示高优先级，正值表示低优先级<br>P       最后使用的CPU，仅在多CPU环境下有意义<br>%CPU    上次更新到现在的CPU时间占用百分比<br>TIME    进程使用的CPU时间总计，单位秒<br>TIME+   进程使用的CPU时间总计，单位1/100秒<br>%MEM    进程使用的物理内存百分比<br>VIRT    进程使用的虚拟内存总量，单位kb。VIRT=SWAP+RES<br>SWAP    进程使用的虚拟内存中，被换出的大小，单位kb。<br>RES     进程使用的、未被换出的物理内存大小，单位kb。RES=CODE+DATA<br>CODE    可执行代码占用的物理内存大小，单位kb<br>DATA    可执行代码以外的部分(数据段+栈)占用的物理内存大小，单位kb<br>SHR     共享内存大小，单位kb<br>nFLT    页面错误次数<br>nDRT    最后一次写入到现在，被修改过的页面数。<br>S       进程状态(D=不可中断的睡眠状态,R=运行,S=睡眠,T=跟踪/停止,Z=僵尸进程)<br>x    COMMAND 命令名/命令行<br>y    WCHAN   若该进程在睡眠，则显示睡眠中的系统函数名<br>z    Flags   任务标志，参考 sched.h</p>
-</blockquote>
-<h1 id="参考文档"><a href="#参考文档" class="headerlink" title="参考文档"></a>参考文档</h1><p><a href="https://www.cnblogs.com/ggjucheng/archive/2012/01/08/2316399.html" target="_blank" rel="noopener"><a href="https://www.cnblogs.com/ggjucheng/archive/2012/01/08/2316399.html" target="_blank" rel="noopener">linux的top命令参数详解</a></a></p>
-
-        
-      
-    </div>
-
-    
-    
-    
-      <footer class="post-footer">
-        <div class="post-eof"></div>
-      </footer>
-  </article>
-  
-  
-  
-
-    
-        
-  
-  
-  <article itemscope itemtype="http://schema.org/Article" class="post-block home" lang="zh-CN">
-    <link itemprop="mainEntityOfPage" href="http://yoursite.com/2020/07/10/flink/flink问题排查-Connection-unexpectedly-closed-by-remote-task-manager/">
-
-    <span hidden itemprop="author" itemscope itemtype="http://schema.org/Person">
-      <meta itemprop="name" content="姜纪光">
-      <meta itemprop="description" content="">
-      <meta itemprop="image" content="/images/avatar.gif">
-    </span>
-
-    <span hidden itemprop="publisher" itemscope itemtype="http://schema.org/Organization">
-      <meta itemprop="name" content="纪光的博客">
-    </span>
-      <header class="post-header">
-        <h1 class="post-title" itemprop="name headline">
-          
-            
-            <a href="/2020/07/10/flink/flink问题排查-Connection-unexpectedly-closed-by-remote-task-manager/" class="post-title-link" itemprop="url">flink问题排查-Connection unexpectedly closed by remote task manager</a>
-          
-        </h1>
-
-        <div class="post-meta">
-            <span class="post-meta-item">
-              <span class="post-meta-item-icon">
-                <i class="fa fa-calendar-o"></i>
-              </span>
-              <span class="post-meta-item-text">发表于</span>
-
-              
-                
-              
-
-              <time title="创建时间：2020-07-10 09:48:39 / 修改时间：10:24:35" itemprop="dateCreated datePublished" datetime="2020-07-10T09:48:39+08:00">2020-07-10</time>
+              <time title="创建时间：2020-08-06 19:32:53 / 修改时间：19:37:27" itemprop="dateCreated datePublished" datetime="2020-08-06T19:32:53+08:00">2020-08-06</time>
             </span>
           
             
@@ -1707,7 +297,7 @@
           
 
           
-            <span id="/2020/07/10/flink/flink问题排查-Connection-unexpectedly-closed-by-remote-task-manager/" class="post-meta-item leancloud_visitors" data-flag-title="flink问题排查-Connection unexpectedly closed by remote task manager" title="阅读次数">
+            <span id="/2020/08/06/flink/Flink从checkpoint恢复失败-EOFException/" class="post-meta-item leancloud_visitors" data-flag-title="Flink从checkpoint恢复失败-EOFException" title="阅读次数">
               <span class="post-meta-item-icon">
                 <i class="fa fa-eye"></i>
               </span>
@@ -1727,9 +317,1359 @@
     <div class="post-body" itemprop="articleBody">
 
       
-          <h1 id="问题描述"><a href="#问题描述" class="headerlink" title="问题描述"></a>问题描述</h1><p>flink版本是1.10.1</p>
-<p>最近一个任务每隔一段时间就会重启，而且重启的间隔较为均为，</p>
-<h1 id="排查过程"><a href="#排查过程" class="headerlink" title="排查过程"></a>排查过程</h1><h1 id="思维发散"><a href="#思维发散" class="headerlink" title="思维发散"></a>思维发散</h1><h1 id="参考文档"><a href="#参考文档" class="headerlink" title="参考文档"></a>参考文档</h1><p><a href="http://cloudsqale.com/2020/04/29/flink-1-9-off-heap-memory-on-yarn-troubleshooting-container-is-running-beyond-physical-memory-limits-errors/" target="_blank" rel="noopener">Flink 1.9 – Off-Heap Memory on YARN – Troubleshooting Container is Running Beyond Physical Memory Limits Errors</a></p>
+          <h1 id="问题描述"><a href="#问题描述" class="headerlink" title="问题描述"></a>问题描述</h1><p>​    flink任务运行过程中出现异常时（如checkpoint失败次数超过配置阈值），自动重启出现算子异常，从checkpoint恢复失败。报错信息如下：</p>
+<figure class="highlight plain"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br><span class="line">3</span><br><span class="line">4</span><br><span class="line">5</span><br><span class="line">6</span><br><span class="line">7</span><br><span class="line">8</span><br><span class="line">9</span><br><span class="line">10</span><br><span class="line">11</span><br><span class="line">12</span><br><span class="line">13</span><br><span class="line">14</span><br><span class="line">15</span><br><span class="line">16</span><br><span class="line">17</span><br><span class="line">18</span><br><span class="line">19</span><br><span class="line">20</span><br><span class="line">21</span><br><span class="line">22</span><br><span class="line">23</span><br><span class="line">24</span><br><span class="line">25</span><br><span class="line">26</span><br><span class="line">27</span><br><span class="line">28</span><br><span class="line">29</span><br><span class="line">30</span><br><span class="line">31</span><br></pre></td><td class="code"><pre><span class="line">java.lang.Exception: Exception while creating StreamOperatorStateContext.</span><br><span class="line">  at org.apache.flink.streaming.api.operators.StreamTaskStateInitializerImpl.streamOperatorStateContext(StreamTaskStateInitializerImpl.java:195)</span><br><span class="line">  at org.apache.flink.streaming.api.operators.AbstractStreamOperator.initializeState(AbstractStreamOperator.java:253)</span><br><span class="line">  at org.apache.flink.streaming.runtime.tasks.StreamTask.initializeState(StreamTask.java:881)</span><br><span class="line">  at org.apache.flink.streaming.runtime.tasks.StreamTask.invoke(StreamTask.java:395)</span><br><span class="line">  at org.apache.flink.runtime.taskmanager.Task.doRun(Task.java:705)</span><br><span class="line">  at org.apache.flink.runtime.taskmanager.Task.run(Task.java:530)</span><br><span class="line">  at java.lang.Thread.run(Thread.java:748)</span><br><span class="line">Caused by: org.apache.flink.util.FlinkException: Could not restore operator state backend for StreamSource_cbc357ccb763df2852fee8c4fc7d55f2_(1/20) from any of the 1 provided restore options.</span><br><span class="line">  at org.apache.flink.streaming.api.operators.BackendRestorerProcedure.createAndRestore(BackendRestorerProcedure.java:135)</span><br><span class="line">  at org.apache.flink.streaming.api.operators.StreamTaskStateInitializerImpl.operatorStateBackend(StreamTaskStateInitializerImpl.java:255)</span><br><span class="line">  at org.apache.flink.streaming.api.operators.StreamTaskStateInitializerImpl.streamOperatorStateContext(StreamTaskStateInitializerImpl.java:143)</span><br><span class="line">  ... 6 more</span><br><span class="line">Caused by: org.apache.flink.runtime.state.BackendBuildingException: Failed when trying to restore operator state backend</span><br><span class="line">  at org.apache.flink.runtime.state.DefaultOperatorStateBackendBuilder.build(DefaultOperatorStateBackendBuilder.java:86)</span><br><span class="line">  at org.apache.flink.contrib.streaming.state.RocksDBStateBackend.createOperatorStateBackend(RocksDBStateBackend.java:537)</span><br><span class="line">  at org.apache.flink.streaming.api.operators.StreamTaskStateInitializerImpl.lambda$operatorStateBackend$0(StreamTaskStateInitializerImpl.java:246)</span><br><span class="line">  at org.apache.flink.streaming.api.operators.BackendRestorerProcedure.attemptCreateAndRestore(BackendRestorerProcedure.java:142)</span><br><span class="line">  at org.apache.flink.streaming.api.operators.BackendRestorerProcedure.createAndRestore(BackendRestorerProcedure.java:121)</span><br><span class="line">  ... 8 more</span><br><span class="line">Caused by: java.io.EOFException</span><br><span class="line">  at java.io.DataInputStream.readFully(DataInputStream.java:197)</span><br><span class="line">  at java.io.DataInputStream.readLong(DataInputStream.java:416)</span><br><span class="line">  at org.apache.flink.api.common.typeutils.base.LongSerializer.deserialize(LongSerializer.java:74)</span><br><span class="line">  at org.apache.flink.api.common.typeutils.base.LongSerializer.deserialize(LongSerializer.java:32)</span><br><span class="line">  at org.apache.flink.api.java.typeutils.runtime.TupleSerializer.deserialize(TupleSerializer.java:143)</span><br><span class="line">  at org.apache.flink.api.java.typeutils.runtime.TupleSerializer.deserialize(TupleSerializer.java:37)</span><br><span class="line">  at org.apache.flink.runtime.state.OperatorStateRestoreOperation.deserializeOperatorStateValues(OperatorStateRestoreOperation.java:191)</span><br><span class="line">  at org.apache.flink.runtime.state.OperatorStateRestoreOperation.restore(OperatorStateRestoreOperation.java:165)</span><br><span class="line">  at org.apache.flink.runtime.state.DefaultOperatorStateBackendBuilder.build(DefaultOperatorStateBackendBuilder.java:83)</span><br><span class="line">  ... 12 more</span><br></pre></td></tr></table></figure>
+
+<h1 id="问题解决"><a href="#问题解决" class="headerlink" title="问题解决"></a>问题解决</h1><p>  无法从checkpoint恢复的原因是：jar包冲突，反序列化时，无法读取之前写入checkpoint的内容，因此无法恢复</p>
+<p>需要排除kryo包</p>
+<figure class="highlight plain"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br><span class="line">3</span><br><span class="line">4</span><br><span class="line">5</span><br><span class="line">6</span><br><span class="line">7</span><br><span class="line">8</span><br><span class="line">9</span><br><span class="line">10</span><br><span class="line">11</span><br></pre></td><td class="code"><pre><span class="line">&lt;dependency&gt;</span><br><span class="line">            &lt;groupId&gt;com.twitter&lt;/groupId&gt;</span><br><span class="line">            &lt;artifactId&gt;chill-protobuf&lt;/artifactId&gt;</span><br><span class="line">            &lt;version&gt;0.5.2&lt;/version&gt;</span><br><span class="line">            &lt;exclusions&gt;</span><br><span class="line">                &lt;exclusion&gt;</span><br><span class="line">                    &lt;groupId&gt;com.esotericsoftware.kryo&lt;/groupId&gt;</span><br><span class="line">                    &lt;artifactId&gt;kryo&lt;/artifactId&gt;</span><br><span class="line">                &lt;/exclusion&gt;</span><br><span class="line">            &lt;/exclusions&gt;</span><br><span class="line">&lt;/dependency&gt;</span><br></pre></td></tr></table></figure>
+
+
+        
+      
+    </div>
+
+    
+    
+    
+      <footer class="post-footer">
+        <div class="post-eof"></div>
+      </footer>
+  </article>
+  
+  
+  
+
+    
+        
+  
+  
+  <article itemscope itemtype="http://schema.org/Article" class="post-block home" lang="zh-CN">
+    <link itemprop="mainEntityOfPage" href="http://yoursite.com/2020/08/05/java/类生命周期/">
+
+    <span hidden itemprop="author" itemscope itemtype="http://schema.org/Person">
+      <meta itemprop="name" content="姜纪光">
+      <meta itemprop="description" content="">
+      <meta itemprop="image" content="/images/avatar.gif">
+    </span>
+
+    <span hidden itemprop="publisher" itemscope itemtype="http://schema.org/Organization">
+      <meta itemprop="name" content="纪光的博客">
+    </span>
+      <header class="post-header">
+        <h1 class="post-title" itemprop="name headline">
+          
+            
+            <a href="/2020/08/05/java/类生命周期/" class="post-title-link" itemprop="url">类生命周期</a>
+          
+        </h1>
+
+        <div class="post-meta">
+            <span class="post-meta-item">
+              <span class="post-meta-item-icon">
+                <i class="fa fa-calendar-o"></i>
+              </span>
+              <span class="post-meta-item-text">发表于</span>
+
+              
+                
+              
+
+              <time title="创建时间：2020-08-05 11:42:36" itemprop="dateCreated datePublished" datetime="2020-08-05T11:42:36+08:00">2020-08-05</time>
+            </span>
+          
+            
+
+            
+              <span class="post-meta-item">
+                <span class="post-meta-item-icon">
+                  <i class="fa fa-calendar-check-o"></i>
+                </span>
+                <span class="post-meta-item-text">更新于</span>
+                <time title="修改时间：2021-01-04 15:24:12" itemprop="dateModified" datetime="2021-01-04T15:24:12+08:00">2021-01-04</time>
+              </span>
+            
+          
+            <span class="post-meta-item">
+              <span class="post-meta-item-icon">
+                <i class="fa fa-folder-o"></i>
+              </span>
+              <span class="post-meta-item-text">分类于</span>
+              
+                <span itemprop="about" itemscope itemtype="http://schema.org/Thing">
+                  <a href="/categories/java/" itemprop="url" rel="index">
+                    <span itemprop="name">java</span>
+                  </a>
+                </span>
+
+                
+                
+              
+            </span>
+          
+
+          
+            <span id="/2020/08/05/java/类生命周期/" class="post-meta-item leancloud_visitors" data-flag-title="类生命周期" title="阅读次数">
+              <span class="post-meta-item-icon">
+                <i class="fa fa-eye"></i>
+              </span>
+              <span class="post-meta-item-text">阅读次数：</span>
+              <span class="leancloud-visitors-count"></span>
+            </span>
+          
+  
+  
+
+        </div>
+      </header>
+
+    
+    
+    
+    <div class="post-body" itemprop="articleBody">
+
+      
+          <h1 id="生命周期概述"><a href="#生命周期概述" class="headerlink" title="生命周期概述"></a>生命周期概述</h1><p>​    按照JVM规范，一个Java文件从被加载到被卸载共分为5个阶段：</p>
+<ul>
+<li><p>加载</p>
+<blockquote>
+<p>1.加载就是将Java类的字节码文件加载到机器内存中，并在内存中构建出Java类的原型-类模板对象。</p>
+<p>2.类模板对象就是Java类在JVM内存中的一个快照，JVM将从字节码文件中解析出常量池、类字段、类方法等信息存储到类模板中</p>
+<p>3.类模板在JDK被存储在metaSpace区</p>
+<p>4.JVM会对字节码文件格式进行验证</p>
+</blockquote>
+</li>
+<li><p>链接（验证+准备+解析）</p>
+<blockquote>
+<p>1.链接的主要作用是将字节码指令中对常量池中索引引用转换为直接引用。</p>
+<p>2.验证是指由字节码信息触发进行反向验证：</p>
+<p>   验证字节码文件中的类名是否能够找到对应的类模板</p>
+</blockquote>
+</li>
+<li><p>初始化</p>
+<blockquote>
+<p>并非是对类进行实例化，而是执行类的<code>&lt;client&gt;</code>方法，该方法仅能由Java编辑器生成并由JVM调用。</p>
+<p>当Java类中包含由<code>static</code>修饰的静态字段或者代码块时，编译后的便会在字节码文件中包含一个<code>&lt;client&gt;</code>方法</p>
+</blockquote>
+</li>
+<li><p>使用</p>
+</li>
+<li><p>卸载</p>
+</li>
+</ul>
+<h1 id="类加载"><a href="#类加载" class="headerlink" title="类加载"></a>类加载</h1><blockquote>
+<p>1.类加载的目标就是在JVM方法区创建一个与Java类结构对等的instanceKcass的实例对象。</p>
+<p>2.mirror镜像类也是一个instanceKcass的实例对象</p>
+<p>3.java.lang.Class是为了被程序调用，instanceKcass是为了被JVM内部访问</p>
+<p>4.反射工具类都是基于java.lang.Class这个内部镜像实现的</p>
+<p>5.类加载的主要流程：</p>
+<p>​    a.读取魔术与版本号</p>
+<p>​    b.解析常量池</p>
+<p>​    c.解析字段信息</p>
+<p>​    d.解析方法</p>
+<p>​    e.创建与Java类对等的内部对象instanceKlass</p>
+<p>​    f.创建Java镜像类，create_mirror()</p>
+</blockquote>
+<h2 id="Java主类加载机制"><a href="#Java主类加载机制" class="headerlink" title="Java主类加载机制"></a>Java主类加载机制</h2><blockquote>
+<p>1.包含main()主函数的类就是Java主类，由JVM自动触发加载。</p>
+<p>2.JVM执行完自身的若干初始化逻辑之后，第一个加载的便是Java主类。</p>
+<p>3.Java主类的类加载器模式是系统加载器。</p>
+</blockquote>
+<h2 id="类加载器的加载机制"><a href="#类加载器的加载机制" class="headerlink" title="类加载器的加载机制"></a>类加载器的加载机制</h2><blockquote>
+<p>1.通过继承java.lang.ClassLoader可以自定义类加载器，自定义类加载器的loadClass()方法仅仅完成了声明周期的加载阶段</p>
+<p>2.通过反射java.lang.Class.forName(String)完成的类加载，包含了声明周期的<code>加载、验证、准备、解析和初始化</code>阶段</p>
+<p>3.import仅仅是个语法糖，没有关联任何运行时行为，更不会导致类加载</p>
+<p>4.使用new指令加载类时，如果一个类尚未被加载或者链接，那么会进入慢分配流程</p>
+</blockquote>
+<h2 id="类加载器"><a href="#类加载器" class="headerlink" title="类加载器"></a>类加载器</h2><blockquote>
+<p>1.Java体系中定义了3种类加载器：</p>
+<p>​    Bootstrap ClassLoader(引导类加载器，BCL)：加载指定的JDK核心类库，无法由Java应用程序直接引用。负责加载：</p>
+<p>​        a.%JAVA_HOME%/jre/lib目录</p>
+<p>​        b.-Xbootclasspath参数指定的目录</p>
+<p>​        c.系统属性sun.boot.class.path指定的目录中的特定名称的jar包</p>
+<p>​    Extension ClassLoader(扩展类加载器，ECL)：加载扩展类，扩展JVM的类库。负责加载：</p>
+<p>​        a.%JAVA_HOME%/jre/lib/ext目录</p>
+<p>​        b.系统属性java.ext.dirs所指定的目录中的所有类库</p>
+<p>​    System ClassLoader(系统类加载器，SCL)：加载Java应用程序类库，加载类库的路径由系统环境变量ClassPath、-cp或系统属性java.class.path指定</p>
+</blockquote>
+<h3 id="引导类加载器"><a href="#引导类加载器" class="headerlink" title="引导类加载器"></a>引导类加载器</h3><blockquote>
+<p>1.使用C++实现，所有字段和函数都使用static修饰，因此该加载器不需要实例化</p>
+<p>2.Java类编写的加载器无法继承引导类加载器</p>
+<p>3.没有父加载器</p>
+</blockquote>
+<h3 id="扩展类加载器"><a href="#扩展类加载器" class="headerlink" title="扩展类加载器"></a>扩展类加载器</h3><blockquote>
+<p>1.所有Java体系的类加载器都是继承自java.lang.ClassLoader</p>
+<p>2.类名是ExtClassLoader</p>
+<p>3.扩展类加载器的父加载器是null，并不是引导类加载器</p>
+</blockquote>
+<h3 id="系统类加载器"><a href="#系统类加载器" class="headerlink" title="系统类加载器"></a>系统类加载器</h3><blockquote>
+<p>1.系统类加载器的父加载器是扩展类加载器</p>
+</blockquote>
+<h3 id="双亲委派"><a href="#双亲委派" class="headerlink" title="双亲委派"></a>双亲委派</h3><blockquote>
+<p>1.引导类加载器、扩展类加载器和系统类加载器之间没有直接的继承关系</p>
+<p>2.Java体系的扩展类加载器、系统类加载器和用户自定义类加载器都继承自java.lang.ClassLoader</p>
+<p>3.委托加载关系是通过java.lang.ClassLoader.parent实现</p>
+<p>4.双亲委派机制在java.lang.ClassLoader.loadClass(String,boolean)接口中实现：</p>
+<p>​    a.先在当前加载器的缓存中查找有无目标类，如果有，直接返回</p>
+<p>​    b.判断当前加载器的父加载器是否为空，如果不为空，则调用parent.loadClass(name,false)接口</p>
+<p>​    c.如果当前加载器的父类加载器为空，则调用findBoostraopClassOrNull(name)接口，让引导类加载器进行加载</p>
+<p>​    d.如果上述未加载成功，则调用findClass(name)接口进行加载</p>
+<p>5.双亲委派机制从本质上规定了类加载的顺序：</p>
+<p>​    a.引导类加载器先加载</p>
+<p>​    b.若加载不到由扩展类加载</p>
+<p>​    c.若还是加载不到，才会由系统类或自定义类加载器加载</p>
+<p>6.如果自定义类加载器重写loadClass方法，会不会破坏双亲委派机制？答案是不会的</p>
+<p>​    会判断所要加载的目标类全限定名是否以<code>java</code>开始，如果是，则抛出异常</p>
+<p>​    因此所有的自定义类加载器只能重写java.lang.ClassLoader.findClass接口</p>
+</blockquote>
+<h1 id="类初始化"><a href="#类初始化" class="headerlink" title="类初始化"></a>类初始化</h1><blockquote>
+<p>1.并非是对类进行实例化，而是执行类的<code>&lt;client&gt;</code>方法，该方法仅能由Java编辑器生成并由JVM调用。</p>
+<p>2.当Java类中包含由<code>static</code>修饰的静态字段或者代码块时，编译后的便会在字节码文件中包含一个<code>&lt;client&gt;</code>方法。</p>
+<p>3.每个类都有一个类加载器，并且不同的加载器加载的同一个类无法相互转换。</p>
+</blockquote>
+<h1 id="类使用"><a href="#类使用" class="headerlink" title="类使用"></a>类使用</h1><h2 id="类实例分配"><a href="#类实例分配" class="headerlink" title="类实例分配"></a>类实例分配</h2><blockquote>
+<p>1.实例化类的方式：java.lang.Class.newInstance()、new</p>
+<p>​    在new的实现过程中，对内存分配、线程并发控制、垃圾回收等优化。</p>
+<p>2.类实例化过程：</p>
+<p>​    a.若Java类尚未被解析，则直接进入慢分配，不会使用快速分配策略</p>
+<p>​    b.快速分配，如果没有开启栈分配或不符合条件则会进行TLAB分配</p>
+<p>​    c.快速分配，如果TLAB分配失败，则尝试eden区分配</p>
+<p>​    d.如果eden区分配失败，则会进入慢分配流程</p>
+<p>​    e.如果对象满足了直接进入老年代的条件，那就直接分配在老年代</p>
+<p>​    f.快速分配，对于热点代码，如果开启逃逸分析，JVM则会执行栈上分配或标量替换等优化方案</p>
+</blockquote>
+<h2 id="逃逸分析"><a href="#逃逸分析" class="headerlink" title="逃逸分析"></a>逃逸分析</h2><ul>
+<li><p>通过对象作用范围的分析，为其他优化手段提供分析数据</p>
+</li>
+<li><p>逃逸分析包括：</p>
+<blockquote>
+<p>1、全局变量赋值逃逸</p>
+<p>2、方法返回值逃逸</p>
+<p>3、实例引用逃逸</p>
+<p>4、线程逃逸：赋值给类变量或可以在其它线程中访问的实例变量</p>
+</blockquote>
+</li>
+<li><p>开启逃逸分析</p>
+<blockquote>
+<p>-XX:+DoEscapeAnalysis</p>
+</blockquote>
+</li>
+<li><p>总结</p>
+<blockquote>
+<p>逃逸是指在方法内部被创建的对象不仅在方法内部而且还在方法外部被其它变量引用。坏处是，方法执行完毕之后，在方法内创建的对象无法被GC回收。</p>
+<p>​    如果确定不会逃逸，那么就能对方法内创建的对象进行多种优化，包含内存分配和线程同步</p>
+<p>​    逃逸分析是在运行时进行的，原因是动态生产字节码、调用本地函数、反射、方法拦截等致使不能在编译期间的静态化设施。</p>
+<p>​    逃逸分析是很耗费内存和CPU资源的，因此JVM不能对所有方法的变量进行逃逸分析，只有JVM触发即时编译（JIT）时才会进行逃逸分析。</p>
+<p>​    即时编译（JIT）是一种在运行时将字节码翻译为机器码，从而改善字节码编译语言性能的技术，即时编译基于逃逸分析的优化策略主要是标量替换和栈上分配，都不会在堆上分配实例化对象。</p>
+<p>​    可以通过<code>jmap -histo</code>命令观察开启/关闭逃逸分析的实例总数</p>
+</blockquote>
+</li>
+</ul>
+<h3 id="标量替换"><a href="#标量替换" class="headerlink" title="标量替换"></a>标量替换</h3><ul>
+<li><p>标量是指不可分割的量，基本数据类型和引用都是标量</p>
+</li>
+<li><p>不会发生逃逸，且不是标量时，JVM不会创建该对象，而会将该对象成员变量分解若干个被这个方法使用的成员变量所代替。这些代替的成员变量在栈帧或寄存器上分配空间。</p>
+</li>
+<li><p>开启标量替换</p>
+<blockquote>
+<p>-XX:+EliminateAllocations：开启标量替换</p>
+<p>-XX:+PrintEliminateAllocations：查看标量替换情况</p>
+</blockquote>
+</li>
+</ul>
+<h3 id="栈上分配"><a href="#栈上分配" class="headerlink" title="栈上分配"></a>栈上分配</h3><ul>
+<li>如果一个类没有发生逃逸，则实例对象直接分配在方法栈上。在栈上分配的对象实例，会随着方法执行结束，方法栈空间的被回收而回收，从而不需要GC来回收</li>
+<li>栈空间是有限的，因此不能分配字段多的大Java对象</li>
+<li>栈上分配依赖于逃逸分析和标量替换</li>
+</ul>
+<h3 id="同步消除"><a href="#同步消除" class="headerlink" title="同步消除"></a>同步消除</h3><ul>
+<li><p>如果对象没有出现线程逃逸，那么对象的读写就不会存在资源的竞争，那么就可以清除对象的同步锁</p>
+</li>
+<li><p>开启同步消除</p>
+<blockquote>
+<p>-XX:+EliminateLocks</p>
+</blockquote>
+</li>
+</ul>
+<h2 id="TLAB-Thead-Local-Allocation-Buffer"><a href="#TLAB-Thead-Local-Allocation-Buffer" class="headerlink" title="TLAB(Thead Local Allocation Buffer)"></a>TLAB(Thead Local Allocation Buffer)</h2><ul>
+<li><p>即线程本地分配缓存区，是一个线程专用的内存分配区域，线程私有的，位于eden区。</p>
+</li>
+<li><p>各个线程在各自的TLAB申请空间，无需加锁，是一中“空间换时间”的策略。</p>
+</li>
+<li><p>堆是全局的，每个线程都可以在堆上申请空间，而后必须在线程间进行同步，当多线程在堆上申请内存时，势必出现竞争、同步、阻塞等。</p>
+</li>
+<li><p>开启TLAB</p>
+<blockquote>
+<p>-XX:-UseTLAB</p>
+</blockquote>
+</li>
+</ul>
+<h1 id="Java对象分配"><a href="#Java对象分配" class="headerlink" title="Java对象分配"></a>Java对象分配</h1><ul>
+<li><p>分配优先级</p>
+<blockquote>
+<p>栈上分配 -&gt; TLAB分配 -&gt; 直接进入老年代 -&gt; eden区分配</p>
+</blockquote>
+</li>
+</ul>
+<h1 id="参考文档"><a href="#参考文档" class="headerlink" title="参考文档"></a>参考文档</h1><p><a href>揭秘Java虚拟机JVM设计原理与实现</a></p>
+<p><a href="https://www.jianshu.com/p/580f17760f6e" target="_blank" rel="noopener">JAVA逃逸分析、栈上分配、标量替换、同步消除</a></p>
+
+        
+      
+    </div>
+
+    
+    
+    
+      <footer class="post-footer">
+        <div class="post-eof"></div>
+      </footer>
+  </article>
+  
+  
+  
+
+    
+        
+  
+  
+  <article itemscope itemtype="http://schema.org/Article" class="post-block home" lang="zh-CN">
+    <link itemprop="mainEntityOfPage" href="http://yoursite.com/2020/08/05/java/正则的那些点/">
+
+    <span hidden itemprop="author" itemscope itemtype="http://schema.org/Person">
+      <meta itemprop="name" content="姜纪光">
+      <meta itemprop="description" content="">
+      <meta itemprop="image" content="/images/avatar.gif">
+    </span>
+
+    <span hidden itemprop="publisher" itemscope itemtype="http://schema.org/Organization">
+      <meta itemprop="name" content="纪光的博客">
+    </span>
+      <header class="post-header">
+        <h1 class="post-title" itemprop="name headline">
+          
+            
+            <a href="/2020/08/05/java/正则的那些点/" class="post-title-link" itemprop="url">正则的那些点</a>
+          
+        </h1>
+
+        <div class="post-meta">
+            <span class="post-meta-item">
+              <span class="post-meta-item-icon">
+                <i class="fa fa-calendar-o"></i>
+              </span>
+              <span class="post-meta-item-text">发表于</span>
+
+              
+                
+              
+
+              <time title="创建时间：2020-08-05 10:00:38 / 修改时间：10:10:52" itemprop="dateCreated datePublished" datetime="2020-08-05T10:00:38+08:00">2020-08-05</time>
+            </span>
+          
+            
+
+            
+          
+            <span class="post-meta-item">
+              <span class="post-meta-item-icon">
+                <i class="fa fa-folder-o"></i>
+              </span>
+              <span class="post-meta-item-text">分类于</span>
+              
+                <span itemprop="about" itemscope itemtype="http://schema.org/Thing">
+                  <a href="/categories/java/" itemprop="url" rel="index">
+                    <span itemprop="name">java</span>
+                  </a>
+                </span>
+
+                
+                
+              
+            </span>
+          
+
+          
+            <span id="/2020/08/05/java/正则的那些点/" class="post-meta-item leancloud_visitors" data-flag-title="正则的那些点" title="阅读次数">
+              <span class="post-meta-item-icon">
+                <i class="fa fa-eye"></i>
+              </span>
+              <span class="post-meta-item-text">阅读次数：</span>
+              <span class="leancloud-visitors-count"></span>
+            </span>
+          
+  
+  
+
+        </div>
+      </header>
+
+    
+    
+    
+    <div class="post-body" itemprop="articleBody">
+
+      
+          <h1 id="特殊字符"><a href="#特殊字符" class="headerlink" title="特殊字符"></a>特殊字符</h1><h1 id="quote"><a href="#quote" class="headerlink" title="quote"></a>quote</h1><p>​    Pattern.quote 方法就是给添加上 \Q…\E 引用字符的，可以使得其失去正则表达式的含义，而仅作为普通字符串。</p>
+<p>   建议直接使用\Q…\E</p>
+<blockquote>
+<p>\ Nothing，但是引用以下字符<br>\Q Nothing，但是引用所有字符，直到 \E<br>\E Nothing，但是结束从 \Q 开始的引用 </p>
+</blockquote>
+<h1 id="参考文档"><a href="#参考文档" class="headerlink" title="参考文档"></a>参考文档</h1>
+        
+      
+    </div>
+
+    
+    
+    
+      <footer class="post-footer">
+        <div class="post-eof"></div>
+      </footer>
+  </article>
+  
+  
+  
+
+    
+        
+  
+  
+  <article itemscope itemtype="http://schema.org/Article" class="post-block home" lang="zh-CN">
+    <link itemprop="mainEntityOfPage" href="http://yoursite.com/2020/08/05/calcite/Calcite学习笔记/">
+
+    <span hidden itemprop="author" itemscope itemtype="http://schema.org/Person">
+      <meta itemprop="name" content="姜纪光">
+      <meta itemprop="description" content="">
+      <meta itemprop="image" content="/images/avatar.gif">
+    </span>
+
+    <span hidden itemprop="publisher" itemscope itemtype="http://schema.org/Organization">
+      <meta itemprop="name" content="纪光的博客">
+    </span>
+      <header class="post-header">
+        <h1 class="post-title" itemprop="name headline">
+          
+            
+            <a href="/2020/08/05/calcite/Calcite学习笔记/" class="post-title-link" itemprop="url">Calcite学习笔记</a>
+          
+        </h1>
+
+        <div class="post-meta">
+            <span class="post-meta-item">
+              <span class="post-meta-item-icon">
+                <i class="fa fa-calendar-o"></i>
+              </span>
+              <span class="post-meta-item-text">发表于</span>
+
+              
+                
+              
+
+              <time title="创建时间：2020-08-05 09:03:32" itemprop="dateCreated datePublished" datetime="2020-08-05T09:03:32+08:00">2020-08-05</time>
+            </span>
+          
+            
+
+            
+              <span class="post-meta-item">
+                <span class="post-meta-item-icon">
+                  <i class="fa fa-calendar-check-o"></i>
+                </span>
+                <span class="post-meta-item-text">更新于</span>
+                <time title="修改时间：2020-11-30 19:20:11" itemprop="dateModified" datetime="2020-11-30T19:20:11+08:00">2020-11-30</time>
+              </span>
+            
+          
+            <span class="post-meta-item">
+              <span class="post-meta-item-icon">
+                <i class="fa fa-folder-o"></i>
+              </span>
+              <span class="post-meta-item-text">分类于</span>
+              
+                <span itemprop="about" itemscope itemtype="http://schema.org/Thing">
+                  <a href="/categories/calcite/" itemprop="url" rel="index">
+                    <span itemprop="name">calcite</span>
+                  </a>
+                </span>
+
+                
+                
+              
+            </span>
+          
+
+          
+            <span id="/2020/08/05/calcite/Calcite学习笔记/" class="post-meta-item leancloud_visitors" data-flag-title="Calcite学习笔记" title="阅读次数">
+              <span class="post-meta-item-icon">
+                <i class="fa fa-eye"></i>
+              </span>
+              <span class="post-meta-item-text">阅读次数：</span>
+              <span class="leancloud-visitors-count"></span>
+            </span>
+          
+  
+  
+
+        </div>
+      </header>
+
+    
+    
+    
+    <div class="post-body" itemprop="articleBody">
+
+      
+          <h1 id="参考文档"><a href="#参考文档" class="headerlink" title="参考文档"></a>参考文档</h1><p><a href="http://www.imooc.com/article/278658" target="_blank" rel="noopener">Calcite使用介绍</a></p>
+<p><a href="https://www.jianshu.com/p/2dfbd71b7f0f" target="_blank" rel="noopener">Apache Calcite 简介</a></p>
+<p><a href="https://matt33.com/2019/03/07/apache-calcite-process-flow/" target="_blank" rel="noopener">Apache Calcite 处理流程详解</a></p>
+<p><a href="https://www.slideshare.net/JordanHalterman/introduction-to-apache-calcite/1" target="_blank" rel="noopener">Introduction to Apache Calcite</a></p>
+<p><a href="https://calcite.apache.org/docs/" target="_blank" rel="noopener">docs</a></p>
+<p><a href="https://www.bookstack.cn/books/calcite" target="_blank" rel="noopener">Apache Calcite Document</a></p>
+
+        
+      
+    </div>
+
+    
+    
+    
+      <footer class="post-footer">
+        <div class="post-eof"></div>
+      </footer>
+  </article>
+  
+  
+  
+
+    
+        
+  
+  
+  <article itemscope itemtype="http://schema.org/Article" class="post-block home" lang="zh-CN">
+    <link itemprop="mainEntityOfPage" href="http://yoursite.com/2020/07/25/flink/flink指标与监控/">
+
+    <span hidden itemprop="author" itemscope itemtype="http://schema.org/Person">
+      <meta itemprop="name" content="姜纪光">
+      <meta itemprop="description" content="">
+      <meta itemprop="image" content="/images/avatar.gif">
+    </span>
+
+    <span hidden itemprop="publisher" itemscope itemtype="http://schema.org/Organization">
+      <meta itemprop="name" content="纪光的博客">
+    </span>
+      <header class="post-header">
+        <h1 class="post-title" itemprop="name headline">
+          
+            
+            <a href="/2020/07/25/flink/flink指标与监控/" class="post-title-link" itemprop="url">flink指标与监控</a>
+          
+        </h1>
+
+        <div class="post-meta">
+            <span class="post-meta-item">
+              <span class="post-meta-item-icon">
+                <i class="fa fa-calendar-o"></i>
+              </span>
+              <span class="post-meta-item-text">发表于</span>
+
+              
+                
+              
+
+              <time title="创建时间：2020-07-25 18:03:44" itemprop="dateCreated datePublished" datetime="2020-07-25T18:03:44+08:00">2020-07-25</time>
+            </span>
+          
+            
+
+            
+              <span class="post-meta-item">
+                <span class="post-meta-item-icon">
+                  <i class="fa fa-calendar-check-o"></i>
+                </span>
+                <span class="post-meta-item-text">更新于</span>
+                <time title="修改时间：2020-07-26 16:58:00" itemprop="dateModified" datetime="2020-07-26T16:58:00+08:00">2020-07-26</time>
+              </span>
+            
+          
+            <span class="post-meta-item">
+              <span class="post-meta-item-icon">
+                <i class="fa fa-folder-o"></i>
+              </span>
+              <span class="post-meta-item-text">分类于</span>
+              
+                <span itemprop="about" itemscope itemtype="http://schema.org/Thing">
+                  <a href="/categories/flink/" itemprop="url" rel="index">
+                    <span itemprop="name">flink</span>
+                  </a>
+                </span>
+
+                
+                
+              
+            </span>
+          
+
+          
+            <span id="/2020/07/25/flink/flink指标与监控/" class="post-meta-item leancloud_visitors" data-flag-title="flink指标与监控" title="阅读次数">
+              <span class="post-meta-item-icon">
+                <i class="fa fa-eye"></i>
+              </span>
+              <span class="post-meta-item-text">阅读次数：</span>
+              <span class="leancloud-visitors-count"></span>
+            </span>
+          
+  
+  
+
+        </div>
+      </header>
+
+    
+    
+    
+    <div class="post-body" itemprop="articleBody">
+
+      
+          <h1 id="参考文档"><a href="#参考文档" class="headerlink" title="参考文档"></a>参考文档</h1><p><a href="https://ververica.cn/developers/flink-training-course-advanced/" target="_blank" rel="noopener">Metrics 与监控</a></p>
+
+        
+      
+    </div>
+
+    
+    
+    
+      <footer class="post-footer">
+        <div class="post-eof"></div>
+      </footer>
+  </article>
+  
+  
+  
+
+    
+        
+  
+  
+  <article itemscope itemtype="http://schema.org/Article" class="post-block home" lang="zh-CN">
+    <link itemprop="mainEntityOfPage" href="http://yoursite.com/2020/07/25/flink/flink基本知识/">
+
+    <span hidden itemprop="author" itemscope itemtype="http://schema.org/Person">
+      <meta itemprop="name" content="姜纪光">
+      <meta itemprop="description" content="">
+      <meta itemprop="image" content="/images/avatar.gif">
+    </span>
+
+    <span hidden itemprop="publisher" itemscope itemtype="http://schema.org/Organization">
+      <meta itemprop="name" content="纪光的博客">
+    </span>
+      <header class="post-header">
+        <h1 class="post-title" itemprop="name headline">
+          
+            
+            <a href="/2020/07/25/flink/flink基本知识/" class="post-title-link" itemprop="url">flink基本知识</a>
+          
+        </h1>
+
+        <div class="post-meta">
+            <span class="post-meta-item">
+              <span class="post-meta-item-icon">
+                <i class="fa fa-calendar-o"></i>
+              </span>
+              <span class="post-meta-item-text">发表于</span>
+
+              
+                
+              
+
+              <time title="创建时间：2020-07-25 14:16:10" itemprop="dateCreated datePublished" datetime="2020-07-25T14:16:10+08:00">2020-07-25</time>
+            </span>
+          
+            
+
+            
+              <span class="post-meta-item">
+                <span class="post-meta-item-icon">
+                  <i class="fa fa-calendar-check-o"></i>
+                </span>
+                <span class="post-meta-item-text">更新于</span>
+                <time title="修改时间：2020-10-10 16:51:18" itemprop="dateModified" datetime="2020-10-10T16:51:18+08:00">2020-10-10</time>
+              </span>
+            
+          
+            <span class="post-meta-item">
+              <span class="post-meta-item-icon">
+                <i class="fa fa-folder-o"></i>
+              </span>
+              <span class="post-meta-item-text">分类于</span>
+              
+                <span itemprop="about" itemscope itemtype="http://schema.org/Thing">
+                  <a href="/categories/flink/" itemprop="url" rel="index">
+                    <span itemprop="name">flink</span>
+                  </a>
+                </span>
+
+                
+                
+              
+            </span>
+          
+
+          
+            <span id="/2020/07/25/flink/flink基本知识/" class="post-meta-item leancloud_visitors" data-flag-title="flink基本知识" title="阅读次数">
+              <span class="post-meta-item-icon">
+                <i class="fa fa-eye"></i>
+              </span>
+              <span class="post-meta-item-text">阅读次数：</span>
+              <span class="leancloud-visitors-count"></span>
+            </span>
+          
+  
+  
+
+        </div>
+      </header>
+
+    
+    
+    
+    <div class="post-body" itemprop="articleBody">
+
+      
+          <h1 id="基本概念"><a href="#基本概念" class="headerlink" title="基本概念"></a>基本概念</h1><h2 id="Transformation"><a href="#Transformation" class="headerlink" title="Transformation"></a>Transformation</h2><p>Transformation是指flink中所有的source、sink和中间转换的统一抽象。</p>
+<h1 id="部署模式"><a href="#部署模式" class="headerlink" title="部署模式"></a>部署模式</h1><h2 id="Session模式"><a href="#Session模式" class="headerlink" title="Session模式"></a>Session模式</h2><ul>
+<li>提前启动好一个集群，在这个集群中不断提交任务</li>
+<li>所有任务共享集群资源</li>
+<li>好处是：不需要每次创建集群是带来的resource开销，</li>
+<li>问题是：隔离性差，一个TaskManager运行多个任务，其中一个任务导致TaskManager挂掉，会导致所有的任务重启；一个JobManager管理所有的任务，负载会成为瓶颈</li>
+</ul>
+<p>##Per-Job模式</p>
+<ul>
+<li>每个任务独立启动一个集群，隔离性好，每个任务有单独的JobManager管理，负载均衡</li>
+</ul>
+<p>##Application模式</p>
+<ul>
+<li><p>flink1.10版本新增的任务提交方式</p>
+</li>
+<li><p>Session和Per-Job的共同弊端是：Client端瓶颈，执行用户代码，生成Job graph，网络上传下载Jar包</p>
+</li>
+<li><p>解决思路：FLIP-85</p>
+<blockquote>
+<p>1.每个Application启动一个集群</p>
+<p>2.JobManager端执行用户代码，没有单点瓶颈</p>
+<p>3.YARN(FLINK-13938,FLINK-17632)、k8s支持</p>
+<p>   提供了远程的lib目录，可以把这些文件缓存到YARN的节点上，不必要每次的上传/下载</p>
+<p>   支持用户远程系统的Jar来创建任务，减少Jar包下载的开销   </p>
+</blockquote>
+</li>
+</ul>
+<p>#k8s和docker</p>
+<h2 id="k8s生产可用性增强"><a href="#k8s生产可用性增强" class="headerlink" title="k8s生产可用性增强"></a>k8s生产可用性增强</h2><ul>
+<li>Flink1.11版本达到生成可用的标准</li>
+<li>FLINK-14460</li>
+<li>基础功能：Node Selector、Label、Annotation、Toleration</li>
+<li>根据环境变量自动挂载Hadoop配置</li>
+</ul>
+<h2 id="Docker镜像统一"><a href="#Docker镜像统一" class="headerlink" title="Docker镜像统一"></a>Docker镜像统一</h2><ul>
+<li>FLIP-111</li>
+<li>问题：Docker资源分散、重复和不一致性问题，用户使用不便和维护成本</li>
+<li>资源统一整合到Flink-docker github项目</li>
+</ul>
+<p>#JobManager</p>
+<ul>
+<li><p>JobManager统一内存配置</p>
+</li>
+<li><p>FLIP-116: 延续FLIP49术语</p>
+</li>
+<li><p>升级：复用之前版本的配置可能导致内存参数不同，影响性能</p>
+</li>
+<li><p>FLIP-108: 增加扩展资源GPU调度支持</p>
+</li>
+<li><p>Web UI优化</p>
+<blockquote>
+<p>FLIP-103：JobManager和TaskManager的日志展示</p>
+<p>FLIP-99：支持展示更多历史Failover信息</p>
+<p>支持Thread dump</p>
+</blockquote>
+</li>
+</ul>
+<h1 id="参考文档"><a href="#参考文档" class="headerlink" title="参考文档"></a>参考文档</h1>
+        
+      
+    </div>
+
+    
+    
+    
+      <footer class="post-footer">
+        <div class="post-eof"></div>
+      </footer>
+  </article>
+  
+  
+  
+
+    
+        
+  
+  
+  <article itemscope itemtype="http://schema.org/Article" class="post-block home" lang="zh-CN">
+    <link itemprop="mainEntityOfPage" href="http://yoursite.com/2020/07/24/flink/flink社区参与/">
+
+    <span hidden itemprop="author" itemscope itemtype="http://schema.org/Person">
+      <meta itemprop="name" content="姜纪光">
+      <meta itemprop="description" content="">
+      <meta itemprop="image" content="/images/avatar.gif">
+    </span>
+
+    <span hidden itemprop="publisher" itemscope itemtype="http://schema.org/Organization">
+      <meta itemprop="name" content="纪光的博客">
+    </span>
+      <header class="post-header">
+        <h1 class="post-title" itemprop="name headline">
+          
+            
+            <a href="/2020/07/24/flink/flink社区参与/" class="post-title-link" itemprop="url">flink社区参与</a>
+          
+        </h1>
+
+        <div class="post-meta">
+            <span class="post-meta-item">
+              <span class="post-meta-item-icon">
+                <i class="fa fa-calendar-o"></i>
+              </span>
+              <span class="post-meta-item-text">发表于</span>
+
+              
+                
+              
+
+              <time title="创建时间：2020-07-24 10:35:04 / 修改时间：14:23:58" itemprop="dateCreated datePublished" datetime="2020-07-24T10:35:04+08:00">2020-07-24</time>
+            </span>
+          
+            
+
+            
+          
+            <span class="post-meta-item">
+              <span class="post-meta-item-icon">
+                <i class="fa fa-folder-o"></i>
+              </span>
+              <span class="post-meta-item-text">分类于</span>
+              
+                <span itemprop="about" itemscope itemtype="http://schema.org/Thing">
+                  <a href="/categories/flink/" itemprop="url" rel="index">
+                    <span itemprop="name">flink</span>
+                  </a>
+                </span>
+
+                
+                
+              
+            </span>
+          
+
+          
+            <span id="/2020/07/24/flink/flink社区参与/" class="post-meta-item leancloud_visitors" data-flag-title="flink社区参与" title="阅读次数">
+              <span class="post-meta-item-icon">
+                <i class="fa fa-eye"></i>
+              </span>
+              <span class="post-meta-item-text">阅读次数：</span>
+              <span class="leancloud-visitors-count"></span>
+            </span>
+          
+  
+  
+
+        </div>
+      </header>
+
+    
+    
+    
+    <div class="post-body" itemprop="articleBody">
+
+      
+          <h1 id="参与途径"><a href="#参与途径" class="headerlink" title="参与途径"></a>参与途径</h1><h2 id="邮件列表"><a href="#邮件列表" class="headerlink" title="邮件列表"></a>邮件列表</h2><figure class="highlight plain"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br><span class="line">3</span><br><span class="line">4</span><br><span class="line">5</span><br><span class="line">6</span><br><span class="line">7</span><br><span class="line">8</span><br><span class="line">9</span><br><span class="line">10</span><br><span class="line">11</span><br><span class="line">12</span><br><span class="line">13</span><br><span class="line">14</span><br><span class="line">15</span><br><span class="line">16</span><br><span class="line">17</span><br><span class="line">18</span><br><span class="line">19</span><br><span class="line">20</span><br><span class="line">21</span><br><span class="line">22</span><br><span class="line">23</span><br><span class="line">24</span><br><span class="line">25</span><br></pre></td><td class="code"><pre><span class="line">#开发邮件列表</span><br><span class="line">dev@flink.apache.org      </span><br><span class="line">用途：技术讨论、社区事务讨论、了解新创建的JIRA</span><br><span class="line">讨论历史(Apache Pony)：</span><br><span class="line">https://lists.apache.org/list.html?dev@flink.apache.org</span><br><span class="line"></span><br><span class="line"></span><br><span class="line">#用户邮件列表</span><br><span class="line">user@flink.apache.org</span><br><span class="line">user-zh@flink.apache.org</span><br><span class="line">用途：使用过程中遇到的问题</span><br><span class="line">讨论历史(Apache Pony)：</span><br><span class="line">https://lists.apache.org/list.html?user@flink.apache.org</span><br><span class="line">https://lists.apache.org/list.html?user-zh@flink.apache.org</span><br><span class="line">归档(Nabble)：</span><br><span class="line">http://apache-flink-user-mailing-list-archive.2336050.n4.nabble.com/</span><br><span class="line"></span><br><span class="line">#build邮件列表</span><br><span class="line">builds@flink.apache.org</span><br><span class="line">用途：flink各个分支的CI实验室测试结果</span><br><span class="line">讨论历史(Apache Pony)：</span><br><span class="line">https://lists.apache.org/list.html?builds@flink.apache.org</span><br><span class="line"></span><br><span class="line">$&#123;邮件列表&#125;-subscribe@flink.apache.org   #订阅方式  邮件列表：dev、user等</span><br><span class="line">然后回复确认邮件</span><br></pre></td></tr></table></figure>
+
+<p>##Stack Overflow</p>
+<p><a href="https://stackoverflow.com/questions/tagged/apache-flink" target="_blank" rel="noopener">https://stackoverflow.com/questions/tagged/apache-flink</a></p>
+<h2 id="jira"><a href="#jira" class="headerlink" title="jira"></a>jira</h2><p><a href="https://issues.apache.org/jira/projects/FLINK/issues/FLINK-18682?filter=allopenissues" target="_blank" rel="noopener">https://issues.apache.org/jira/projects/FLINK/issues/FLINK-18682?filter=allopenissues</a></p>
+<h2 id="FLIP"><a href="#FLIP" class="headerlink" title="FLIP"></a>FLIP</h2><p><a href="https://cwiki.apache.org/confluence/display/FLINK/Flink+Improvement+Proposals" target="_blank" rel="noopener">https://cwiki.apache.org/confluence/display/FLINK/Flink+Improvement+Proposals</a></p>
+<p>大的功能：先讨论、后开发</p>
+<p>讨论 -&gt; 投票 -&gt; 开发 -&gt; 合并</p>
+<p>邮件标题格式一般是：[DISCUSS]XXX</p>
+<p>##提交PR（Pull Request）流程</p>
+<ul>
+<li><p>注册Apache JIRA账号</p>
+<blockquote>
+<p>JIRA是Apache项目issue管理平台</p>
+<p>创建/认领issue</p>
+<p>讨论具体的issue</p>
+<p><a href="https://issues.apache.org/jira/projects/FLINK/issues/FLINK-18682?filter=allopenissues" target="_blank" rel="noopener">https://issues.apache.org/jira/projects/FLINK/issues/FLINK-18682?filter=allopenissues</a></p>
+</blockquote>
+</li>
+<li><p>注册github账号</p>
+<blockquote>
+<p>Apache项目代码都是托管在github上</p>
+<p>提交PR</p>
+<p>review PR</p>
+</blockquote>
+</li>
+<li><p>下载Flink代码</p>
+<blockquote>
+<p>1.Fork flink github项目到自己的github账号下</p>
+<p>   找到 flink 源码 点击fork</p>
+<p>   下载Flink代码仓库：git clone <a href="https://github.com/apache/flink.git" target="_blank" rel="noopener">https://github.com/apache/flink.git</a></p>
+<p>2.添加自己github账号下clone的Flink仓库：</p>
+<p>  git remote add [shortname] url</p>
+<p>​    1.shorname 本地名称 ，代表远程仓库 例如origin</p>
+<p>​    2.url为远程仓库地址 该地址必须已经存在</p>
+<p>注意：如果使用 fork后，clone自己的仓库，则不需要添加远程仓库</p>
+</blockquote>
+</li>
+<li><p>开发环境准备</p>
+<blockquote>
+<p>maven：3.2.5    太高可能出问题</p>
+<p>java：8</p>
+<p>构建整个项目：</p>
+<p>mvn clean install -Dmaven.test.skip=true</p>
+<p>构建完成之后，会出现build-target目录</p>
+</blockquote>
+</li>
+<li><p>创建JIRA</p>
+<blockquote>
+<p>大的功能，先讨论再创建JIRA</p>
+<p>针对现存JIAR:</p>
+<p>1.先征求owner同意</p>
+<p>2.没有owner的话，在JIRA上面ping一下模块的commiter</p>
+<p>​    将JIRA assign给你</p>
+<p>​    提交PR之后，需要commiter review</p>
+</blockquote>
+</li>
+<li><p>代码开发</p>
+<blockquote>
+<p>code style: &lt;<a href="https://flink.apache.org/contributing/code-style-and-quality-preamble.html" target="_blank" rel="noopener">https://flink.apache.org/contributing/code-style-and-quality-preamble.html</a></p>
+<p>cd docs &amp; sh build_docs.sh -p   访问<a href="http://0.0.0:4000/" target="_blank" rel="noopener">http://0.0.0:4000/</a> 查看文档效果</p>
+<p>在修改的模块下 执行 mvn clean install</p>
+</blockquote>
+</li>
+<li><p>提交PR</p>
+<blockquote>
+<p>​</p>
+</blockquote>
+</li>
+<li><p>测试实验室</p>
+</li>
+<li><p>根据review反馈更新PR</p>
+</li>
+</ul>
+<h1 id="参考文档"><a href="#参考文档" class="headerlink" title="参考文档"></a>参考文档</h1><p><a href="https://flink.apache.org/community.html#how-to-subscribe-to-a-mailing-list" target="_blank" rel="noopener">邮件列表</a></p>
+
+        
+      
+    </div>
+
+    
+    
+    
+      <footer class="post-footer">
+        <div class="post-eof"></div>
+      </footer>
+  </article>
+  
+  
+  
+
+    
+        
+  
+  
+  <article itemscope itemtype="http://schema.org/Article" class="post-block home" lang="zh-CN">
+    <link itemprop="mainEntityOfPage" href="http://yoursite.com/2020/07/23/flink/flink源码构建/">
+
+    <span hidden itemprop="author" itemscope itemtype="http://schema.org/Person">
+      <meta itemprop="name" content="姜纪光">
+      <meta itemprop="description" content="">
+      <meta itemprop="image" content="/images/avatar.gif">
+    </span>
+
+    <span hidden itemprop="publisher" itemscope itemtype="http://schema.org/Organization">
+      <meta itemprop="name" content="纪光的博客">
+    </span>
+      <header class="post-header">
+        <h1 class="post-title" itemprop="name headline">
+          
+            
+            <a href="/2020/07/23/flink/flink源码构建/" class="post-title-link" itemprop="url">Flink源码构建</a>
+          
+        </h1>
+
+        <div class="post-meta">
+            <span class="post-meta-item">
+              <span class="post-meta-item-icon">
+                <i class="fa fa-calendar-o"></i>
+              </span>
+              <span class="post-meta-item-text">发表于</span>
+
+              
+                
+              
+
+              <time title="创建时间：2020-07-23 10:05:35" itemprop="dateCreated datePublished" datetime="2020-07-23T10:05:35+08:00">2020-07-23</time>
+            </span>
+          
+            
+
+            
+              <span class="post-meta-item">
+                <span class="post-meta-item-icon">
+                  <i class="fa fa-calendar-check-o"></i>
+                </span>
+                <span class="post-meta-item-text">更新于</span>
+                <time title="修改时间：2021-01-13 19:31:28" itemprop="dateModified" datetime="2021-01-13T19:31:28+08:00">2021-01-13</time>
+              </span>
+            
+          
+            <span class="post-meta-item">
+              <span class="post-meta-item-icon">
+                <i class="fa fa-folder-o"></i>
+              </span>
+              <span class="post-meta-item-text">分类于</span>
+              
+                <span itemprop="about" itemscope itemtype="http://schema.org/Thing">
+                  <a href="/categories/flink/" itemprop="url" rel="index">
+                    <span itemprop="name">flink</span>
+                  </a>
+                </span>
+
+                
+                
+              
+            </span>
+          
+
+          
+            <span id="/2020/07/23/flink/flink源码构建/" class="post-meta-item leancloud_visitors" data-flag-title="Flink源码构建" title="阅读次数">
+              <span class="post-meta-item-icon">
+                <i class="fa fa-eye"></i>
+              </span>
+              <span class="post-meta-item-text">阅读次数：</span>
+              <span class="leancloud-visitors-count"></span>
+            </span>
+          
+  
+  
+
+        </div>
+      </header>
+
+    
+    
+    
+    <div class="post-body" itemprop="articleBody">
+
+      
+          <h1 id="构建步骤"><a href="#构建步骤" class="headerlink" title="构建步骤"></a>构建步骤</h1><figure class="highlight shell"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br><span class="line">3</span><br><span class="line">4</span><br><span class="line">5</span><br><span class="line">6</span><br><span class="line">7</span><br><span class="line">8</span><br><span class="line">9</span><br><span class="line">10</span><br><span class="line">11</span><br><span class="line">12</span><br><span class="line">13</span><br><span class="line">14</span><br><span class="line">15</span><br></pre></td><td class="code"><pre><span class="line"><span class="meta">#</span>下载flink源码</span><br><span class="line"><span class="meta">$</span> git clone https://github.com/apache/flink.git</span><br><span class="line"><span class="meta">#</span> idea安装 Scala插件</span><br><span class="line"><span class="meta">#</span> plugin -&gt; Scala -&gt; 重启idea</span><br><span class="line"><span class="meta">#</span> 安装配置Checkstyle 插件</span><br><span class="line"></span><br><span class="line"><span class="meta">#</span> 构建命令</span><br><span class="line"><span class="meta">$</span> mvn clean install -T 4 -Dfast -Dmaven.compile.fork=true -DskipTests -Dscala-2.11</span><br><span class="line"></span><br><span class="line"><span class="meta">#</span> 构建单独module</span><br><span class="line"><span class="meta">$</span> mvn clean install -Dfast -Dmaven.compile.fork=true -DskipTests -Dscala-2.11</span><br><span class="line"></span><br><span class="line"><span class="meta">#</span> 打包</span><br><span class="line"><span class="meta">$</span> cd flink-dist </span><br><span class="line"><span class="meta">$</span> mvn clean package -Dfast -Dmaven.compile.fork=true -DskipTests -Dscala-2.11</span><br></pre></td></tr></table></figure>
+
+<h1 id="源码修改"><a href="#源码修改" class="headerlink" title="源码修改"></a>源码修改</h1><ul>
+<li>源码修改后，需要重新打包进行测试</li>
+</ul>
+<figure class="highlight shell"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br><span class="line">3</span><br><span class="line">4</span><br><span class="line">5</span><br></pre></td><td class="code"><pre><span class="line"><span class="meta">#</span>首先install 修改过的包，如修改了flink-streaming-java module下面的代码</span><br><span class="line"><span class="meta">$</span> cd flink-streaming-java</span><br><span class="line"><span class="meta">$</span> mvn -DskipTests -Dmaven.javadoc.skip=true -Dcheckstyle.skip=true clean install </span><br><span class="line"><span class="meta">$</span> cd flink-dist </span><br><span class="line"><span class="meta">$</span> mvn -DskipTests -Dmaven.javadoc.skip=true -Dcheckstyle.skip=true clean install</span><br></pre></td></tr></table></figure>
+
+<h1 id="参考文档"><a href="#参考文档" class="headerlink" title="参考文档"></a>参考文档</h1><p><a href="https://ci.apache.org/projects/flink/flink-docs-release-1.11/flinkDev/ide_setup.html" target="_blank" rel="noopener">Flink Development</a></p>
+<p><a href="https://cloud.tencent.com/developer/article/1419606" target="_blank" rel="noopener">《Flink 源码解析》—— 源码编译运行</a></p>
+<p><a href="https://blog.csdn.net/baifanwudi/article/details/99564142" target="_blank" rel="noopener">Flink打包编译问题</a></p>
+
+        
+      
+    </div>
+
+    
+    
+    
+      <footer class="post-footer">
+        <div class="post-eof"></div>
+      </footer>
+  </article>
+  
+  
+  
+
+    
+        
+  
+  
+  <article itemscope itemtype="http://schema.org/Article" class="post-block home" lang="zh-CN">
+    <link itemprop="mainEntityOfPage" href="http://yoursite.com/2020/07/23/java/maven实战/">
+
+    <span hidden itemprop="author" itemscope itemtype="http://schema.org/Person">
+      <meta itemprop="name" content="姜纪光">
+      <meta itemprop="description" content="">
+      <meta itemprop="image" content="/images/avatar.gif">
+    </span>
+
+    <span hidden itemprop="publisher" itemscope itemtype="http://schema.org/Organization">
+      <meta itemprop="name" content="纪光的博客">
+    </span>
+      <header class="post-header">
+        <h1 class="post-title" itemprop="name headline">
+          
+            
+            <a href="/2020/07/23/java/maven实战/" class="post-title-link" itemprop="url">maven实战</a>
+          
+        </h1>
+
+        <div class="post-meta">
+            <span class="post-meta-item">
+              <span class="post-meta-item-icon">
+                <i class="fa fa-calendar-o"></i>
+              </span>
+              <span class="post-meta-item-text">发表于</span>
+
+              
+                
+              
+
+              <time title="创建时间：2020-07-23 09:09:55 / 修改时间：09:10:59" itemprop="dateCreated datePublished" datetime="2020-07-23T09:09:55+08:00">2020-07-23</time>
+            </span>
+          
+            
+
+            
+          
+            <span class="post-meta-item">
+              <span class="post-meta-item-icon">
+                <i class="fa fa-folder-o"></i>
+              </span>
+              <span class="post-meta-item-text">分类于</span>
+              
+                <span itemprop="about" itemscope itemtype="http://schema.org/Thing">
+                  <a href="/categories/java/" itemprop="url" rel="index">
+                    <span itemprop="name">java</span>
+                  </a>
+                </span>
+
+                
+                
+              
+            </span>
+          
+
+          
+            <span id="/2020/07/23/java/maven实战/" class="post-meta-item leancloud_visitors" data-flag-title="maven实战" title="阅读次数">
+              <span class="post-meta-item-icon">
+                <i class="fa fa-eye"></i>
+              </span>
+              <span class="post-meta-item-text">阅读次数：</span>
+              <span class="leancloud-visitors-count"></span>
+            </span>
+          
+  
+  
+
+        </div>
+      </header>
+
+    
+    
+    
+    <div class="post-body" itemprop="articleBody">
+
+      
+          
+        
+      
+    </div>
+
+    
+    
+    
+      <footer class="post-footer">
+        <div class="post-eof"></div>
+      </footer>
+  </article>
+  
+  
+  
+
+    
+        
+  
+  
+  <article itemscope itemtype="http://schema.org/Article" class="post-block home" lang="zh-CN">
+    <link itemprop="mainEntityOfPage" href="http://yoursite.com/2020/07/22/linux/用户和组实践/">
+
+    <span hidden itemprop="author" itemscope itemtype="http://schema.org/Person">
+      <meta itemprop="name" content="姜纪光">
+      <meta itemprop="description" content="">
+      <meta itemprop="image" content="/images/avatar.gif">
+    </span>
+
+    <span hidden itemprop="publisher" itemscope itemtype="http://schema.org/Organization">
+      <meta itemprop="name" content="纪光的博客">
+    </span>
+      <header class="post-header">
+        <h1 class="post-title" itemprop="name headline">
+          
+            
+            <a href="/2020/07/22/linux/用户和组实践/" class="post-title-link" itemprop="url">用户和组实践</a>
+          
+        </h1>
+
+        <div class="post-meta">
+            <span class="post-meta-item">
+              <span class="post-meta-item-icon">
+                <i class="fa fa-calendar-o"></i>
+              </span>
+              <span class="post-meta-item-text">发表于</span>
+
+              
+                
+              
+
+              <time title="创建时间：2020-07-22 09:19:00 / 修改时间：10:36:42" itemprop="dateCreated datePublished" datetime="2020-07-22T09:19:00+08:00">2020-07-22</time>
+            </span>
+          
+            
+
+            
+          
+            <span class="post-meta-item">
+              <span class="post-meta-item-icon">
+                <i class="fa fa-folder-o"></i>
+              </span>
+              <span class="post-meta-item-text">分类于</span>
+              
+                <span itemprop="about" itemscope itemtype="http://schema.org/Thing">
+                  <a href="/categories/linux/" itemprop="url" rel="index">
+                    <span itemprop="name">linux</span>
+                  </a>
+                </span>
+
+                
+                
+              
+            </span>
+          
+
+          
+            <span id="/2020/07/22/linux/用户和组实践/" class="post-meta-item leancloud_visitors" data-flag-title="用户和组实践" title="阅读次数">
+              <span class="post-meta-item-icon">
+                <i class="fa fa-eye"></i>
+              </span>
+              <span class="post-meta-item-text">阅读次数：</span>
+              <span class="leancloud-visitors-count"></span>
+            </span>
+          
+  
+  
+
+        </div>
+      </header>
+
+    
+    
+    
+    <div class="post-body" itemprop="articleBody">
+
+      
+          <h1 id="基本知识"><a href="#基本知识" class="headerlink" title="基本知识"></a>基本知识</h1><p>linux的用户和组管理基于Authentication、Authorization、Accounting，即认证、授权和审计进行</p>
+<ul>
+<li><p>认证</p>
+<blockquote>
+<p>验证用户是否可以获得权限，是3A的第一步，即验证身份</p>
+</blockquote>
+</li>
+<li><p>授权</p>
+<blockquote>
+<p>授权用户可以使用那些服务或资源，即身份验证成功后，赋予这个身份相应的权限</p>
+</blockquote>
+</li>
+<li><p>审计</p>
+<blockquote>
+<p>记录用户的操作情况，在Linux中，日志就是审计的一种手段</p>
+</blockquote>
+</li>
+</ul>
+<p>linux中用户分为3类</p>
+<ul>
+<li><p>管理员（root）</p>
+<blockquote>
+<p>UID为0的用户，只要是UID为0，该用户就是管理员用户</p>
+</blockquote>
+</li>
+<li><p>普通用户（登录用户）</p>
+<blockquote>
+<p>一般为管理员手动添加的用户，默认仅拥有操作自身家目录中文件及目录的权限，以及进入与浏览相关目录文件的权限（如/etc、/var/log等），但没有创建、修改、删除等权限。</p>
+</blockquote>
+</li>
+<li><p>普通用户（系统用户）</p>
+<blockquote>
+<p>一般为系统安装后默认存在的，且默认情况下不能登录系统，它们的存在主要是为了满足系统进程对文件属主的需求。</p>
+</blockquote>
+</li>
+</ul>
+<p>用户</p>
+<figure class="highlight plain"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br></pre></td><td class="code"><pre><span class="line">使用UID来识别不同的用户</span><br><span class="line">根据/etc/passwd进行用户名和UID解析</span><br></pre></td></tr></table></figure>
+
+<p>用户组</p>
+<ul>
+<li><p>有3中组划分方法</p>
+<blockquote>
+<p>1.管理员组、普通用户组（包括系统用户组和登录用户组）</p>
+<p>2.用户的基本组（主组）：用户必须有且只能有一个基本组；</p>
+<p>   用户的附加组 （附属组）：用户可以有0个、1个或多个附加组</p>
+<p>3.私有组：每新建一个用户，如果不指定-g参数，都会自动创建一个和用户名同名的组，且组内只包含用户本身；</p>
+<p>  公共组：组内可包含多个用户</p>
+</blockquote>
+</li>
+<li><p>使用GID标识不同组</p>
+</li>
+</ul>
+<p>用户和组相关的信息主要存储在/etc/passwd、/etc/shadow、/etc/group三个文件中，使用:分隔</p>
+<ul>
+<li><p>/etc/passwd：存储用户账户信息</p>
+<blockquote>
+<p>存储格式为，name:password:UID:GID:comment:directory:shell</p>
+</blockquote>
+</li>
+<li><p>/etc/shadow：存储用户密码信息</p>
+<blockquote>
+<p>登录名:$加密算法$salt$加密了的密码:最后一次更改密码的日期:密码最小期限:密码最大期限:密码警告时间段:密码禁用期:账户过期日期:保留字段</p>
+</blockquote>
+</li>
+<li><p>/etc/group：存储用户组信息</p>
+<blockquote>
+<p>存储格式为，group_name:password:GID:user_list</p>
+<p>group_name：组名；<br>password：用户组的口令，用占位符x表示，一般Linux用户组都没有口令；<br>GID：组ID；<br>user_list：这里列出的是以该组为附加组的用户列表，以此组为主组的用户没有列在此处。</p>
+</blockquote>
+</li>
+</ul>
+<h1 id="命令使用"><a href="#命令使用" class="headerlink" title="命令使用"></a>命令使用</h1><h2 id="groupadd"><a href="#groupadd" class="headerlink" title="groupadd"></a>groupadd</h2><figure class="highlight plain"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br><span class="line">3</span><br><span class="line">4</span><br></pre></td><td class="code"><pre><span class="line">groupadd [options] group_name  //新建用户</span><br><span class="line">-g GID：指定GID：默认是上一个组的GID+1</span><br><span class="line">-r：创建系统组</span><br><span class="line">示例：groupadd mygroup1;groupadd mygroup2</span><br></pre></td></tr></table></figure>
+
+<p>##groupmod</p>
+<figure class="highlight plain"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br><span class="line">3</span><br><span class="line">4</span><br></pre></td><td class="code"><pre><span class="line">groupmod [options] GROUP      //更改用户组属性</span><br><span class="line">-g GID：--gid GID：修改GID</span><br><span class="line">-n NEW_NAME，修改组名</span><br><span class="line">示例：groupmod -g 1111 -n MYGOURP mygroup1</span><br></pre></td></tr></table></figure>
+
+<h2 id="groupdel"><a href="#groupdel" class="headerlink" title="groupdel"></a>groupdel</h2><figure class="highlight plain"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br></pre></td><td class="code"><pre><span class="line">groupdel [options] GROUP</span><br><span class="line">不能删除主组，可以删除附加组</span><br></pre></td></tr></table></figure>
+
+<h2 id="useradd"><a href="#useradd" class="headerlink" title="useradd"></a>useradd</h2><figure class="highlight plain"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br><span class="line">3</span><br><span class="line">4</span><br><span class="line">5</span><br><span class="line">6</span><br><span class="line">7</span><br><span class="line">8</span><br><span class="line">9</span><br><span class="line">10</span><br><span class="line">11</span><br><span class="line">12</span><br><span class="line">13</span><br><span class="line">14</span><br><span class="line">15</span><br></pre></td><td class="code"><pre><span class="line">useradd [options] login_name</span><br><span class="line">-u UID：--uid UID：指定UID，默认是上一个用户UID+1</span><br><span class="line">-g GROUP：--gid GROUP：指定用户的基本组，此组必须事先存在</span><br><span class="line">-G：--groups GROUP1,GROUP2...，指定用户的附加组，这些组必须事先存在</span><br><span class="line">-c COMMENT：--comment COMMENT：添加注释</span><br><span class="line">-d：--home HOME_DIR：指定用户家目录，通过复制/etc/skel并重命名实现的，指定的家目录路径如果事先存在，则不会为用户复制环境初始化配置文件（如.bashrc等）</span><br><span class="line">-s：--shell SHELL：指定用户默认shell，可用的所有shell列表存储在/etc/shells文件中</span><br><span class="line">-r：--system：创建系统用户</span><br><span class="line">示例：</span><br><span class="line">useradd -u 1100 -g slackware -G &quot;group1,group2&quot; -c &quot;slackware management&quot; -d /home/susehome -s /bin/zsh suse</span><br><span class="line"></span><br><span class="line">useradd -D [options]</span><br><span class="line">显示或修改用户创建时的默认配置属性</span><br><span class="line">创建用户时的诸多默认配置保存在/etc/login.defs文件中</span><br><span class="line">useradd -D 修改的配置结果保存在/etc/default/useradd文件中</span><br></pre></td></tr></table></figure>
+
+<p>##usermod</p>
+<figure class="highlight plain"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br><span class="line">3</span><br><span class="line">4</span><br><span class="line">5</span><br><span class="line">6</span><br><span class="line">7</span><br><span class="line">8</span><br><span class="line">9</span><br><span class="line">10</span><br><span class="line">11</span><br><span class="line">12</span><br><span class="line">13</span><br><span class="line">14</span><br><span class="line">15</span><br><span class="line">16</span><br><span class="line">17</span><br></pre></td><td class="code"><pre><span class="line">usermod [options] login_name</span><br><span class="line">-u UID：--uid UID：修改UID</span><br><span class="line">-g GROUP：--gid GROUP：修改用户的基本组，此组必须事先存在</span><br><span class="line">-G：--groups GROUP1,GROUP2...，修改用户的附加组，这些组须事先存在。</span><br><span class="line">注意，原来的附加组会被覆盖。</span><br><span class="line">如果只添加不覆盖，则配合使用-a选项。</span><br><span class="line">-a：--append：与-G一同使用，添加用户的附加组</span><br><span class="line">-c COMMENT：--comment COMMENT：修改注释</span><br><span class="line">-d：--home HOME_DIR：修改用户家目录</span><br><span class="line">用户原有的文件不会被转移至新位置。</span><br><span class="line">如果需要转移，则配合使用-m选项。</span><br><span class="line">-m：--move-home：只能与-d选项一同使用，用于将原来的家目录移动为新的家目录。</span><br><span class="line">-l：--login NEW_LOGIN：修改用户登录名</span><br><span class="line">-s：--shell SHELL：修改用户默认shell</span><br><span class="line">-L：--lock：锁定用户的密码，即禁止用户登录。</span><br><span class="line">其实就是在/etc/passwd文件中用户原来的密码字符串前添加一个“!”，使其不能匹配。</span><br><span class="line">-U：--unlock：解锁用户的密码</span><br></pre></td></tr></table></figure>
+
+<h2 id="userdel"><a href="#userdel" class="headerlink" title="userdel"></a>userdel</h2><figure class="highlight plain"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br></pre></td><td class="code"><pre><span class="line">userdel [options] login_name</span><br><span class="line">-r：删除用户时一并删除用户家目录</span><br></pre></td></tr></table></figure>
+
+<h2 id="passwd"><a href="#passwd" class="headerlink" title="passwd"></a>passwd</h2><figure class="highlight plain"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br><span class="line">3</span><br><span class="line">4</span><br><span class="line">5</span><br><span class="line">6</span><br><span class="line">7</span><br><span class="line">8</span><br><span class="line">9</span><br><span class="line">10</span><br><span class="line">11</span><br><span class="line">12</span><br></pre></td><td class="code"><pre><span class="line">passwd [-k] [-l] [-u [-f]] [-d] [-e] [-n mindays] [-x maxdays] [-w warndays] [-i inactivedays] [-S] [--stdin] [username]</span><br><span class="line"></span><br><span class="line">passwd：不带任何选项：修改当前登录用户自己的密码</span><br><span class="line">passwd USER：修改指定用户的密码，默认仅root用户有此权限</span><br><span class="line">-l：--lock：锁定用户</span><br><span class="line">-u：--unlock：解锁用户</span><br><span class="line">-d：--delete：清除用户密码</span><br><span class="line">-e：--expire DATE：过期期限（日期）</span><br><span class="line">-i：--inactive DAYS：非活动期限（时长）</span><br><span class="line">-n：--minimum DAYS：密码的最短使用期限</span><br><span class="line">-m：--maximum DAYS：密码的最长使用期限</span><br><span class="line">-w：--warning DAYS：警告期限</span><br></pre></td></tr></table></figure>
+
+<h2 id="id"><a href="#id" class="headerlink" title="id"></a>id</h2><figure class="highlight plain"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br><span class="line">3</span><br><span class="line">4</span><br><span class="line">5</span><br><span class="line">6</span><br><span class="line">7</span><br></pre></td><td class="code"><pre><span class="line">id [OPTION] [USER]   //显示用户和组信息</span><br><span class="line">id：不带任何选项：显示当前登录用户自己的信息</span><br><span class="line">-u：--user：仅显示UID</span><br><span class="line">-r：--real：仅显示实际的ID</span><br><span class="line">-g：--group：仅显示用户的基本组ID</span><br><span class="line">-G：--groups：仅显示用户所属的所有组的ID</span><br><span class="line">-n：--name：显示名称，而非ID</span><br></pre></td></tr></table></figure>
+
+<h2 id="su"><a href="#su" class="headerlink" title="su"></a>su</h2><figure class="highlight plain"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br><span class="line">3</span><br></pre></td><td class="code"><pre><span class="line">su [options] [-] [user [args]]</span><br><span class="line">登录式切换：会通过重新读取目标用户的配置文件来重新初始化</span><br><span class="line">su - USER</span><br></pre></td></tr></table></figure>
+
+<h2 id="whoami"><a href="#whoami" class="headerlink" title="whoami"></a>whoami</h2><figure class="highlight plain"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br><span class="line">3</span><br><span class="line">4</span><br></pre></td><td class="code"><pre><span class="line">相当于命令：id -un</span><br><span class="line">whoami；显示的是当前用户下的用户名</span><br><span class="line">who am i：显示的是登录时的用户名</span><br><span class="line">who：显示当前真正登录系统中的用户（不会显示那些用su命令切换用户的登录者）</span><br></pre></td></tr></table></figure>
+
+<h1 id="参考文档"><a href="#参考文档" class="headerlink" title="参考文档"></a>参考文档</h1><p><a href="https://www.jianshu.com/p/b6a7db60f8c9" target="_blank" rel="noopener">Linux用户和组管理</a></p>
 
         
       
@@ -1751,7 +1691,7 @@
 
   
   <nav class="pagination">
-    <a class="extend prev" rel="prev" href="/page/10/"><i class="fa fa-angle-left" aria-label="上一页"></i></a><a class="page-number" href="/">1</a><span class="space">&hellip;</span><a class="page-number" href="/page/10/">10</a><span class="page-number current">11</span><a class="page-number" href="/page/12/">12</a><a class="page-number" href="/page/13/">13</a><a class="extend next" rel="next" href="/page/12/"><i class="fa fa-angle-right" aria-label="下一页"></i></a>
+    <a class="extend prev" rel="prev" href="/page/10/"><i class="fa fa-angle-left" aria-label="上一页"></i></a><a class="page-number" href="/">1</a><span class="space">&hellip;</span><a class="page-number" href="/page/10/">10</a><span class="page-number current">11</span><a class="page-number" href="/page/12/">12</a><span class="space">&hellip;</span><a class="page-number" href="/page/15/">15</a><a class="extend next" rel="next" href="/page/12/"><i class="fa fa-angle-right" aria-label="下一页"></i></a>
   </nav>
 
 
@@ -1796,7 +1736,7 @@
         
           <a href="/archives/">
         
-          <span class="site-state-item-count">125</span>
+          <span class="site-state-item-count">143</span>
           <span class="site-state-item-name">日志</span>
         </a>
       </div>
@@ -1809,7 +1749,7 @@
             <a href="/categories/">
           
         
-        <span class="site-state-item-count">17</span>
+        <span class="site-state-item-count">22</span>
         <span class="site-state-item-name">分类</span>
         </a>
       </div>
@@ -1822,7 +1762,7 @@
             <a href="/tags/">
           
         
-        <span class="site-state-item-count">16</span>
+        <span class="site-state-item-count">15</span>
         <span class="site-state-item-name">标签</span>
         </a>
       </div>
@@ -1848,7 +1788,7 @@
 
 <div class="copyright">
   &copy; 
-  <span itemprop="copyrightYear">2020</span>
+  <span itemprop="copyrightYear">2021</span>
   <span class="with-love">
     <i class="fa fa-user"></i>
   </span>

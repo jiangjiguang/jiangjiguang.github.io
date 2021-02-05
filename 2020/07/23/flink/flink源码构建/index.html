@@ -63,7 +63,7 @@
 <meta property="og:site_name" content="纪光的博客">
 <meta property="og:description" content="构建步骤123456789101112131415#下载flink源码$ git clone https://github.com/apache/flink.git# idea安装 Scala插件# plugin -&amp;gt; Scala -&amp;gt; 重启idea# 安装配置Checkstyle 插件# 构建命令$ mvn clean install -T 4 -Dfast -Dmaven.comp">
 <meta property="og:locale" content="zh-CN">
-<meta property="og:updated_time" content="2020-12-08T06:30:03.687Z">
+<meta property="og:updated_time" content="2021-01-13T11:31:28.359Z">
 <meta name="twitter:card" content="summary">
 <meta name="twitter:title" content="Flink源码构建">
 <meta name="twitter:description" content="构建步骤123456789101112131415#下载flink源码$ git clone https://github.com/apache/flink.git# idea安装 Scala插件# plugin -&amp;gt; Scala -&amp;gt; 重启idea# 安装配置Checkstyle 插件# 构建命令$ mvn clean install -T 4 -Dfast -Dmaven.comp">
@@ -288,7 +288,7 @@
                   <i class="fa fa-calendar-check-o"></i>
                 </span>
                 <span class="post-meta-item-text">更新于</span>
-                <time title="修改时间：2020-12-08 14:30:03" itemprop="dateModified" datetime="2020-12-08T14:30:03+08:00">2020-12-08</time>
+                <time title="修改时间：2021-01-13 19:31:28" itemprop="dateModified" datetime="2021-01-13T19:31:28+08:00">2021-01-13</time>
               </span>
             
           
@@ -336,7 +336,7 @@
 <h1 id="源码修改"><a href="#源码修改" class="headerlink" title="源码修改"></a>源码修改</h1><ul>
 <li>源码修改后，需要重新打包进行测试</li>
 </ul>
-<figure class="highlight shell"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br><span class="line">3</span><br><span class="line">4</span><br><span class="line">5</span><br></pre></td><td class="code"><pre><span class="line"><span class="meta">#</span>首先install 修改过的包，如修改了flink-streaming-java module下面的代码</span><br><span class="line"><span class="meta">$</span> cd flink-streaming-java</span><br><span class="line"><span class="meta">$</span> mvn -Dmaven.test.skip=true -Dmaven.javadoc.skip=true -Dcheckstyle.skip=true clean install </span><br><span class="line"><span class="meta">$</span> cd flink-dist </span><br><span class="line"><span class="meta">$</span> mvn -Dmaven.test.skip=true -Dmaven.javadoc.skip=true -Dcheckstyle.skip=true clean install</span><br></pre></td></tr></table></figure>
+<figure class="highlight shell"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br><span class="line">3</span><br><span class="line">4</span><br><span class="line">5</span><br></pre></td><td class="code"><pre><span class="line"><span class="meta">#</span>首先install 修改过的包，如修改了flink-streaming-java module下面的代码</span><br><span class="line"><span class="meta">$</span> cd flink-streaming-java</span><br><span class="line"><span class="meta">$</span> mvn -DskipTests -Dmaven.javadoc.skip=true -Dcheckstyle.skip=true clean install </span><br><span class="line"><span class="meta">$</span> cd flink-dist </span><br><span class="line"><span class="meta">$</span> mvn -DskipTests -Dmaven.javadoc.skip=true -Dcheckstyle.skip=true clean install</span><br></pre></td></tr></table></figure>
 
 <h1 id="参考文档"><a href="#参考文档" class="headerlink" title="参考文档"></a>参考文档</h1><p><a href="https://ci.apache.org/projects/flink/flink-docs-release-1.11/flinkDev/ide_setup.html" target="_blank" rel="noopener">Flink Development</a></p>
 <p><a href="https://cloud.tencent.com/developer/article/1419606" target="_blank" rel="noopener">《Flink 源码解析》—— 源码编译运行</a></p>
@@ -440,7 +440,7 @@
         
           <a href="/archives/">
         
-          <span class="site-state-item-count">125</span>
+          <span class="site-state-item-count">143</span>
           <span class="site-state-item-name">日志</span>
         </a>
       </div>
@@ -453,7 +453,7 @@
             <a href="/categories/">
           
         
-        <span class="site-state-item-count">17</span>
+        <span class="site-state-item-count">22</span>
         <span class="site-state-item-name">分类</span>
         </a>
       </div>
@@ -466,7 +466,7 @@
             <a href="/tags/">
           
         
-        <span class="site-state-item-count">16</span>
+        <span class="site-state-item-count">15</span>
         <span class="site-state-item-name">标签</span>
         </a>
       </div>
@@ -492,7 +492,7 @@
 
 <div class="copyright">
   &copy; 
-  <span itemprop="copyrightYear">2020</span>
+  <span itemprop="copyrightYear">2021</span>
   <span class="with-love">
     <i class="fa fa-user"></i>
   </span>

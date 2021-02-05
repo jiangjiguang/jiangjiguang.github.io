@@ -241,7 +241,7 @@
   
   
   <article itemscope itemtype="http://schema.org/Article" class="post-block home" lang="zh-CN">
-    <link itemprop="mainEntityOfPage" href="http://yoursite.com/2020/11/04/k8s/k8s-ConfigMap/">
+    <link itemprop="mainEntityOfPage" href="http://yoursite.com/2020/11/30/calcite/calcite-基本知识/">
 
     <span hidden itemprop="author" itemscope itemtype="http://schema.org/Person">
       <meta itemprop="name" content="姜纪光">
@@ -256,7 +256,7 @@
         <h1 class="post-title" itemprop="name headline">
           
             
-            <a href="/2020/11/04/k8s/k8s-ConfigMap/" class="post-title-link" itemprop="url">k8s-ConfigMap</a>
+            <a href="/2020/11/30/calcite/calcite-基本知识/" class="post-title-link" itemprop="url">calcite-基本知识</a>
           
         </h1>
 
@@ -271,7 +271,7 @@
                 
               
 
-              <time title="创建时间：2020-11-04 09:07:25 / 修改时间：09:42:34" itemprop="dateCreated datePublished" datetime="2020-11-04T09:07:25+08:00">2020-11-04</time>
+              <time title="创建时间：2020-11-30 19:21:29 / 修改时间：19:52:35" itemprop="dateCreated datePublished" datetime="2020-11-30T19:21:29+08:00">2020-11-30</time>
             </span>
           
             
@@ -285,8 +285,8 @@
               <span class="post-meta-item-text">分类于</span>
               
                 <span itemprop="about" itemscope itemtype="http://schema.org/Thing">
-                  <a href="/categories/k8s/" itemprop="url" rel="index">
-                    <span itemprop="name">k8s</span>
+                  <a href="/categories/calcite/" itemprop="url" rel="index">
+                    <span itemprop="name">calcite</span>
                   </a>
                 </span>
 
@@ -297,7 +297,7 @@
           
 
           
-            <span id="/2020/11/04/k8s/k8s-ConfigMap/" class="post-meta-item leancloud_visitors" data-flag-title="k8s-ConfigMap" title="阅读次数">
+            <span id="/2020/11/30/calcite/calcite-基本知识/" class="post-meta-item leancloud_visitors" data-flag-title="calcite-基本知识" title="阅读次数">
               <span class="post-meta-item-icon">
                 <i class="fa fa-eye"></i>
               </span>
@@ -318,36 +318,18 @@
 
       
           <h1 id="概述"><a href="#概述" class="headerlink" title="概述"></a>概述</h1><ul>
-<li><p>存储不加密数据到etcd，让Pod以变量或者Volume挂载到容器中。</p>
-</li>
-<li><p>场景</p>
+<li><p>calcite是一个动态数据管理框架</p>
 <blockquote>
-<p>配置文件</p>
+<p>1、具有的功能：</p>
+<p>SQL解析、SQL校验、SQL查询优化、SQL生成、数据连接查询</p>
+<p>2、省略的功能：</p>
+<p>数据存储、处理数据的算法、元数据</p>
 </blockquote>
 </li>
-</ul>
-<h1 id="创建配置文件"><a href="#创建配置文件" class="headerlink" title="创建配置文件"></a>创建配置文件</h1><ul>
-<li><p>创建配置文件</p>
-<p>redis.properties</p>
-<figure class="highlight plain"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br><span class="line">3</span><br></pre></td><td class="code"><pre><span class="line">redis.host=127.0.0.1</span><br><span class="line">redis.port=6379</span><br><span class="line">redis.password=123456</span><br></pre></td></tr></table></figure>
-</li>
-<li><p>创建ConfigMap</p>
-<figure class="highlight shell"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br><span class="line">3</span><br><span class="line">4</span><br><span class="line">5</span><br></pre></td><td class="code"><pre><span class="line"><span class="meta">#</span> 创建配置文件</span><br><span class="line"><span class="meta">$</span> kubectl create configmap redis-config --from-file=redis.properties </span><br><span class="line"></span><br><span class="line"><span class="meta">#</span> 查看配置文件详情</span><br><span class="line"><span class="meta">$</span> kubectl describe configmap redis-config</span><br></pre></td></tr></table></figure>
-
+<li><p>基于关系代数的查询引擎</p>
 </li>
 </ul>
-<h1 id="以Volume形式挂载到Pod容器"><a href="#以Volume形式挂载到Pod容器" class="headerlink" title="以Volume形式挂载到Pod容器"></a>以Volume形式挂载到Pod容器</h1><ul>
-<li>配置文件</li>
-</ul>
-<figure class="highlight yaml"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br><span class="line">3</span><br><span class="line">4</span><br><span class="line">5</span><br><span class="line">6</span><br><span class="line">7</span><br><span class="line">8</span><br><span class="line">9</span><br><span class="line">10</span><br><span class="line">11</span><br><span class="line">12</span><br><span class="line">13</span><br><span class="line">14</span><br><span class="line">15</span><br><span class="line">16</span><br><span class="line">17</span><br></pre></td><td class="code"><pre><span class="line"><span class="attr">apiVersion:</span> <span class="string">v1</span></span><br><span class="line"><span class="attr">kind:</span> <span class="string">Pod</span></span><br><span class="line"><span class="attr">metadata:</span></span><br><span class="line"><span class="attr">  name:</span> <span class="string">mypod</span></span><br><span class="line"><span class="attr">spec:</span></span><br><span class="line"><span class="attr">  containers:</span></span><br><span class="line"><span class="attr">    - name:</span> <span class="string">busybox</span></span><br><span class="line"><span class="attr">      image:</span> <span class="string">busybox</span></span><br><span class="line"><span class="attr">      command:</span> <span class="string">[</span> <span class="string">"/bin/sh"</span><span class="string">,"-c","cat</span> <span class="string">/etc/config/redis.properties"</span> <span class="string">]</span></span><br><span class="line"><span class="attr">      volumeMounts:</span></span><br><span class="line"><span class="attr">      - name:</span> <span class="string">config-volume</span></span><br><span class="line"><span class="attr">        mountPath:</span> <span class="string">/etc/config</span></span><br><span class="line"><span class="attr">  volumes:</span></span><br><span class="line"><span class="attr">    - name:</span> <span class="string">config-volume</span></span><br><span class="line"><span class="attr">      configMap:</span></span><br><span class="line"><span class="attr">        name:</span> <span class="string">redis-config</span></span><br><span class="line"><span class="attr">  restartPolicy:</span> <span class="string">Never</span></span><br></pre></td></tr></table></figure>
 
-<ul>
-<li><p>运行命令</p>
-<figure class="highlight shell"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br><span class="line">3</span><br><span class="line">4</span><br><span class="line">5</span><br><span class="line">6</span><br><span class="line">7</span><br></pre></td><td class="code"><pre><span class="line"><span class="meta">#</span> 创建Pod</span><br><span class="line"><span class="meta">$</span> kubectl apply -f cm.yaml </span><br><span class="line"></span><br><span class="line"><span class="meta">#</span> 因为Pod已经结束，不能再进入</span><br><span class="line"><span class="meta">$</span> kubectl exec -it mypod bash</span><br><span class="line"><span class="meta">#</span> 查看日志</span><br><span class="line"><span class="meta">$</span> kubectl logs mypod</span><br></pre></td></tr></table></figure>
-
-</li>
-</ul>
-<h1 id="以变量形式挂载"><a href="#以变量形式挂载" class="headerlink" title="以变量形式挂载"></a>以变量形式挂载</h1><h1 id="参考文档"><a href="#参考文档" class="headerlink" title="参考文档"></a>参考文档</h1>
         
       
     </div>
@@ -368,7 +350,7 @@
   
   
   <article itemscope itemtype="http://schema.org/Article" class="post-block home" lang="zh-CN">
-    <link itemprop="mainEntityOfPage" href="http://yoursite.com/2020/11/03/k8s/k8s-Service/">
+    <link itemprop="mainEntityOfPage" href="http://yoursite.com/2020/11/30/flink/flink-任务发布命令总结/">
 
     <span hidden itemprop="author" itemscope itemtype="http://schema.org/Person">
       <meta itemprop="name" content="姜纪光">
@@ -383,7 +365,7 @@
         <h1 class="post-title" itemprop="name headline">
           
             
-            <a href="/2020/11/03/k8s/k8s-Service/" class="post-title-link" itemprop="url">k8s-Service</a>
+            <a href="/2020/11/30/flink/flink-任务发布命令总结/" class="post-title-link" itemprop="url">flink-任务发布命令总结</a>
           
         </h1>
 
@@ -398,7 +380,7 @@
                 
               
 
-              <time title="创建时间：2020-11-03 09:30:54" itemprop="dateCreated datePublished" datetime="2020-11-03T09:30:54+08:00">2020-11-03</time>
+              <time title="创建时间：2020-11-30 17:12:42" itemprop="dateCreated datePublished" datetime="2020-11-30T17:12:42+08:00">2020-11-30</time>
             </span>
           
             
@@ -409,8 +391,124 @@
                   <i class="fa fa-calendar-check-o"></i>
                 </span>
                 <span class="post-meta-item-text">更新于</span>
-                <time title="修改时间：2020-11-11 09:35:41" itemprop="dateModified" datetime="2020-11-11T09:35:41+08:00">2020-11-11</time>
+                <time title="修改时间：2020-12-17 17:05:36" itemprop="dateModified" datetime="2020-12-17T17:05:36+08:00">2020-12-17</time>
               </span>
+            
+          
+            <span class="post-meta-item">
+              <span class="post-meta-item-icon">
+                <i class="fa fa-folder-o"></i>
+              </span>
+              <span class="post-meta-item-text">分类于</span>
+              
+                <span itemprop="about" itemscope itemtype="http://schema.org/Thing">
+                  <a href="/categories/flink/" itemprop="url" rel="index">
+                    <span itemprop="name">flink</span>
+                  </a>
+                </span>
+
+                
+                
+              
+            </span>
+          
+
+          
+            <span id="/2020/11/30/flink/flink-任务发布命令总结/" class="post-meta-item leancloud_visitors" data-flag-title="flink-任务发布命令总结" title="阅读次数">
+              <span class="post-meta-item-icon">
+                <i class="fa fa-eye"></i>
+              </span>
+              <span class="post-meta-item-text">阅读次数：</span>
+              <span class="leancloud-visitors-count"></span>
+            </span>
+          
+  
+  
+
+        </div>
+      </header>
+
+    
+    
+    
+    <div class="post-body" itemprop="articleBody">
+
+      
+          <h1 id="YARN"><a href="#YARN" class="headerlink" title="YARN"></a>YARN</h1><h2 id="perjob"><a href="#perjob" class="headerlink" title="perjob"></a>perjob</h2><p>说明：</p>
+<p>1、flink版本1.10</p>
+<p>命令分解：</p>
+<figure class="highlight shell"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br><span class="line">3</span><br><span class="line">4</span><br><span class="line">5</span><br><span class="line">6</span><br><span class="line">7</span><br><span class="line">8</span><br><span class="line">9</span><br><span class="line">10</span><br><span class="line">11</span><br><span class="line">12</span><br><span class="line">13</span><br></pre></td><td class="code"><pre><span class="line">-d #以分离模式运行任务</span><br><span class="line">-m #连接到不同的JobManager地址</span><br><span class="line">yarn-cluster #yarn-cluster模式运行任务</span><br><span class="line">-p 5 #设置任务的并行度为5</span><br><span class="line">-yjm 1024 #JobManager Container的内存配置(MB)</span><br><span class="line">-ytm 2048 #TaskManager Container的内存配置(MB)</span><br><span class="line">-ys 5 #每个TaskManager的Slot数量</span><br><span class="line">-yqu root.data.stream  #YARN队列的名称</span><br><span class="line">-ynm gapp_token_error_client #YARN上任务的名称</span><br><span class="line">-yD metrics.reporter.prom.labels #自定义监控指标</span><br><span class="line">-yD env.java.opts #指定Container JVM参数</span><br><span class="line">-c net.qutoutiao.libra.flink110.app.KafkaProducerDemo /tmp/81e801866f134fc384b3293a09ab60e5-1605774762298487566537968191214.jar #指定任务入口类和jar包</span><br><span class="line">--job.name jjg-test-1.10kafka-producer #任务名称 main参数</span><br></pre></td></tr></table></figure>
+
+<p>命令示例：</p>
+<figure class="highlight shell"><table><tr><td class="gutter"><pre><span class="line">1</span><br></pre></td><td class="code"><pre><span class="line"><span class="meta">$</span> /data/flink/prd/flink-1.10.1/bin/flink run -d -m yarn-cluster -p 5 -yjm 1024 -ytm 2048 -ys 5 -yqu root.data.stream -ynm jjg-test-1.10kafka-producer -yD metrics.reporter.prom.labels="libra_job_name=jjg-test-1.10kafka-producer;libra_job_owner=jiangjiguang@qutoutiao.net" -yD env.java.opts="-server -XX:+UseConcMarkSweepGC -XX:+UseCMSInitiatingOccupancyOnly -XX:CMSInitiatingOccupancyFraction=75 -XX:ParallelGCThreads=4 -XX:+AlwaysPreTouch -XX:NewRatio=1 -DjobName=jjg-test-1.10kafka-producer" -c net.qutoutiao.libra.flink110.app.KafkaProducerDemo /tmp/81e801866f134fc384b3293a09ab60e5-1605774762298487566537968191214.jar --job.name jjg-test-1.10kafka-producer</span><br></pre></td></tr></table></figure>
+
+<h1 id="flink1-12版本"><a href="#flink1-12版本" class="headerlink" title="flink1.12版本"></a>flink1.12版本</h1><ul>
+<li><h2 id="perjob-SQL"><a href="#perjob-SQL" class="headerlink" title="perjob SQL"></a>perjob SQL</h2></li>
+</ul>
+<p>说明：</p>
+<p>1、flink版本1.11</p>
+<p>命令分解：</p>
+<figure class="highlight shell"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br><span class="line">3</span><br><span class="line">4</span><br><span class="line">5</span><br><span class="line">6</span><br><span class="line">7</span><br><span class="line">8</span><br><span class="line">9</span><br><span class="line">10</span><br><span class="line">11</span><br><span class="line">12</span><br><span class="line">13</span><br><span class="line">14</span><br></pre></td><td class="code"><pre><span class="line">-d #以分离模式运行任务</span><br><span class="line">-m #连接到不同的JobManager地址</span><br><span class="line">yarn-cluster #yarn-cluster模式运行任务</span><br><span class="line">-p 8 #设置任务的并行度为8</span><br><span class="line">-yjm 2048 #JobManager Container的内存配置(MB)</span><br><span class="line">-ytm 3072 #TaskManager Container的内存配置(MB)</span><br><span class="line">-ys 8 #每个TaskManager的Slot数量</span><br><span class="line">-yqu root.data.stream  #YARN队列的名称</span><br><span class="line">-ynm gapp_token_error_client #YARN上任务的名称</span><br><span class="line">-yD metrics.reporter.prom.labels #自定义监控指标</span><br><span class="line">-yD env.java.opts #指定Container JVM参数</span><br><span class="line">-c com.qtt.bigdata.sqlsubmit.SqlSubmit /data/flink/prd/flink-1.11.1-sql/flink-sql-submit-1.0-SNAPSHOT.jar #指定任务入口类和jar包</span><br><span class="line">-job_name gapp_token_error_client #任务名称 main参数</span><br><span class="line">-sql #base64编码的sql内容</span><br></pre></td></tr></table></figure>
+
+<p>命令示例：</p>
+<figure class="highlight shell"><table><tr><td class="gutter"><pre><span class="line">1</span><br></pre></td><td class="code"><pre><span class="line"><span class="meta">$</span> /data/flink/prd/flink-1.11.1-sql/bin/flink run -d -m yarn-cluster -p 8 -yjm 2048 -ytm 3072 -ys 8 -yqu root.data.stream -ynm gapp_token_error_client_zhangpei -yD metrics.reporter.prom.labels="libra_job_name=gapp_token_error_client;libra_job_owner=zhangpei@qutoutiao.net" -yD env.java.opts="-server -XX:+UseConcMarkSweepGC -XX:+UseCMSInitiatingOccupancyOnly -XX:CMSInitiatingOccupancyFraction=75 -XX:ParallelGCThreads=4 -XX:+AlwaysPreTouch -XX:NewRatio=1 -DjobName=gapp_token_error_client" -c com.qtt.bigdata.sqlsubmit.SqlSubmit /data/flink/prd/flink-1.11.1-sql/flink-sql-submit-1.0-SNAPSHOT.jar -job_name gapp_token_error_client -sql H4sIAAAAAAAAAOVUwW7bRhC98yv2RjkQCUtB0rguC6gOkQiQ5UCh20Nh0KvliN6I3GV2h66dj0hOLdB7+wEBAuQQ9HOM5jM6XEqqlMh2AuSUXERq9r2dmTdvaAGZAYvcYGDRcIT8MprJC8iCDAp+ue/ZLYhwDRFyRCgrtFFvd/cT4O6XsMzue4wxR4ALEDVKrUJxBmJeaalQqjyECwSjeCFfEP3/o8AAgmrw0SROBsNxejRODwbjg3g0GiTDo/H+jbfSA8w5L6K7rJTqZmypM4gGSTqKB08TSnMQ34LnF4HQStTGUIVrNZM8tzClCipeW4juO21uwqIsQdcY9foO6gkDJDRDPi2AzflszlOpOo287BTOqZBT9jSZDMePum2Mi+bSzWCjtcqIN9PscPDkh8VZ+/ixxVRGiyY345Y9mRwdJMPDuLPj7fwm8axN51PzCgRq47OI+a4WvyX7xK7AoAQbTrXGxh1VaGkUYKxDZzJQ9TPJVR44YngW8mkvfI5oJUKoAL/f293rb7kvN7quQpm5a3JeVSnqOagUjNEmFYUkDVIHWpJRV1I4eKHzlFKkOS9BQOONtLlhCZxpU3J0SEqIelrP1gpw/8PnNdI4JNdBCdbyHIKmJ5LY0Vax/kdEmSttgOZuLASu2FYJNDWswNzwooBC2tKd9e/53s6HQxfzlCpoZ/BMTzcmWwIaKexGrOBTKOy1g3ZSkdPmcHkt5rQ6P2UPj45/GsWtA9hWC1CvVMAZ1HbZEM8y+kK0jfa+64e9++G9vbD3YLeZbu+2tqUiyyCjTdCLrmlVCsrHBLfY8fPFDGmsUqWkhd+4ta18p3mlUHcrdqHTh/hFuMs8R1J1UTThj2Vx6FbYrkfHv/qNEcmU3fXlWkVPThr8mtLLDELXCjt33HWtvu61OvdmpOVqv71fHseTeLngje/Xu/E9rrLVpke++yL7nkvHppfbK+qy5PiQ8nWWi95lw3EST34ejGhUPjscjo+T+Brz9b9N9/Vvsl++/hn6HC9uEL9qYwquBBRtdKMa6j0tbe6fRP6/f767+uf3q79ev3/zd7eV5v3Lt1ev/mhDX8rW/wHTxxHaDQkAAA==</span><br></pre></td></tr></table></figure>
+
+<h1 id="K8S"><a href="#K8S" class="headerlink" title="K8S"></a>K8S</h1>
+        
+      
+    </div>
+
+    
+    
+    
+      <footer class="post-footer">
+        <div class="post-eof"></div>
+      </footer>
+  </article>
+  
+  
+  
+
+    
+        
+  
+  
+  <article itemscope itemtype="http://schema.org/Article" class="post-block home" lang="zh-CN">
+    <link itemprop="mainEntityOfPage" href="http://yoursite.com/2020/11/28/k8s/k8s-组件架构图/">
+
+    <span hidden itemprop="author" itemscope itemtype="http://schema.org/Person">
+      <meta itemprop="name" content="姜纪光">
+      <meta itemprop="description" content="">
+      <meta itemprop="image" content="/images/avatar.gif">
+    </span>
+
+    <span hidden itemprop="publisher" itemscope itemtype="http://schema.org/Organization">
+      <meta itemprop="name" content="纪光的博客">
+    </span>
+      <header class="post-header">
+        <h1 class="post-title" itemprop="name headline">
+          
+            
+            <a href="/2020/11/28/k8s/k8s-组件架构图/" class="post-title-link" itemprop="url">k8s-组件架构图</a>
+          
+        </h1>
+
+        <div class="post-meta">
+            <span class="post-meta-item">
+              <span class="post-meta-item-icon">
+                <i class="fa fa-calendar-o"></i>
+              </span>
+              <span class="post-meta-item-text">发表于</span>
+
+              
+                
+              
+
+              <time title="创建时间：2020-11-28 12:58:58 / 修改时间：13:01:41" itemprop="dateCreated datePublished" datetime="2020-11-28T12:58:58+08:00">2020-11-28</time>
+            </span>
+          
+            
+
             
           
             <span class="post-meta-item">
@@ -432,7 +530,7 @@
           
 
           
-            <span id="/2020/11/03/k8s/k8s-Service/" class="post-meta-item leancloud_visitors" data-flag-title="k8s-Service" title="阅读次数">
+            <span id="/2020/11/28/k8s/k8s-组件架构图/" class="post-meta-item leancloud_visitors" data-flag-title="k8s-组件架构图" title="阅读次数">
               <span class="post-meta-item-icon">
                 <i class="fa fa-eye"></i>
               </span>
@@ -452,114 +550,7 @@
     <div class="post-body" itemprop="articleBody">
 
       
-          <h1 id="概述"><a href="#概述" class="headerlink" title="概述"></a>概述</h1><ul>
-<li><p>服务发现就是服务（应用）之间相互定位的过程</p>
-</li>
-<li><p>通过创建 Service,可以为一组具有相同功能的容器应 用提供一个统一的入口地 址，并且将请求负载分发到后端的各个容器应用上</p>
-<blockquote>
-<p>1、可以直接通过Pod的IP地址和端口号访问容器内的服务，但是Pod的IP地址是不可靠的，当Pod发生故障被重新调度时，IP地址会发生变化</p>
-<p>2、直接使用Pod的IP发生也不能实现负载均衡</p>
-</blockquote>
-</li>
-<li><p>每个Pod都有一个Ip地址，但是这个地址不是固定的</p>
-</li>
-<li><p>Pod注册Ip到Service，Service做服务发现，防止Pod失联</p>
-</li>
-<li><p>定义一组Pod访问策略（负载均衡）</p>
-</li>
-<li><p>Pod和Service通过label和selector建立关联</p>
-</li>
-<li><p>访问服务时先要进入Service，Service有其自己的ip（vip）</p>
-</li>
-</ul>
-<h1 id="Service类型"><a href="#Service类型" class="headerlink" title="Service类型"></a>Service类型</h1><ul>
-<li><p>ClusterIP</p>
-<blockquote>
-<p>集群内部使用，虚拟的服务IP地址，用于k8s集群内部的Pod访问，在Node上kube-proxy通过设置的iptables规则进行转发。</p>
-</blockquote>
-</li>
-<li><p>NodePort</p>
-<blockquote>
-<p>外部访问应用时使用。使用宿主机的端口，通过Node的IP地址和端口号就能访问服务。</p>
-</blockquote>
-</li>
-<li><p>LoadBalancer</p>
-<blockquote>
-<p>外部访问应用时使用，共有云。使用外接负载均衡器完成到服务的负载分发，需要在spec.status.loadBalancer字段外指定外部负载均衡器的IP地址，并同时定义nodePort和clusterIP，用于公有云环境。</p>
-</blockquote>
-</li>
-</ul>
-<h1 id="Headless-Service"><a href="#Headless-Service" class="headerlink" title="Headless Service"></a>Headless Service</h1><ul>
-<li><p>不为Service设置ClusterIP，仅通过Label Selector将后端的Pod列表返回给调用的客户端</p>
-</li>
-<li><p>Service不再具有一个特定的ClusterIP地址，客户端获取到全部Pod列表，然后自行处理Pod列表。</p>
-</li>
-<li><p>应用场景：</p>
-<blockquote>
-<p>1、自己控制负载均衡策略，不适用Service提供的默认负载均衡功能</p>
-<p>2、应用程序希望知道属于同组服务的其他实例</p>
-</blockquote>
-</li>
-</ul>
-<h1 id="集群外部访问"><a href="#集群外部访问" class="headerlink" title="集群外部访问"></a>集群外部访问</h1><ul>
-<li><p>Pod和Service都是k8s集群范围内的虚拟概念，集群外的客户端无法通过Pod或Service的虚拟IP地址和端口号访问它们</p>
-</li>
-<li><p>映射容器端口号到物理机</p>
-<figure class="highlight yaml"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br><span class="line">3</span><br></pre></td><td class="code"><pre><span class="line"><span class="attr">ports:</span></span><br><span class="line"><span class="attr">- containerPort:</span> <span class="number">8080</span>   <span class="string">容器端口号</span></span><br><span class="line"><span class="attr">  hostPort:</span> <span class="number">8081</span>  <span class="string">//物理机端口号</span></span><br></pre></td></tr></table></figure>
-</li>
-<li><p>映射Service端口号到物理机</p>
-<figure class="highlight yaml"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br><span class="line">3</span><br><span class="line">4</span><br><span class="line">5</span><br></pre></td><td class="code"><pre><span class="line"><span class="attr">type:</span> <span class="string">NodePort</span></span><br><span class="line"><span class="attr">ports:</span> </span><br><span class="line"><span class="attr">- port:</span> <span class="number">8080</span></span><br><span class="line"><span class="attr">  targetPort:</span> <span class="number">8080</span></span><br><span class="line"><span class="attr">  nodePort:</span> <span class="number">8081</span></span><br></pre></td></tr></table></figure>
-
-</li>
-</ul>
-<h1 id="DNS服务"><a href="#DNS服务" class="headerlink" title="DNS服务"></a>DNS服务</h1><ul>
-<li><p><code>在集群内</code>完成从服务名到ClusterIP的解析</p>
-<blockquote>
-<p>只负责维护”服务名”到”集群网络IP”之间的关系。</p>
-</blockquote>
-</li>
-<li><p>至今共经历了3个版本</p>
-<blockquote>
-<p>1、1.2版本时是SkyDNS</p>
-<p>2、1.4版本时是KubeDNS</p>
-<p>3、1.11版本开始是CoreDNS</p>
-</blockquote>
-</li>
-<li><p>配置：<a href="https://github.com/kubernetes/kubernetes/blob/master/cluster/addons/dns/coredns/coredns.yaml.base" target="_blank" rel="noopener">coredns.yaml.base</a></p>
-</li>
-<li><p>除了使用DNS可以发现服务外，使用<code>环境变量</code>也可以发现Pod创建之前的服务</p>
-</li>
-<li><p>客户端Pod可以通过全限定域名（FQDN）来访问其它Pod。</p>
-<blockquote>
-<p>FQDN的组成：&lt;服务名称&gt;.<namespace>.svc.cluster.local</namespace></p>
-</blockquote>
-</li>
-</ul>
-<h1 id="endpoint"><a href="#endpoint" class="headerlink" title="endpoint"></a>endpoint</h1><ul>
-<li><p>Service服务并不是和Pod直接相连，二者之间是Endpoint资源</p>
-</li>
-<li><p>Endpoint资源就是暴露一个服务的IP地址和端口的列表</p>
-<blockquote>
-<p>尽管在spec中定义了pod选择器，但在重定向传入连接时不会直接使用它，相反选择器用于构建IP和端口列表，然后存储在Endpoint资源中。</p>
-</blockquote>
-</li>
-<li><p>Endpoint是一个单独的资源并不是服务的一个属性</p>
-</li>
-<li><p>​</p>
-</li>
-</ul>
-<h1 id="Ingress"><a href="#Ingress" class="headerlink" title="Ingress"></a>Ingress</h1><ul>
-<li>Ingress资源对象用于将不同URL的访问请求转发到后端不同的Service，以实现HTTP层的业务路由机制。</li>
-</ul>
-<h1 id="就绪探针"><a href="#就绪探针" class="headerlink" title="就绪探针"></a>就绪探针</h1><h1 id="常用命令"><a href="#常用命令" class="headerlink" title="常用命令"></a>常用命令</h1><figure class="highlight shell"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br><span class="line">3</span><br><span class="line">4</span><br><span class="line">5</span><br><span class="line">6</span><br><span class="line">7</span><br><span class="line">8</span><br><span class="line">9</span><br><span class="line">10</span><br><span class="line">11</span><br><span class="line">12</span><br><span class="line">13</span><br><span class="line">14</span><br><span class="line">15</span><br><span class="line">16</span><br><span class="line">17</span><br></pre></td><td class="code"><pre><span class="line"><span class="meta">#</span> 删除pod</span><br><span class="line"><span class="meta">$</span> kubectl delete deployment web</span><br><span class="line"></span><br><span class="line"><span class="meta">#</span> 创建pod</span><br><span class="line"><span class="meta">$</span> kubectl apply -f web.yaml </span><br><span class="line"></span><br><span class="line"><span class="meta">#</span> 得出的IP地址应该是Pod的IP，在k8s内部可以访问</span><br><span class="line"><span class="meta">$</span> kubectl get pod -o wide</span><br><span class="line"><span class="meta">#</span> 得出的CLUSTER-IP 是什么IP呢？只能在Pod所在节点访问</span><br><span class="line"><span class="meta">$</span> kubectl get svc -o wide </span><br><span class="line"></span><br><span class="line"><span class="meta">#</span> 列出容器的环境变量，获取的是该Pod创建之前已经存在的环境变量</span><br><span class="line"><span class="meta">$</span> kubectl exec &lt;pod-name&gt; env</span><br><span class="line"></span><br><span class="line"><span class="meta">$</span> kubectl get endpoints kubia</span><br><span class="line"></span><br><span class="line"><span class="meta">$</span> kubectl get pods --all-namespaces -o -wide</span><br></pre></td></tr></table></figure>
-
-<h1 id="3个端口说明"><a href="#3个端口说明" class="headerlink" title="3个端口说明"></a>3个端口说明</h1><h2 id="port"><a href="#port" class="headerlink" title="port"></a>port</h2><p>​    The port that the service is exposed on the service’s cluster ip (virsual ip). Port is the service port which is accessed by others with cluster ip.</p>
-<p>​    这里的port表示：service暴露在cluster ip上的端口，<strong><cluster ip>:port</cluster></strong> 是提供给集群内部客户访问service的入口。</p>
-<h2 id="targetPort"><a href="#targetPort" class="headerlink" title="targetPort"></a>targetPort</h2><p>​    The port on the pod that the service should proxy traffic to.</p>
-<p>​    targetPort是pod上的端口，从port和nodePort上到来的数据最终经过kube-proxy流入到后端pod的targetPort上进入容器。</p>
-<h2 id="nodePort"><a href="#nodePort" class="headerlink" title="nodePort"></a>nodePort</h2><p>​    On top of having a cluster-internal IP, expose the service on a port on each node of the cluster (the same port on each node). You’ll be able to contact the service on any<strong><nodeip>:nodePort</nodeip></strong>address. So nodePort is alse the service port which can be accessed by the node ip by others with external ip.</p>
-<p>​    首先，nodePort是kubernetes提供给集群外部客户访问service入口的一种方式（另一种方式是LoadBalancer），所以，<nodeip>:nodePort 是提供给集群外部客户访问service的入口。</nodeip></p>
-<h2 id="总结"><a href="#总结" class="headerlink" title="总结"></a>总结</h2><h1 id="参考文档"><a href="#参考文档" class="headerlink" title="参考文档"></a>参考文档</h1><p><a href="https://blog.csdn.net/xinghun_4/article/details/50492041" target="_blank" rel="noopener">kubernetes中port、target port、node port的对比分析，以及kube-proxy代理</a></p>
+          <h1 id="参考文档"><a href="#参考文档" class="headerlink" title="参考文档"></a>参考文档</h1><p><a href="https://kubernetes.io/zh/docs/concepts/overview/components/" target="_blank" rel="noopener">Kubernetes 组件</a></p>
 
         
       
@@ -581,7 +572,7 @@
   
   
   <article itemscope itemtype="http://schema.org/Article" class="post-block home" lang="zh-CN">
-    <link itemprop="mainEntityOfPage" href="http://yoursite.com/2020/11/02/k8s/k8s-Controller控制器/">
+    <link itemprop="mainEntityOfPage" href="http://yoursite.com/2020/11/28/k8s/k8s-kubectl/">
 
     <span hidden itemprop="author" itemscope itemtype="http://schema.org/Person">
       <meta itemprop="name" content="姜纪光">
@@ -596,7 +587,7 @@
         <h1 class="post-title" itemprop="name headline">
           
             
-            <a href="/2020/11/02/k8s/k8s-Controller控制器/" class="post-title-link" itemprop="url">k8s-Controller Manager</a>
+            <a href="/2020/11/28/k8s/k8s-kubectl/" class="post-title-link" itemprop="url">k8s-kubectl</a>
           
         </h1>
 
@@ -611,7 +602,7 @@
                 
               
 
-              <time title="创建时间：2020-11-02 20:19:25" itemprop="dateCreated datePublished" datetime="2020-11-02T20:19:25+08:00">2020-11-02</time>
+              <time title="创建时间：2020-11-28 11:57:40" itemprop="dateCreated datePublished" datetime="2020-11-28T11:57:40+08:00">2020-11-28</time>
             </span>
           
             
@@ -622,7 +613,7 @@
                   <i class="fa fa-calendar-check-o"></i>
                 </span>
                 <span class="post-meta-item-text">更新于</span>
-                <time title="修改时间：2020-11-12 09:56:56" itemprop="dateModified" datetime="2020-11-12T09:56:56+08:00">2020-11-12</time>
+                <time title="修改时间：2020-12-04 10:22:56" itemprop="dateModified" datetime="2020-12-04T10:22:56+08:00">2020-12-04</time>
               </span>
             
           
@@ -645,7 +636,7 @@
           
 
           
-            <span id="/2020/11/02/k8s/k8s-Controller控制器/" class="post-meta-item leancloud_visitors" data-flag-title="k8s-Controller Manager" title="阅读次数">
+            <span id="/2020/11/28/k8s/k8s-kubectl/" class="post-meta-item leancloud_visitors" data-flag-title="k8s-kubectl" title="阅读次数">
               <span class="post-meta-item-icon">
                 <i class="fa fa-eye"></i>
               </span>
@@ -666,42 +657,15 @@
 
       
           <h1 id="概述"><a href="#概述" class="headerlink" title="概述"></a>概述</h1><ul>
-<li>Pod和Controller之间通过selector和label标签建立关系。</li>
-<li>Pod通过Controller实现应用的运维，比如伸缩、滚动升级等。</li>
+<li>说明：<code>k8s版本1.18</code></li>
+<li>本文用来记录，学习和操作k8s中的一些实用命令</li>
+<li>​</li>
 </ul>
-<h1 id="deployment-应用场景"><a href="#deployment-应用场景" class="headerlink" title="deployment 应用场景"></a>deployment 应用场景</h1><ul>
-<li><p>部署无状态应用</p>
-</li>
-<li><p>管理Pod和ReplicaSet</p>
-</li>
-<li><p>部署、滚动升级等功能</p>
-</li>
-<li><p>应用场景</p>
-<blockquote>
-<p>web服务、微服务</p>
-</blockquote>
-</li>
-</ul>
-<h1 id="StatefulSet部署有状态应用"><a href="#StatefulSet部署有状态应用" class="headerlink" title="StatefulSet部署有状态应用"></a>StatefulSet部署有状态应用</h1><ul>
-<li><p>部署有状态应用</p>
-<blockquote>
-<p>让每个Pod独立，保持Pod启动顺序和唯一性</p>
-<p>唯一的网络标识符，持久存储</p>
-<p>有序</p>
-</blockquote>
-</li>
-</ul>
-<h1 id="DaemonSet-部署守护进程"><a href="#DaemonSet-部署守护进程" class="headerlink" title="DaemonSet 部署守护进程"></a>DaemonSet 部署守护进程</h1><ul>
-<li><p>在每个node上面都会运行一个pod，例如日志采集工具</p>
-</li>
-<li><p>yaml文件</p>
-<figure class="highlight yaml"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br><span class="line">3</span><br><span class="line">4</span><br><span class="line">5</span><br><span class="line">6</span><br><span class="line">7</span><br><span class="line">8</span><br><span class="line">9</span><br><span class="line">10</span><br><span class="line">11</span><br><span class="line">12</span><br><span class="line">13</span><br><span class="line">14</span><br><span class="line">15</span><br><span class="line">16</span><br><span class="line">17</span><br><span class="line">18</span><br><span class="line">19</span><br><span class="line">20</span><br><span class="line">21</span><br><span class="line">22</span><br><span class="line">23</span><br><span class="line">24</span><br><span class="line">25</span><br><span class="line">26</span><br><span class="line">27</span><br></pre></td><td class="code"><pre><span class="line"><span class="attr">apiVersion:</span> <span class="string">apps/v1</span></span><br><span class="line"><span class="attr">kind:</span> <span class="string">DaemonSet</span></span><br><span class="line"><span class="attr">metadata:</span></span><br><span class="line"><span class="attr">  name:</span> <span class="string">dt-test</span></span><br><span class="line"><span class="attr">  labels:</span> </span><br><span class="line"><span class="attr">    app:</span> <span class="string">filebeat</span></span><br><span class="line"><span class="attr">spec:</span></span><br><span class="line"><span class="attr">  selector:</span></span><br><span class="line"><span class="attr">    matchLabels:</span></span><br><span class="line"><span class="attr">      app:</span> <span class="string">filebeat</span></span><br><span class="line"><span class="attr">  template:</span></span><br><span class="line"><span class="attr">    metadata:</span></span><br><span class="line"><span class="attr">      labels:</span> </span><br><span class="line"><span class="attr">        app:</span> <span class="string">filebeat</span></span><br><span class="line"><span class="attr">    spec:</span></span><br><span class="line"><span class="attr">      containers:</span></span><br><span class="line"><span class="attr">      - name:</span> <span class="string">logs</span></span><br><span class="line"><span class="attr">        image:</span> <span class="string">nginx</span></span><br><span class="line"><span class="attr">        ports:</span></span><br><span class="line"><span class="attr">        - containerPort:</span> <span class="number">80</span></span><br><span class="line"><span class="attr">        volumeMounts:</span></span><br><span class="line"><span class="attr">        - name:</span> <span class="string">varlog</span></span><br><span class="line"><span class="attr">          mountPath:</span> <span class="string">/tmp/log</span></span><br><span class="line"><span class="attr">      volumes:</span></span><br><span class="line"><span class="attr">      - name:</span> <span class="string">varlog</span></span><br><span class="line"><span class="attr">        hostPath:</span> </span><br><span class="line"><span class="attr">          path:</span> <span class="string">/var/log</span></span><br></pre></td></tr></table></figure>
+<h1 id="实用命令"><a href="#实用命令" class="headerlink" title="实用命令"></a>实用命令</h1><figure class="highlight shell"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br><span class="line">3</span><br><span class="line">4</span><br><span class="line">5</span><br><span class="line">6</span><br><span class="line">7</span><br><span class="line">8</span><br><span class="line">9</span><br><span class="line">10</span><br><span class="line">11</span><br><span class="line">12</span><br><span class="line">13</span><br><span class="line">14</span><br><span class="line">15</span><br><span class="line">16</span><br><span class="line">17</span><br><span class="line">18</span><br><span class="line">19</span><br><span class="line">20</span><br><span class="line">21</span><br><span class="line">22</span><br><span class="line">23</span><br><span class="line">24</span><br><span class="line">25</span><br><span class="line">26</span><br><span class="line">27</span><br><span class="line">28</span><br><span class="line">29</span><br><span class="line">30</span><br><span class="line">31</span><br><span class="line">32</span><br><span class="line">33</span><br><span class="line">34</span><br><span class="line">35</span><br><span class="line">36</span><br><span class="line">37</span><br><span class="line">38</span><br></pre></td><td class="code"><pre><span class="line"><span class="meta">#</span> 帮助命令</span><br><span class="line"><span class="meta">$</span> kubectl port-forward --help</span><br><span class="line"><span class="meta">#</span> -o wide获取更多信息</span><br><span class="line"><span class="meta">$</span> kubectl get pods -o wide  </span><br><span class="line"><span class="meta">#</span> --------------------------------</span><br><span class="line"><span class="meta">#</span> 检查 kubectl 是否知道集群地址及凭证</span><br><span class="line"><span class="meta">$</span> kubectl config view</span><br><span class="line"><span class="meta">#</span> --------------------------------</span><br><span class="line"></span><br><span class="line"><span class="meta">#</span> --------------------------------</span><br><span class="line"><span class="meta">#</span> 查看Pod的原始yaml文件</span><br><span class="line"><span class="meta">$</span> kubectl get pods &lt;podname&gt; -o yaml</span><br><span class="line"><span class="meta">#</span> 查看Pod的原始JSON文件</span><br><span class="line"><span class="meta">$</span> kubectl get pods &lt;podname&gt; -o json</span><br><span class="line"><span class="meta">#</span> --------------------------------</span><br><span class="line"></span><br><span class="line"><span class="meta">#</span> ---------------服务账户-----------------</span><br><span class="line"><span class="meta">#</span> 查询特定命名空间中的服务账户</span><br><span class="line"><span class="meta">$</span> kubectl get serviceAccounts -n default</span><br><span class="line"><span class="meta">#</span> 查询特定服务账户的完整信息</span><br><span class="line"><span class="meta">$</span> kubectl get serviceaccounts &lt;serviceAccountName&gt; -o yaml</span><br><span class="line"><span class="meta">#</span> 删除服务账户</span><br><span class="line"><span class="meta">$</span> kubectl delete serviceAccounts &lt;serviceAccountName&gt; -n default</span><br><span class="line"><span class="meta">#</span> 查看pod的服务账户 下面命令输出的serviceAccountName字段</span><br><span class="line"><span class="meta">$</span> kubectl get pods &lt;podname&gt; -o yaml</span><br><span class="line"><span class="meta">#</span> ---------------服务账户-----------------</span><br><span class="line"></span><br><span class="line"></span><br><span class="line"></span><br><span class="line"><span class="meta">#</span> 获取所有集群角色</span><br><span class="line"><span class="meta">$</span> kubectl get clusterrole --all-namespaces</span><br><span class="line"><span class="meta">#</span> 获取所有角色</span><br><span class="line"><span class="meta">$</span> kubectl get role --all-namespaces</span><br><span class="line"></span><br><span class="line"><span class="meta">#</span> ---------------网络原理-----------------</span><br><span class="line"><span class="meta">#</span> 看到pod地址</span><br><span class="line"><span class="meta">$</span> ip addr show</span><br><span class="line"><span class="meta">#</span> ---------------网络原理-----------------</span><br></pre></td></tr></table></figure>
 
-</li>
-</ul>
-<h1 id="实用命令"><a href="#实用命令" class="headerlink" title="实用命令"></a>实用命令</h1><figure class="highlight shell"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br><span class="line">3</span><br><span class="line">4</span><br><span class="line">5</span><br><span class="line">6</span><br><span class="line">7</span><br><span class="line">8</span><br><span class="line">9</span><br><span class="line">10</span><br><span class="line">11</span><br><span class="line">12</span><br><span class="line">13</span><br><span class="line">14</span><br><span class="line">15</span><br><span class="line">16</span><br><span class="line">17</span><br><span class="line">18</span><br><span class="line">19</span><br><span class="line">20</span><br><span class="line">21</span><br><span class="line">22</span><br><span class="line">23</span><br><span class="line">24</span><br><span class="line">25</span><br><span class="line">26</span><br><span class="line">27</span><br><span class="line">28</span><br><span class="line">29</span><br><span class="line">30</span><br><span class="line">31</span><br><span class="line">32</span><br><span class="line">33</span><br><span class="line">34</span><br><span class="line">35</span><br><span class="line">36</span><br></pre></td><td class="code"><pre><span class="line"><span class="meta">#</span> 生成yaml文件</span><br><span class="line"><span class="meta">$</span> kubectl create deployment web2 --image=nginx --dry-run -o yaml &gt; web2.yaml</span><br><span class="line"><span class="meta">#</span> 应用部署</span><br><span class="line"><span class="meta">$</span> kubectl apply -f web.yaml</span><br><span class="line"><span class="meta">#</span> 对外发布</span><br><span class="line"><span class="meta">$</span> kubectl expose deployment web --port=80 --type=NodePort --target-port=80 --name=web1</span><br><span class="line">  -o yaml &gt; pp.yaml</span><br><span class="line"><span class="meta">#</span> 查看发布的端口号 </span><br><span class="line"><span class="meta">$</span> kubectl get pods,svc</span><br><span class="line"></span><br><span class="line"><span class="meta">#</span> docker命令只能在具体的节点查看镜像的版本</span><br><span class="line"><span class="meta">$</span> docker images</span><br><span class="line"></span><br><span class="line"><span class="meta">#</span> 升级版本</span><br><span class="line"><span class="meta">$</span> kubectl set image deployment web nginx=nginx:1.15</span><br><span class="line"></span><br><span class="line"><span class="meta">#</span> 查看升级状态</span><br><span class="line"><span class="meta">$</span> kubectl rollout status deployment web</span><br><span class="line"><span class="meta">#</span> 查看历史版本</span><br><span class="line"><span class="meta">$</span> kubectl rollout history deployment web</span><br><span class="line"></span><br><span class="line"><span class="meta">#</span> 回滚到上一个版本</span><br><span class="line"><span class="meta">$</span> kubectl rollout undo deployment web</span><br><span class="line"></span><br><span class="line"><span class="meta">#</span> 回滚到指定版本</span><br><span class="line"><span class="meta">$</span> kubectl rollout undo deployment web --to-revision=2</span><br><span class="line"></span><br><span class="line"><span class="meta">#</span> 弹性伸缩</span><br><span class="line"><span class="meta">$</span> kubectl scale deployment web --replicas=2</span><br><span class="line"></span><br><span class="line"><span class="meta">#</span> 进入Pod，查看采集数据</span><br><span class="line"><span class="meta">$</span> kubectl exec -it dt-test-v8wjp bash</span><br><span class="line"></span><br><span class="line"><span class="meta">#</span> -it是下面两个选项的缩写</span><br><span class="line"><span class="meta">#</span> 1、-i 确保标准输入流保持开放，需要在shell中输入命令</span><br><span class="line"><span class="meta">#</span> 2、-t 分配一个伪终端(TTY)</span><br></pre></td></tr></table></figure>
+<h1 id="参考文档"><a href="#参考文档" class="headerlink" title="参考文档"></a>参考文档</h1><p><a href="https://kubernetes.io/zh/docs/reference/kubectl/cheatsheet/" target="_blank" rel="noopener">kubectl 备忘单</a></p>
+<p><a href="https://kubernetes.io/zh/docs/reference/kubectl/overview/" target="_blank" rel="noopener">kubectl 概述</a></p>
 
-<h1 id="参考文档"><a href="#参考文档" class="headerlink" title="参考文档"></a>参考文档</h1>
         
       
     </div>
@@ -722,7 +686,7 @@
   
   
   <article itemscope itemtype="http://schema.org/Article" class="post-block home" lang="zh-CN">
-    <link itemprop="mainEntityOfPage" href="http://yoursite.com/2020/11/02/k8s/k8s-调度器/">
+    <link itemprop="mainEntityOfPage" href="http://yoursite.com/2020/11/28/k8s/k8s-服务访问/">
 
     <span hidden itemprop="author" itemscope itemtype="http://schema.org/Person">
       <meta itemprop="name" content="姜纪光">
@@ -737,7 +701,7 @@
         <h1 class="post-title" itemprop="name headline">
           
             
-            <a href="/2020/11/02/k8s/k8s-调度器/" class="post-title-link" itemprop="url">k8s-调度器</a>
+            <a href="/2020/11/28/k8s/k8s-服务访问/" class="post-title-link" itemprop="url">k8s-服务访问</a>
           
         </h1>
 
@@ -752,11 +716,19 @@
                 
               
 
-              <time title="创建时间：2020-11-02 19:36:58 / 修改时间：20:17:58" itemprop="dateCreated datePublished" datetime="2020-11-02T19:36:58+08:00">2020-11-02</time>
+              <time title="创建时间：2020-11-28 09:59:14" itemprop="dateCreated datePublished" datetime="2020-11-28T09:59:14+08:00">2020-11-28</time>
             </span>
           
             
 
+            
+              <span class="post-meta-item">
+                <span class="post-meta-item-icon">
+                  <i class="fa fa-calendar-check-o"></i>
+                </span>
+                <span class="post-meta-item-text">更新于</span>
+                <time title="修改时间：2020-11-30 15:50:34" itemprop="dateModified" datetime="2020-11-30T15:50:34+08:00">2020-11-30</time>
+              </span>
             
           
             <span class="post-meta-item">
@@ -778,7 +750,119 @@
           
 
           
-            <span id="/2020/11/02/k8s/k8s-调度器/" class="post-meta-item leancloud_visitors" data-flag-title="k8s-调度器" title="阅读次数">
+            <span id="/2020/11/28/k8s/k8s-服务访问/" class="post-meta-item leancloud_visitors" data-flag-title="k8s-服务访问" title="阅读次数">
+              <span class="post-meta-item-icon">
+                <i class="fa fa-eye"></i>
+              </span>
+              <span class="post-meta-item-text">阅读次数：</span>
+              <span class="leancloud-visitors-count"></span>
+            </span>
+          
+  
+  
+
+        </div>
+      </header>
+
+    
+    
+    
+    <div class="post-body" itemprop="articleBody">
+
+      
+          <h1 id="port-forward"><a href="#port-forward" class="headerlink" title="port-forward"></a>port-forward</h1><ul>
+<li>端口转发，用来暴露容器端口到本机localhost网卡，即执行<code>kubectl port-forward</code> 命令的端口</li>
+<li>​</li>
+</ul>
+<p><a href="https://kubernetes.io/zh/docs/tasks/access-application-cluster/port-forward-access-application-cluster/" target="_blank" rel="noopener">使用端口转发来访问集群中的应用</a></p>
+<p><a href="https://imkira.com/Kubernetes-Port-Forward/" target="_blank" rel="noopener">Kubernetes Port Forward 机制</a></p>
+<h1 id="参考文档"><a href="#参考文档" class="headerlink" title="参考文档"></a>参考文档</h1><p><a href="http://kubernetes.kansea.com/docs/api-reference/v1/definitions/" target="_blank" rel="noopener">顶级 API 对象</a></p>
+
+        
+      
+    </div>
+
+    
+    
+    
+      <footer class="post-footer">
+        <div class="post-eof"></div>
+      </footer>
+  </article>
+  
+  
+  
+
+    
+        
+  
+  
+  <article itemscope itemtype="http://schema.org/Article" class="post-block home" lang="zh-CN">
+    <link itemprop="mainEntityOfPage" href="http://yoursite.com/2020/11/25/flink/flink-nativek8s实践/">
+
+    <span hidden itemprop="author" itemscope itemtype="http://schema.org/Person">
+      <meta itemprop="name" content="姜纪光">
+      <meta itemprop="description" content="">
+      <meta itemprop="image" content="/images/avatar.gif">
+    </span>
+
+    <span hidden itemprop="publisher" itemscope itemtype="http://schema.org/Organization">
+      <meta itemprop="name" content="纪光的博客">
+    </span>
+      <header class="post-header">
+        <h1 class="post-title" itemprop="name headline">
+          
+            
+            <a href="/2020/11/25/flink/flink-nativek8s实践/" class="post-title-link" itemprop="url">flink-nativek8s实践</a>
+          
+        </h1>
+
+        <div class="post-meta">
+            <span class="post-meta-item">
+              <span class="post-meta-item-icon">
+                <i class="fa fa-calendar-o"></i>
+              </span>
+              <span class="post-meta-item-text">发表于</span>
+
+              
+                
+              
+
+              <time title="创建时间：2020-11-25 10:49:31" itemprop="dateCreated datePublished" datetime="2020-11-25T10:49:31+08:00">2020-11-25</time>
+            </span>
+          
+            
+
+            
+              <span class="post-meta-item">
+                <span class="post-meta-item-icon">
+                  <i class="fa fa-calendar-check-o"></i>
+                </span>
+                <span class="post-meta-item-text">更新于</span>
+                <time title="修改时间：2020-12-09 09:50:21" itemprop="dateModified" datetime="2020-12-09T09:50:21+08:00">2020-12-09</time>
+              </span>
+            
+          
+            <span class="post-meta-item">
+              <span class="post-meta-item-icon">
+                <i class="fa fa-folder-o"></i>
+              </span>
+              <span class="post-meta-item-text">分类于</span>
+              
+                <span itemprop="about" itemscope itemtype="http://schema.org/Thing">
+                  <a href="/categories/flink/" itemprop="url" rel="index">
+                    <span itemprop="name">flink</span>
+                  </a>
+                </span>
+
+                
+                
+              
+            </span>
+          
+
+          
+            <span id="/2020/11/25/flink/flink-nativek8s实践/" class="post-meta-item leancloud_visitors" data-flag-title="flink-nativek8s实践" title="阅读次数">
               <span class="post-meta-item-icon">
                 <i class="fa fa-eye"></i>
               </span>
@@ -799,287 +883,138 @@
 
       
           <h1 id="概述"><a href="#概述" class="headerlink" title="概述"></a>概述</h1><ul>
-<li>kube-scheduler 是 kubernetes 系统的核心组件之一，主要负责整个集群资源的调 度功能，根据特定的调度算法和策略，将 Pod 调度到最优的工作节点上面去</li>
-<li>容器平台的主要功能就是为容器分配运行时所需要的计算，存储和网络资源。</li>
-<li>容器调 度系统负责选择在最合适的主机上启动容器，并且将它们关联起来。</li>
-<li>它必须能够自动的处 理容器故障并且能够在更多的主机上自动启动更多的容器来应对更多的应用访问。</li>
-<li>k8s采用了Pod和Label这样的概念把容器组合成一个个的相互存在依赖关系的逻辑单元。相关容器被组合成Pod后被共同部署和调度，形成服务（Service）。</li>
+<li><p>环境说明</p>
+<blockquote>
+<p>基于flink1.11版本、k8s1.18版本</p>
+</blockquote>
+</li>
 </ul>
-<h1 id="调度工作方式"><a href="#调度工作方式" class="headerlink" title="调度工作方式"></a>调度工作方式</h1><p>​    调度器作为集群的大脑，在如何提高集群的资源利用率、保证集群中服务的稳 定运行中也会变得越来越重要。</p>
-<p>k8s的资源分为两种属性：</p>
+<h1 id="配置参数"><a href="#配置参数" class="headerlink" title="配置参数"></a>配置参数</h1><p>参考<a href="https://ci.apache.org/projects/flink/flink-docs-release-1.11/ops/config.html#kubernetes" target="_blank" rel="noopener">Kubernetes</a></p>
 <ul>
-<li><p>可压缩资源</p>
+<li><p>external-resource.<resource_name>.kubernetes.config-key</resource_name></p>
 <blockquote>
-<p>例如CPU、Disk和I/O带宽，都是可以被限制和被回收的，可以降低Pod对这些资源的使用量而不用杀掉Pod。</p>
-</blockquote>
-</li>
-<li><p>不可压缩资源</p>
-<blockquote>
-<p>例如内存、磁盘空间，一般不杀掉Pod就无法回收。</p>
-</blockquote>
-</li>
-</ul>
-<h1 id="节点调度亲和性"><a href="#节点调度亲和性" class="headerlink" title="节点调度亲和性"></a>节点调度亲和性</h1><h1 id="Pod资源亲和调度"><a href="#Pod资源亲和调度" class="headerlink" title="Pod资源亲和调度"></a>Pod资源亲和调度</h1><h1 id="污点和容忍度"><a href="#污点和容忍度" class="headerlink" title="污点和容忍度"></a>污点和容忍度</h1><ul>
-<li><p>节点不做普通分配调度，是节点属性</p>
-</li>
-<li><p>污点值有三个</p>
-<blockquote>
-<p>NoSchedule：一定不被调度</p>
-<p>PreferNoSchedule：尽量不被调度</p>
-<p>NoExecute：不会调度，并且还会驱逐Node上已有的Pod</p>
-</blockquote>
-</li>
-<li><p>污点容忍</p>
 <p>​</p>
-</li>
-</ul>
-<h1 id="实用命令"><a href="#实用命令" class="headerlink" title="实用命令"></a>实用命令</h1><figure class="highlight shell"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br><span class="line">3</span><br><span class="line">4</span><br><span class="line">5</span><br><span class="line">6</span><br><span class="line">7</span><br><span class="line">8</span><br><span class="line">9</span><br><span class="line">10</span><br><span class="line">11</span><br><span class="line">12</span><br></pre></td><td class="code"><pre><span class="line"><span class="meta">#</span> 查看节点污点情况</span><br><span class="line"><span class="meta">$</span> kubectl describe node node21 | grep Taints</span><br><span class="line"></span><br><span class="line"><span class="meta">#</span> 为节点添加污点</span><br><span class="line"><span class="meta">$</span> kubectl taint node node21 env_role=yes:NoSchedule</span><br><span class="line"></span><br><span class="line"><span class="meta">$</span> kubectl create deployment web --image=niginx</span><br><span class="line"><span class="meta">$</span> kubectl get pods -o wide</span><br><span class="line"><span class="meta">$</span> kubectl get pods -o wide     </span><br><span class="line"></span><br><span class="line"><span class="meta">#</span> 删除污点</span><br><span class="line"><span class="meta">$</span> kubectl taint node node21 env_role:NoSchedule-</span><br></pre></td></tr></table></figure>
-
-<h1 id="参考文档"><a href="#参考文档" class="headerlink" title="参考文档"></a>参考文档</h1>
-        
-      
-    </div>
-
-    
-    
-    
-      <footer class="post-footer">
-        <div class="post-eof"></div>
-      </footer>
-  </article>
-  
-  
-  
-
-    
-        
-  
-  
-  <article itemscope itemtype="http://schema.org/Article" class="post-block home" lang="zh-CN">
-    <link itemprop="mainEntityOfPage" href="http://yoursite.com/2020/11/02/k8s/k8s-Label/">
-
-    <span hidden itemprop="author" itemscope itemtype="http://schema.org/Person">
-      <meta itemprop="name" content="姜纪光">
-      <meta itemprop="description" content="">
-      <meta itemprop="image" content="/images/avatar.gif">
-    </span>
-
-    <span hidden itemprop="publisher" itemscope itemtype="http://schema.org/Organization">
-      <meta itemprop="name" content="纪光的博客">
-    </span>
-      <header class="post-header">
-        <h1 class="post-title" itemprop="name headline">
-          
-            
-            <a href="/2020/11/02/k8s/k8s-Label/" class="post-title-link" itemprop="url">k8s-Label</a>
-          
-        </h1>
-
-        <div class="post-meta">
-            <span class="post-meta-item">
-              <span class="post-meta-item-icon">
-                <i class="fa fa-calendar-o"></i>
-              </span>
-              <span class="post-meta-item-text">发表于</span>
-
-              
-                
-              
-
-              <time title="创建时间：2020-11-02 17:53:24 / 修改时间：17:59:19" itemprop="dateCreated datePublished" datetime="2020-11-02T17:53:24+08:00">2020-11-02</time>
-            </span>
-          
-            
-
-            
-          
-            <span class="post-meta-item">
-              <span class="post-meta-item-icon">
-                <i class="fa fa-folder-o"></i>
-              </span>
-              <span class="post-meta-item-text">分类于</span>
-              
-                <span itemprop="about" itemscope itemtype="http://schema.org/Thing">
-                  <a href="/categories/k8s/" itemprop="url" rel="index">
-                    <span itemprop="name">k8s</span>
-                  </a>
-                </span>
-
-                
-                
-              
-            </span>
-          
-
-          
-            <span id="/2020/11/02/k8s/k8s-Label/" class="post-meta-item leancloud_visitors" data-flag-title="k8s-Label" title="阅读次数">
-              <span class="post-meta-item-icon">
-                <i class="fa fa-eye"></i>
-              </span>
-              <span class="post-meta-item-text">阅读次数：</span>
-              <span class="leancloud-visitors-count"></span>
-            </span>
-          
-  
-  
-
-        </div>
-      </header>
-
-    
-    
-    
-    <div class="post-body" itemprop="articleBody">
-
-      
-          <h1 id="简介"><a href="#简介" class="headerlink" title="简介"></a>简介</h1><h1 id="常用命令"><a href="#常用命令" class="headerlink" title="常用命令"></a>常用命令</h1><figure class="highlight shell"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br><span class="line">3</span><br><span class="line">4</span><br><span class="line">5</span><br><span class="line">6</span><br></pre></td><td class="code"><pre><span class="line"><span class="meta">#</span> 显示节点标签</span><br><span class="line"><span class="meta">$</span> kubectl get nodes --show-labels</span><br><span class="line"><span class="meta">$</span> kubectl get nodes node21 --show-labels</span><br><span class="line"></span><br><span class="line"><span class="meta">#</span>为节点添加标签</span><br><span class="line"><span class="meta">$</span> kubectl label node node21 env_role=dev</span><br></pre></td></tr></table></figure>
-
-<h1 id="参考文档"><a href="#参考文档" class="headerlink" title="参考文档"></a>参考文档</h1>
-        
-      
-    </div>
-
-    
-    
-    
-      <footer class="post-footer">
-        <div class="post-eof"></div>
-      </footer>
-  </article>
-  
-  
-  
-
-    
-        
-  
-  
-  <article itemscope itemtype="http://schema.org/Article" class="post-block home" lang="zh-CN">
-    <link itemprop="mainEntityOfPage" href="http://yoursite.com/2020/11/02/k8s/k8s-Pod/">
-
-    <span hidden itemprop="author" itemscope itemtype="http://schema.org/Person">
-      <meta itemprop="name" content="姜纪光">
-      <meta itemprop="description" content="">
-      <meta itemprop="image" content="/images/avatar.gif">
-    </span>
-
-    <span hidden itemprop="publisher" itemscope itemtype="http://schema.org/Organization">
-      <meta itemprop="name" content="纪光的博客">
-    </span>
-      <header class="post-header">
-        <h1 class="post-title" itemprop="name headline">
-          
-            
-            <a href="/2020/11/02/k8s/k8s-Pod/" class="post-title-link" itemprop="url">k8s-Pod</a>
-          
-        </h1>
-
-        <div class="post-meta">
-            <span class="post-meta-item">
-              <span class="post-meta-item-icon">
-                <i class="fa fa-calendar-o"></i>
-              </span>
-              <span class="post-meta-item-text">发表于</span>
-
-              
-                
-              
-
-              <time title="创建时间：2020-11-02 09:44:50 / 修改时间：14:16:10" itemprop="dateCreated datePublished" datetime="2020-11-02T09:44:50+08:00">2020-11-02</time>
-            </span>
-          
-            
-
-            
-          
-            <span class="post-meta-item">
-              <span class="post-meta-item-icon">
-                <i class="fa fa-folder-o"></i>
-              </span>
-              <span class="post-meta-item-text">分类于</span>
-              
-                <span itemprop="about" itemscope itemtype="http://schema.org/Thing">
-                  <a href="/categories/k8s/" itemprop="url" rel="index">
-                    <span itemprop="name">k8s</span>
-                  </a>
-                </span>
-
-                
-                
-              
-            </span>
-          
-
-          
-            <span id="/2020/11/02/k8s/k8s-Pod/" class="post-meta-item leancloud_visitors" data-flag-title="k8s-Pod" title="阅读次数">
-              <span class="post-meta-item-icon">
-                <i class="fa fa-eye"></i>
-              </span>
-              <span class="post-meta-item-text">阅读次数：</span>
-              <span class="leancloud-visitors-count"></span>
-            </span>
-          
-  
-  
-
-        </div>
-      </header>
-
-    
-    
-    
-    <div class="post-body" itemprop="articleBody">
-
-      
-          <h1 id="Pod概述"><a href="#Pod概述" class="headerlink" title="Pod概述"></a>Pod概述</h1><ul>
-<li>Pod 是 k8s 中可以创建和管理的最小单元</li>
-<li>是资源对象模型中由用户创建或部署的最小资源对象模型</li>
-<li>是在 k8s 上运行容器化应用的资源对象，其他的资源对象都是用来支撑或者扩展 Pod 对象功能的，比如控制器对象是用来管控 Pod 对象的，Service 或者Ingress 资源对象是用来暴露 Pod 引用对象的，PersistentVolume 资源对象是用来为 Pod提供存储等等。k8s 不会直接处理容器，而是 Pod。</li>
-<li>Pod 是由一个或多个 container 组成</li>
-<li>一个Pod中的容器共享网络命名空间。</li>
-<li>Pod是短暂的</li>
-<li>每一个 Pod 都有一个特殊的被称为”根容器“的 Pause容器。Pause 容器对应的镜像属于 Kubernetes 平台的一部分，每个 Pod 中有一个 Pause 容器保存所有的容器状态， 通过管理 pause 容器，达到管理 pod 中所有容器的效果。</li>
-<li>每个Pod都有专用的IP</li>
-<li>不同节点间Pod的通讯基于虚拟二层网咯技术实现</li>
-<li>普通Pod和静态Pod</li>
-</ul>
-<h1 id="Pod存在意义"><a href="#Pod存在意义" class="headerlink" title="Pod存在意义"></a>Pod存在意义</h1><ul>
-<li><p>使用docker创建的是容器，一个容器对应一个进程，一个容器运行一个应用程序。</p>
-</li>
-<li><p>Pod是多进程设计，运行多个应用程序。</p>
-<blockquote>
-<p>一个Pod有多个容器，一个容器里面运行一个应用程序。</p>
 </blockquote>
 </li>
-<li><p>Pod存在为了亲密性应用</p>
+<li><p>kubernetes.cluster-id</p>
 <blockquote>
-<p>两个应用之间进行交互</p>
-<p>网络之间调用</p>
-<p>两个应用需要频繁调用</p>
+<p>​</p>
+</blockquote>
+</li>
+<li><p>kubernetes.config.file</p>
+<blockquote>
+<p>client的k8s配置文件，默认该目录下：~/.kube/config</p>
+</blockquote>
+</li>
+<li><p>kubernetes.container-start-command-template</p>
+<blockquote>
+<p>默认值：”%java% %classpath% %jvmmem% %jvmopts% %logging% %class% %args% %redirects%”</p>
+<p>描述：jm和tm container的模板</p>
+</blockquote>
+</li>
+<li><p>kubernetes.container.image</p>
+<blockquote>
+<p>默认值：The default value depends on the actually running version. In general it looks like “flink:<flink_version>-scala_<scala_version>“</scala_version></flink_version></p>
+<p>描述：flink container的镜像</p>
+</blockquote>
+</li>
+<li><p>kubernetes.container.image.pull-policy</p>
+<blockquote>
+<p>默认值：IfNotPresent</p>
+<p>全部值：[IfNotPresent, Always, Never]</p>
+</blockquote>
+</li>
+<li><p>kubernetes.container.image.pull-secrets</p>
+<blockquote>
+<p>描述：获取私有镜像仓库的秘钥</p>
+</blockquote>
+</li>
+<li><p>kubernetes.context</p>
+<blockquote>
+<p>描述：k8s客户端和k8s集群交互期望的k8s配置上下文</p>
+</blockquote>
+</li>
+<li><p>kubernetes.entry.path</p>
+<blockquote>
+<p>默认值：/opt/flink/bin/kubernetes-entry.sh</p>
+<p>描述：jm和tm container命令的入口脚本</p>
+</blockquote>
+</li>
+<li><p>kubernetes.flink.conf.dir</p>
+<blockquote>
+<p>默认值：/opt/flink/conf</p>
+<p>描述：挂载到pod的flink配置目录，该目录中 flink-conf.yaml, log4j.properties, logback.xml 会被config map覆盖</p>
+</blockquote>
+</li>
+<li><p>kubernetes.flink.log.dir</p>
+<blockquote>
+<p>默认值：/opt/flink/log</p>
+<p>描述：jm和tm的日志保存的目录</p>
+</blockquote>
+</li>
+<li><p>kubernetes.hadoop.conf.config-map.name</p>
+<blockquote>
+<p>描述：指定了ConfigMap的名字，该ConfigMap用于自定义Hadoop配置，其被挂载到jm和tm</p>
+</blockquote>
+</li>
+<li><p>kubernetes.jobmanager.cpu</p>
+<blockquote>
+<p>默认值：1.0</p>
+<p>类型：Double</p>
+<p>描述：jobmanager使用的cpu的数量</p>
+</blockquote>
+</li>
+<li><p>kubernetes.jobmanager.labels</p>
+<blockquote>
+<p>类型：Map</p>
+<p>描述：JM的labels</p>
+</blockquote>
+</li>
+<li><p>kubernetes.jobmanager.node-selector</p>
+<blockquote>
+<p>类型：Map</p>
+<p>描述：Jm pod的node selector，作用于jm pod 分布到哪些pod上</p>
+</blockquote>
+</li>
+<li><p>kubernetes.jobmanager.service-account</p>
+<blockquote>
+<p>默认值：default</p>
+<p>描述：jobmanager使用的Service account，当通过api server请求tm时</p>
+</blockquote>
+</li>
+<li><p>kubernetes.jobmanager.tolerations</p>
+<blockquote>
+<p>类型：List<map></map></p>
+</blockquote>
+</li>
+<li><p>kubernetes.namespace</p>
+<blockquote>
+<p>默认值：default</p>
+<p>描述：用于运行tm和jm的名称空间</p>
+</blockquote>
+</li>
+<li><p>kubernetes.rest-service.exposed.type</p>
+<blockquote>
+<p>默认值：LoadBalancer</p>
+<p>类型：枚举，[ClusterIP, NodePort, LoadBalancer]</p>
+<p>描述：rest service的类型，当设置为ClusterIP时，rest service是不能被创建的</p>
+</blockquote>
+</li>
+<li><p>kubernetes.taskmanager.cpu</p>
+<blockquote>
+<p>默认值：tm 中 slot的个数</p>
+<p>描述：tm使用的CPU数量</p>
+</blockquote>
+</li>
+<li><p>kubernetes.taskmanager.node-selector</p>
+<blockquote>
+<p>​</p>
 </blockquote>
 </li>
 </ul>
-<h1 id="Pod实现机制"><a href="#Pod实现机制" class="headerlink" title="Pod实现机制"></a>Pod实现机制</h1><ul>
-<li><p>共享网络</p>
-<blockquote>
-<p>​    一个 Pod 里的多个容器共享 Pod 的 IP 和端口 namespace</p>
-<p>​    所以一个 Pod 内的多个容器之间可以通过 localhost 来进行通信,所需要注意的是不同容器要注意不要有端口冲突即可。</p>
-<p>​    不同的 Pod 有不同的 IP,不同 Pod 内的多个容器之前通信，不可以使用 IPC(如果没有特殊指定的话)通信，通常情况下使用 Pod的 IP 进行通信。</p>
-<p>​    通过Pause容器，把其它的业务容器加入到Pause容器里面，让所有业务容器在同一个名称空间中，可以实现网络共享。</p>
-</blockquote>
-</li>
-<li><p>共享存储</p>
-<blockquote>
-<p>​    一个 Pod 里的多个容器可以共享存储卷，这个存储卷会被定义为 Pod 的一部分，并且可以挂载到该 Pod 里的所有容器的文件系统上。</p>
-</blockquote>
-</li>
-</ul>
-<p>​    </p>
-<h1 id="Pod镜像拉取策略"><a href="#Pod镜像拉取策略" class="headerlink" title="Pod镜像拉取策略"></a>Pod镜像拉取策略</h1><figure class="highlight shell"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br><span class="line">3</span><br><span class="line">4</span><br><span class="line">5</span><br><span class="line">6</span><br><span class="line">7</span><br><span class="line">8</span><br></pre></td><td class="code"><pre><span class="line">containers:</span><br><span class="line">  - name: nginx</span><br><span class="line">    image: nginx:1.14</span><br><span class="line">    imagePullPolicy: IfNotPresent</span><br><span class="line"></span><br><span class="line"><span class="meta">#</span> IfNotPresent  默认值，镜像在宿主机上不存在时才拉取</span><br><span class="line"><span class="meta">#</span> Always: 每次创建Pod都会重新拉取一次镜像</span><br><span class="line"><span class="meta">#</span> Never: Pod永远不会主动拉取镜像</span><br></pre></td></tr></table></figure>
+<h1 id="执行命令"><a href="#执行命令" class="headerlink" title="执行命令"></a>执行命令</h1><figure class="highlight shell"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br><span class="line">3</span><br><span class="line">4</span><br><span class="line">5</span><br><span class="line">6</span><br><span class="line">7</span><br><span class="line">8</span><br><span class="line">9</span><br><span class="line">10</span><br><span class="line">11</span><br><span class="line">12</span><br><span class="line">13</span><br><span class="line">14</span><br><span class="line">15</span><br><span class="line">16</span><br><span class="line">17</span><br></pre></td><td class="code"><pre><span class="line"><span class="meta">#</span> 创建命名空间</span><br><span class="line"><span class="meta">$</span> kubectl create ns di-flink-dev</span><br><span class="line"><span class="meta">#</span> 创建服务账号</span><br><span class="line"><span class="meta">$</span> kubectl create sa flink -n di-flink-dev</span><br><span class="line"><span class="meta">#</span> 绑定服务账号</span><br><span class="line"><span class="meta">$</span> kubectl create clusterrolebinding flink-edit --clusterrole=edit --serviceaccount=di-flink-dev:flink</span><br><span class="line"><span class="meta">#</span> 查看角色绑定</span><br><span class="line"><span class="meta">$</span> kubectl get clusterrolebinding</span><br><span class="line"><span class="meta">#</span> 查看集群中的Service Account对象</span><br><span class="line"><span class="meta">$</span> kubectl describe serviceaccounts</span><br><span class="line"></span><br><span class="line"><span class="meta">#</span> session方式提交</span><br><span class="line"><span class="meta">$</span> ./bin/kubernetes-session.sh -Dkubernetes.cluster-id=my-cluster-test01  -Dkubernetes.namespace=di-flink-dev -Dkubernetes.rest-service.exposed.type=NodePort -Dtaskmanager.memory.process.size=2048m -Dkubernetes.taskmanager.cpu=2 -Dtaskmanager.numberOfTaskSlots=4 -Dresourcemanager.taskmanager-timeout=3600000 -Dkubernetes.container-start-command-template="%java% %classpath% %jvmmem% %jvmopts% %logging% %class% %args%" -Dkubernetes.container.image=registry.cn-shanghai.aliyuncs.com/jjg/myjob:1.1</span><br><span class="line"></span><br><span class="line"></span><br><span class="line"><span class="meta">#</span> perjob方式提交</span><br><span class="line"><span class="meta">$</span> ./bin/flink run-application -p 1 -t kubernetes-application -c net.qutoutiao.libra.flink1112.app.DataDiyApp -Dkubernetes.cluster-id=perjob-1209-02 -Dkubernetes.namespace=di-flink-dev -Dkubernetes.jobmanager.service-account=flink -Dkubernetes.rest-service.exposed.type=NodePort -Dtaskmanager.memory.process.size=1024m -Dkubernetes.taskmanager.cpu=1 -Dtaskmanager.numberOfTaskSlots=1 -Dkubernetes.container.image=registry.cn-shanghai.aliyuncs.com/libra-dev/diy:1.1 -Dkubernetes.container-start-command-template="%java% %classpath% %jvmmem% %jvmopts% %logging% %class% %args%" local:///opt/flink/usrlib/libra-flink1112.jar</span><br></pre></td></tr></table></figure>
 
-<h1 id="Pod资源限制"><a href="#Pod资源限制" class="headerlink" title="Pod资源限制"></a>Pod资源限制</h1><figure class="highlight plain"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br><span class="line">3</span><br><span class="line">4</span><br><span class="line">5</span><br><span class="line">6</span><br><span class="line">7</span><br></pre></td><td class="code"><pre><span class="line">resources: </span><br><span class="line">  requests: </span><br><span class="line">    memory: &quot;64Mi&quot; </span><br><span class="line">    cpu: &quot;250m&quot; </span><br><span class="line">  limits: </span><br><span class="line">    memory: &quot;128Mi&quot; </span><br><span class="line">    cpu: &quot;500m&quot;</span><br></pre></td></tr></table></figure>
-
-<h1 id="Pod健康检查"><a href="#Pod健康检查" class="headerlink" title="Pod健康检查"></a>Pod健康检查</h1><h1 id="Pod创建流程"><a href="#Pod创建流程" class="headerlink" title="Pod创建流程"></a>Pod创建流程</h1><h1 id="参考文档"><a href="#参考文档" class="headerlink" title="参考文档"></a>参考文档</h1><p><a href="https://jimmysong.io/kubernetes-handbook/concepts/pod-state-and-lifecycle.html" target="_blank" rel="noopener">Pod状态与生命周期管理</a></p>
+<h1 id="参考文档"><a href="#参考文档" class="headerlink" title="参考文档"></a>参考文档</h1><p><a href="https://ci.apache.org/projects/flink/flink-docs-release-1.11/zh/ops/deployment/native_kubernetes.html" target="_blank" rel="noopener">原生 Kubernetes 设置 Beta</a></p>
 
         
       
@@ -1101,7 +1036,7 @@
   
   
   <article itemscope itemtype="http://schema.org/Article" class="post-block home" lang="zh-CN">
-    <link itemprop="mainEntityOfPage" href="http://yoursite.com/2020/10/30/k8s/k8s的YAML文件/">
+    <link itemprop="mainEntityOfPage" href="http://yoursite.com/2020/11/25/k8s/k8s-安全机制/">
 
     <span hidden itemprop="author" itemscope itemtype="http://schema.org/Person">
       <meta itemprop="name" content="姜纪光">
@@ -1116,7 +1051,7 @@
         <h1 class="post-title" itemprop="name headline">
           
             
-            <a href="/2020/10/30/k8s/k8s的YAML文件/" class="post-title-link" itemprop="url">k8s的YAML文件</a>
+            <a href="/2020/11/25/k8s/k8s-安全机制/" class="post-title-link" itemprop="url">k8s-安全机制</a>
           
         </h1>
 
@@ -1131,7 +1066,7 @@
                 
               
 
-              <time title="创建时间：2020-10-30 18:00:42" itemprop="dateCreated datePublished" datetime="2020-10-30T18:00:42+08:00">2020-10-30</time>
+              <time title="创建时间：2020-11-25 10:32:48" itemprop="dateCreated datePublished" datetime="2020-11-25T10:32:48+08:00">2020-11-25</time>
             </span>
           
             
@@ -1142,7 +1077,7 @@
                   <i class="fa fa-calendar-check-o"></i>
                 </span>
                 <span class="post-meta-item-text">更新于</span>
-                <time title="修改时间：2020-11-02 09:42:24" itemprop="dateModified" datetime="2020-11-02T09:42:24+08:00">2020-11-02</time>
+                <time title="修改时间：2020-12-03 11:39:54" itemprop="dateModified" datetime="2020-12-03T11:39:54+08:00">2020-12-03</time>
               </span>
             
           
@@ -1165,7 +1100,7 @@
           
 
           
-            <span id="/2020/10/30/k8s/k8s的YAML文件/" class="post-meta-item leancloud_visitors" data-flag-title="k8s的YAML文件" title="阅读次数">
+            <span id="/2020/11/25/k8s/k8s-安全机制/" class="post-meta-item leancloud_visitors" data-flag-title="k8s-安全机制" title="阅读次数">
               <span class="post-meta-item-icon">
                 <i class="fa fa-eye"></i>
               </span>
@@ -1185,37 +1120,219 @@
     <div class="post-body" itemprop="articleBody">
 
       
-          <h1 id="简介"><a href="#简介" class="headerlink" title="简介"></a>简介</h1><p>​    k8s 集群中对资源管理和资源对象编排部署都可以通过声明YAML文件进行，也就是可以把需要对资源对象操作编辑到 YAML 格式文件中，这种文件叫做资源清单文 件，通过 kubectl 命令直接使用资源清单文件就可以实现对大量的资源对象进行编排部署 了。</p>
-<h1 id="常用字段"><a href="#常用字段" class="headerlink" title="常用字段"></a>常用字段</h1><h2 id="version"><a href="#version" class="headerlink" title="version"></a>version</h2><p>  字段类型String，k8s api的版本，使用命令查看</p>
-<figure class="highlight shell"><table><tr><td class="gutter"><pre><span class="line">1</span><br></pre></td><td class="code"><pre><span class="line"><span class="meta">$</span> kubectl api-versions</span><br></pre></td></tr></table></figure>
-
-<h2 id="kind"><a href="#kind" class="headerlink" title="kind"></a>kind</h2><p>  字段类型String，指的是资源类型和角色，查看命令</p>
-<figure class="highlight shell"><table><tr><td class="gutter"><pre><span class="line">1</span><br></pre></td><td class="code"><pre><span class="line"><span class="meta">$</span> kubectl api-resources</span><br></pre></td></tr></table></figure>
-
-<h2 id="metadata"><a href="#metadata" class="headerlink" title="metadata"></a>metadata</h2><p>  资源元数据。</p>
-<h2 id="spec"><a href="#spec" class="headerlink" title="spec"></a>spec</h2><p>  资源规格。</p>
-<h3 id="replicas"><a href="#replicas" class="headerlink" title="replicas"></a>replicas</h3><p>  副本数量</p>
-<h3 id="selector"><a href="#selector" class="headerlink" title="selector"></a>selector</h3><p>  标签选择器</p>
-<h3 id="template"><a href="#template" class="headerlink" title="template"></a>template</h3><p>  pod模板</p>
-<ul>
-<li><p>metadata</p>
-<p>pod元数据</p>
+          <h1 id="概述"><a href="#概述" class="headerlink" title="概述"></a>概述</h1><ul>
+<li><p>访问k8s集群资源时，需要三个具体步骤：<code>认证、鉴权（授权）、准入控制</code></p>
+<blockquote>
+<p>1、传输安全：8080端口对外不暴露，只能内部访问，对外保留6443端口</p>
+<p>2、认证方式：https基于ca证书认证、http基于token认证</p>
+<p>3、鉴权：基于RBAC进行鉴权操作</p>
+<p>4、准入控制：基于准入控制器的列表，如果有就通过</p>
+</blockquote>
 </li>
-<li><p>spec</p>
+<li><p>访问过程都需要经过<code>apiserver</code>做统一协调</p>
+</li>
+<li><p>k8s中有两类用户</p>
+<blockquote>
+<p>1、一类是user account，当你访问集群时 apiserver将你的身份验证为特定的用户账户</p>
+<p>2、一类是service account，当pod里的进程访问集群时，apiserver将其验证为服务账户</p>
+</blockquote>
+</li>
+<li><p>user account</p>
+<blockquote>
+<p>用户账户是全局性的。 其名称在集群各 namespace 中都是全局唯一的，未来的用户资源不会做 namespace 隔离</p>
+</blockquote>
+</li>
+<li><p>service account</p>
+<blockquote>
+<p>服务账户是 namespace 隔离的。</p>
+</blockquote>
 </li>
 </ul>
-<p>​       pod规格</p>
-<h1 id="编译YAML文件"><a href="#编译YAML文件" class="headerlink" title="编译YAML文件"></a>编译YAML文件</h1><ul>
-<li><p>使用kubectl create 生成YAML文件</p>
-<figure class="highlight shell"><table><tr><td class="gutter"><pre><span class="line">1</span><br></pre></td><td class="code"><pre><span class="line"><span class="meta">$</span> kubectl create deployment web --image=nginx -o yaml --dry-run &gt; my.yaml</span><br></pre></td></tr></table></figure>
+<h1 id="证书认证"><a href="#证书认证" class="headerlink" title="证书认证"></a>证书认证</h1><ul>
+<li><p>k8s集群中多个组件之间会通过网络相互调用，为了安全，通讯双方都需要做以下两件事情</p>
+<blockquote>
+<p>1、向对方提供证明自己身份的一个证书</p>
+<p>2、验证对方提供的身份证书是否合法</p>
+</blockquote>
 </li>
-<li><p>使用kubectl get导出YAML文件</p>
-<figure class="highlight shell"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br><span class="line">3</span><br></pre></td><td class="code"><pre><span class="line"><span class="meta">#</span> </span><br><span class="line"><span class="meta">$</span> kubectl get deploy</span><br><span class="line"><span class="meta">$</span> kubectl get deploy nginx -o=yaml --export &gt; m2.yaml</span><br></pre></td></tr></table></figure>
+<li><p>k8s中使用了数字证书提供身份证明，数字证书的验证是在协议层面通过TLS完成的，TLS有两种验证方式</p>
+<blockquote>
+<p>1、服务器单向认证，只需要服务器端提供证书，客户端通过服务器端证书验证服务的身份</p>
+<p>2、双向TLS认证，除了客户端需要验证服务器的证书，服务器也要通过客户端证书验证客户端的身份</p>
+</blockquote>
+</li>
+<li><p>双向TLS认证时，会涉及以下证书文件</p>
+<blockquote>
+<p>1、服务器端证书：主要包含了服务器端的公钥以及服务器的身份信息，用来验证服务器端身份的数字证书。</p>
+<p>2、服务器端私钥：服务器端证书中包含的公钥所对应的私钥。公钥和私钥是成对使用的，在进行 TLS 验证时，服务器使用该私钥来向客户端证明自己是服务器端证书的拥有者。</p>
+<p>3、客户端证书：客户端用于证明自身身份的数字证书，里面主要包含了客户端的公钥以及客户端的身份信息。</p>
+<p>4、客户端私钥：客户端证书中包含的公钥所对应的私钥，同理，客户端使用该私钥来向服务器端证明自己是客户端证书的拥有者。</p>
+<p>5、服务器端 CA 根证书：签发服务器端证书的 CA 根证书，客户端使用该 CA 根证书来验证服务器端证书的合法性。</p>
+<p>6、客户端端 CA 根证书：签发客户端证书的 CA 根证书，服务器端使用该 CA 根证书来验证客户端证书的合法性。</p>
+</blockquote>
+</li>
+<li><p>作为服务端，必须要有：</p>
+<blockquote>
+<p>服务器端证书、服务器端私钥、客户端端CA 根证书</p>
+</blockquote>
+</li>
+<li><p>作为客户端，必须要有：</p>
+<blockquote>
+<p>客户端证书、客户端私钥，服务器端 CA 根证书</p>
+</blockquote>
+</li>
+</ul>
+<h2 id="Service-Account-证书"><a href="#Service-Account-证书" class="headerlink" title="Service Account 证书"></a>Service Account 证书</h2><ul>
+<li><p>service account主要用于pod访问apiserver</p>
+<blockquote>
+<p>当为pod指定了service account后，k8s会使用<strong>token对应的secret</strong>将 service account token 加载到 pod 上。pod中的应用就可以使用service account token访问apiserver。</p>
+</blockquote>
+</li>
+<li><p>service account token包含公钥和私钥</p>
+<blockquote>
+<p>kube-controller-manager 会用<strong>私钥</strong>来生成 service account token，然后以 secret 的方式加载到 pod 中。pod 中的应用可以使用该 token 来访问 kube-apiserver， kube-apiserver 会使用<strong>公钥</strong>来验证请求中的 token。</p>
+</blockquote>
+</li>
+<li><p>每个服务账户中都存在token对应的Secret</p>
+<p>通过查询服务账户信息，可以看到系统已经自动创建了一个token</p>
+<p><code>$ kubectl get serviceaccounts default -o yaml</code></p>
+<figure class="highlight yaml"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br><span class="line">3</span><br><span class="line">4</span><br><span class="line">5</span><br><span class="line">6</span><br><span class="line">7</span><br><span class="line">8</span><br><span class="line">9</span><br><span class="line">10</span><br><span class="line">11</span><br></pre></td><td class="code"><pre><span class="line"><span class="attr">apiVersion:</span> <span class="string">v1</span></span><br><span class="line"><span class="attr">kind:</span> <span class="string">ServiceAccount</span></span><br><span class="line"><span class="attr">metadata:</span></span><br><span class="line"><span class="attr">  creationTimestamp:</span> <span class="string">"2020-11-26T04:02:16Z"</span></span><br><span class="line"><span class="attr">  name:</span> <span class="string">default</span></span><br><span class="line"><span class="attr">  namespace:</span> <span class="string">default</span></span><br><span class="line"><span class="attr">  resourceVersion:</span> <span class="string">"384"</span></span><br><span class="line"><span class="attr">  selfLink:</span> <span class="string">/api/v1/namespaces/default/serviceaccounts/default</span></span><br><span class="line"><span class="attr">  uid:</span> <span class="number">093</span><span class="string">c6172-1913-46f7-9853-b7d5b7ccbfd8</span></span><br><span class="line"><span class="attr">secrets:</span></span><br><span class="line"><span class="attr">- name:</span> <span class="string">default-token-dh5rl</span></span><br></pre></td></tr></table></figure>
+
+<p>查看Pod信息，发现服务账户中的token已经被自动挂载到Pod中</p>
+<p><code>kubectl get pods perjob-test05-5777fcbf64-654n4 -o yaml</code></p>
+<figure class="highlight yaml"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br><span class="line">3</span><br><span class="line">4</span><br><span class="line">5</span><br><span class="line">6</span><br></pre></td><td class="code"><pre><span class="line"><span class="attr">volumeMounts:</span></span><br><span class="line"><span class="attr">  - mountPath:</span> <span class="string">/opt/flink/conf</span></span><br><span class="line"><span class="attr">    name:</span> <span class="string">flink-config-volume</span></span><br><span class="line"><span class="attr">  - mountPath:</span> <span class="string">/var/run/secrets/kubernetes.io/serviceaccount</span></span><br><span class="line"><span class="attr">    name:</span> <span class="string">default-token-dh5rl</span></span><br><span class="line"><span class="attr">    readOnly:</span> <span class="literal">true</span></span><br></pre></td></tr></table></figure>
 
 <p>​</p>
 </li>
+<li><p>每个命名空间下都存在一个名为<strong>default</strong>的服务账户</p>
+</li>
+<li><p>每个Pod都会被指定一个服务账户，默认是命名空间下的<strong>default</strong>服务账户</p>
+</li>
+<li><p>更多详细细节 <a href="https://kubernetes.io/zh/docs/reference/access-authn-authz/service-accounts-admin/" target="_blank" rel="noopener">管理 Service Accounts</a> 和 <a href="https://kubernetes.io/zh/docs/tasks/configure-pod-container/configure-service-account/" target="_blank" rel="noopener">为Pod配置服务账户</a></p>
+</li>
 </ul>
-<h1 id="参考文档"><a href="#参考文档" class="headerlink" title="参考文档"></a>参考文档</h1>
+<h1 id="使用-TLS-bootstrapping-简化-Kubelet-证书制作"><a href="#使用-TLS-bootstrapping-简化-Kubelet-证书制作" class="headerlink" title="使用 TLS bootstrapping 简化 Kubelet 证书制作"></a>使用 TLS bootstrapping 简化 Kubelet 证书制作</h1><ul>
+<li><p>采用TLS bootstrapping 生成证书的流程如下：</p>
+<blockquote>
+<ol>
+<li>调用 kube-apiserver 生成一个 bootstrap token。</li>
+<li>将该 bootstrap token 写入到一个 kubeconfig 文件中，作为 kubelet 调用 kube-apiserver 的客户端验证方式。</li>
+<li>通过 <code>--bootstrap-kubeconfig</code> 启动参数将 bootstrap token 传递给 kubelet 进程。</li>
+<li>Kubelet 采用bootstrap token 调用 kube-apiserver API，生成自己所需的服务器和客户端证书。</li>
+<li>证书生成后，Kubelet 采用生成的证书和 kube-apiserver 进行通信，并删除本地的 kubeconfig 文件，以避免 bootstrap token 泄漏风险。</li>
+</ol>
+</blockquote>
+</li>
+</ul>
+<h1 id="用户账户和服务账户"><a href="#用户账户和服务账户" class="headerlink" title="用户账户和服务账户"></a>用户账户和服务账户</h1><ul>
+<li>用户和组都是使用<code>system:</code>为前缀</li>
+<li>服务账号使用<code>system:serviceaccount:</code>为前缀</li>
+<li>用户账户是针对人而言的。 服务账户是针对运行在 pod 中的进程而言的。</li>
+<li>用户账户是全局性的。 其名称在集群各 namespace 中都是全局唯一的，未来的用户资源不会做 namespace 隔离， 服务账户是 namespace 隔离的。</li>
+</ul>
+<h2 id="服务账户（Service-Account）"><a href="#服务账户（Service-Account）" class="headerlink" title="服务账户（Service Account）"></a>服务账户（Service Account）</h2><ul>
+<li><p>当创建Pod时，默认的服务账户为指定命名空间的default账户</p>
+</li>
+<li><p>不能更新已经创建好的Pod的服务账户</p>
+</li>
+<li><p>每个命名空间中都有一个default的服务账户</p>
+</li>
+<li><p>创建服务账户</p>
+<figure class="highlight yaml"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br><span class="line">3</span><br><span class="line">4</span><br><span class="line">5</span><br></pre></td><td class="code"><pre><span class="line"><span class="attr">apiVersion:</span> <span class="string">v1</span></span><br><span class="line"><span class="attr">kind:</span> <span class="string">ServiceAccount</span></span><br><span class="line"><span class="attr">metadata:</span></span><br><span class="line"><span class="attr">  name:</span> <span class="string">build-robot</span></span><br><span class="line"><span class="attr">  namespace:</span> <span class="string">di-flink-dev</span></span><br></pre></td></tr></table></figure>
+</li>
+<li><p>当创建服务账户时，系统会自动创建token</p>
+</li>
+</ul>
+<h1 id="RBAC"><a href="#RBAC" class="headerlink" title="RBAC"></a>RBAC</h1><ul>
+<li><p>RBAC（基于角色访问控制）</p>
+</li>
+<li><p>要启用 RBAC，在启动 kube-apiserver服务器时添加 <code>--authorization-mode=RBAC</code> 参数</p>
+</li>
+<li><p>使用”/“分隔资源和子资源</p>
+</li>
+<li><p>分为角色，主体、角色绑定</p>
+</li>
+<li><p>角色</p>
+<blockquote>
+<p>角色用来控制资源的访问</p>
+<p>包括：Role、ClusterRole</p>
+<p>Role：特定命名空间访问权限</p>
+<p>ClusterRole：所有命名空间访问权限</p>
+</blockquote>
+</li>
+<li><p>主体</p>
+<blockquote>
+<p>包括：user、group、serviceAccount</p>
+<p>user：用户</p>
+<p>group：用户组</p>
+<p>serviceAccount：服务账号，一般用于Pod访问</p>
+</blockquote>
+</li>
+<li><p>角色绑定</p>
+<blockquote>
+<p>RoleBinding：角色绑定到主体</p>
+<p>ClusterRoleBinding：集群角色绑定到主体</p>
+</blockquote>
+</li>
+</ul>
+<h2 id="Role"><a href="#Role" class="headerlink" title="Role"></a>Role</h2><ul>
+<li><p>一个 <code>Role</code> 只可以用来对某一命名空间中的资源赋予访问权限</p>
+</li>
+<li><p>角色绑定RoleBinding</p>
+<blockquote>
+<p>1、kind: RoleBinding 绑定的角色 即 roleRef中的  kind: ClusterRole，指定某一主体获取特定命名空间的权限</p>
+<p>2、不能修改绑定对象的roleRef字段的内容，必须先删除然后重新绑定</p>
+</blockquote>
+</li>
+</ul>
+<h2 id="ClusterRole"><a href="#ClusterRole" class="headerlink" title="ClusterRole"></a>ClusterRole</h2><ul>
+<li><p>ClusterRole可以授予的权限和Role相同</p>
+</li>
+<li><p>属于集群范围，还可以授予以下权限</p>
+<blockquote>
+<p>1、集群范围资源 （比如 nodes</p>
+<p>2、非资源端点（比如 “/health”）</p>
+<p>3、跨命名空间访问的有名字空间作用域的资源（如 Pods），比如运行命令<code>kubectl get pods --all-namespaces</code> 时需要此能力</p>
+</blockquote>
+</li>
+<li><p>Aggregated ClusterRoles</p>
+<blockquote>
+<p>1、集群角色（ClusterRole）可以通过使用 <code>aggregationRule</code> 的方式并组合其他 ClusterRoles 来创建</p>
+<p>2、聚合集群角色的权限是由控制器管理的，方法是通过过滤与标签选择器匹配的 ClusterRules，并将其中的权限进行组合</p>
+<p>3、仅仅是组合定义集群角色，并没有集群角色的绑定</p>
+</blockquote>
+</li>
+</ul>
+<ul>
+<li><p>创建角色</p>
+<figure class="highlight shell"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br></pre></td><td class="code"><pre><span class="line"><span class="meta">$</span> kubectl apply -f rabc-role.yaml </span><br><span class="line"><span class="meta">$</span> kubectl get role -n role-dev</span><br></pre></td></tr></table></figure>
+
+<p>​</p>
+<figure class="highlight yaml"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br><span class="line">3</span><br><span class="line">4</span><br><span class="line">5</span><br><span class="line">6</span><br><span class="line">7</span><br><span class="line">8</span><br><span class="line">9</span><br></pre></td><td class="code"><pre><span class="line"><span class="attr">kind:</span> <span class="string">Role</span></span><br><span class="line"><span class="attr">apiVersion:</span> <span class="string">rbac.authorization.k8s.io/v1</span></span><br><span class="line"><span class="attr">metadata:</span></span><br><span class="line"><span class="attr">  namespace:</span> <span class="string">role-dev</span></span><br><span class="line"><span class="attr">  name:</span> <span class="string">pod-reader</span></span><br><span class="line"><span class="attr">rules:</span></span><br><span class="line"><span class="attr">- apiGroups:</span> <span class="string">[""]</span> <span class="comment"># "" indicates the core API group</span></span><br><span class="line"><span class="attr">  resources:</span> <span class="string">["pods"]</span></span><br><span class="line"><span class="attr">  verbs:</span> <span class="string">["get",</span> <span class="string">"watch"</span><span class="string">,</span> <span class="string">"list"</span><span class="string">]</span></span><br></pre></td></tr></table></figure>
+</li>
+<li><p>创建角色绑定</p>
+<figure class="highlight shell"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br></pre></td><td class="code"><pre><span class="line"><span class="meta">$</span> kubectl create -f rbac-rolebinding.yaml </span><br><span class="line"><span class="meta">$</span> kubectl get role,rolebinding -n role-dev</span><br></pre></td></tr></table></figure>
+
+<figure class="highlight yaml"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br><span class="line">3</span><br><span class="line">4</span><br><span class="line">5</span><br><span class="line">6</span><br><span class="line">7</span><br><span class="line">8</span><br><span class="line">9</span><br><span class="line">10</span><br><span class="line">11</span><br><span class="line">12</span><br><span class="line">13</span><br></pre></td><td class="code"><pre><span class="line"><span class="attr">kind:</span> <span class="string">RoleBinding</span></span><br><span class="line"><span class="attr">apiVersion:</span> <span class="string">rbac.authorization.k8s.io/v1</span></span><br><span class="line"><span class="attr">metadata:</span></span><br><span class="line"><span class="attr">  name:</span> <span class="string">read-pods</span></span><br><span class="line"><span class="attr">  namespace:</span> <span class="string">role-dev</span></span><br><span class="line"><span class="attr">subjects:</span></span><br><span class="line"><span class="attr">- kind:</span> <span class="string">User</span></span><br><span class="line"><span class="attr">  name:</span> <span class="string">tom</span> <span class="comment"># Name is case sensitive</span></span><br><span class="line"><span class="attr">  apiGroup:</span> <span class="string">rbac.authorization.k8s.io</span></span><br><span class="line"><span class="attr">roleRef:</span></span><br><span class="line"><span class="attr">  kind:</span> <span class="string">Role</span> <span class="comment">#this must be Role or ClusterRole</span></span><br><span class="line"><span class="attr">  name:</span> <span class="string">pod-reader</span> <span class="comment"># this must match the name of the Role or ClusterRole you wish to bind to</span></span><br><span class="line"><span class="attr">  apiGroup:</span> <span class="string">rbac.authorization.k8s.io</span></span><br></pre></td></tr></table></figure>
+</li>
+<li><p>证书识别身份</p>
+<figure class="highlight shell"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br><span class="line">3</span><br><span class="line">4</span><br></pre></td><td class="code"><pre><span class="line"><span class="meta">$</span> cp /root/TLS/k8s/ca* ./</span><br><span class="line"><span class="meta">$</span> bash rbac-user.sh</span><br><span class="line"><span class="meta">#</span> 生成一个 tom-kubeconfig 文件</span><br><span class="line"><span class="meta">#</span> 该文件包含主要内容</span><br></pre></td></tr></table></figure>
+
+</li>
+</ul>
+<h1 id="Admission-Control（准入控制）"><a href="#Admission-Control（准入控制）" class="headerlink" title="Admission Control（准入控制）"></a>Admission Control（准入控制）</h1><ul>
+<li>经过了<strong>认证和鉴权</strong>之后，客户端的调用请求还需要经过<strong>准入控制</strong>才能得到API Server的相应</li>
+<li>​</li>
+</ul>
+<h1 id="参考文档"><a href="#参考文档" class="headerlink" title="参考文档"></a>参考文档</h1><p><a href="https://zhaohuabing.com/post/2020-03-19-pki/" target="_blank" rel="noopener">数字证书原理</a></p>
+<p><a href="https://zhaohuabing.com/post/2020-05-19-k8s-certificate/" target="_blank" rel="noopener">一文带你彻底厘清 Kubernetes 中的证书工作机制</a></p>
+<p><a href="https://kubernetes.io/zh/docs/concepts/cluster-administration/certificates/" target="_blank" rel="noopener">证书</a></p>
+<p><a href="https://blog.csdn.net/zwqjoy/article/details/101218028" target="_blank" rel="noopener">[kubernetes] 证书详细总结</a></p>
+<p><a href="https://www.jianshu.com/p/bb973ab1029b" target="_blank" rel="noopener">kubernetes认证授权机制</a></p>
+<p><a href="https://www.cnblogs.com/centos-python/articles/11043570.html" target="_blank" rel="noopener">k8s学习笔记-证书详解</a></p>
+<p><a href="https://kubernetes.io/zh/docs/reference/access-authn-authz/authentication/" target="_blank" rel="noopener">用户认证</a></p>
+<p><a href="https://kubernetes.io/zh/docs/reference/access-authn-authz/authorization/" target="_blank" rel="noopener">授权概述</a></p>
+
         
       
     </div>
@@ -1236,7 +1353,7 @@
   
   
   <article itemscope itemtype="http://schema.org/Article" class="post-block home" lang="zh-CN">
-    <link itemprop="mainEntityOfPage" href="http://yoursite.com/2020/10/27/k8s/k8s-集群搭建/">
+    <link itemprop="mainEntityOfPage" href="http://yoursite.com/2020/11/24/linux/systemd-service服务/">
 
     <span hidden itemprop="author" itemscope itemtype="http://schema.org/Person">
       <meta itemprop="name" content="姜纪光">
@@ -1251,7 +1368,7 @@
         <h1 class="post-title" itemprop="name headline">
           
             
-            <a href="/2020/10/27/k8s/k8s-集群搭建/" class="post-title-link" itemprop="url">k8s集群搭建</a>
+            <a href="/2020/11/24/linux/systemd-service服务/" class="post-title-link" itemprop="url">systemd.service服务</a>
           
         </h1>
 
@@ -1266,7 +1383,105 @@
                 
               
 
-              <time title="创建时间：2020-10-27 11:01:29" itemprop="dateCreated datePublished" datetime="2020-10-27T11:01:29+08:00">2020-10-27</time>
+              <time title="创建时间：2020-11-24 14:09:55 / 修改时间：14:11:03" itemprop="dateCreated datePublished" datetime="2020-11-24T14:09:55+08:00">2020-11-24</time>
+            </span>
+          
+            
+
+            
+          
+            <span class="post-meta-item">
+              <span class="post-meta-item-icon">
+                <i class="fa fa-folder-o"></i>
+              </span>
+              <span class="post-meta-item-text">分类于</span>
+              
+                <span itemprop="about" itemscope itemtype="http://schema.org/Thing">
+                  <a href="/categories/linux/" itemprop="url" rel="index">
+                    <span itemprop="name">linux</span>
+                  </a>
+                </span>
+
+                
+                
+              
+            </span>
+          
+
+          
+            <span id="/2020/11/24/linux/systemd-service服务/" class="post-meta-item leancloud_visitors" data-flag-title="systemd.service服务" title="阅读次数">
+              <span class="post-meta-item-icon">
+                <i class="fa fa-eye"></i>
+              </span>
+              <span class="post-meta-item-text">阅读次数：</span>
+              <span class="leancloud-visitors-count"></span>
+            </span>
+          
+  
+  
+
+        </div>
+      </header>
+
+    
+    
+    
+    <div class="post-body" itemprop="articleBody">
+
+      
+          <h1 id="参考文档"><a href="#参考文档" class="headerlink" title="参考文档"></a>参考文档</h1><p><a href="http://www.jinbuguo.com/systemd/systemd.service.html" target="_blank" rel="noopener">systemd.service 中文手册</a></p>
+
+        
+      
+    </div>
+
+    
+    
+    
+      <footer class="post-footer">
+        <div class="post-eof"></div>
+      </footer>
+  </article>
+  
+  
+  
+
+    
+        
+  
+  
+  <article itemscope itemtype="http://schema.org/Article" class="post-block home" lang="zh-CN">
+    <link itemprop="mainEntityOfPage" href="http://yoursite.com/2020/11/21/k8s/k8s-集群搭建-二进制/">
+
+    <span hidden itemprop="author" itemscope itemtype="http://schema.org/Person">
+      <meta itemprop="name" content="姜纪光">
+      <meta itemprop="description" content="">
+      <meta itemprop="image" content="/images/avatar.gif">
+    </span>
+
+    <span hidden itemprop="publisher" itemscope itemtype="http://schema.org/Organization">
+      <meta itemprop="name" content="纪光的博客">
+    </span>
+      <header class="post-header">
+        <h1 class="post-title" itemprop="name headline">
+          
+            
+            <a href="/2020/11/21/k8s/k8s-集群搭建-二进制/" class="post-title-link" itemprop="url">k8s-集群搭建-二进制</a>
+          
+        </h1>
+
+        <div class="post-meta">
+            <span class="post-meta-item">
+              <span class="post-meta-item-icon">
+                <i class="fa fa-calendar-o"></i>
+              </span>
+              <span class="post-meta-item-text">发表于</span>
+
+              
+                
+              
+
+              <time title="创建时间：2020-11-21 14:42:30" itemprop="dateCreated datePublished" datetime="2020-11-21T14:42:30+08:00">2020-11-21</time>
             </span>
           
             
@@ -1277,7 +1492,7 @@
                   <i class="fa fa-calendar-check-o"></i>
                 </span>
                 <span class="post-meta-item-text">更新于</span>
-                <time title="修改时间：2020-11-28 15:10:31" itemprop="dateModified" datetime="2020-11-28T15:10:31+08:00">2020-11-28</time>
+                <time title="修改时间：2020-11-24 20:19:56" itemprop="dateModified" datetime="2020-11-24T20:19:56+08:00">2020-11-24</time>
               </span>
             
           
@@ -1300,7 +1515,7 @@
           
 
           
-            <span id="/2020/10/27/k8s/k8s-集群搭建/" class="post-meta-item leancloud_visitors" data-flag-title="k8s集群搭建" title="阅读次数">
+            <span id="/2020/11/21/k8s/k8s-集群搭建-二进制/" class="post-meta-item leancloud_visitors" data-flag-title="k8s-集群搭建-二进制" title="阅读次数">
               <span class="post-meta-item-icon">
                 <i class="fa fa-eye"></i>
               </span>
@@ -1320,83 +1535,127 @@
     <div class="post-body" itemprop="articleBody">
 
       
-          <h1 id="机器配置"><a href="#机器配置" class="headerlink" title="机器配置"></a>机器配置</h1><p>mac一台：4C16G</p>
-<p>mac上装有  VirtualBox虚拟机，安装有4个centos7，2C3G</p>
-<ul>
+          <h1 id="操作系统初始化"><a href="#操作系统初始化" class="headerlink" title="操作系统初始化"></a>操作系统初始化</h1><ul>
 <li><p>关闭防火墙</p>
-<figure class="highlight shell"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br></pre></td><td class="code"><pre><span class="line"><span class="meta">$</span> systemctl stop firewalld</span><br><span class="line"><span class="meta">$</span> systemctl disable firewalld</span><br></pre></td></tr></table></figure>
+<figure class="highlight shell"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br><span class="line">3</span><br></pre></td><td class="code"><pre><span class="line"><span class="meta">$</span> systemctl status firewalld</span><br><span class="line"><span class="meta">$</span> systemctl stop firewalld</span><br><span class="line"><span class="meta">$</span> systemctl disable firewalld</span><br></pre></td></tr></table></figure>
 </li>
-<li><p>禁止swap分区</p>
-<figure class="highlight shell"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br><span class="line">3</span><br><span class="line">4</span><br><span class="line">5</span><br><span class="line">6</span><br><span class="line">7</span><br><span class="line">8</span><br></pre></td><td class="code"><pre><span class="line"><span class="meta">#</span> 删除swap区所有内容</span><br><span class="line"><span class="meta">$</span> swapoff -a</span><br><span class="line"></span><br><span class="line"><span class="meta">#</span> 删除 swap 挂载，这样系统下次启动不会再挂载 swap</span><br><span class="line"><span class="meta">#</span> 注释 swap 行</span><br><span class="line"><span class="meta">$</span> vim /etc/fstab</span><br><span class="line"><span class="meta">#</span> swap 一行应该全部是 0</span><br><span class="line"><span class="meta">$</span> free -h</span><br></pre></td></tr></table></figure>
+<li><p>关闭 selinux</p>
+<figure class="highlight shell"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br><span class="line">3</span><br><span class="line">4</span><br><span class="line">5</span><br><span class="line">6</span><br><span class="line">7</span><br></pre></td><td class="code"><pre><span class="line"><span class="meta">#</span> 查看selinux状态</span><br><span class="line"><span class="meta">$</span> getenforce</span><br><span class="line"><span class="meta">#</span> 永久关闭(重启机器)</span><br><span class="line"><span class="meta">$</span> vim /etc/selinux/config</span><br><span class="line"><span class="meta">#</span> SELINUX=enforcing -&gt; SELINUX=disabled</span><br><span class="line"><span class="meta">#</span> 临时关闭</span><br><span class="line"><span class="meta">$</span> setenforce 0</span><br></pre></td></tr></table></figure>
 </li>
-<li><p>将桥接的IPv4流量传递到iptables的链</p>
-<figure class="highlight shell"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br><span class="line">3</span><br><span class="line">4</span><br><span class="line">5</span><br></pre></td><td class="code"><pre><span class="line"><span class="meta">$</span> cat &gt; /etc/sysctl.d/k8s.conf &lt;&lt; EOF</span><br><span class="line">net.bridge.bridge-nf-call-ip6tables = 1</span><br><span class="line">net.bridge.bridge-nf-call-iptables = 1</span><br><span class="line">EOF</span><br><span class="line"><span class="meta">$</span> sysctl --system  # 生效</span><br></pre></td></tr></table></figure>
+<li><p>关闭swap</p>
+<figure class="highlight shell"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br><span class="line">3</span><br><span class="line">4</span><br><span class="line">5</span><br><span class="line">6</span><br><span class="line">7</span><br></pre></td><td class="code"><pre><span class="line"><span class="meta">#</span> 查看swap状态</span><br><span class="line"><span class="meta">$</span> free -m  # swap行为0是关闭</span><br><span class="line"></span><br><span class="line"><span class="meta">#</span> 临时关闭</span><br><span class="line"><span class="meta">$</span> swapoff -a</span><br><span class="line"><span class="meta">#</span> 永久关闭</span><br><span class="line"><span class="meta">$</span> sed -ri 's/.*swap.*/#&amp;/' /etc/fstab</span><br></pre></td></tr></table></figure>
 </li>
-<li><p>SELinux 设置为 permissive 模式（相当于将其禁用）</p>
-<figure class="highlight shell"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br></pre></td><td class="code"><pre><span class="line"><span class="meta">$</span> setenforce 0</span><br><span class="line"><span class="meta">$</span> sed -i 's/^SELINUX=enforcing$/SELINUX=permissive/' /etc/selinux/config</span><br></pre></td></tr></table></figure>
+<li><p>设置主机名</p>
+<figure class="highlight shell"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br><span class="line">3</span><br><span class="line">4</span><br><span class="line">5</span><br><span class="line">6</span><br><span class="line">7</span><br><span class="line">8</span><br><span class="line">9</span><br><span class="line">10</span><br></pre></td><td class="code"><pre><span class="line"><span class="meta">#</span> 查看主机名</span><br><span class="line"><span class="meta">$</span> hostname</span><br><span class="line"><span class="meta">#</span> 设置主机名</span><br><span class="line"><span class="meta">$</span> hostnamectl set-hostname &lt;hostname&gt;</span><br><span class="line"></span><br><span class="line"><span class="meta">#</span> 在master节点添加hosts</span><br><span class="line">cat &gt;&gt; /etc/hosts &lt;&lt; EOF </span><br><span class="line">192.168.44.147 m1 </span><br><span class="line">192.168.44.148 n1</span><br><span class="line">EOF</span><br></pre></td></tr></table></figure>
+</li>
+<li><p>将桥接的 IPv4 流量传递到 iptables 的链</p>
+<figure class="highlight shell"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br><span class="line">3</span><br><span class="line">4</span><br><span class="line">5</span><br><span class="line">6</span><br><span class="line">7</span><br></pre></td><td class="code"><pre><span class="line">cat &gt; /etc/sysctl.d/k8s.conf &lt;&lt; EOF </span><br><span class="line">net.bridge.bridge-nf-call-ip6tables = 1 </span><br><span class="line">net.bridge.bridge-nf-call-iptables = 1 </span><br><span class="line">EOF</span><br><span class="line"></span><br><span class="line"><span class="meta">#</span> 生效</span><br><span class="line"><span class="meta">$</span> sysctl --system</span><br></pre></td></tr></table></figure>
+</li>
+<li><p>时间同步</p>
+<figure class="highlight shell"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br></pre></td><td class="code"><pre><span class="line"><span class="meta">$</span> yum install ntpdate -y</span><br><span class="line"><span class="meta">$</span> ntpdate time.windows.com</span><br></pre></td></tr></table></figure>
+
+</li>
+</ul>
+<h1 id="自签证书"><a href="#自签证书" class="headerlink" title="自签证书"></a>自签证书</h1><ul>
+<li><p>CA(Certification Authority)证书，指的是权威机构给我们颁发的证书。</p>
+</li>
+<li><p>分为<code>集群内部</code>使用  和 <code>外部访问集群</code>使用</p>
+</li>
+<li><p>可以到k8s官方签发官方认证的，也可以自己签发</p>
+</li>
+<li><p>证书也有多种类型：cfssl、openssl</p>
+<blockquote>
+<p>cfssl 是一个开源的证书管理工具，使用 json 文件生成证书，相比 openssl 更方便使用。</p>
+</blockquote>
+</li>
+<li><p>准备cfssl 证书生成工具</p>
+<figure class="highlight shell"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br><span class="line">3</span><br><span class="line">4</span><br><span class="line">5</span><br><span class="line">6</span><br><span class="line">7</span><br><span class="line">8</span><br><span class="line">9</span><br><span class="line">10</span><br></pre></td><td class="code"><pre><span class="line"><span class="meta">$</span> mkdir cfssl</span><br><span class="line"><span class="meta">$</span> wget https://pkg.cfssl.org/R1.2/cfssl_linux-amd64</span><br><span class="line"><span class="meta">$</span> wget https://pkg.cfssl.org/R1.2/cfssljson_linux-amd64</span><br><span class="line"><span class="meta">$</span> wget https://pkg.cfssl.org/R1.2/cfssl-certinfo_linux-amd64</span><br><span class="line"><span class="meta">$</span> chmod +x cfssl_linux-amd64 cfssljson_linux-amd64 cfssl-certinfo_linux-amd64</span><br><span class="line"><span class="meta">$</span> mv cfssl_linux-amd64 /usr/local/bin/cfssl</span><br><span class="line"><span class="meta">$</span> mv cfssljson_linux-amd64 /usr/local/bin/cfssljson</span><br><span class="line"><span class="meta">$</span> mv cfssl-certinfo_linux-amd64 /usr/local/bin/cfssl-certinfo </span><br><span class="line"></span><br><span class="line"><span class="meta">$</span> chmod +x /usr/local/bin/cfssl*</span><br></pre></td></tr></table></figure>
+
+</li>
+</ul>
+<h2 id="生成Etcd证书"><a href="#生成Etcd证书" class="headerlink" title="生成Etcd证书"></a>生成Etcd证书</h2><ul>
+<li>CFSSL可以创建一个获取和操作证书的内部认证中心。</li>
+<li>运行认证中心需要一个CA证书和相应的CA私钥。任何知道私钥的人都可以充当CA颁发证书。因此，私钥的保护至关重要。</li>
+</ul>
+<ul>
+<li><p>Etcd根证书请求文件</p>
+<figure class="highlight shell"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br><span class="line">3</span><br><span class="line">4</span><br><span class="line">5</span><br><span class="line">6</span><br><span class="line">7</span><br><span class="line">8</span><br><span class="line">9</span><br><span class="line">10</span><br><span class="line">11</span><br><span class="line">12</span><br><span class="line">13</span><br><span class="line">14</span><br><span class="line">15</span><br><span class="line">16</span><br></pre></td><td class="code"><pre><span class="line"><span class="meta">$</span> cat &gt; ca-csr.json &lt;&lt;EOF</span><br><span class="line">&#123;</span><br><span class="line">    "CN": "etcd CA",</span><br><span class="line">    "key": &#123;</span><br><span class="line">        "algo": "rsa",</span><br><span class="line">        "size": 2048</span><br><span class="line">    &#125;,</span><br><span class="line">    "names": [</span><br><span class="line">        &#123;</span><br><span class="line">            "C": "CN",</span><br><span class="line">            "L": "Shanghai",</span><br><span class="line">            "ST": "Shanghai"</span><br><span class="line">        &#125;</span><br><span class="line">    ]</span><br><span class="line">&#125;</span><br><span class="line">EOF</span><br></pre></td></tr></table></figure>
+</li>
+<li><p>Etcd根证书配置文件</p>
+<figure class="highlight shell"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br><span class="line">3</span><br><span class="line">4</span><br><span class="line">5</span><br><span class="line">6</span><br><span class="line">7</span><br><span class="line">8</span><br><span class="line">9</span><br><span class="line">10</span><br><span class="line">11</span><br><span class="line">12</span><br><span class="line">13</span><br><span class="line">14</span><br><span class="line">15</span><br><span class="line">16</span><br><span class="line">17</span><br><span class="line">18</span><br><span class="line">19</span><br><span class="line">20</span><br><span class="line">21</span><br><span class="line">22</span><br><span class="line">23</span><br><span class="line">24</span><br><span class="line">25</span><br></pre></td><td class="code"><pre><span class="line"><span class="meta">$</span> cat &gt; ca-config.json&lt;&lt; EOF </span><br><span class="line">&#123;</span><br><span class="line">  "signing": &#123; </span><br><span class="line">    "default": &#123;</span><br><span class="line">      "expiry": "87600h" </span><br><span class="line">    &#125;,</span><br><span class="line">    "profiles": &#123; </span><br><span class="line">      "www": &#123;</span><br><span class="line">        "expiry": "87600h", </span><br><span class="line">        "usages": [</span><br><span class="line">          "signing",</span><br><span class="line">          "key encipherment",</span><br><span class="line">          "server auth",</span><br><span class="line">          "client auth"</span><br><span class="line">        ]</span><br><span class="line">      &#125;</span><br><span class="line">    &#125;</span><br><span class="line">  &#125;</span><br><span class="line">&#125;</span><br><span class="line">EOF</span><br><span class="line"></span><br><span class="line"><span class="meta">#</span> 生成证书</span><br><span class="line"><span class="meta">$</span> cfssl gencert -initca ca-csr.json | cfssljson -bare ca -</span><br><span class="line"><span class="meta">#</span> 查看证书</span><br><span class="line"><span class="meta">$</span> ls *pem</span><br></pre></td></tr></table></figure>
+</li>
+<li><p>Etcd服务证书请求文件</p>
+<figure class="highlight shell"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br><span class="line">3</span><br><span class="line">4</span><br><span class="line">5</span><br><span class="line">6</span><br><span class="line">7</span><br><span class="line">8</span><br><span class="line">9</span><br><span class="line">10</span><br><span class="line">11</span><br><span class="line">12</span><br><span class="line">13</span><br><span class="line">14</span><br><span class="line">15</span><br><span class="line">16</span><br><span class="line">17</span><br><span class="line">18</span><br><span class="line">19</span><br><span class="line">20</span><br><span class="line">21</span><br><span class="line">22</span><br><span class="line">23</span><br><span class="line">24</span><br></pre></td><td class="code"><pre><span class="line"><span class="meta">$</span> cat &gt; server-csr.json &lt;&lt;EOF</span><br><span class="line">&#123;</span><br><span class="line">    "CN": "etcd",</span><br><span class="line">    "hosts": [</span><br><span class="line">        "10.104.35.190",</span><br><span class="line">        "10.104.35.123"</span><br><span class="line">        ],</span><br><span class="line">    "key": &#123;</span><br><span class="line">        "algo": "rsa",</span><br><span class="line">        "size": 2048</span><br><span class="line">    &#125;,</span><br><span class="line">    "names": [</span><br><span class="line">        &#123;</span><br><span class="line">            "C": "CN",</span><br><span class="line">            "L": "BeiJing",</span><br><span class="line">            "ST": "BeiJing"</span><br><span class="line">        &#125;</span><br><span class="line">    ]</span><br><span class="line">&#125;</span><br><span class="line">EOF</span><br><span class="line"></span><br><span class="line"><span class="meta">#</span> 生成证书</span><br><span class="line"><span class="meta">$</span> cfssl gencert -ca=ca.pem -ca-key=ca-key.pem -config=ca-config.json -profile=www server-csr.json | cfssljson -bare server</span><br><span class="line"><span class="meta">$</span> ls *pem</span><br></pre></td></tr></table></figure>
+
+</li>
+</ul>
+<h1 id="部署Etcd集群"><a href="#部署Etcd集群" class="headerlink" title="部署Etcd集群"></a>部署Etcd集群</h1><ul>
+<li><p>只部署单节点 node23</p>
+</li>
+<li><p>下载etcd文件</p>
+<figure class="highlight shell"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br><span class="line">3</span><br></pre></td><td class="code"><pre><span class="line"><span class="meta">$</span> wget https://github.com/etcd-io/etcd/releases/download/v3.4.9/etcd-v3.4.9-linux-amd64.tar.gz</span><br><span class="line"><span class="meta">#</span> 解压文件</span><br><span class="line"><span class="meta">$</span> cd etcd-v3.4.9-linux-amd64</span><br></pre></td></tr></table></figure>
+</li>
+<li><p>部署Etcd</p>
+<figure class="highlight shell"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br><span class="line">3</span><br><span class="line">4</span><br><span class="line">5</span><br><span class="line">6</span><br><span class="line">7</span><br><span class="line">8</span><br><span class="line">9</span><br><span class="line">10</span><br><span class="line">11</span><br><span class="line">12</span><br><span class="line">13</span><br><span class="line">14</span><br><span class="line">15</span><br><span class="line">16</span><br><span class="line">17</span><br><span class="line">18</span><br></pre></td><td class="code"><pre><span class="line"><span class="meta">#</span> 创建工作目录</span><br><span class="line"><span class="meta">$</span> mkdir -p /opt/etcd/&#123;bin,cfg,ssl&#125;</span><br><span class="line"><span class="meta">#</span> </span><br><span class="line"><span class="meta">$</span> mv etcd-v3.4.9-linux-amd64/&#123;etcd,etcdctl&#125; /opt/etcd/bin/</span><br><span class="line"><span class="meta">#</span> 创建etcd配置文件</span><br><span class="line"><span class="meta">$</span> cat &gt; /opt/etcd/cfg/etcd.conf &lt;&lt; EOF</span><br><span class="line"><span class="meta">#</span>[Member]</span><br><span class="line">ETCD_NAME="etcd01"</span><br><span class="line">ETCD_DATA_DIR="/var/lib/etcd/default.etcd"</span><br><span class="line">ETCD_LISTEN_PEER_URLS="https://10.104.35.190:2380"    </span><br><span class="line">ETCD_LISTEN_CLIENT_URLS="https://10.104.35.190:2379"</span><br><span class="line"><span class="meta">#</span>[Clustering]</span><br><span class="line">ETCD_INITIAL_ADVERTISE_PEER_URLS="https://10.104.35.190:2380"</span><br><span class="line">ETCD_ADVERTISE_CLIENT_URLS="https://10.104.35.190:2379"</span><br><span class="line">ETCD_INITIAL_CLUSTER="etcd01=https://10.104.35.190:2380,etcd02=https://10.104.35.123:2380"</span><br><span class="line">ETCD_INITIAL_CLUSTER_TOKEN="etcd-cluster"</span><br><span class="line">ETCD_INITIAL_CLUSTER_STATE="new"</span><br><span class="line">EOF</span><br></pre></td></tr></table></figure>
+</li>
+<li><p>复制上面生成的证书</p>
+<figure class="highlight shell"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br><span class="line">3</span><br><span class="line">4</span><br></pre></td><td class="code"><pre><span class="line"><span class="meta">$</span> cp etcd/*pem /opt/etcd/ssl/</span><br><span class="line"><span class="meta">#</span> 复制到node23节点</span><br><span class="line"><span class="meta">$</span> scp -r /opt/etcd root@node23:/opt</span><br><span class="line"><span class="meta">$</span> scp /usr/lib/systemd/system/etcd.service root@ scp -r etcd root@10.104.35.123:/opt</span><br></pre></td></tr></table></figure>
+</li>
+<li><p>systemd 管理 etcd </p>
+<figure class="highlight shell"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br><span class="line">3</span><br><span class="line">4</span><br><span class="line">5</span><br><span class="line">6</span><br><span class="line">7</span><br><span class="line">8</span><br><span class="line">9</span><br><span class="line">10</span><br><span class="line">11</span><br><span class="line">12</span><br><span class="line">13</span><br><span class="line">14</span><br><span class="line">15</span><br><span class="line">16</span><br><span class="line">17</span><br><span class="line">18</span><br><span class="line">19</span><br><span class="line">20</span><br><span class="line">21</span><br><span class="line">22</span><br><span class="line">23</span><br></pre></td><td class="code"><pre><span class="line"><span class="meta">$</span> cat &gt; /usr/lib/systemd/system/etcd.service &lt;&lt; EOF</span><br><span class="line">[Unit]</span><br><span class="line">Description=Etcd Server</span><br><span class="line">After=network.target</span><br><span class="line">After=network-online.target</span><br><span class="line">Wants=network-online.target</span><br><span class="line"></span><br><span class="line">[Service]</span><br><span class="line">Type=notify</span><br><span class="line">EnvironmentFile=/opt/etcd/cfg/etcd.conf</span><br><span class="line">ExecStart=/opt/etcd/bin/etcd \</span><br><span class="line">--cert-file=/opt/etcd/ssl/server.pem \</span><br><span class="line">--key-file=/opt/etcd/ssl/server-key.pem \</span><br><span class="line">--peer-cert-file=/opt/etcd/ssl/server.pem \</span><br><span class="line">--peer-key-file=/opt/etcd/ssl/server-key.pem \</span><br><span class="line">--trusted-ca-file=/opt/etcd/ssl/ca.pem \</span><br><span class="line">--peer-trusted-ca-file=/opt/etcd/ssl/ca.pem</span><br><span class="line">Restart=on-failure</span><br><span class="line">LimitNOFILE=65536</span><br><span class="line"></span><br><span class="line">[Install]</span><br><span class="line">WantedBy=multi-user.target</span><br><span class="line">EOF</span><br></pre></td></tr></table></figure>
+</li>
+<li><p>启动并设置成开机启动</p>
+<figure class="highlight shell"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br><span class="line">3</span><br><span class="line">4</span><br><span class="line">5</span><br><span class="line">6</span><br><span class="line">7</span><br><span class="line">8</span><br><span class="line">9</span><br><span class="line">10</span><br></pre></td><td class="code"><pre><span class="line"><span class="meta">$</span> systemctl daemon-reload </span><br><span class="line"><span class="meta">$</span> systemctl start etcd </span><br><span class="line"><span class="meta">$</span> systemctl enable etcd</span><br><span class="line"><span class="meta">$</span> systemctl status etcd</span><br><span class="line"></span><br><span class="line"><span class="meta">$</span> netstat -ntlp | grep 2380</span><br><span class="line"></span><br><span class="line"><span class="meta">#</span> 查看错误日志</span><br><span class="line"><span class="meta">$</span> journalctl -u etcd</span><br><span class="line"><span class="meta">$</span> tail -100f /var/log/messages</span><br></pre></td></tr></table></figure>
+
+</li>
+</ul>
+<h1 id="部署Master组件"><a href="#部署Master组件" class="headerlink" title="部署Master组件"></a>部署Master组件</h1><ul>
+<li><p>下载</p>
+<blockquote>
+<p><a href="https://github.com/kubernetes/kubernetes/blob/master/CHANGELOG/CHANGELOG-1.18.md#server-binaries" target="_blank" rel="noopener">https://github.com/kubernetes/kubernetes/blob/master/CHANGELOG/CHANGELOG-1.18.md#server-binaries</a></p>
+</blockquote>
+</li>
+<li><p>解压缩文件</p>
+<figure class="highlight shell"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br><span class="line">3</span><br><span class="line">4</span><br></pre></td><td class="code"><pre><span class="line"><span class="meta">$</span> mkdir -p /opt/kubernetes/&#123;bin,cfg,ssl,logs&#125;</span><br><span class="line"><span class="meta">$</span> cd kubernetes/server/bin</span><br><span class="line"><span class="meta">$</span> cp kube-apiserver kube-scheduler kube-controller-manager /opt/kubernetes/bin</span><br><span class="line"><span class="meta">$</span> cp kubectl /usr/bin/</span><br></pre></td></tr></table></figure>
+</li>
+<li><p>部署kube-apiserver</p>
+<figure class="highlight shell"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br><span class="line">3</span><br><span class="line">4</span><br><span class="line">5</span><br><span class="line">6</span><br><span class="line">7</span><br><span class="line">8</span><br><span class="line">9</span><br><span class="line">10</span><br><span class="line">11</span><br><span class="line">12</span><br><span class="line">13</span><br><span class="line">14</span><br><span class="line">15</span><br><span class="line">16</span><br><span class="line">17</span><br><span class="line">18</span><br><span class="line">19</span><br><span class="line">20</span><br><span class="line">21</span><br><span class="line">22</span><br><span class="line">23</span><br><span class="line">24</span><br><span class="line">25</span><br><span class="line">26</span><br><span class="line">27</span><br><span class="line">28</span><br><span class="line">29</span><br></pre></td><td class="code"><pre><span class="line"><span class="meta">$</span> cat &gt; /opt/kubernetes/cfg/kube-apiserver.conf &lt;&lt; EOF</span><br><span class="line"> KUBE_APISERVER_OPTS="--logtostderr=false \\</span><br><span class="line"> --v=2 \\</span><br><span class="line"> --log-dir=/opt/kubernetes/logs \\</span><br><span class="line"> --etcd- servers=https://10.104.35.190:2379,https://10.104.35.123:2379 \\</span><br><span class="line"> --bind-address=10.104.35.190 \\</span><br><span class="line"> --secure-port=6443 \\</span><br><span class="line"> --advertise-address=10.104.35.190 \\</span><br><span class="line"> --allow-privileged=true \\</span><br><span class="line"> --service-cluster-ip-range=10.0.0.0/24 \\</span><br><span class="line"> --enable-admission- plugins=NamespaceLifecycle,LimitRanger,ServiceAccount,ResourceQuota,NodeRestriction \\</span><br><span class="line"> --authorization-mode=RBAC,Node \\</span><br><span class="line"> --enable-bootstrap-token-auth=true \\</span><br><span class="line"> --token-auth-file=/opt/kubernetes/cfg/token.csv \\</span><br><span class="line"> --service-node-port-range=30000-32767 \\</span><br><span class="line"> --kubelet-client-certificate=/opt/kubernetes/ssl/server.pem \\</span><br><span class="line"> --kubelet-client-key=/opt/kubernetes/ssl/server-key.pem \\</span><br><span class="line"> --tls-cert-file=/opt/kubernetes/ssl/server.pem \\</span><br><span class="line"> --tls-private-key-file=/opt/kubernetes/ssl/server-key.pem \\</span><br><span class="line"> --client-ca-file=/opt/kubernetes/ssl/ca.pem \\</span><br><span class="line"> --service-account-key-file=/opt/kubernetes/ssl/ca-key.pem \\</span><br><span class="line"> --etcd-cafile=/opt/etcd/ssl/ca.pem \\</span><br><span class="line"> --etcd-certfile=/opt/etcd/ssl/server.pem \\</span><br><span class="line"> --etcd-keyfile=/opt/etcd/ssl/server-key.pem \\</span><br><span class="line"> --audit-log-maxage=30 \\</span><br><span class="line"> --audit-log-maxbackup=3 \\</span><br><span class="line"> --audit-log-maxsize=100 \\</span><br><span class="line"> --audit-log-path=/opt/kubernetes/logs/k8s-audit.log"</span><br><span class="line"> EOF</span><br></pre></td></tr></table></figure>
+</li>
+<li><p>执行命令</p>
+<figure class="highlight shell"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br><span class="line">3</span><br><span class="line">4</span><br><span class="line">5</span><br><span class="line">6</span><br><span class="line">7</span><br><span class="line">8</span><br><span class="line">9</span><br><span class="line">10</span><br><span class="line">11</span><br></pre></td><td class="code"><pre><span class="line"><span class="meta">#</span> 生成根证书</span><br><span class="line"><span class="meta">$</span> cfssl gencert -initca ca-csr.json | cfssljson -bare ca -</span><br><span class="line"></span><br><span class="line"><span class="meta">#</span> 生成证书</span><br><span class="line"><span class="meta">$</span> cfssl gencert -ca=ca.pem -ca-key=ca-key.pem -config=ca-config.json -profile=kubernetes server-csr.json | cfssljson -bare server</span><br><span class="line"></span><br><span class="line"><span class="meta">#</span> 拷贝证书</span><br><span class="line"><span class="meta">$</span> </span><br><span class="line"><span class="meta">$</span> systemctl daemon-reload</span><br><span class="line"><span class="meta">$</span> systemctl start kube-apiserver</span><br><span class="line"><span class="meta">$</span> systemctl enable kube-apiserver</span><br></pre></td></tr></table></figure>
+</li>
+<li><p>部署kube-controller-manager</p>
+<figure class="highlight shell"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br><span class="line">3</span><br></pre></td><td class="code"><pre><span class="line"><span class="meta">$</span> systemctl daemon-reload</span><br><span class="line"><span class="meta">$</span> systemctl start kube-controller-manager</span><br><span class="line"><span class="meta">$</span> systemctl enable kube-controller-manager</span><br></pre></td></tr></table></figure>
+</li>
+<li><p>部署 kube-scheduler</p>
+<figure class="highlight shell"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br><span class="line">3</span><br></pre></td><td class="code"><pre><span class="line"><span class="meta">$</span> systemctl daemon-reload</span><br><span class="line"><span class="meta">$</span> systemctl start kube-scheduler</span><br><span class="line"><span class="meta">$</span> systemctl enable kube-scheduler</span><br></pre></td></tr></table></figure>
+</li>
+<li><p>检查集群状态</p>
+<figure class="highlight shell"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br><span class="line">3</span><br><span class="line">4</span><br><span class="line">5</span><br><span class="line">6</span><br><span class="line">7</span><br></pre></td><td class="code"><pre><span class="line"><span class="meta">$</span> kubectl get cs</span><br><span class="line"><span class="meta">#</span> 输出一下内容，说明所有组件已成功启动</span><br><span class="line">NAME                 STATUS    MESSAGE             ERROR</span><br><span class="line">controller-manager   Healthy   ok                  </span><br><span class="line">scheduler            Healthy   ok                  </span><br><span class="line">etcd-0               Healthy   &#123;"health":"true"&#125;   </span><br><span class="line">etcd-1               Healthy   &#123;"health":"true"&#125;</span><br></pre></td></tr></table></figure>
+
+</li>
+</ul>
+<h1 id="部署Node组件"><a href="#部署Node组件" class="headerlink" title="部署Node组件"></a>部署Node组件</h1><ul>
+<li><p>在所有节点上安装docker</p>
+</li>
+<li><p>执行命令</p>
+<figure class="highlight shell"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br><span class="line">3</span><br><span class="line">4</span><br><span class="line">5</span><br><span class="line">6</span><br><span class="line">7</span><br></pre></td><td class="code"><pre><span class="line"><span class="meta">#</span> 在所有 worker node 创建工作目录</span><br><span class="line"><span class="meta">$</span> mkdir -p /opt/kubernetes/&#123;bin,cfg,ssl,logs&#125;</span><br><span class="line"><span class="meta">#</span></span><br><span class="line"><span class="meta">$</span> scp kubelet kube-proxy root@node21:/opt/kubernetes/bin/</span><br><span class="line"></span><br><span class="line"><span class="meta">#</span>生成kube-proxy证书</span><br><span class="line"><span class="meta">$</span> cfssl gencert -ca=ca.pem -ca-key=ca-key.pem -config=ca-config.json -profile=kubernetes kube-proxy-csr.json | cfssljson -bare kube-proxy</span><br></pre></td></tr></table></figure>
+</li>
+<li><p>bootstrap.kubeconfig</p>
+<figure class="highlight shell"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br><span class="line">3</span><br><span class="line">4</span><br><span class="line">5</span><br><span class="line">6</span><br><span class="line">7</span><br><span class="line">8</span><br><span class="line">9</span><br><span class="line">10</span><br></pre></td><td class="code"><pre><span class="line"><span class="meta">$</span> export KUBE_APISERVER="https://10.104.35.190:6443"</span><br><span class="line"><span class="meta">$</span> export TOKEN="c47ffb939f5ca36231d9e3121a252940"</span><br><span class="line"><span class="meta">#</span> 生成 kubelet bootstrap kubeconfig 配置文件</span><br><span class="line"></span><br><span class="line"><span class="meta">$</span> kubectl config set-cluster kubernetes --certificate-authority=/opt/kubernetes/ssl/ca.pem --embed-certs=true --server=$&#123;KUBE_APISERVER&#125; --kubeconfig=bootstrap.kubeconfig</span><br><span class="line"><span class="meta">$</span> kubectl config set-credentials "kubelet-bootstrap" --token=$&#123;TOKEN&#125; --kubeconfig=bootstrap.kubeconfig</span><br><span class="line"></span><br><span class="line"><span class="meta">$</span> kubectl config set-context default --cluster=kubernetes --user="kubelet-bootstrap" --kubeconfig=bootstrap.kubeconfig</span><br><span class="line"></span><br><span class="line"><span class="meta">$</span> kubectl config use-context default --kubeconfig=bootstrap.kubeconfig</span><br></pre></td></tr></table></figure>
+</li>
+<li><p>kube-proxy.kubeconfig</p>
+<figure class="highlight shell"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br><span class="line">3</span><br><span class="line">4</span><br></pre></td><td class="code"><pre><span class="line"><span class="meta">$</span> kubectl config set-cluster kubernetes --certificate-authority=/opt/kubernetes/ssl/ca.pem --embed-certs=true --server=$&#123;KUBE_APISERVER&#125; --kubeconfig=kube-proxy.kubeconfig</span><br><span class="line"><span class="meta">$</span> kubectl config set-credentials kube-proxy --client-certificate=./kube-proxy.pem --client-key=./kube-proxy-key.pem --embed-certs=true --kubeconfig=kube-proxy.kubeconfig</span><br><span class="line"><span class="meta">$</span> kubectl config set-context default --cluster=kubernetes --user=kube-proxy --kubeconfig=kube-proxy.kubeconfig</span><br><span class="line"><span class="meta">$</span> kubectl config use-context default --kubeconfig=kube-proxy.kubeconfig</span><br></pre></td></tr></table></figure>
 
 <p>​</p>
 </li>
 </ul>
-<h1 id="软件安装"><a href="#软件安装" class="headerlink" title="软件安装"></a>软件安装</h1><h2 id="安装Docker"><a href="#安装Docker" class="headerlink" title="安装Docker"></a>安装Docker</h2><figure class="highlight shell"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br><span class="line">3</span><br><span class="line">4</span><br><span class="line">5</span><br></pre></td><td class="code"><pre><span class="line"><span class="meta">$</span> wget https://mirrors.aliyun.com/docker-ce/linux/centos/docker-ce.repo -O /etc/yum.repos.d/docker-ce.repo</span><br><span class="line"><span class="meta">$</span> yum -y install docker-ce-18.06.1.ce-3.el7</span><br><span class="line"><span class="meta">$</span> systemctl enable docker &amp;&amp; systemctl start docker</span><br><span class="line"><span class="meta">$</span> docker --version</span><br><span class="line">Docker version 18.06.1-ce, build e68fc7a</span><br></pre></td></tr></table></figure>
+<h1 id="部署集群网络"><a href="#部署集群网络" class="headerlink" title="部署集群网络"></a>部署集群网络</h1><h1 id="删除集群"><a href="#删除集群" class="headerlink" title="删除集群"></a>删除集群</h1><figure class="highlight shell"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br><span class="line">3</span><br><span class="line">4</span><br><span class="line">5</span><br><span class="line">6</span><br><span class="line">7</span><br><span class="line">8</span><br><span class="line">9</span><br><span class="line">10</span><br><span class="line">11</span><br><span class="line">12</span><br></pre></td><td class="code"><pre><span class="line"><span class="meta">#</span> master节点执行</span><br><span class="line"><span class="meta">$</span> systemctl disable kube-apiserver</span><br><span class="line"><span class="meta">$</span> systemctl disable kube-scheduler</span><br><span class="line"><span class="meta">$</span> systemctl disable kube-controller-manager</span><br><span class="line"><span class="meta">$</span> systemctl disable etcd</span><br><span class="line"></span><br><span class="line"><span class="meta">#</span> node23上执行</span><br><span class="line"><span class="meta">$</span> systemctl disable etcd</span><br><span class="line"></span><br><span class="line"><span class="meta">#</span> work节点执行</span><br><span class="line"><span class="meta">$</span> systemctl disable kubelet</span><br><span class="line"><span class="meta">$</span> systemctl disable kube-proxy</span><br></pre></td></tr></table></figure>
 
-<h2 id="配置Docker镜像加速器"><a href="#配置Docker镜像加速器" class="headerlink" title="配置Docker镜像加速器"></a>配置Docker镜像加速器</h2><p>请参考<a href="https://help.aliyun.com/document_detail/60750.html" target="_blank" rel="noopener">阿里云Docker镜像加速器配置</a>，登录<a href="https://cr.console.aliyun.com/?spm=a2c4g.11186623.2.15.19e611beEZkDDK" target="_blank" rel="noopener">容器镜像服务控制台</a>后，搜索<strong>容器镜像服务</strong>，然后点击 镜像中心 -&gt; 镜像加速器，就会显示为您独立分配的加速地址。根据页面中的提示配置即可</p>
-<figure class="highlight shell"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br><span class="line">3</span><br><span class="line">4</span><br><span class="line">5</span><br><span class="line">6</span><br><span class="line">7</span><br><span class="line">8</span><br><span class="line">9</span><br><span class="line">10</span><br><span class="line">11</span><br><span class="line">12</span><br><span class="line">13</span><br><span class="line">14</span><br></pre></td><td class="code"><pre><span class="line"><span class="meta">$</span> sudo mkdir -p /etc/docker</span><br><span class="line"><span class="meta">$</span> sudo tee /etc/docker/daemon.json &lt;&lt;-'EOF'</span><br><span class="line">&#123;</span><br><span class="line">  "registry-mirrors": ["https://34rt0hw0.mirror.aliyuncs.com"]</span><br><span class="line">&#125;</span><br><span class="line">EOF</span><br><span class="line"><span class="meta">$</span> sudo systemctl daemon-reload</span><br><span class="line"><span class="meta">$</span> sudo systemctl enable docker</span><br><span class="line"><span class="meta">$</span> sudo systemctl restart docker</span><br><span class="line"></span><br><span class="line"><span class="meta">$</span> docker info</span><br><span class="line"><span class="meta">#</span> 出现以下内容，表示成功</span><br><span class="line">Registry Mirrors:</span><br><span class="line"> https://&#123;你的镜像前缀&#125;.mirror.aliyuncs.com/</span><br></pre></td></tr></table></figure>
-
-<h2 id="配置阿里云YUM源"><a href="#配置阿里云YUM源" class="headerlink" title="配置阿里云YUM源"></a>配置阿里云YUM源</h2><figure class="highlight shell"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br><span class="line">3</span><br><span class="line">4</span><br><span class="line">5</span><br><span class="line">6</span><br><span class="line">7</span><br><span class="line">8</span><br><span class="line">9</span><br></pre></td><td class="code"><pre><span class="line"><span class="meta">$</span> cat &gt; /etc/yum.repos.d/kubernetes.repo &lt;&lt; EOF</span><br><span class="line">[kubernetes]</span><br><span class="line">name=Kubernetes</span><br><span class="line">baseurl=https://mirrors.aliyun.com/kubernetes/yum/repos/kubernetes-el7-x86_64</span><br><span class="line">enabled=1</span><br><span class="line">gpgcheck=0</span><br><span class="line">repo_gpgcheck=0</span><br><span class="line">gpgkey=https://mirrors.aliyun.com/kubernetes/yum/doc/yum-key.gpg https://mirrors.aliyun.com/kubernetes/yum/doc/rpm-package-key.gpg</span><br><span class="line">EOF</span><br></pre></td></tr></table></figure>
-
-<h2 id="安装kubeadm，kubelet和kubectl"><a href="#安装kubeadm，kubelet和kubectl" class="headerlink" title="安装kubeadm，kubelet和kubectl"></a>安装kubeadm，kubelet和kubectl</h2><figure class="highlight shell"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br><span class="line">3</span><br><span class="line">4</span><br><span class="line">5</span><br><span class="line">6</span><br></pre></td><td class="code"><pre><span class="line"><span class="meta">#</span> 指定版本号安装</span><br><span class="line"><span class="meta">$</span> yum install -y kubelet-1.18.0 kubeadm-1.18.0 kubectl-1.18.0</span><br><span class="line"><span class="meta">$</span> yum remove -y kubelet-1.18.0 kubeadm-1.18.0 kubectl-1.18.0</span><br><span class="line"></span><br><span class="line"></span><br><span class="line"><span class="meta">$</span> systemctl enable kubelet</span><br></pre></td></tr></table></figure>
-
-<ul>
-<li><p>kubeadm</p>
-<blockquote>
-<p>用来初始化集群的指令。</p>
-</blockquote>
-</li>
-<li><p>kubelet</p>
-<blockquote>
-<p>在集群中的每个节点上用来启动 pod 和容器等。</p>
-</blockquote>
-</li>
-<li><p>kubectl</p>
-<blockquote>
-<p>用来与集群通信的命令行工具，与API SERVER交互。</p>
-</blockquote>
-</li>
-</ul>
-<h1 id="kubeadm方式安装"><a href="#kubeadm方式安装" class="headerlink" title="kubeadm方式安装"></a>kubeadm方式安装</h1><h2 id="单master"><a href="#单master" class="headerlink" title="单master"></a>单master</h2><ul>
-<li><p>部署k8s master</p>
-<figure class="highlight shell"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br><span class="line">3</span><br><span class="line">4</span><br><span class="line">5</span><br><span class="line">6</span><br><span class="line">7</span><br><span class="line">8</span><br><span class="line">9</span><br><span class="line">10</span><br><span class="line">11</span><br><span class="line">12</span><br><span class="line">13</span><br><span class="line">14</span><br><span class="line">15</span><br><span class="line">16</span><br><span class="line">17</span><br><span class="line">18</span><br></pre></td><td class="code"><pre><span class="line"><span class="meta">#</span> 在master节点执行</span><br><span class="line"><span class="meta">$</span> kubeadm init --apiserver-advertise-address=10.104.35.190 --image-repository registry.aliyuncs.com/google_containers --kubernetes-version v1.18.0 --service-cidr=10.96.0.0/12 --pod-network-cidr=10.244.0.0/16 --ignore-preflight-errors=all</span><br><span class="line"><span class="meta">#</span> 查看拉取的镜像</span><br><span class="line"><span class="meta">$</span> docker images</span><br><span class="line"></span><br><span class="line"><span class="meta">#</span> 看到 Your Kubernetes control-plane has initialized successfully!  时，表示成功</span><br><span class="line"><span class="meta">#</span> 接着根据提示进行执行</span><br><span class="line"><span class="meta">#</span> 在master节点执行</span><br><span class="line"> mkdir -p $HOME/.kube</span><br><span class="line"> sudo cp -i /etc/kubernetes/admin.conf $HOME/.kube/config</span><br><span class="line"> sudo chown $(id -u):$(id -g) $HOME/.kube/config</span><br><span class="line"><span class="meta">#</span> 查看节点情况</span><br><span class="line"><span class="meta">$</span> kubectl get nodes</span><br><span class="line"><span class="meta">#</span> 在node节点执行 加入master节点  注意以下命令使用系统中的</span><br><span class="line"><span class="meta">$</span> kubeadm join 10.104.35.190:6443 --token gotpl9.ghlsx1hlrp6yf1g6 \</span><br><span class="line">    --discovery-token-ca-cert-hash sha256:7d2b946f081db9ed93a8d683307687af670f1776399d6855ae1a9eb3e0b05c3d</span><br><span class="line">    </span><br><span class="line"><span class="meta">#</span> 在master节点上执行 kubectl get nodes  看到节点了   但是状态是NoReady</span><br></pre></td></tr></table></figure>
-
-<h1 id="查看集群的配置文件"><a href="#查看集群的配置文件" class="headerlink" title="查看集群的配置文件"></a>查看集群的配置文件</h1><figure class="highlight shell"><table><tr><td class="gutter"><pre><span class="line">1</span><br></pre></td><td class="code"><pre><span class="line"><span class="meta">$</span> kubectl -n kube-system get cm kubeadm-config -oyaml</span><br></pre></td></tr></table></figure>
-</li>
-<li><p>部署CNI网络插件</p>
-<figure class="highlight shell"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br><span class="line">3</span><br><span class="line">4</span><br><span class="line">5</span><br><span class="line">6</span><br></pre></td><td class="code"><pre><span class="line"><span class="meta">#</span> 在master节点执行  注意：在新增节点或者重新安装时也要执行</span><br><span class="line"><span class="meta">$</span> kubectl apply -f https://raw.githubusercontent.com/coreos/flannel/master/Documentation/kube-flannel.yml</span><br><span class="line"><span class="meta">#</span> 查看服务是否起来，多等一会</span><br><span class="line"><span class="meta">$</span> kubectl get pods -n kube-system</span><br><span class="line"><span class="meta">#</span> 可以看到 现在已经是Ready状态</span><br><span class="line"><span class="meta">$</span> kubectl get nodes</span><br></pre></td></tr></table></figure>
-</li>
-<li><p>测试k8s</p>
-<figure class="highlight shell"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br><span class="line">3</span><br><span class="line">4</span><br><span class="line">5</span><br></pre></td><td class="code"><pre><span class="line"><span class="meta">#</span> 在Kubernetes集群中创建一个pod，验证是否正常运行：</span><br><span class="line"><span class="meta">$</span> kubectl create deployment nginx --image=nginx</span><br><span class="line"><span class="meta">$</span> kubectl expose deployment nginx --port=80 --type=NodePort</span><br><span class="line"><span class="meta">$</span> kubectl get pod,svc</span><br><span class="line"><span class="meta">#</span> 访问地址 http://&#123;NodeIP&#125;:&#123;上面命令的端口&#125;  可以看到nginx 页面</span><br></pre></td></tr></table></figure>
-
-</li>
-</ul>
-<h2 id="kubeadm-卸载"><a href="#kubeadm-卸载" class="headerlink" title="kubeadm 卸载"></a>kubeadm 卸载</h2><figure class="highlight shell"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br><span class="line">3</span><br><span class="line">4</span><br><span class="line">5</span><br></pre></td><td class="code"><pre><span class="line"><span class="meta">#</span> 在所有节点执行</span><br><span class="line"><span class="meta">$</span> kubeadm reset</span><br><span class="line"></span><br><span class="line"><span class="meta">#</span> 在master节点执行</span><br><span class="line"><span class="meta">$</span> rm -rf ~/.kube</span><br></pre></td></tr></table></figure>
-
-<h1 id="组件进程启动参数"><a href="#组件进程启动参数" class="headerlink" title="组件进程启动参数"></a>组件进程启动参数</h1><h2 id="Etcd"><a href="#Etcd" class="headerlink" title="Etcd"></a>Etcd</h2><ul>
-<li>etcd主要是etcd节点之间通讯，和对apiserver提供服务</li>
-</ul>
-<figure class="highlight shell"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br><span class="line">3</span><br><span class="line">4</span><br><span class="line">5</span><br><span class="line">6</span><br><span class="line">7</span><br><span class="line">8</span><br><span class="line">9</span><br><span class="line">10</span><br><span class="line">11</span><br><span class="line">12</span><br><span class="line">13</span><br><span class="line">14</span><br><span class="line">15</span><br><span class="line">16</span><br><span class="line">17</span><br><span class="line">18</span><br></pre></td><td class="code"><pre><span class="line"><span class="meta">$</span> etcd </span><br><span class="line">--name=node20 </span><br><span class="line">--data-dir=/var/lib/etcd </span><br><span class="line">--client-cert-auth=true </span><br><span class="line">--peer-client-cert-auth=true </span><br><span class="line">--initial-advertise-peer-urls=https://10.104.35.190:2380 </span><br><span class="line">--initial-cluster=node20=https://10.104.35.190:2380 </span><br><span class="line">--advertise-client-urls=https://10.104.35.190:2379 </span><br><span class="line">--listen-client-urls=https://127.0.0.1:2379,https://10.104.35.190:2379 </span><br><span class="line">--listen-metrics-urls=http://127.0.0.1:2381 </span><br><span class="line">--listen-peer-urls=https://10.104.35.190:2380 </span><br><span class="line">--cert-file=/etc/kubernetes/pki/etcd/server.crt # 对外提供服务的服务器证书</span><br><span class="line">--key-file=/etc/kubernetes/pki/etcd/server.key # 服务器证书对应的私钥</span><br><span class="line">--peer-cert-file=/etc/kubernetes/pki/etcd/peer.crt # peer 证书，用于 etcd 节点之间的相互访问</span><br><span class="line">--peer-key-file=/etc/kubernetes/pki/etcd/peer.key # peer 证书对应的私钥</span><br><span class="line">--peer-trusted-ca-file=/etc/kubernetes/pki/etcd/ca.crt # 验证 peer 证书的 CA 根证书</span><br><span class="line">--trusted-ca-file=/etc/kubernetes/pki/etcd/ca.crt # 验证访问 etcd 服务器的客户端证书的 CA 根证书</span><br><span class="line">--snapshot-count=10000</span><br></pre></td></tr></table></figure>
-
-<h2 id="apiserver"><a href="#apiserver" class="headerlink" title="apiserver"></a>apiserver</h2><figure class="highlight shell"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br><span class="line">3</span><br><span class="line">4</span><br><span class="line">5</span><br><span class="line">6</span><br><span class="line">7</span><br><span class="line">8</span><br><span class="line">9</span><br><span class="line">10</span><br><span class="line">11</span><br><span class="line">12</span><br><span class="line">13</span><br><span class="line">14</span><br><span class="line">15</span><br><span class="line">16</span><br><span class="line">17</span><br><span class="line">18</span><br><span class="line">19</span><br><span class="line">20</span><br><span class="line">21</span><br><span class="line">22</span><br><span class="line">23</span><br><span class="line">24</span><br><span class="line">25</span><br><span class="line">26</span><br><span class="line">27</span><br></pre></td><td class="code"><pre><span class="line"><span class="meta">$</span> kube-apiserver </span><br><span class="line">--advertise-address=10.104.35.190 </span><br><span class="line">--service-cluster-ip-range=10.96.0.0/12 </span><br><span class="line">--allow-privileged=true </span><br><span class="line">--authorization-mode=Node,RBAC </span><br><span class="line">--enable-admission-plugins=NodeRestriction </span><br><span class="line">--enable-bootstrap-token-auth=true </span><br><span class="line">--etcd-servers=https://127.0.0.1:2379 </span><br><span class="line">--insecure-port=0 </span><br><span class="line">--secure-port=6443 </span><br><span class="line">--requestheader-extra-headers-prefix=X-Remote-Extra- </span><br><span class="line">--requestheader-group-headers=X-Remote-Group </span><br><span class="line">--requestheader-username-headers=X-Remote-User </span><br><span class="line">--kubelet-preferred-address-types=InternalIP,ExternalIP,Hostname </span><br><span class="line">--requestheader-allowed-names=front-proxy-client # 在签署的客户证书中有效的公用名（CN）</span><br><span class="line">--tls-cert-file=/etc/kubernetes/pki/apiserver.crt # 对外提供服务的服务器证书</span><br><span class="line">--tls-private-key-file=/etc/kubernetes/pki/apiserver.key # 服务器证书对应的私钥</span><br><span class="line">--etcd-cafile=/etc/kubernetes/pki/etcd/ca.crt # 用于验证 etcd 服务器证书的 CA 根证书</span><br><span class="line">--etcd-certfile=/etc/kubernetes/pki/apiserver-etcd-client.crt # 用于访问 etcd 的客户端证书</span><br><span class="line">--etcd-keyfile=/etc/kubernetes/pki/apiserver-etcd-client.key # 用于访问etcd的客户端证书的私钥</span><br><span class="line">--kubelet-client-certificate=/etc/kubernetes/pki/apiserver-kubelet-client.crt # 用于访问 kubelet 的客户端证书</span><br><span class="line">--kubelet-client-key=/etc/kubernetes/pki/apiserver-kubelet-client.key # 用于访问 kubelet 的客户端证书的私钥</span><br><span class="line">--proxy-client-cert-file=/etc/kubernetes/pki/front-proxy-client.crt # 用于访问 kube-proxy 的客户端证书</span><br><span class="line">--proxy-client-key-file=/etc/kubernetes/pki/front-proxy-client.key # 用于访问 kube-proxy 的客户端证书的私钥</span><br><span class="line">--requestheader-client-ca-file=/etc/kubernetes/pki/front-proxy-ca.crt # 签署客户端证书文件的 CA 证书</span><br><span class="line">--client-ca-file=/etc/kubernetes/pki/ca.crt # 用于验证访问kube-apiserver的客户端的证书的CA根证书</span><br><span class="line">--service-account-key-file=/etc/kubernetes/pki/sa.pub # 用于验证service account token的公钥</span><br></pre></td></tr></table></figure>
-
-<h2 id="kube-controller-manager"><a href="#kube-controller-manager" class="headerlink" title="kube-controller-manager"></a>kube-controller-manager</h2><ul>
-<li>启动命令</li>
-</ul>
-<figure class="highlight shell"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br><span class="line">3</span><br><span class="line">4</span><br><span class="line">5</span><br><span class="line">6</span><br><span class="line">7</span><br><span class="line">8</span><br><span class="line">9</span><br><span class="line">10</span><br><span class="line">11</span><br><span class="line">12</span><br><span class="line">13</span><br><span class="line">14</span><br><span class="line">15</span><br><span class="line">16</span><br><span class="line">17</span><br><span class="line">18</span><br><span class="line">19</span><br><span class="line">20</span><br></pre></td><td class="code"><pre><span class="line"><span class="meta">$</span> kube-controller-manager </span><br><span class="line">--allocate-node-cidrs=true </span><br><span class="line">--authentication-kubeconfig=/etc/kubernetes/controller-manager.conf </span><br><span class="line">--authorization-kubeconfig=/etc/kubernetes/controller-manager.conf </span><br><span class="line">--bind-address=127.0.0.1 </span><br><span class="line">--service-cluster-ip-range=10.96.0.0/12 </span><br><span class="line">--use-service-account-credentials=true</span><br><span class="line">--cluster-cidr=10.244.0.0/16 </span><br><span class="line">--cluster-name=kubernetes </span><br><span class="line">--controllers=*,bootstrapsigner,tokencleaner </span><br><span class="line">--kubeconfig=/etc/kubernetes/controller-manager.conf # 采用一个kubeconfig 文件中配置的信息来访问 kube-apiserver</span><br><span class="line">--leader-elect=true </span><br><span class="line">--node-cidr-mask-size=24 </span><br><span class="line"><span class="meta">#</span> 以下证书文件和访问apiserver无关</span><br><span class="line">--requestheader-client-ca-file=/etc/kubernetes/pki/front-proxy-ca.crt </span><br><span class="line">--root-ca-file=/etc/kubernetes/pki/ca.crt </span><br><span class="line">--client-ca-file=/etc/kubernetes/pki/ca.crt </span><br><span class="line">--cluster-signing-cert-file=/etc/kubernetes/pki/ca.crt # 用于签发证书的 CA 根证书</span><br><span class="line">--cluster-signing-key-file=/etc/kubernetes/pki/ca.key # 用于签发证书的 CA 根证书的私钥</span><br><span class="line">--service-account-private-key-file=/etc/kubernetes/pki/sa.key # 用于对 service account token 进行签名的私钥</span><br></pre></td></tr></table></figure>
-
-<h2 id="kube-scheduler"><a href="#kube-scheduler" class="headerlink" title="kube-scheduler"></a>kube-scheduler</h2><figure class="highlight shell"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br><span class="line">3</span><br><span class="line">4</span><br><span class="line">5</span><br><span class="line">6</span><br></pre></td><td class="code"><pre><span class="line"><span class="meta">$</span> kube-scheduler </span><br><span class="line">--authentication-kubeconfig=/etc/kubernetes/scheduler.conf </span><br><span class="line">--authorization-kubeconfig=/etc/kubernetes/scheduler.conf </span><br><span class="line">--bind-address=127.0.0.1 </span><br><span class="line">--kubeconfig=/etc/kubernetes/scheduler.conf # 采用一个kubeconfig 文件中配置的信息来访问 kube-apiserver</span><br><span class="line">--leader-elect=true</span><br></pre></td></tr></table></figure>
-
-<h1 id="参考文档"><a href="#参考文档" class="headerlink" title="参考文档"></a>参考文档</h1><p><a href="https://www.jianshu.com/p/6dae5c2c4dab" target="_blank" rel="noopener">CentOS 关闭 swap</a></p>
-<p><a href="https://kubernetes.io/zh/docs/home/" target="_blank" rel="noopener">官网文档</a></p>
-<p><a href="https://kubernetes.io/zh/docs/tasks/extend-kubernetes/configure-aggregation-layer/" target="_blank" rel="noopener">配置聚合层</a></p>
+<h1 id="参考文档"><a href="#参考文档" class="headerlink" title="参考文档"></a>参考文档</h1><p><a href="https://blog.51cto.com/liuzhengwei521/2120535" target="_blank" rel="noopener">公钥基础设施(PKI)/CFSSL证书生成工具的使用</a></p>
+<p><a href="https://developer.aliyun.com/article/739757" target="_blank" rel="noopener">搭建一个完整的Kubernetes集群—安装etcd集群</a></p>
+<p><a href="https://cloud.tencent.com/developer/article/1155609" target="_blank" rel="noopener">04-创建kubeconfig认证文件</a></p>
+<p><a href="https://www.cnblogs.com/wjoyxt/p/9968491.html" target="_blank" rel="noopener">Kubelet bootstrap认证配置步骤</a></p>
 
         
       
@@ -1418,7 +1677,7 @@
   
   
   <article itemscope itemtype="http://schema.org/Article" class="post-block home" lang="zh-CN">
-    <link itemprop="mainEntityOfPage" href="http://yoursite.com/2020/10/27/docker/docker基本知识/">
+    <link itemprop="mainEntityOfPage" href="http://yoursite.com/2020/11/21/linux/Makefile教程/">
 
     <span hidden itemprop="author" itemscope itemtype="http://schema.org/Person">
       <meta itemprop="name" content="姜纪光">
@@ -1433,7 +1692,7 @@
         <h1 class="post-title" itemprop="name headline">
           
             
-            <a href="/2020/10/27/docker/docker基本知识/" class="post-title-link" itemprop="url">docker基本知识</a>
+            <a href="/2020/11/21/linux/Makefile教程/" class="post-title-link" itemprop="url">Makefile教程</a>
           
         </h1>
 
@@ -1448,19 +1707,11 @@
                 
               
 
-              <time title="创建时间：2020-10-27 09:42:07" itemprop="dateCreated datePublished" datetime="2020-10-27T09:42:07+08:00">2020-10-27</time>
+              <time title="创建时间：2020-11-21 11:21:40 / 修改时间：11:22:53" itemprop="dateCreated datePublished" datetime="2020-11-21T11:21:40+08:00">2020-11-21</time>
             </span>
           
             
 
-            
-              <span class="post-meta-item">
-                <span class="post-meta-item-icon">
-                  <i class="fa fa-calendar-check-o"></i>
-                </span>
-                <span class="post-meta-item-text">更新于</span>
-                <time title="修改时间：2020-12-08 16:42:17" itemprop="dateModified" datetime="2020-12-08T16:42:17+08:00">2020-12-08</time>
-              </span>
             
           
             <span class="post-meta-item">
@@ -1470,8 +1721,8 @@
               <span class="post-meta-item-text">分类于</span>
               
                 <span itemprop="about" itemscope itemtype="http://schema.org/Thing">
-                  <a href="/categories/docker/" itemprop="url" rel="index">
-                    <span itemprop="name">docker</span>
+                  <a href="/categories/linux/" itemprop="url" rel="index">
+                    <span itemprop="name">linux</span>
                   </a>
                 </span>
 
@@ -1482,7 +1733,7 @@
           
 
           
-            <span id="/2020/10/27/docker/docker基本知识/" class="post-meta-item leancloud_visitors" data-flag-title="docker基本知识" title="阅读次数">
+            <span id="/2020/11/21/linux/Makefile教程/" class="post-meta-item leancloud_visitors" data-flag-title="Makefile教程" title="阅读次数">
               <span class="post-meta-item-icon">
                 <i class="fa fa-eye"></i>
               </span>
@@ -1502,549 +1753,7 @@
     <div class="post-body" itemprop="articleBody">
 
       
-          <h1 id="基本概念"><a href="#基本概念" class="headerlink" title="基本概念"></a>基本概念</h1><p>​    Docker包含三个基本概念：镜像（Image）、容器（Container）、仓库（Repository）</p>
-<h2 id="镜像（Image）"><a href="#镜像（Image）" class="headerlink" title="镜像（Image）"></a>镜像（Image）</h2><ul>
-<li><p>操作系统分为内核和用户空间。对于 Linux 而言，内核启动后，会挂载 <code>root</code> 文件系统为其提供用户空间支持。而 Docker 镜像（Image），就相当于是一个 <code>root</code> 文件系统。</p>
-</li>
-<li><p>Docker 镜像是一个特殊的文件系统，除了提供容器运行时所需的程序、库、资源、配置等文件外，还包含了一些为运行时准备的一些配置参数（如匿名卷、环境变量、用户等）。镜像不包含任何动态数据，其内容在构建之后也不会被改变。</p>
-</li>
-<li><p>分层存储</p>
-<blockquote>
-<p>​    镜像包含操作系统完整的 <code>root</code> 文件系统，其体积往往是庞大的，因此在 Docker 设计时，就充分利用 <a href="https://en.wikipedia.org/wiki/Union_mount" target="_blank" rel="noopener">Union FS</a> 的技术，将其设计为分层存储的架构。所以严格来说，镜像并非是像一个 ISO 那样的打包文件，镜像只是一个虚拟的概念，其实际体现并非由一个文件组成，而是由一组文件系统组成，或者说，由多层文件系统联合组成。</p>
-<p>​    镜像构建时，会一层层构建，前一层是后一层的基础。每一层构建完就不会再发生改变，后一层上的任何改变只发生在自己这一层。比如，删除前一层文件的操作，实际不是真的删除前一层的文件，而是仅在当前层标记为该文件已删除。在最终容器运行的时候，虽然不会看到这个文件，但是实际上该文件会一直跟随镜像。因此在构建镜像的时候，需要额外小心，每一层尽量只包含该层需要添加的东西，任何额外的东西应该在该层构建结束前清理掉。</p>
-<p>​    分层存储的特征还使得镜像的复用、定制变的更为容易。甚至可以用之前构建好的镜像作为基础层，然后进一步添加新的层，以定制自己所需的内容，构建新的镜像。</p>
-</blockquote>
-</li>
-</ul>
-<h2 id="容器（Container）"><a href="#容器（Container）" class="headerlink" title="容器（Container）"></a>容器（Container）</h2><ul>
-<li><p>容器的实质是进程，但与直接在宿主执行的进程不同，容器进程运行于属于自己的独立的 <a href="https://en.wikipedia.org/wiki/Linux_namespaces" target="_blank" rel="noopener">命名空间</a>。</p>
-<blockquote>
-<p>​    容器可以拥有自己的 <code>root</code> 文件系统、自己的网络配置、自己的进程空间，甚至自己的用户 ID 空间。容器内的进程是运行在一个隔离的环境里，使用起来，就好像是在一个独立于宿主的系统下操作一样。这种特性使得容器封装的应用比直接在宿主运行更加安全。也因为这种隔离的特性，很多人初学 Docker 时常常会混淆容器和虚拟机。</p>
-</blockquote>
-</li>
-</ul>
-<ul>
-<li><p>镜像（<code>Image</code>）和容器（<code>Container</code>）的关系</p>
-<blockquote>
-<p>​    就像是面向对象程序设计中的 <code>类</code> 和 <code>实例</code> 一样，镜像是静态的定义，容器是镜像运行时的实体。容器可以被创建、启动、停止、删除、暂停等。</p>
-</blockquote>
-</li>
-<li><p>容器存储层</p>
-<blockquote>
-<p>​     前面讲过镜像使用的是分层存储，容器也是如此。每一个容器运行时，是以镜像为基础层，在其上创建一个当前容器的存储层，称之为容器存储层。</p>
-<p>​    容器存储层的生存周期和容器一样，容器消亡时，容器存储层也随之消亡。因此，任何保存于容器存储层的信息都会随容器删除而丢失。</p>
-<p>​    按照 Docker 最佳实践的要求，容器不应该向其存储层内写入任何数据，容器存储层要保持无状态化。所有的文件写入操作，都应该使用 <a href>数据卷（Volume）</a>、或者 <a href>绑定宿主目录</a>，在这些位置的读写会跳过容器存储层，直接对宿主（或网络存储）发生读写，其性能和稳定性更高。</p>
-<p>​    数据卷的生存周期独立于容器，容器消亡，数据卷不会消亡。因此，使用数据卷后，容器删除或者重新运行之后，数据却不会丢失。</p>
-</blockquote>
-</li>
-</ul>
-<h2 id="仓库（Repository）"><a href="#仓库（Repository）" class="headerlink" title="仓库（Repository）"></a>仓库（<code>Repository</code>）</h2><ul>
-<li><p>Docker Registry就是一个集中存储、分发镜像的服务。</p>
-<blockquote>
-<p>​      一个 <strong>Docker Registry</strong> 中可以包含多个 <strong>仓库</strong>（<code>Repository</code>）；每个仓库可以包含多个 <strong>标签</strong>（<code>Tag</code>）；每个标签对应一个镜像。</p>
-</blockquote>
-</li>
-<li><p>一个仓库就是包含同一个软件不同版本的镜像</p>
-<blockquote>
-<p>​    标签就常用于对应该软件的各个版本。</p>
-<p>​    通过 <code>&lt;仓库名&gt;:&lt;标签&gt;</code> 的格式来指定具体是这个软件哪个版本的镜像。如果不给出标签，将以 <code>latest</code> 作为默认标签。</p>
-</blockquote>
-</li>
-</ul>
-<h1 id="Docker特性"><a href="#Docker特性" class="headerlink" title="Docker特性"></a>Docker特性</h1><ul>
-<li><p>Docker容器不仅拥有独立的文件系统，还有进程、用户、主机名和网络接口。</p>
-</li>
-<li><p>容器本质上是运行在操作系统的一个进程，但是加入了对资源的隔离和限制。Docker正是在这一思想基础上，基于linux container技术实现的核心管理引擎。</p>
-<blockquote>
-<p>linux操作系统本身从操作系统层面就支持虚拟化技术，叫做linux container。</p>
-</blockquote>
-</li>
-</ul>
-<h2 id="cgroup"><a href="#cgroup" class="headerlink" title="cgroup"></a>cgroup</h2><ul>
-<li>全称control group，用来限定一个进程的资源使用，由linux内核支持，可以限制和隔离linux进程组（process groups）所使用的物理资源，比如cpu、内存、磁盘、网络I/O，是linux container技术的物理基础。</li>
-</ul>
-<h2 id="namespace"><a href="#namespace" class="headerlink" title="namespace"></a>namespace</h2><ul>
-<li>用来隔离PID（进程ID），IPC，Network等系统资源</li>
-</ul>
-<h2 id="unionFS"><a href="#unionFS" class="headerlink" title="unionFS"></a>unionFS</h2><ul>
-<li>可以把文件系统上多个目录内容联合挂载到同一个目录下，而目录的物理位置是分开的</li>
-<li>借助于unionFS技术，宿主机只需要在磁盘上保存一个base镜像，内存中也只需要加载一份，就能被所有基于这个镜像的容器共享</li>
-<li>根据容器镜像的写时拷贝技术，某个容器对基础镜像的修改会被限制在单个容器内。</li>
-</ul>
-<h1 id="Docker安装"><a href="#Docker安装" class="headerlink" title="Docker安装"></a>Docker安装</h1><h2 id="linux下安装"><a href="#linux下安装" class="headerlink" title="linux下安装"></a>linux下安装</h2><ul>
-<li>获取加速器地址，请参考 <a href="https://cr.console.aliyun.com/#/accelerator" target="_blank" rel="noopener">阿里云加速器</a></li>
-</ul>
-<figure class="highlight shell"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br><span class="line">3</span><br><span class="line">4</span><br><span class="line">5</span><br><span class="line">6</span><br><span class="line">7</span><br><span class="line">8</span><br><span class="line">9</span><br><span class="line">10</span><br><span class="line">11</span><br></pre></td><td class="code"><pre><span class="line"><span class="meta">$</span> wget https://mirrors.aliyun.com/docker-ce/linux/centos/docker-ce.repo -O /etc/yum.repos.d/docker-ce.repo</span><br><span class="line"><span class="meta">$</span> yum -y install docker-ce-18.06.1.ce-3.el7</span><br><span class="line"><span class="meta">$</span> systemctl enable docker &amp;&amp; systemctl start docker</span><br><span class="line"><span class="meta">$</span> docker --version</span><br><span class="line"></span><br><span class="line"><span class="meta">#</span> 配置加速器</span><br><span class="line"><span class="meta">$</span> cat &gt; /etc/docker/daemon.json &lt;&lt; EOF</span><br><span class="line">&#123;</span><br><span class="line">  "registry-mirrors": ["https://&#123;你的加速器地址&#125;.mirror.aliyuncs.com"]</span><br><span class="line">&#125;</span><br><span class="line">EOF</span><br></pre></td></tr></table></figure>
-
-<h2 id="max下安装"><a href="#max下安装" class="headerlink" title="max下安装"></a>max下安装</h2><figure class="highlight shell"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br><span class="line">3</span><br><span class="line">4</span><br><span class="line">5</span><br><span class="line">6</span><br><span class="line">7</span><br><span class="line">8</span><br><span class="line">9</span><br><span class="line">10</span><br><span class="line">11</span><br><span class="line">12</span><br><span class="line">13</span><br></pre></td><td class="code"><pre><span class="line"><span class="meta">#</span> dmg包获取地址： http://mirrors.aliyun.com/docker-toolbox/mac/docker-for-mac/</span><br><span class="line"><span class="meta">#</span> 配置加速器</span><br><span class="line"><span class="meta">#</span> 在任务栏点击 Docker Desktop 应用图标 -&gt; Perferences，在左侧导航菜单选择 Docker Engine，在右侧    # 输入栏编辑 json 文件。将https://&#123;你的加速器地址&#125;.mirror.aliyuncs.com加到"registry-mirrors"的数组里，点# 击 Apply &amp; Restart按钮，等待Docker重启并应用配置的镜像加速器。</span><br><span class="line"></span><br><span class="line">&#123;</span><br><span class="line">  "experimental": false,</span><br><span class="line">  "features": &#123;</span><br><span class="line">    "buildkit": true</span><br><span class="line">  &#125;,</span><br><span class="line">  "registry-mirrors": [</span><br><span class="line">    "https://&#123;你的加速器地址&#125;.mirror.aliyuncs.com"</span><br><span class="line">  ]</span><br><span class="line">&#125;</span><br></pre></td></tr></table></figure>
-
-<h1 id="镜像构建原理"><a href="#镜像构建原理" class="headerlink" title="镜像构建原理"></a>镜像构建原理</h1><ul>
-<li><p>Docker 在运行时分为 Docker 引擎（也就是服务端守护进程）和客户端工具。</p>
-</li>
-<li><p>镜像构建不是在本地，而是在Docker服务端（Docker引擎）中构建的</p>
-<blockquote>
-<p>​      Docker 的引擎提供了一组 REST API，被称为 <a href="https://docs.docker.com/develop/sdk/" target="_blank" rel="noopener">Docker Remote API</a>，而如 <code>docker</code> 命令这样的客户端工具，则是通过这组 API 与 Docker 引擎交互，从而完成各种功能。</p>
-</blockquote>
-</li>
-<li><p><strong>构建上下文（重要）</strong></p>
-<blockquote>
-<p>​    当构建的时候，用户会指定构建镜像上下文的路径，<code>docker build</code> 命令得知这个路径后，会将路径下的所有内容打包，然后上传给 Docker 引擎。这样 Docker 引擎收到这个上下文包后，展开就会获得构建镜像所需的一切文件。</p>
-<p>​    例如命令 <code>docker build -t nginx:v3 .</code> 中的这个 <code>.</code>，实际上是在指定上下文的目录，<code>docker build</code> 命令会将该目录下的内容打包交给 Docker 引擎以帮助构建镜像。</p>
-</blockquote>
-</li>
-</ul>
-<ul>
-<li><p><strong>上下文路径（重要）</strong></p>
-<blockquote>
-<p>1、可以是任何路径，一般是<code>.</code> </p>
-<p>2、COPY等命令使用的路径，比如 <code>./ 和 /</code>都是 以上下文路径为基准   </p>
-<p>3、../是不被允许的</p>
-<p>4、-f Dockerfile  指定Dockerfile的路径，该路径和上下文路径无关，Dockerfile可以是别的名称</p>
-</blockquote>
-</li>
-<li><p>一般来说，应该将 <code>Dockerfile</code> 置于一个空目录下，或者项目根目录下。</p>
-</li>
-<li><p><code>.dockerignore</code>，该文件是用于剔除不需要作为上下文传递给 Docker 引擎的。</p>
-</li>
-<li><p>默认会将上下文目录下的名为 <code>Dockerfile</code> 的文件作为 Dockerfile</p>
-</li>
-</ul>
-<h1 id="操作容器"><a href="#操作容器" class="headerlink" title="操作容器"></a>操作容器</h1><ul>
-<li><p>当利用 <code>docker run</code> 来创建容器时，Docker 在后台运行的标准操作包括：</p>
-<blockquote>
-<p>检查本地是否存在指定的镜像，不存在就从公有仓库下载</p>
-<p>利用镜像创建并启动一个容器</p>
-<p>分配一个文件系统，并在只读的镜像层外面挂载一层可读写层</p>
-<p>从宿主主机配置的网桥接口中桥接一个虚拟接口到容器中去</p>
-<p>从地址池配置一个 ip 地址给容器</p>
-<p>执行用户指定的应用程序</p>
-<p>执行完毕后容器被终止</p>
-</blockquote>
-</li>
-</ul>
-<h1 id="Docker-Registry-公开服务"><a href="#Docker-Registry-公开服务" class="headerlink" title="Docker Registry 公开服务"></a>Docker Registry 公开服务</h1><p><a href="https://hub.docker.com/" target="_blank" rel="noopener">Docker Hub</a></p>
-<p><a href="https://c.163.com/hub#/m/library/" target="_blank" rel="noopener">网易云镜像服务</a></p>
-<p><a href="https://hub.daocloud.io/" target="_blank" rel="noopener">DaoCloud 镜像市场</a></p>
-<p><a href="https://cr.console.aliyun.com/" target="_blank" rel="noopener">阿里云镜像库</a></p>
-<p>国内的针对Docker Hub 的镜像服务（<code>Registry Mirror</code>），即加速器：</p>
-<p><a href="https://cr.console.aliyun.com/#/accelerator" target="_blank" rel="noopener">阿里云加速器</a></p>
-<p><a href="https://www.daocloud.io/mirror#accelerator-doc" target="_blank" rel="noopener">DaoCloud 加速器</a></p>
-<h1 id="参考文档"><a href="#参考文档" class="headerlink" title="参考文档"></a>参考文档</h1><p><a href="https://yeasy.gitbook.io/docker_practice/contributing" target="_blank" rel="noopener">Docker–从入门到实践</a></p>
-<p><a href="https://zhuanlan.zhihu.com/p/52938416" target="_blank" rel="noopener">Docker技术三大要点：cgroup, namespace和unionFS的理解</a></p>
-
-        
-      
-    </div>
-
-    
-    
-    
-      <footer class="post-footer">
-        <div class="post-eof"></div>
-      </footer>
-  </article>
-  
-  
-  
-
-    
-        
-  
-  
-  <article itemscope itemtype="http://schema.org/Article" class="post-block home" lang="zh-CN">
-    <link itemprop="mainEntityOfPage" href="http://yoursite.com/2020/10/26/k8s/k8s-基础知识/">
-
-    <span hidden itemprop="author" itemscope itemtype="http://schema.org/Person">
-      <meta itemprop="name" content="姜纪光">
-      <meta itemprop="description" content="">
-      <meta itemprop="image" content="/images/avatar.gif">
-    </span>
-
-    <span hidden itemprop="publisher" itemscope itemtype="http://schema.org/Organization">
-      <meta itemprop="name" content="纪光的博客">
-    </span>
-      <header class="post-header">
-        <h1 class="post-title" itemprop="name headline">
-          
-            
-            <a href="/2020/10/26/k8s/k8s-基础知识/" class="post-title-link" itemprop="url">k8s基础知识</a>
-          
-        </h1>
-
-        <div class="post-meta">
-            <span class="post-meta-item">
-              <span class="post-meta-item-icon">
-                <i class="fa fa-calendar-o"></i>
-              </span>
-              <span class="post-meta-item-text">发表于</span>
-
-              
-                
-              
-
-              <time title="创建时间：2020-10-26 10:41:15" itemprop="dateCreated datePublished" datetime="2020-10-26T10:41:15+08:00">2020-10-26</time>
-            </span>
-          
-            
-
-            
-              <span class="post-meta-item">
-                <span class="post-meta-item-icon">
-                  <i class="fa fa-calendar-check-o"></i>
-                </span>
-                <span class="post-meta-item-text">更新于</span>
-                <time title="修改时间：2020-11-20 09:34:40" itemprop="dateModified" datetime="2020-11-20T09:34:40+08:00">2020-11-20</time>
-              </span>
-            
-          
-            <span class="post-meta-item">
-              <span class="post-meta-item-icon">
-                <i class="fa fa-folder-o"></i>
-              </span>
-              <span class="post-meta-item-text">分类于</span>
-              
-                <span itemprop="about" itemscope itemtype="http://schema.org/Thing">
-                  <a href="/categories/k8s/" itemprop="url" rel="index">
-                    <span itemprop="name">k8s</span>
-                  </a>
-                </span>
-
-                
-                
-              
-            </span>
-          
-
-          
-            <span id="/2020/10/26/k8s/k8s-基础知识/" class="post-meta-item leancloud_visitors" data-flag-title="k8s基础知识" title="阅读次数">
-              <span class="post-meta-item-icon">
-                <i class="fa fa-eye"></i>
-              </span>
-              <span class="post-meta-item-text">阅读次数：</span>
-              <span class="leancloud-visitors-count"></span>
-            </span>
-          
-  
-  
-
-        </div>
-      </header>
-
-    
-    
-    
-    <div class="post-body" itemprop="articleBody">
-
-      
-          <h1 id="云原生"><a href="#云原生" class="headerlink" title="云原生"></a>云原生</h1><h2 id="基本概念"><a href="#基本概念" class="headerlink" title="基本概念"></a>基本概念</h2><p>​    云原生是一种<strong>构建和运行应用程序的方法</strong>，是一套技术体系和方法论。</p>
-<p>​    云原生（CloudNative）是一个组合词，Cloud+Native。Cloud表示应用程序位于云中，而不是传统的数据中心；Native表示应用程序从设计之初即考虑到云的环境，原生为云而设计，<strong>在云上以最佳姿势运行</strong>，充分利用和发挥云平台的弹性+分布式优势。</p>
-<p>   Pivotal最新官网对云原生概括为4个要点：<strong>DevOps+持续交付+微服务+容器</strong>。</p>
-<ul>
-<li><p>DevOps</p>
-<blockquote>
-<p>1、自动化发布管道、CI工具</p>
-<p>2、快速部署到生产环境</p>
-<p>3、开发、运维协同合作</p>
-</blockquote>
-</li>
-<li><p>持续交付</p>
-<blockquote>
-<p>频繁发布、快速交付、快速反馈、降低发布风险</p>
-</blockquote>
-</li>
-<li><p>微服务</p>
-<blockquote>
-<p>1、应用间通过Restful api通信</p>
-<p>2、可以被独立的部署、更新、scala、重启</p>
-</blockquote>
-</li>
-<li><p>容器</p>
-<blockquote>
-<p>微服务的最佳载体</p>
-</blockquote>
-</li>
-</ul>
-<p>​    云原生计算基金会（CNCF）定义云原生为：<strong>容器化封装+自动化管理+面向微服务+服务网格(Service Mesh)+ 声明式API</strong>。</p>
-<p>​    <strong>总而言之，符合云原生架构的应用程序应该是：采用开源堆栈（K8S+Docker）进行容器化，基于微服务架构提高灵活性和可维护性，借助敏捷方法、DevOps支持持续迭代和运维自动化，利用云平台设施实现弹性伸缩、动态调度、优化资源利用率。</strong></p>
-<h2 id="如何云原生"><a href="#如何云原生" class="headerlink" title="如何云原生"></a>如何云原生</h2><p>​    云计算是云原生的基础。</p>
-<p>​    随着虚拟化技术的成熟和分布式框架的普及，在容器技术、可持续交付、编排系统等开源社区的推动下，以及微服务等开发理念的带动下，<strong>应用上云已经是不可逆转的趋势</strong>。</p>
-<p>​    云计算的3层划分，即基础设施即服务(IaaS)、平台即服务(PaaS)、软件即服务(SaaS)为云原生提供了技术基础和方向指引，<strong>真正的云化不仅仅是基础设施和平台的变化，应用也需要做出改变</strong>，摈弃传统的土方法，在架构设计、开发方式、部署维护等各个阶段和方面都基于云的特点，重新设计，从而建设全新的云化的应用，即云原生应用。</p>
-<h1 id="k8s架构组件"><a href="#k8s架构组件" class="headerlink" title="k8s架构组件"></a>k8s架构组件</h1><p>​    k8s集群由Master node 和 Work node组成。</p>
-<h2 id="Master-node组件"><a href="#Master-node组件" class="headerlink" title="Master node组件"></a>Master node组件</h2><ul>
-<li><p>api server</p>
-<blockquote>
-<p>集群统一入口，以restful 方式，交给etcd存储。</p>
-</blockquote>
-</li>
-<li><p>scheduler</p>
-<blockquote>
-<p>节点调度，选择node节点应用部署</p>
-</blockquote>
-</li>
-<li><p>controller-manager</p>
-<blockquote>
-<p>处理集群中常规后台任务，一个资源对应一个控制器</p>
-</blockquote>
-</li>
-<li><p>etcd</p>
-<blockquote>
-<p>存储系统，用于保存集群相关的数据</p>
-</blockquote>
-</li>
-</ul>
-<h2 id="Worker-node组件"><a href="#Worker-node组件" class="headerlink" title="Worker node组件"></a>Worker node组件</h2><ul>
-<li><p>kubelet</p>
-<blockquote>
-<p>master派到work节点的代表，管理本机容器。</p>
-</blockquote>
-</li>
-<li><p>kube-proxy</p>
-<blockquote>
-<p>提供网络代理，负载均衡等操作。</p>
-</blockquote>
-</li>
-</ul>
-<h1 id="k8s核心概念"><a href="#k8s核心概念" class="headerlink" title="k8s核心概念"></a>k8s核心概念</h1><h2 id="资源对象"><a href="#资源对象" class="headerlink" title="资源对象"></a>资源对象</h2><ul>
-<li>包括：RC、Deployment、HPA、Service</li>
-</ul>
-<h2 id="Master节点"><a href="#Master节点" class="headerlink" title="Master节点"></a>Master节点</h2><ul>
-<li><p>负责整个集群的管理和控制，基本上集群的所有控制命令都发给它，其负责具体的执行过程。</p>
-</li>
-<li><p>Master通常会占据一个独立的服务，高可用下建议3台。</p>
-</li>
-<li><p>在Master上运行着以下关键进程：</p>
-<blockquote>
-<p>1、api-server：提供了rest接口的关键服务进程，是k8s里所有资源的增删改查等操作的唯一入口，也是集群控制的入口进程。</p>
-<p>2、controller-manager：k8s所有资源对象的自动化控制中心。</p>
-<p>3、scheduler：负责资源调度（Pod调度）的进程。</p>
-<p>4、etcd：保存集群的所有资源对象的数据。</p>
-</blockquote>
-</li>
-</ul>
-<h2 id="Node"><a href="#Node" class="headerlink" title="Node"></a>Node</h2><ul>
-<li><p>除了Master，k8s集群中其它机器称为Node。</p>
-</li>
-<li><p>是集群的工作负载（Docker 容器）节点，当Node宕机时，其上的工作负载被Master自动转移到其它节点上。</p>
-</li>
-<li><p>在Node节点上运行着以下关键进程</p>
-<blockquote>
-<p>1、kubelet：负责Pod对应的容器的创建、启停等，并且与Master紧密协作实现集群管理。</p>
-<p>2、kube-proxy：实现k8s Service的通信与负载均衡机制的重要组件。</p>
-<p>3、Docker引擎：负责本机的容器创建和管理。</p>
-</blockquote>
-</li>
-</ul>
-<ul>
-<li><p>在Node节点已经运行了上述进程后，可以动态的添加到集群中</p>
-<blockquote>
-<p>​    kubelet会向Master注册自己，同时定时向Master会报自身的信息。</p>
-</blockquote>
-</li>
-</ul>
-<h2 id="Pod"><a href="#Pod" class="headerlink" title="Pod"></a>Pod</h2><ul>
-<li><p>每个Pod都有一个被称为“根容器”的Pause容器，Pause容器对应的镜像属于k8s集群的一部分。</p>
-<blockquote>
-<p>1、Pause容器是业务无关且不容易死亡，以它的状态代表整个容器组的状态</p>
-<p>2、Pod里的多个业务容器共享Pause容器的IP和挂载的Volume。</p>
-</blockquote>
-</li>
-</ul>
-<ul>
-<li><p>每个Pod都被分配一个IP</p>
-<blockquote>
-<p>k8s里任意两个Pod可以直接通讯，这通过采用虚拟二层网络技术来实现的。</p>
-</blockquote>
-</li>
-<li><p>Pod有两种类型</p>
-<blockquote>
-<p>1、静态Pod：没有被存储在etcd里，而是被存放在某个具体的Node上的一个具体文件中，只有在此Node上启动、运行。</p>
-<p>2、普通Pod：一旦被创建就会被存储到etcd里面，随后被Master调度到具体的Node上，被该Node上的kubelet进程实例化成一组相关的Docker容器。</p>
-</blockquote>
-</li>
-<li><p>Endpoint代表此Pod里的一个服务进程的对外通讯地址。</p>
-<blockquote>
-<p>  Pod的IP加上容器端口（containerPort）组成一个Endpoint。</p>
-</blockquote>
-</li>
-</ul>
-<ul>
-<li><p>Pod Volume 对应Docker Volume</p>
-<blockquote>
-<p>  Pod Volume被定义在Pod上，然后被各个容器挂载到自己的文件系统中。</p>
-</blockquote>
-</li>
-<li><p>Event</p>
-<blockquote>
-<p>1、是一个事件的记录，包括事件的最早产生时间、最后重现时间、重复次数、发起者、类型、以及导致此事件的原因。</p>
-<p>2、通常关联到具体的资源对象上，是排查故障的重要参数信息。<code>kubectl describe pod xxxx</code></p>
-</blockquote>
-</li>
-<li><p>Pod的管理对象处理RC Deployment，还有ReplicaSet、DaemonSet、Stateful Set、Job等。</p>
-</li>
-</ul>
-<h2 id="Label"><a href="#Label" class="headerlink" title="Label"></a>Label</h2><ul>
-<li><p>一个Label是一个key=value的键值对，key和value都是用户自己指定</p>
-</li>
-<li><p>Label可以被附加到各种资源对象上，一个资源对象可以定义任意数量的Label，</p>
-</li>
-<li><p>Label通常在资源对象定义时确定，也可以在对象创建后动态添加和删除。</p>
-</li>
-<li><p>通过给资源对象附加上Label实现多维的资源分组管理功能。</p>
-</li>
-<li><p>通过Label Selectot查询和筛选资源对象</p>
-<blockquote>
-<p>有两种Selector表达式形式：基于等式的和基于集合的。</p>
-</blockquote>
-</li>
-</ul>
-<ul>
-<li><p>Label和Label Selector共同构成了k8s系统中核心的应用模型，使得被管理对象能够被精细地分组管理，同时实现了集群的高可用性</p>
-<blockquote>
-<p>1、kube-controller进程通过在资源对象RC上定义的Label Selector来筛选要监控的Pod副本数量</p>
-<p>2、kube-proxy进程通过Service的Label Selector来选择对应的Pod，自动建立每个Service到对应Pod的请求转发路由表，从而实现Service的智能负载均衡机制。</p>
-<p>3、通过对某些Node定义特定的Label，并且在Pod定义文件中使用NodeSelector这种标签调度策略，kube-schedule进程可以实现Pod定向调度的特性。</p>
-</blockquote>
-</li>
-</ul>
-<h2 id="Replication-Controller（RC）"><a href="#Replication-Controller（RC）" class="headerlink" title="Replication Controller（RC）"></a>Replication Controller（RC）</h2><ul>
-<li><p>是一个老版本概念</p>
-</li>
-<li><p>定义了一个期望的场景，即声明某种Pod的副本数量在任意时刻都符合某个预期值。分为几个部分：</p>
-<blockquote>
-<p>1、Pod期待的副本数量</p>
-<p>2、用于筛选目标Pod的Label Selector</p>
-<p>3、当Pod的副本数量小于预期数量时，用于创建新Pod的Pod模板</p>
-</blockquote>
-</li>
-</ul>
-<ul>
-<li><p>当一个RC提交到k8s集群后，Master上的Controller Manager就会得到通知，定义检查系统中当前存活的目标Pod与RC中期望的一致。</p>
-</li>
-<li><p>在运行时可以动态修改RC的副本数量，来实现Pod的动态缩放</p>
-<figure class="highlight shell"><table><tr><td class="gutter"><pre><span class="line">1</span><br></pre></td><td class="code"><pre><span class="line"><span class="meta">$</span> kubectl scala rc redis-slave --replica=3</span><br></pre></td></tr></table></figure>
-</li>
-<li><p>删除RC并不会影响通过该RC创建好的Pod，要删除所有Pod可以设置replicas为0</p>
-</li>
-</ul>
-<h2 id="Replica-Set（下一代RC）"><a href="#Replica-Set（下一代RC）" class="headerlink" title="Replica Set（下一代RC）"></a>Replica Set（下一代RC）</h2><ul>
-<li><p>基本与Replication Controller相同</p>
-</li>
-<li><p>Replica Set和deployment逐步替代了之前RC的作用</p>
-</li>
-<li><p>很少单独使用，主要被deployment这个更高层的资源对象使用</p>
-<blockquote>
-<p>从而形成一套Pod创建、删除、更新的编排机制</p>
-</blockquote>
-</li>
-</ul>
-<h2 id="Deployment"><a href="#Deployment" class="headerlink" title="Deployment"></a>Deployment</h2><ul>
-<li><p>是1.2版本后引入的新概念</p>
-</li>
-<li><p>用于更好地解决Pod的编排问题，内部使用Replica Set来实现目的</p>
-</li>
-<li><p>deployment相对于上一代RC的最大升级是随时知道当前pod的部署进度</p>
-<blockquote>
-<p>Pod创建、调度、绑定节点以及在目标node上启动对应的容器。</p>
-</blockquote>
-</li>
-<li><p>典型应用场景</p>
-<blockquote>
-<p>1、创建一个Deployment对象来生成对应的Relica Set对象并完成Pod副本的创建</p>
-</blockquote>
-</li>
-</ul>
-<ul>
-<li><p>实用命令</p>
-<figure class="highlight shell"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br><span class="line">3</span><br><span class="line">4</span><br><span class="line">5</span><br><span class="line">6</span><br></pre></td><td class="code"><pre><span class="line"><span class="meta">$</span> kubectl create -f xxx.yaml</span><br><span class="line"><span class="meta">$</span> kubectl get deployments</span><br><span class="line"><span class="meta">$</span> kubectl get rs</span><br><span class="line"><span class="meta">#</span> Pod的命名以Deployment对应的Replica Set的名称为前缀</span><br><span class="line"><span class="meta">$</span> kubectl get pods</span><br><span class="line"><span class="meta">$</span> kubectl describe deployments</span><br></pre></td></tr></table></figure>
-
-</li>
-</ul>
-<h2 id="Horizontal-Pod-Autoscaler（HPA）"><a href="#Horizontal-Pod-Autoscaler（HPA）" class="headerlink" title="Horizontal Pod Autoscaler（HPA）"></a>Horizontal Pod Autoscaler（HPA）</h2><h2 id="Statefule-Set"><a href="#Statefule-Set" class="headerlink" title="Statefule Set"></a>Statefule Set</h2><h2 id="Service"><a href="#Service" class="headerlink" title="Service"></a>Service</h2><ul>
-<li><p>每个Service其实就是微服务架构中的一个微服务。</p>
-</li>
-<li><p>Service定义了一个服务的访问入口地址，前端应用通过这个地址访问其背后的一组Pod副本组成的集群实例。</p>
-<blockquote>
-<p>Service与其后端的Pod副本集群之前是通过Label Selector实现对接的。</p>
-</blockquote>
-</li>
-</ul>
-<ul>
-<li><p>每个Service没有共用一个负载均衡器的IP地址，而是被分配了一个全局唯一的虚拟IP地址，称为Cluster IP</p>
-<blockquote>
-<p>1、每个服务就变成了具体唯一IP地址的通讯节点，服务调用就变成了TCP网络通讯问题</p>
-<p>2、每个node上的kube-proxy就是一个负载均衡器，负责把对Service的请求转发到后端某个Pod实例上</p>
-<p>3、在Service的整个生命周期内，它的ClusterIp不会发生改变</p>
-<p>4、服务发现：用Service的Name与Service的ClusterIP做一个DNS域名映射</p>
-</blockquote>
-</li>
-<li><p>端口总结</p>
-<blockquote>
-<p>1、targetPort是Pod中容器保留的端口，默认与port相同。</p>
-<p>2、port是Service暴露在ClusterIp上的端口，提供给集群内部客户访问Service的入口</p>
-<p>3、nodePort暴露在Node上，是提供给集群外部客户访问service的入口。</p>
-</blockquote>
-</li>
-<li><p>服务发现机制</p>
-<blockquote>
-<p>k8s通过Add-On增值包引入DNS系统，把服务名作为DNS域名，这样就可以使用服务名建立通讯连接</p>
-</blockquote>
-</li>
-<li><p>外部系统访问Service</p>
-<blockquote>
-<p>1、k8s里的3中IP：</p>
-<p>  Node IP：Node节点的物理网卡的IP地址，是真实存在的物理网络。</p>
-<p>  Pod IP：Pod的IP地址，是根据Docker引擎网桥IP地址段进行分配的，是一个虚拟的二层网络，用来k8s的Pod直接通讯。</p>
-<p>  Cluster IP：Service的IP地址，是一种虚拟IP。仅仅作用于Service对象，由k8s管理和分配（Cluster IP地址池），无法被ping，因为没有一个实体网络对象来相应。</p>
-</blockquote>
-</li>
-<li><p>NodePort实现方式</p>
-<blockquote>
-<p>在集群的每个Node上都为需要外部访问的Service开启一个对应的TCP监听端口，外部系统只要用任意一个Node的IP地址+具体的NodePort端口就可以访问此服务</p>
-</blockquote>
-</li>
-</ul>
-<h2 id="Job"><a href="#Job" class="headerlink" title="Job"></a>Job</h2><h2 id="Volume"><a href="#Volume" class="headerlink" title="Volume"></a>Volume</h2><ul>
-<li><p>存储卷是Pod中能够被多个容器访问的共享目录</p>
-<blockquote>
-<p>1、k8s中的Volume被定义在Pod上，然后被一个Pod里的多个容器挂载到具体的文件目录下</p>
-<p>2、k8s中的Volume与Pod的声明周期相同，但与容器的声明周期相关。</p>
-</blockquote>
-</li>
-<li><p>Volume类型</p>
-<blockquote>
-<p>1、emptyDir：是Pod分配到Node时创建的，初始内容为空，无需指定宿主机上对应的目录文件，因为k8s会自动分配一个目录。</p>
-<p>2、hostPath：</p>
-</blockquote>
-</li>
-</ul>
-<h2 id="Persistent-Volume（PV）"><a href="#Persistent-Volume（PV）" class="headerlink" title="Persistent Volume（PV）"></a>Persistent Volume（PV）</h2><ul>
-<li><p>PV可以理解为k8s集群中的某个网络存储对应的一块存储。</p>
-</li>
-<li><p>nfs的安装</p>
-<figure class="highlight shell"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br><span class="line">3</span><br><span class="line">4</span><br><span class="line">5</span><br><span class="line">6</span><br><span class="line">7</span><br><span class="line">8</span><br></pre></td><td class="code"><pre><span class="line"><span class="meta">#</span> 分别在nfs服务器和node节点上安装</span><br><span class="line"><span class="meta">$</span> yum -y install nfs-utils</span><br><span class="line"><span class="meta">#</span> 设置挂载路径</span><br><span class="line"><span class="meta">$</span> cat /etc/exports</span><br><span class="line"><span class="meta">#</span> /data/nfs *(rw,no_root_squash)</span><br><span class="line"></span><br><span class="line"><span class="meta">#</span> 在nfs服务器启动</span><br><span class="line"><span class="meta">$</span> systemctl start nfs</span><br></pre></td></tr></table></figure>
-</li>
-<li><p>与Volume的区别</p>
-<blockquote>
-<p>1、PV只能是网络存储，不属于任何Node，但可以在每个Node上访问</p>
-<p>2、PV并不是被定义在Pod上的，而是独立于Pod之外定义的</p>
-</blockquote>
-</li>
-<li><p>PV和PVC根据容量和匹配模式  进行 匹配，和name等属性无关。</p>
-</li>
-</ul>
-<h2 id="Namespace"><a href="#Namespace" class="headerlink" title="Namespace"></a>Namespace</h2><ul>
-<li>给每个租户创建一个namespace实现多租户的资源隔离</li>
-<li>结合k8s的资源配额管理，限定不同租户占用的资源</li>
-</ul>
-<h2 id="Annotation"><a href="#Annotation" class="headerlink" title="Annotation"></a>Annotation</h2><h2 id="ConfigMap"><a href="#ConfigMap" class="headerlink" title="ConfigMap"></a>ConfigMap</h2><ul>
-<li>k8s提供了一个内建机制，将存储在etcd中的ConfigMap通过Volume映射的方式变成目标Pod内的配置文件</li>
-<li>当ConfigMap的数据被修改，则映射到Pod的“配置文件”也会随之自动更新。</li>
-</ul>
-<h1 id="实用命令"><a href="#实用命令" class="headerlink" title="实用命令"></a>实用命令</h1><figure class="highlight shell"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br><span class="line">3</span><br><span class="line">4</span><br><span class="line">5</span><br><span class="line">6</span><br><span class="line">7</span><br><span class="line">8</span><br><span class="line">9</span><br><span class="line">10</span><br><span class="line">11</span><br><span class="line">12</span><br><span class="line">13</span><br><span class="line">14</span><br></pre></td><td class="code"><pre><span class="line"><span class="meta">#</span> 查看节点</span><br><span class="line"><span class="meta">$</span> kubectl get nodes</span><br><span class="line"><span class="meta">#</span> 查看节点详情</span><br><span class="line"><span class="meta">$</span> kubectl describe node &lt;node_name&gt;</span><br><span class="line"><span class="meta">$</span> kubectl get endpoints</span><br><span class="line"><span class="meta">$</span> kubectt get svc service-name -o yaml</span><br><span class="line"><span class="meta">#</span> 查看端口被监听</span><br><span class="line"><span class="meta">$</span> netstat -tlp | grep 8080</span><br><span class="line"><span class="meta">#</span> 查看namespace</span><br><span class="line"><span class="meta">$</span> kubectl get ns</span><br><span class="line"><span class="meta">#</span> 创建命名空间</span><br><span class="line"><span class="meta">$</span> kubectl create ns role-dev</span><br><span class="line"><span class="meta">#</span> 查看特定命名空间的pod</span><br><span class="line"><span class="meta">$</span> kubectl get pods -n role-dev</span><br></pre></td></tr></table></figure>
-
-<h1 id="参考文档"><a href="#参考文档" class="headerlink" title="参考文档"></a>参考文档</h1><p><a href="https://juejin.im/post/6844904197859590151" target="_blank" rel="noopener">什么是云原生？这回终于有人讲明白了</a></p>
-<p><a href="https://www.zhihu.com/question/65502802" target="_blank" rel="noopener">什么是微服务架构</a></p>
-<p><a href="https://blog.csdn.net/qq_36357820/article/details/78488077" target="_blank" rel="noopener">NFS /etc/exports参数解释</a></p>
+          <h1 id="参考文档"><a href="#参考文档" class="headerlink" title="参考文档"></a>参考文档</h1><p><a href="http://c.biancheng.net/view/7093.html" target="_blank" rel="noopener">Makefile</a></p>
 
         
       
@@ -2066,7 +1775,7 @@
 
   
   <nav class="pagination">
-    <a class="extend prev" rel="prev" href="/page/3/"><i class="fa fa-angle-left" aria-label="上一页"></i></a><a class="page-number" href="/">1</a><span class="space">&hellip;</span><a class="page-number" href="/page/3/">3</a><span class="page-number current">4</span><a class="page-number" href="/page/5/">5</a><span class="space">&hellip;</span><a class="page-number" href="/page/13/">13</a><a class="extend next" rel="next" href="/page/5/"><i class="fa fa-angle-right" aria-label="下一页"></i></a>
+    <a class="extend prev" rel="prev" href="/page/3/"><i class="fa fa-angle-left" aria-label="上一页"></i></a><a class="page-number" href="/">1</a><span class="space">&hellip;</span><a class="page-number" href="/page/3/">3</a><span class="page-number current">4</span><a class="page-number" href="/page/5/">5</a><span class="space">&hellip;</span><a class="page-number" href="/page/15/">15</a><a class="extend next" rel="next" href="/page/5/"><i class="fa fa-angle-right" aria-label="下一页"></i></a>
   </nav>
 
 
@@ -2111,7 +1820,7 @@
         
           <a href="/archives/">
         
-          <span class="site-state-item-count">125</span>
+          <span class="site-state-item-count">143</span>
           <span class="site-state-item-name">日志</span>
         </a>
       </div>
@@ -2124,7 +1833,7 @@
             <a href="/categories/">
           
         
-        <span class="site-state-item-count">17</span>
+        <span class="site-state-item-count">22</span>
         <span class="site-state-item-name">分类</span>
         </a>
       </div>
@@ -2137,7 +1846,7 @@
             <a href="/tags/">
           
         
-        <span class="site-state-item-count">16</span>
+        <span class="site-state-item-count">15</span>
         <span class="site-state-item-name">标签</span>
         </a>
       </div>
@@ -2163,7 +1872,7 @@
 
 <div class="copyright">
   &copy; 
-  <span itemprop="copyrightYear">2020</span>
+  <span itemprop="copyrightYear">2021</span>
   <span class="with-love">
     <i class="fa fa-user"></i>
   </span>

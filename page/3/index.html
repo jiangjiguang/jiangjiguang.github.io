@@ -241,7 +241,7 @@
   
   
   <article itemscope itemtype="http://schema.org/Article" class="post-block home" lang="zh-CN">
-    <link itemprop="mainEntityOfPage" href="http://yoursite.com/2020/11/21/tools/开发工具/">
+    <link itemprop="mainEntityOfPage" href="http://yoursite.com/2020/12/11/flink/实时计算平台建设-源码管理/">
 
     <span hidden itemprop="author" itemscope itemtype="http://schema.org/Person">
       <meta itemprop="name" content="姜纪光">
@@ -256,7 +256,7 @@
         <h1 class="post-title" itemprop="name headline">
           
             
-            <a href="/2020/11/21/tools/开发工具/" class="post-title-link" itemprop="url">开发工具</a>
+            <a href="/2020/12/11/flink/实时计算平台建设-源码管理/" class="post-title-link" itemprop="url">实时计算平台建设-源码管理</a>
           
         </h1>
 
@@ -271,7 +271,744 @@
                 
               
 
-              <time title="创建时间：2020-11-21 11:05:14 / 修改时间：11:07:44" itemprop="dateCreated datePublished" datetime="2020-11-21T11:05:14+08:00">2020-11-21</time>
+              <time title="创建时间：2020-12-11 14:02:18 / 修改时间：16:19:35" itemprop="dateCreated datePublished" datetime="2020-12-11T14:02:18+08:00">2020-12-11</time>
+            </span>
+          
+            
+
+            
+          
+            <span class="post-meta-item">
+              <span class="post-meta-item-icon">
+                <i class="fa fa-folder-o"></i>
+              </span>
+              <span class="post-meta-item-text">分类于</span>
+              
+                <span itemprop="about" itemscope itemtype="http://schema.org/Thing">
+                  <a href="/categories/flink/" itemprop="url" rel="index">
+                    <span itemprop="name">flink</span>
+                  </a>
+                </span>
+
+                
+                
+              
+            </span>
+          
+
+          
+            <span id="/2020/12/11/flink/实时计算平台建设-源码管理/" class="post-meta-item leancloud_visitors" data-flag-title="实时计算平台建设-源码管理" title="阅读次数">
+              <span class="post-meta-item-icon">
+                <i class="fa fa-eye"></i>
+              </span>
+              <span class="post-meta-item-text">阅读次数：</span>
+              <span class="leancloud-visitors-count"></span>
+            </span>
+          
+  
+  
+
+        </div>
+      </header>
+
+    
+    
+    
+    <div class="post-body" itemprop="articleBody">
+
+      
+          <h1 id="目的"><a href="#目的" class="headerlink" title="目的"></a>目的</h1><p>​    在建设实时计算平台过程中，经常需要根据自身需求修改flink源码，而这些源码是不需要共享给社区的。那么如果管理源码，多人协作开发就是需要考虑的问题。以下是要实现的目的：</p>
+<ul>
+<li>flink代码仓库建在公司的git仓库中</li>
+<li>实现多人协作开发，开启分支保护，新增代码必须经过review才能合并到生产分支中</li>
+<li>可以从官方 github apache/flink中同步代码</li>
+<li>可以把代码push到github 的个人私有仓库中</li>
+</ul>
+<h1 id="仓库配置"><a href="#仓库配置" class="headerlink" title="仓库配置"></a>仓库配置</h1><figure class="highlight shell"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br><span class="line">3</span><br><span class="line">4</span><br><span class="line">5</span><br><span class="line">6</span><br><span class="line">7</span><br><span class="line">8</span><br><span class="line">9</span><br><span class="line">10</span><br><span class="line">11</span><br><span class="line">12</span><br><span class="line">13</span><br><span class="line">14</span><br><span class="line">15</span><br><span class="line">16</span><br><span class="line">17</span><br></pre></td><td class="code"><pre><span class="line"><span class="meta">#</span> ---------------------------------------------------</span><br><span class="line"><span class="meta">#</span> 1.在公司的git中，建立flink仓库，命名flink</span><br><span class="line"><span class="meta">#</span> 比如新仓库的地址为：git@git.jjg.net:platform/flink.git</span><br><span class="line"><span class="meta">#</span> ---------------------------------------------------</span><br><span class="line"><span class="meta">#</span> 2.clone官网 github apache/flink 代码</span><br><span class="line"><span class="meta">$</span> git clone https://github.com/apache/flink.git</span><br><span class="line"><span class="meta">#</span> ---------------------------------------------------</span><br><span class="line"><span class="meta">#</span> 3.把2中clone下来的代码加到1中的仓库中</span><br><span class="line"><span class="meta">#</span> 将原来origin仓库别名改为apache</span><br><span class="line"><span class="meta">$</span> git remote rename origin apache</span><br><span class="line"><span class="meta">#</span> 设置origin指向公司仓库</span><br><span class="line"><span class="meta">$</span> git remote add origin git@git.jjg.net:platform/flink.git</span><br><span class="line"><span class="meta">#</span> 推送代码和commit记录</span><br><span class="line"><span class="meta">$</span> git push origin --all</span><br><span class="line"><span class="meta">#</span> 推送所有标记</span><br><span class="line"><span class="meta">$</span> git push origin --tags</span><br><span class="line"><span class="meta">#</span> ---------------------------------------------------</span><br></pre></td></tr></table></figure>
+
+<h2 id="代码提交-review规范"><a href="#代码提交-review规范" class="headerlink" title="代码提交/review规范"></a>代码提交/review规范</h2><ul>
+<li><p>尽量每个功能一次commit，即使为了修改bug进行了多次commit，<strong>也要在push的时候合并多次commit为一次</strong></p>
+<figure class="highlight shell"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br><span class="line">3</span><br><span class="line">4</span><br><span class="line">5</span><br><span class="line">6</span><br><span class="line">7</span><br><span class="line">8</span><br><span class="line">9</span><br><span class="line">10</span><br></pre></td><td class="code"><pre><span class="line"><span class="meta">#</span> 最佳使用方式有两种</span><br><span class="line"><span class="meta">#</span> 1.把最近commit，都合并到最近一次push 远程分支的commit，合并后push时加-f 参数 </span><br><span class="line">例如 git push -f origin jjg-dev-1208</span><br><span class="line">p c    #最近一次push</span><br><span class="line">s a1   #commit</span><br><span class="line">s a2   #commit</span><br><span class="line"><span class="meta">#</span> 2.还没有push的，合并一次commit</span><br><span class="line">r a1</span><br><span class="line">s a2</span><br><span class="line">s a3</span><br></pre></td></tr></table></figure>
+</li>
+<li><p>每次合并基础分支时使用<strong>rebase，不要使用merge</strong></p>
+<figure class="highlight shell"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br></pre></td><td class="code"><pre><span class="line"><span class="meta">#</span> rebase和merge的区别：rebase不会影响分支的commit，merge会把merge来的放在最新，会影响commit</span><br><span class="line"><span class="meta">$</span> git merge master</span><br></pre></td></tr></table></figure>
+
+</li>
+</ul>
+<h1 id="常用命令"><a href="#常用命令" class="headerlink" title="常用命令"></a>常用命令</h1><figure class="highlight shell"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br><span class="line">3</span><br><span class="line">4</span><br><span class="line">5</span><br><span class="line">6</span><br><span class="line">7</span><br><span class="line">8</span><br><span class="line">9</span><br><span class="line">10</span><br><span class="line">11</span><br><span class="line">12</span><br><span class="line">13</span><br><span class="line">14</span><br><span class="line">15</span><br><span class="line">16</span><br><span class="line">17</span><br><span class="line">18</span><br><span class="line">19</span><br><span class="line">20</span><br><span class="line">21</span><br><span class="line">22</span><br><span class="line">23</span><br><span class="line">24</span><br><span class="line">25</span><br><span class="line">26</span><br><span class="line">27</span><br></pre></td><td class="code"><pre><span class="line"><span class="meta">#</span> ----------------rebase使用------------------------</span><br><span class="line"><span class="meta">$</span> git rebase -i  [startpoint]  [endpoint]</span><br><span class="line"><span class="meta">#</span> 合并最近4次 commit记录</span><br><span class="line"><span class="meta">$</span> git rebase -i HEAD~4</span><br><span class="line"><span class="meta">#</span> 重新编辑</span><br><span class="line"><span class="meta">$</span> git rebase --edit-todo </span><br><span class="line"><span class="meta">#</span> 重新编辑后继续rebase</span><br><span class="line"><span class="meta">$</span> git rebase --continue</span><br><span class="line"><span class="meta">#</span> 终止rebase</span><br><span class="line"><span class="meta">$</span> git rebase --abort</span><br><span class="line"><span class="meta">#</span> ----------------rebase使用------------------------</span><br><span class="line"><span class="meta">#</span> 添加自己github仓库的远程分支</span><br><span class="line"><span class="meta">$</span> git remote add jjg https://github.com/jiangjiguang/flink.git</span><br><span class="line"><span class="meta">#</span> 查看现有的远程仓库</span><br><span class="line"><span class="meta">$</span> git remote -v </span><br><span class="line"><span class="meta">#</span> 添加远程仓库</span><br><span class="line"><span class="meta">$</span> git remote add #&#123;别名&#125; #&#123;地址&#125;</span><br><span class="line"><span class="meta">#</span> 删除远程仓库</span><br><span class="line"><span class="meta">$</span> git remote remove #&#123;别名&#125;</span><br><span class="line"><span class="meta">#</span> 从源仓库更新同步代码</span><br><span class="line"><span class="meta">$</span> git fetch #&#123;别名&#125;</span><br><span class="line"><span class="meta">#</span> 合并到本地代码</span><br><span class="line"><span class="meta">$</span> git merge #&#123;别名&#125;/#&#123;分支&#125;</span><br><span class="line"><span class="meta">#</span> 查看远程仓库</span><br><span class="line"><span class="meta">$</span> git remote show #&#123;别名&#125;</span><br><span class="line"><span class="meta">#</span> 重命名远程仓库</span><br><span class="line"><span class="meta">$</span> git remote rename old new</span><br></pre></td></tr></table></figure>
+
+<h1 id="参考文档"><a href="#参考文档" class="headerlink" title="参考文档"></a>参考文档</h1><p><a href="https://git-scm.com/book/zh/v2/Git-%E5%9F%BA%E7%A1%80-%E8%BF%9C%E7%A8%8B%E4%BB%93%E5%BA%93%E7%9A%84%E4%BD%BF%E7%94%A8" target="_blank" rel="noopener">Git 基础 - 远程仓库的使用</a></p>
+<p><a href="https://jiangjiguang.me/2020/07/20/tools/git%E5%AE%9E%E8%B7%B5/" target="_blank" rel="noopener">git实践</a></p>
+
+        
+      
+    </div>
+
+    
+    
+    
+      <footer class="post-footer">
+        <div class="post-eof"></div>
+      </footer>
+  </article>
+  
+  
+  
+
+    
+        
+  
+  
+  <article itemscope itemtype="http://schema.org/Article" class="post-block home" lang="zh-CN">
+    <link itemprop="mainEntityOfPage" href="http://yoursite.com/2020/12/11/flink/实时计算平台建设-交互式异步发布/">
+
+    <span hidden itemprop="author" itemscope itemtype="http://schema.org/Person">
+      <meta itemprop="name" content="姜纪光">
+      <meta itemprop="description" content="">
+      <meta itemprop="image" content="/images/avatar.gif">
+    </span>
+
+    <span hidden itemprop="publisher" itemscope itemtype="http://schema.org/Organization">
+      <meta itemprop="name" content="纪光的博客">
+    </span>
+      <header class="post-header">
+        <h1 class="post-title" itemprop="name headline">
+          
+            
+            <a href="/2020/12/11/flink/实时计算平台建设-交互式异步发布/" class="post-title-link" itemprop="url">实时计算平台建设-交互式异步发布</a>
+          
+        </h1>
+
+        <div class="post-meta">
+            <span class="post-meta-item">
+              <span class="post-meta-item-icon">
+                <i class="fa fa-calendar-o"></i>
+              </span>
+              <span class="post-meta-item-text">发表于</span>
+
+              
+                
+              
+
+              <time title="创建时间：2020-12-11 09:37:38 / 修改时间：16:15:07" itemprop="dateCreated datePublished" datetime="2020-12-11T09:37:38+08:00">2020-12-11</time>
+            </span>
+          
+            
+
+            
+          
+            <span class="post-meta-item">
+              <span class="post-meta-item-icon">
+                <i class="fa fa-folder-o"></i>
+              </span>
+              <span class="post-meta-item-text">分类于</span>
+              
+                <span itemprop="about" itemscope itemtype="http://schema.org/Thing">
+                  <a href="/categories/flink/" itemprop="url" rel="index">
+                    <span itemprop="name">flink</span>
+                  </a>
+                </span>
+
+                
+                
+              
+            </span>
+          
+
+          
+            <span id="/2020/12/11/flink/实时计算平台建设-交互式异步发布/" class="post-meta-item leancloud_visitors" data-flag-title="实时计算平台建设-交互式异步发布" title="阅读次数">
+              <span class="post-meta-item-icon">
+                <i class="fa fa-eye"></i>
+              </span>
+              <span class="post-meta-item-text">阅读次数：</span>
+              <span class="leancloud-visitors-count"></span>
+            </span>
+          
+  
+  
+
+        </div>
+      </header>
+
+    
+    
+    
+    <div class="post-body" itemprop="articleBody">
+
+      
+          <h1 id="参考文档"><a href="#参考文档" class="headerlink" title="参考文档"></a>参考文档</h1>
+        
+      
+    </div>
+
+    
+    
+    
+      <footer class="post-footer">
+        <div class="post-eof"></div>
+      </footer>
+  </article>
+  
+  
+  
+
+    
+        
+  
+  
+  <article itemscope itemtype="http://schema.org/Article" class="post-block home" lang="zh-CN">
+    <link itemprop="mainEntityOfPage" href="http://yoursite.com/2020/12/09/tools/nginx实践/">
+
+    <span hidden itemprop="author" itemscope itemtype="http://schema.org/Person">
+      <meta itemprop="name" content="姜纪光">
+      <meta itemprop="description" content="">
+      <meta itemprop="image" content="/images/avatar.gif">
+    </span>
+
+    <span hidden itemprop="publisher" itemscope itemtype="http://schema.org/Organization">
+      <meta itemprop="name" content="纪光的博客">
+    </span>
+      <header class="post-header">
+        <h1 class="post-title" itemprop="name headline">
+          
+            
+            <a href="/2020/12/09/tools/nginx实践/" class="post-title-link" itemprop="url">nginx实践</a>
+          
+        </h1>
+
+        <div class="post-meta">
+            <span class="post-meta-item">
+              <span class="post-meta-item-icon">
+                <i class="fa fa-calendar-o"></i>
+              </span>
+              <span class="post-meta-item-text">发表于</span>
+
+              
+                
+              
+
+              <time title="创建时间：2020-12-09 20:23:58" itemprop="dateCreated datePublished" datetime="2020-12-09T20:23:58+08:00">2020-12-09</time>
+            </span>
+          
+            
+
+            
+              <span class="post-meta-item">
+                <span class="post-meta-item-icon">
+                  <i class="fa fa-calendar-check-o"></i>
+                </span>
+                <span class="post-meta-item-text">更新于</span>
+                <time title="修改时间：2020-12-11 09:40:52" itemprop="dateModified" datetime="2020-12-11T09:40:52+08:00">2020-12-11</time>
+              </span>
+            
+          
+            <span class="post-meta-item">
+              <span class="post-meta-item-icon">
+                <i class="fa fa-folder-o"></i>
+              </span>
+              <span class="post-meta-item-text">分类于</span>
+              
+                <span itemprop="about" itemscope itemtype="http://schema.org/Thing">
+                  <a href="/categories/tools/" itemprop="url" rel="index">
+                    <span itemprop="name">tools</span>
+                  </a>
+                </span>
+
+                
+                
+              
+            </span>
+          
+
+          
+            <span id="/2020/12/09/tools/nginx实践/" class="post-meta-item leancloud_visitors" data-flag-title="nginx实践" title="阅读次数">
+              <span class="post-meta-item-icon">
+                <i class="fa fa-eye"></i>
+              </span>
+              <span class="post-meta-item-text">阅读次数：</span>
+              <span class="leancloud-visitors-count"></span>
+            </span>
+          
+  
+  
+
+        </div>
+      </header>
+
+    
+    
+    
+    <div class="post-body" itemprop="articleBody">
+
+      
+          <h1 id="基本概念"><a href="#基本概念" class="headerlink" title="基本概念"></a>基本概念</h1><ul>
+<li>nginx是一个高性能的HTTP和反向代理web服务器</li>
+<li>占用内存少、并发能力强</li>
+<li>正向代理：局域网中的客户端想要访问Internet，则需要通过代理服务器访问，这种代理服务就称为正向代理。用来访问外网。</li>
+<li>分配策略：<code>轮询、权重、ip_hash、fair</code></li>
+</ul>
+<h2 id="反向代理"><a href="#反向代理" class="headerlink" title="反向代理"></a>反向代理</h2><ul>
+<li>客户端对代理无感知，也不需要做任何配置，只需要将请求发送到反向代理服务器，由反向代理服务器选择目标服务器后获取数据，然后再返回给客户端。</li>
+<li>反向代理服务器和目标服务器就是一个服务器，暴露的是代理服务器，隐藏了目标服务器。</li>
+<li>反向代理用来访问私有服务。</li>
+<li>​</li>
+</ul>
+<h2 id="负载均衡"><a href="#负载均衡" class="headerlink" title="负载均衡"></a>负载均衡</h2><ul>
+<li>​</li>
+</ul>
+<h2 id="动静分离"><a href="#动静分离" class="headerlink" title="动静分离"></a>动静分离</h2><ul>
+<li>为了加快网站的解析速度，可以把静态页面和动态页面由不同的服务器解析，加快解析速度，降低当个服务器的压力。</li>
+</ul>
+<h1 id="安装"><a href="#安装" class="headerlink" title="安装"></a>安装</h1><figure class="highlight shell"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br><span class="line">3</span><br><span class="line">4</span><br><span class="line">5</span><br><span class="line">6</span><br><span class="line">7</span><br><span class="line">8</span><br><span class="line">9</span><br></pre></td><td class="code"><pre><span class="line"><span class="meta">$</span> yum -y install nginx</span><br><span class="line"></span><br><span class="line"><span class="meta">$</span> nginx -s stop</span><br><span class="line"></span><br><span class="line"><span class="meta">#</span> 启动nginx</span><br><span class="line"><span class="meta">$</span> nginx</span><br><span class="line"></span><br><span class="line"><span class="meta">#</span> 重新加载配置文件</span><br><span class="line"><span class="meta">$</span> nginx -s reload</span><br></pre></td></tr></table></figure>
+
+<h1 id="配置详解"><a href="#配置详解" class="headerlink" title="配置详解"></a>配置详解</h1><p>##server_name</p>
+<ul>
+<li>虚拟主机，用来根据请求的”Host”头，决定请求由哪一个虚拟主机处理，如果没有匹配上，那么nginx将请求分发到此端口的默认虚拟主机上</li>
+<li>匹配顺序：完全匹配、通配符在前的、通配符在后的、正则匹配、listen后有default_server、listen端口的第一个server块</li>
+</ul>
+<p>##location </p>
+<ul>
+<li><p>语法规则</p>
+<figure class="highlight shell"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br><span class="line">3</span><br><span class="line">4</span><br><span class="line">5</span><br><span class="line">6</span><br><span class="line">7</span><br><span class="line">8</span><br></pre></td><td class="code"><pre><span class="line">location [=|~|~*|^~] /uri/ &#123;...&#125; </span><br><span class="line">location @name &#123;...&#125;</span><br><span class="line"></span><br><span class="line">1、= : 表示精确匹配后面的url</span><br><span class="line">2、~ : 表示正则匹配，但是区分大小写</span><br><span class="line">3、~* : 表示正则匹配，不区分大小写</span><br><span class="line">4、^~ : 表示普通字符匹配，如果该选项匹配，只匹配该选项，不匹配别的选项，一般用来匹配目录</span><br><span class="line">5、@ : "@" 定义一个命名的 location，使用在内部定向时，例如 error_page</span><br></pre></td></tr></table></figure>
+</li>
+<li><p>匹配规则</p>
+<blockquote>
+<ol>
+<li>= 前缀的指令严格匹配这个查询。如果找到，停止搜索；</li>
+<li>所有剩下的常规字符串，最长的匹配。如果这个匹配使用 ^~ 前缀，搜索停止；</li>
+<li>正则表达式，在配置文件中定义的顺序；</li>
+<li>如果第 3 条规则产生匹配的话，结果被使用。否则，使用第 2 条规则的结果。</li>
+</ol>
+</blockquote>
+</li>
+</ul>
+<ul>
+<li><p>​</p>
+</li>
+<li><p>​</p>
+</li>
+<li><p>全局部分</p>
+<blockquote>
+<p>​    是指从配置文件开始到 events 之间的内容。主要设置一些影响nginx服务器整体运行的配置指令。</p>
+</blockquote>
+</li>
+</ul>
+<ul>
+<li><p>events</p>
+<blockquote>
+<p>​    主要影响nginx服务器和用户的网络连接</p>
+</blockquote>
+</li>
+</ul>
+<ul>
+<li><p>http</p>
+<blockquote>
+<p>​    nginx服务器配置最频繁的部分，包括代理、缓存、日志定义等绝大部分功能和第三方模块。</p>
+<p>1、http全局块</p>
+<p>​    配置的指令包括<code>文件引入、MIME-TYPE定义、日志自定义、连接超时时间、单链接请求数上线等</code>。</p>
+<p>2、server</p>
+</blockquote>
+</li>
+</ul>
+<figure class="highlight shell"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br><span class="line">3</span><br><span class="line">4</span><br><span class="line">5</span><br><span class="line">6</span><br><span class="line">7</span><br><span class="line">8</span><br><span class="line">9</span><br><span class="line">10</span><br><span class="line">11</span><br><span class="line">12</span><br><span class="line">13</span><br><span class="line">14</span><br><span class="line">15</span><br><span class="line">16</span><br><span class="line">17</span><br><span class="line">18</span><br><span class="line">19</span><br><span class="line">20</span><br><span class="line">21</span><br><span class="line">22</span><br><span class="line">23</span><br><span class="line">24</span><br><span class="line">25</span><br><span class="line">26</span><br><span class="line">27</span><br><span class="line">28</span><br><span class="line">29</span><br><span class="line">30</span><br><span class="line">31</span><br><span class="line">32</span><br><span class="line">33</span><br><span class="line">34</span><br><span class="line">35</span><br><span class="line">36</span><br><span class="line">37</span><br><span class="line">38</span><br><span class="line">39</span><br><span class="line">40</span><br><span class="line">41</span><br><span class="line">42</span><br><span class="line">43</span><br><span class="line">44</span><br><span class="line">45</span><br><span class="line">46</span><br><span class="line">47</span><br><span class="line">48</span><br><span class="line">49</span><br><span class="line">50</span><br><span class="line">51</span><br><span class="line">52</span><br><span class="line">53</span><br><span class="line">54</span><br><span class="line">55</span><br><span class="line">56</span><br><span class="line">57</span><br><span class="line">58</span><br><span class="line">59</span><br><span class="line">60</span><br></pre></td><td class="code"><pre><span class="line">[root@node20 nginx]# cat nginx.conf</span><br><span class="line">user nginx;</span><br><span class="line">worker_processes auto; # 并发处理服务的配置，值越大支持的并发量越多</span><br><span class="line">error_log /var/log/nginx/error.log;</span><br><span class="line">pid /run/nginx.pid;</span><br><span class="line"></span><br><span class="line"><span class="meta">#</span> Load dynamic modules. See /usr/share/doc/nginx/README.dynamic.</span><br><span class="line">include /usr/share/nginx/modules/*.conf;</span><br><span class="line"></span><br><span class="line">events &#123;</span><br><span class="line">    worker_connections 1024; # nginx支持的连接数</span><br><span class="line">&#125;</span><br><span class="line"></span><br><span class="line">http &#123;</span><br><span class="line">    log_format  main  '$remote_addr - $remote_user [$time_local] "$request" '</span><br><span class="line">                      '$status $body_bytes_sent "$http_referer" '</span><br><span class="line">                      '"$http_user_agent" "$http_x_forwarded_for"';</span><br><span class="line"></span><br><span class="line">    access_log  /var/log/nginx/access.log  main;</span><br><span class="line"></span><br><span class="line">    sendfile            on;</span><br><span class="line">    tcp_nopush          on;</span><br><span class="line">    tcp_nodelay         on;</span><br><span class="line">    keepalive_timeout   65;</span><br><span class="line">    types_hash_max_size 2048;</span><br><span class="line"></span><br><span class="line">    include             /etc/nginx/mime.types;</span><br><span class="line">    default_type        application/octet-stream;</span><br><span class="line"></span><br><span class="line">    ## 加载虚拟主机子文件</span><br><span class="line">    # include /etc/nginx/conf.d/*.conf;</span><br><span class="line"></span><br><span class="line">    server &#123;</span><br><span class="line">        ## 用于指定文件路径</span><br><span class="line">        # root         /usr/share/nginx/html;</span><br><span class="line">        </span><br><span class="line">        ## default_server是端口属性，用来设置端口的默认虚拟主机</span><br><span class="line">        # listen       80 default_server;</span><br><span class="line">        listen        80;</span><br><span class="line">        server_name   10.104.35.190;</span><br><span class="line">        </span><br><span class="line">        ## 重定向跳转，permanent是永久301重定向的标记</span><br><span class="line">        # rewrite ^/(.*) http://www.vipdailiang.com/$1 permanent;</span><br><span class="line"></span><br><span class="line">        ## 加载虚拟主机子文件</span><br><span class="line">        # include /etc/nginx/default.d/*.conf;</span><br><span class="line"></span><br><span class="line">        location / &#123;</span><br><span class="line">            proxy_pass http://10.104.35.121:31675;</span><br><span class="line">        &#125;</span><br><span class="line"></span><br><span class="line">        error_page 404 /404.html;</span><br><span class="line">        location = /404.html &#123;</span><br><span class="line">        &#125;</span><br><span class="line"></span><br><span class="line">        error_page 500 502 503 504 /50x.html;</span><br><span class="line">        location = /50x.html &#123;</span><br><span class="line">        &#125;</span><br><span class="line">    &#125;</span><br><span class="line">&#125;</span><br></pre></td></tr></table></figure>
+
+<h1 id="配置实例"><a href="#配置实例" class="headerlink" title="配置实例"></a>配置实例</h1><h2 id="反向代理-1"><a href="#反向代理-1" class="headerlink" title="反向代理"></a>反向代理</h2><figure class="highlight plain"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br></pre></td><td class="code"><pre><span class="line"></span><br><span class="line"></span><br></pre></td></tr></table></figure>
+
+<h1 id="参考文档"><a href="#参考文档" class="headerlink" title="参考文档"></a>参考文档</h1><p><a href="https://tengine.taobao.org/nginx_docs/cn/docs/http/request_processing.html" target="_blank" rel="noopener">Nginx如何处理一个请求</a></p>
+<p><a href="https://cloud.tencent.com/developer/article/1535615" target="_blank" rel="noopener">Nginx的location、root、alias指令用法和区别</a></p>
+<p><a href="https://blog.51cto.com/zhouxinyu1991/1827474" target="_blank" rel="noopener">nginx生产环境常用功能include 、虚拟主机别名、rewrite、nginx status详细解析、fastcgi、访问控制</a></p>
+<p><a href="https://juejin.cn/post/6844903849166110733" target="_blank" rel="noopener">彻底弄懂 Nginx location 匹配</a></p>
+<p><a href="https://www.cnblogs.com/woshimrf/p/nginx-config-location.html" target="_blank" rel="noopener">Nginx location匹配规则</a></p>
+<p><a href="https://xuexb.github.io/learn-nginx/example/proxy_pass.html" target="_blank" rel="noopener">proxy_pass url 反向代理的坑</a></p>
+<p><a href="https://www.jianshu.com/p/5caa48664da5" target="_blank" rel="noopener">详解proxy_pass、upstream与resolver</a></p>
+<p><a href="https://www.jianshu.com/p/b010c9302cd0" target="_blank" rel="noopener">nginx 之 proxy_pass详解</a></p>
+
+        
+      
+    </div>
+
+    
+    
+    
+      <footer class="post-footer">
+        <div class="post-eof"></div>
+      </footer>
+  </article>
+  
+  
+  
+
+    
+        
+  
+  
+  <article itemscope itemtype="http://schema.org/Article" class="post-block home" lang="zh-CN">
+    <link itemprop="mainEntityOfPage" href="http://yoursite.com/2020/12/09/hadoop/Web-Application-Proxy/">
+
+    <span hidden itemprop="author" itemscope itemtype="http://schema.org/Person">
+      <meta itemprop="name" content="姜纪光">
+      <meta itemprop="description" content="">
+      <meta itemprop="image" content="/images/avatar.gif">
+    </span>
+
+    <span hidden itemprop="publisher" itemscope itemtype="http://schema.org/Organization">
+      <meta itemprop="name" content="纪光的博客">
+    </span>
+      <header class="post-header">
+        <h1 class="post-title" itemprop="name headline">
+          
+            
+            <a href="/2020/12/09/hadoop/Web-Application-Proxy/" class="post-title-link" itemprop="url">Web Application Proxy</a>
+          
+        </h1>
+
+        <div class="post-meta">
+            <span class="post-meta-item">
+              <span class="post-meta-item-icon">
+                <i class="fa fa-calendar-o"></i>
+              </span>
+              <span class="post-meta-item-text">发表于</span>
+
+              
+                
+              
+
+              <time title="创建时间：2020-12-09 19:38:07 / 修改时间：20:01:18" itemprop="dateCreated datePublished" datetime="2020-12-09T19:38:07+08:00">2020-12-09</time>
+            </span>
+          
+            
+
+            
+          
+            <span class="post-meta-item">
+              <span class="post-meta-item-icon">
+                <i class="fa fa-folder-o"></i>
+              </span>
+              <span class="post-meta-item-text">分类于</span>
+              
+                <span itemprop="about" itemscope itemtype="http://schema.org/Thing">
+                  <a href="/categories/hadoop/" itemprop="url" rel="index">
+                    <span itemprop="name">hadoop</span>
+                  </a>
+                </span>
+
+                
+                
+              
+            </span>
+          
+
+          
+            <span id="/2020/12/09/hadoop/Web-Application-Proxy/" class="post-meta-item leancloud_visitors" data-flag-title="Web Application Proxy" title="阅读次数">
+              <span class="post-meta-item-icon">
+                <i class="fa fa-eye"></i>
+              </span>
+              <span class="post-meta-item-text">阅读次数：</span>
+              <span class="leancloud-visitors-count"></span>
+            </span>
+          
+  
+  
+
+        </div>
+      </header>
+
+    
+    
+    
+    <div class="post-body" itemprop="articleBody">
+
+      
+          <h1 id="简介"><a href="#简介" class="headerlink" title="简介"></a>简介</h1><h1 id="参考文档"><a href="#参考文档" class="headerlink" title="参考文档"></a>参考文档</h1><p><a href="https://hadoop.apache.org/docs/current/hadoop-yarn/hadoop-yarn-site/WebApplicationProxy.html" target="_blank" rel="noopener">Web Application Proxy</a></p>
+
+        
+      
+    </div>
+
+    
+    
+    
+      <footer class="post-footer">
+        <div class="post-eof"></div>
+      </footer>
+  </article>
+  
+  
+  
+
+    
+        
+  
+  
+  <article itemscope itemtype="http://schema.org/Article" class="post-block home" lang="zh-CN">
+    <link itemprop="mainEntityOfPage" href="http://yoursite.com/2020/12/09/hadoop/Hadoop操作实践/">
+
+    <span hidden itemprop="author" itemscope itemtype="http://schema.org/Person">
+      <meta itemprop="name" content="姜纪光">
+      <meta itemprop="description" content="">
+      <meta itemprop="image" content="/images/avatar.gif">
+    </span>
+
+    <span hidden itemprop="publisher" itemscope itemtype="http://schema.org/Organization">
+      <meta itemprop="name" content="纪光的博客">
+    </span>
+      <header class="post-header">
+        <h1 class="post-title" itemprop="name headline">
+          
+            
+            <a href="/2020/12/09/hadoop/Hadoop操作实践/" class="post-title-link" itemprop="url">Hadoop操作实践</a>
+          
+        </h1>
+
+        <div class="post-meta">
+            <span class="post-meta-item">
+              <span class="post-meta-item-icon">
+                <i class="fa fa-calendar-o"></i>
+              </span>
+              <span class="post-meta-item-text">发表于</span>
+
+              
+                
+              
+
+              <time title="创建时间：2020-12-09 15:57:51 / 修改时间：17:03:30" itemprop="dateCreated datePublished" datetime="2020-12-09T15:57:51+08:00">2020-12-09</time>
+            </span>
+          
+            
+
+            
+          
+            <span class="post-meta-item">
+              <span class="post-meta-item-icon">
+                <i class="fa fa-folder-o"></i>
+              </span>
+              <span class="post-meta-item-text">分类于</span>
+              
+                <span itemprop="about" itemscope itemtype="http://schema.org/Thing">
+                  <a href="/categories/hadoop/" itemprop="url" rel="index">
+                    <span itemprop="name">hadoop</span>
+                  </a>
+                </span>
+
+                
+                
+              
+            </span>
+          
+
+          
+            <span id="/2020/12/09/hadoop/Hadoop操作实践/" class="post-meta-item leancloud_visitors" data-flag-title="Hadoop操作实践" title="阅读次数">
+              <span class="post-meta-item-icon">
+                <i class="fa fa-eye"></i>
+              </span>
+              <span class="post-meta-item-text">阅读次数：</span>
+              <span class="leancloud-visitors-count"></span>
+            </span>
+          
+  
+  
+
+        </div>
+      </header>
+
+    
+    
+    
+    <div class="post-body" itemprop="articleBody">
+
+      
+          <h1 id="常用操作"><a href="#常用操作" class="headerlink" title="常用操作"></a>常用操作</h1><figure class="highlight shell"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br><span class="line">3</span><br><span class="line">4</span><br><span class="line">5</span><br></pre></td><td class="code"><pre><span class="line"><span class="meta">#</span> 查询rm-id</span><br><span class="line"><span class="meta">$</span> cat /etc/apps/hadoop-conf/yarn-site.xml | grep 'yarn.resourcemanager.ha.rm-ids'</span><br><span class="line"></span><br><span class="line"><span class="meta">#</span> 查看rm-id的状态：active、standby</span><br><span class="line"><span class="meta">$</span> yarn rmadmin -getServiceState rm1</span><br></pre></td></tr></table></figure>
+
+<h1 id="为Yarn队列授权提交用户"><a href="#为Yarn队列授权提交用户" class="headerlink" title="为Yarn队列授权提交用户"></a>为Yarn队列授权提交用户</h1><h2 id="公平调度器"><a href="#公平调度器" class="headerlink" title="公平调度器"></a>公平调度器</h2><ul>
+<li><p>在所有的rm 机器上执行以下操作：</p>
+<p>例如，新增flink-dev用户</p>
+<p>aclSubmitApps：授权可以提交应用程序</p>
+<p>aclAdministerApps：授权管理此队列的管理任务</p>
+<figure class="highlight xml"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br><span class="line">3</span><br><span class="line">4</span><br><span class="line">5</span><br><span class="line">6</span><br><span class="line">7</span><br><span class="line">8</span><br><span class="line">9</span><br></pre></td><td class="code"><pre><span class="line"><span class="tag">&lt;<span class="name">queue</span> <span class="attr">name</span>=<span class="string">"stream"</span>&gt;</span></span><br><span class="line">       <span class="tag">&lt;<span class="name">minResources</span>&gt;</span>0 mb, 0 vcores<span class="tag">&lt;/<span class="name">minResources</span>&gt;</span></span><br><span class="line">       <span class="tag">&lt;<span class="name">maxResources</span>&gt;</span>21450000 mb,41250 vcores<span class="tag">&lt;/<span class="name">maxResources</span>&gt;</span></span><br><span class="line">       <span class="tag">&lt;<span class="name">weight</span>&gt;</span>1.0<span class="tag">&lt;/<span class="name">weight</span>&gt;</span></span><br><span class="line">       <span class="tag">&lt;<span class="name">allowPreemptionFrom</span>&gt;</span>false<span class="tag">&lt;/<span class="name">allowPreemptionFrom</span>&gt;</span></span><br><span class="line">       <span class="tag">&lt;<span class="name">schedulingPolicy</span>&gt;</span>fair<span class="tag">&lt;/<span class="name">schedulingPolicy</span>&gt;</span></span><br><span class="line">       <span class="tag">&lt;<span class="name">aclSubmitApps</span>&gt;</span>stream,flink-dev <span class="tag">&lt;/<span class="name">aclSubmitApps</span>&gt;</span></span><br><span class="line">       <span class="tag">&lt;<span class="name">aclAdministerApps</span>&gt;</span>stream,flink-dev <span class="tag">&lt;/<span class="name">aclAdministerApps</span>&gt;</span></span><br><span class="line"><span class="tag">&lt;/<span class="name">queue</span>&gt;</span></span><br></pre></td></tr></table></figure>
+</li>
+<li><p>切换到<code>active</code>的rm机器上，执行命令让授权生效</p>
+<figure class="highlight shell"><table><tr><td class="gutter"><pre><span class="line">1</span><br></pre></td><td class="code"><pre><span class="line"><span class="meta">$</span> yarn rmadmin -refreshQueues</span><br></pre></td></tr></table></figure>
+
+</li>
+</ul>
+<h1 id="添加HDFS用户"><a href="#添加HDFS用户" class="headerlink" title="添加HDFS用户"></a>添加HDFS用户</h1><ul>
+<li><p>登录任意一台可以连接到HDFS环境的机器，</p>
+<p>执行脚本：<code>bash /data/shells/hdfs/add_flink_user.sh {username}</code></p>
+<p>脚本内容如下：</p>
+<figure class="highlight shell"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br><span class="line">3</span><br><span class="line">4</span><br><span class="line">5</span><br><span class="line">6</span><br><span class="line">7</span><br></pre></td><td class="code"><pre><span class="line"><span class="meta">#</span>!/bin/bash</span><br><span class="line">user=$1</span><br><span class="line">export HADOOP_USER_NAME=hadoop</span><br><span class="line">hdfs dfs -mkdir hdfs://rt2/user/$user</span><br><span class="line">hadoop fs -setfacl -R -m user:$user:rwx hdfs://rt2/user/$user</span><br><span class="line">hadoop fs -setfacl -m user:$user:rwx hdfs://rt2/user/flink/checkpoints</span><br><span class="line">hadoop fs -setfacl -m user:$user:rwx hdfs://rt2/user/flink/savepoints</span><br></pre></td></tr></table></figure>
+
+</li>
+</ul>
+<h1 id="参考文档"><a href="#参考文档" class="headerlink" title="参考文档"></a>参考文档</h1><p><a href>Hadoop专家</a></p>
+
+        
+      
+    </div>
+
+    
+    
+    
+      <footer class="post-footer">
+        <div class="post-eof"></div>
+      </footer>
+  </article>
+  
+  
+  
+
+    
+        
+  
+  
+  <article itemscope itemtype="http://schema.org/Article" class="post-block home" lang="zh-CN">
+    <link itemprop="mainEntityOfPage" href="http://yoursite.com/2020/12/09/flink/HistoryServer实践/">
+
+    <span hidden itemprop="author" itemscope itemtype="http://schema.org/Person">
+      <meta itemprop="name" content="姜纪光">
+      <meta itemprop="description" content="">
+      <meta itemprop="image" content="/images/avatar.gif">
+    </span>
+
+    <span hidden itemprop="publisher" itemscope itemtype="http://schema.org/Organization">
+      <meta itemprop="name" content="纪光的博客">
+    </span>
+      <header class="post-header">
+        <h1 class="post-title" itemprop="name headline">
+          
+            
+            <a href="/2020/12/09/flink/HistoryServer实践/" class="post-title-link" itemprop="url">History Server实践</a>
+          
+        </h1>
+
+        <div class="post-meta">
+            <span class="post-meta-item">
+              <span class="post-meta-item-icon">
+                <i class="fa fa-calendar-o"></i>
+              </span>
+              <span class="post-meta-item-text">发表于</span>
+
+              
+                
+              
+
+              <time title="创建时间：2020-12-09 15:42:39" itemprop="dateCreated datePublished" datetime="2020-12-09T15:42:39+08:00">2020-12-09</time>
+            </span>
+          
+            
+
+            
+              <span class="post-meta-item">
+                <span class="post-meta-item-icon">
+                  <i class="fa fa-calendar-check-o"></i>
+                </span>
+                <span class="post-meta-item-text">更新于</span>
+                <time title="修改时间：2021-02-05 10:05:20" itemprop="dateModified" datetime="2021-02-05T10:05:20+08:00">2021-02-05</time>
+              </span>
+            
+          
+            <span class="post-meta-item">
+              <span class="post-meta-item-icon">
+                <i class="fa fa-folder-o"></i>
+              </span>
+              <span class="post-meta-item-text">分类于</span>
+              
+                <span itemprop="about" itemscope itemtype="http://schema.org/Thing">
+                  <a href="/categories/flink/" itemprop="url" rel="index">
+                    <span itemprop="name">flink</span>
+                  </a>
+                </span>
+
+                
+                
+              
+            </span>
+          
+
+          
+            <span id="/2020/12/09/flink/HistoryServer实践/" class="post-meta-item leancloud_visitors" data-flag-title="History Server实践" title="阅读次数">
+              <span class="post-meta-item-icon">
+                <i class="fa fa-eye"></i>
+              </span>
+              <span class="post-meta-item-text">阅读次数：</span>
+              <span class="leancloud-visitors-count"></span>
+            </span>
+          
+  
+  
+
+        </div>
+      </header>
+
+    
+    
+    
+    <div class="post-body" itemprop="articleBody">
+
+      
+          <h1 id="简介"><a href="#简介" class="headerlink" title="简介"></a>简介</h1><ul>
+<li>History Server用来查询已完成任务的统计（Flink Dashboard）信息</li>
+</ul>
+<h1 id="HDFS配置"><a href="#HDFS配置" class="headerlink" title="HDFS配置"></a>HDFS配置</h1><figure class="highlight shell"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br><span class="line">3</span><br><span class="line">4</span><br><span class="line">5</span><br><span class="line">6</span><br><span class="line">7</span><br><span class="line">8</span><br><span class="line">9</span><br><span class="line">10</span><br><span class="line">11</span><br><span class="line">12</span><br><span class="line">13</span><br><span class="line">14</span><br></pre></td><td class="code"><pre><span class="line"><span class="meta">#</span> 创建hdfs目录</span><br><span class="line"><span class="meta">$</span> su - hadoop</span><br><span class="line"><span class="meta">$</span> hdfs dfs -mkdir hdfs://flink/flink-history</span><br><span class="line"><span class="meta">#</span> 使用acl授权所有用户都可读写</span><br><span class="line"><span class="meta">$</span> hdfs dfs -setfacl -R -m user::rwx,group::rwx,other::rwx hdfs://flink/flink-history</span><br><span class="line"></span><br><span class="line"><span class="meta">#</span> 检查权限</span><br><span class="line"><span class="meta">$</span> hdfs dfs -getfacl -R hdfs://flink/flink-history</span><br><span class="line"><span class="meta">#</span> file: hdfs://rt2/hudi-flink-test</span><br><span class="line"><span class="meta">#</span> owner: hadoop</span><br><span class="line"><span class="meta">#</span> group: hadoop</span><br><span class="line">user::rwx</span><br><span class="line">group::rwx</span><br><span class="line">other::rwx</span><br></pre></td></tr></table></figure>
+
+<h1 id="YAML文件配置"><a href="#YAML文件配置" class="headerlink" title="YAML文件配置"></a>YAML文件配置</h1><figure class="highlight yaml"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br><span class="line">3</span><br><span class="line">4</span><br><span class="line">5</span><br><span class="line">6</span><br><span class="line">7</span><br><span class="line">8</span><br><span class="line">9</span><br><span class="line">10</span><br><span class="line">11</span><br></pre></td><td class="code"><pre><span class="line"><span class="comment"># jobmanager将已运行完成的任务的存档文件，上传到该路径</span></span><br><span class="line"><span class="string">jobmanager.archive.fs.dir:</span> <span class="attr">hdfs://flink/flink-history</span></span><br><span class="line"><span class="comment"># HistoryServers服务的端口号</span></span><br><span class="line"><span class="string">historyserver.web.port:</span> <span class="number">8086</span></span><br><span class="line"><span class="comment"># HistoryServers服务的IP地址</span></span><br><span class="line"><span class="string">historyserver.web.address:</span> <span class="number">192.168</span><span class="number">.190</span><span class="number">.63</span></span><br><span class="line"><span class="comment"># HistoryServers只需要启动一个，下面的参数只需要在启动HistoryServers的yaml文件中配置</span></span><br><span class="line"><span class="comment"># HistoryServers服务将从这些目录中获取已存到的作业</span></span><br><span class="line"><span class="string">historyserver.archive.fs.dir:</span> <span class="attr">hdfs://flink/flink-history</span></span><br><span class="line"><span class="comment"># HistoryServers服务获取存档作业的间隔时间</span></span><br><span class="line"><span class="string">historyserver.archive.fs.refresh-interval:</span> <span class="number">10000</span></span><br></pre></td></tr></table></figure>
+
+<h1 id="申请域名"><a href="#申请域名" class="headerlink" title="申请域名"></a>申请域名</h1><ul>
+<li>flink-history.qutoutiao.net 到 192.168.190.63:8086 就可以了</li>
+</ul>
+<p>OK 完成收工！</p>
+<h1 id="参考文档"><a href="#参考文档" class="headerlink" title="参考文档"></a>参考文档</h1><p><a href="https://ci.apache.org/projects/flink/flink-docs-release-1.12/deployment/advanced/historyserver.html" target="_blank" rel="noopener">History Server</a></p>
+
+        
+      
+    </div>
+
+    
+    
+    
+      <footer class="post-footer">
+        <div class="post-eof"></div>
+      </footer>
+  </article>
+  
+  
+  
+
+    
+        
+  
+  
+  <article itemscope itemtype="http://schema.org/Article" class="post-block home" lang="zh-CN">
+    <link itemprop="mainEntityOfPage" href="http://yoursite.com/2020/12/04/tools/maven实践/">
+
+    <span hidden itemprop="author" itemscope itemtype="http://schema.org/Person">
+      <meta itemprop="name" content="姜纪光">
+      <meta itemprop="description" content="">
+      <meta itemprop="image" content="/images/avatar.gif">
+    </span>
+
+    <span hidden itemprop="publisher" itemscope itemtype="http://schema.org/Organization">
+      <meta itemprop="name" content="纪光的博客">
+    </span>
+      <header class="post-header">
+        <h1 class="post-title" itemprop="name headline">
+          
+            
+            <a href="/2020/12/04/tools/maven实践/" class="post-title-link" itemprop="url">maven实践</a>
+          
+        </h1>
+
+        <div class="post-meta">
+            <span class="post-meta-item">
+              <span class="post-meta-item-icon">
+                <i class="fa fa-calendar-o"></i>
+              </span>
+              <span class="post-meta-item-text">发表于</span>
+
+              
+                
+              
+
+              <time title="创建时间：2020-12-04 14:50:08 / 修改时间：15:50:43" itemprop="dateCreated datePublished" datetime="2020-12-04T14:50:08+08:00">2020-12-04</time>
             </span>
           
             
@@ -297,7 +1034,7 @@
           
 
           
-            <span id="/2020/11/21/tools/开发工具/" class="post-meta-item leancloud_visitors" data-flag-title="开发工具" title="阅读次数">
+            <span id="/2020/12/04/tools/maven实践/" class="post-meta-item leancloud_visitors" data-flag-title="maven实践" title="阅读次数">
               <span class="post-meta-item-icon">
                 <i class="fa fa-eye"></i>
               </span>
@@ -317,18 +1054,9 @@
     <div class="post-body" itemprop="articleBody">
 
       
-          <h1 id="cloc"><a href="#cloc" class="headerlink" title="cloc"></a>cloc</h1><ul>
-<li><p>是一个代码统计工具</p>
-</li>
-<li><p>安装</p>
-<figure class="highlight shell"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br></pre></td><td class="code"><pre><span class="line"><span class="meta">#</span> mac下安装</span><br><span class="line"><span class="meta">$</span> brew install cloc</span><br></pre></td></tr></table></figure>
-</li>
-<li><p>使用案例</p>
-<figure class="highlight shell"><table><tr><td class="gutter"><pre><span class="line">1</span><br></pre></td><td class="code"><pre><span class="line"><span class="meta">$</span> cloc kubernetes</span><br></pre></td></tr></table></figure>
+          <h1 id="maven命令"><a href="#maven命令" class="headerlink" title="maven命令"></a>maven命令</h1><figure class="highlight shell"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br><span class="line">3</span><br><span class="line">4</span><br><span class="line">5</span><br><span class="line">6</span><br><span class="line">7</span><br><span class="line">8</span><br><span class="line">9</span><br><span class="line">10</span><br><span class="line">11</span><br><span class="line">12</span><br><span class="line">13</span><br></pre></td><td class="code"><pre><span class="line">-DskipTests   #不执行测试用例，但是会编译测试用例生成class文件至target/test-classes目录</span><br><span class="line">-Dmaven.test.skip=true  #不执行测试用例，也不会编译测试用例类</span><br><span class="line"></span><br><span class="line">-Dmaven.compile.fork=true #用以指明多线程进行编译</span><br><span class="line">-T 4  #用4个线程构建</span><br><span class="line">-T 1C #根据CPU核数每个核分配1个线程进行构建</span><br><span class="line"></span><br><span class="line">--fail-at-end #跳过失败的模块，编译到最后再报错</span><br><span class="line"></span><br><span class="line">-Dmaven.javadoc.skip=true # 跳过生成javadoc</span><br><span class="line">-Denforcer.skip=true # Enforcer可以在项目validate时，对项目环境进行检查</span><br><span class="line">-Dfindbugs.skip=true # FindBugs其实就是对编译后的class进行扫描</span><br><span class="line">-Dcheckstyle.skip=true # 代码风格检查</span><br></pre></td></tr></table></figure>
 
-<p>​</p>
-</li>
-</ul>
+<h1 id="参考文档"><a href="#参考文档" class="headerlink" title="参考文档"></a>参考文档</h1><p><a href="https://yuzhouwan.com/posts/2254/" target="_blank" rel="noopener">Maven 高级玩法</a></p>
 
         
       
@@ -350,7 +1078,7 @@
   
   
   <article itemscope itemtype="http://schema.org/Article" class="post-block home" lang="zh-CN">
-    <link itemprop="mainEntityOfPage" href="http://yoursite.com/2020/11/21/go/go常用命令/">
+    <link itemprop="mainEntityOfPage" href="http://yoursite.com/2020/12/03/k8s/k8s-网络原理/">
 
     <span hidden itemprop="author" itemscope itemtype="http://schema.org/Person">
       <meta itemprop="name" content="姜纪光">
@@ -365,7 +1093,7 @@
         <h1 class="post-title" itemprop="name headline">
           
             
-            <a href="/2020/11/21/go/go常用命令/" class="post-title-link" itemprop="url">go常用命令</a>
+            <a href="/2020/12/03/k8s/k8s-网络原理/" class="post-title-link" itemprop="url">k8s-网络原理</a>
           
         </h1>
 
@@ -380,148 +1108,11 @@
                 
               
 
-              <time title="创建时间：2020-11-21 10:37:45 / 修改时间：11:00:08" itemprop="dateCreated datePublished" datetime="2020-11-21T10:37:45+08:00">2020-11-21</time>
+              <time title="创建时间：2020-12-03 11:44:43 / 修改时间：11:52:28" itemprop="dateCreated datePublished" datetime="2020-12-03T11:44:43+08:00">2020-12-03</time>
             </span>
           
             
 
-            
-          
-            <span class="post-meta-item">
-              <span class="post-meta-item-icon">
-                <i class="fa fa-folder-o"></i>
-              </span>
-              <span class="post-meta-item-text">分类于</span>
-              
-                <span itemprop="about" itemscope itemtype="http://schema.org/Thing">
-                  <a href="/categories/go/" itemprop="url" rel="index">
-                    <span itemprop="name">go</span>
-                  </a>
-                </span>
-
-                
-                
-              
-            </span>
-          
-
-          
-            <span id="/2020/11/21/go/go常用命令/" class="post-meta-item leancloud_visitors" data-flag-title="go常用命令" title="阅读次数">
-              <span class="post-meta-item-icon">
-                <i class="fa fa-eye"></i>
-              </span>
-              <span class="post-meta-item-text">阅读次数：</span>
-              <span class="leancloud-visitors-count"></span>
-            </span>
-          
-  
-  
-
-        </div>
-      </header>
-
-    
-    
-    
-    <div class="post-body" itemprop="articleBody">
-
-      
-          <h1 id="go-get"><a href="#go-get" class="headerlink" title="go get"></a>go get</h1><ul>
-<li><p>借助于代码管理工具远程拉取代码包以及依赖包，并自动完成编译和安装。</p>
-</li>
-<li><p>使用前需要安装与远程包匹配的代码管理工具，如Git</p>
-</li>
-<li><p>实际执行时分为两步：下载源码包，执行<code>go install</code></p>
-</li>
-<li><p>参数介绍</p>
-<blockquote>
-<p>-d 只下载不安装</p>
-<p>-t 同时也下载需要为运行测试所需要的包</p>
-<p>-u 强制使用网络去更新包和它的依赖包</p>
-<p>-v 显示执行的命令</p>
-</blockquote>
-</li>
-<li><p>使用案列</p>
-<figure class="highlight shell"><table><tr><td class="gutter"><pre><span class="line">1</span><br></pre></td><td class="code"><pre><span class="line"><span class="meta">$</span> go get -d k8s.io/kuernetes</span><br></pre></td></tr></table></figure>
-
-</li>
-</ul>
-<h1 id="go-install"><a href="#go-install" class="headerlink" title="go install"></a>go install</h1><ul>
-<li><p>与 <code>go build</code>命令类似，并且附加参数绝大多数相同</p>
-</li>
-<li><p>只是将编译的中间文件放在GOPATH的pkg目录下，以及将编译结果放到GOPATH的bin目录下</p>
-</li>
-<li><p>使用案例</p>
-<figure class="highlight shell"><table><tr><td class="gutter"><pre><span class="line">1</span><br></pre></td><td class="code"><pre><span class="line"><span class="meta">$</span> go install chapter11/goinstall</span><br></pre></td></tr></table></figure>
-
-<p>​</p>
-</li>
-</ul>
-<h1 id="参考文档"><a href="#参考文档" class="headerlink" title="参考文档"></a>参考文档</h1><p><a href="http://c.biancheng.net/view/123.html" target="_blank" rel="noopener">go get命令——一键获取代码、编译并安装</a></p>
-
-        
-      
-    </div>
-
-    
-    
-    
-      <footer class="post-footer">
-        <div class="post-eof"></div>
-      </footer>
-  </article>
-  
-  
-  
-
-    
-        
-  
-  
-  <article itemscope itemtype="http://schema.org/Article" class="post-block home" lang="zh-CN">
-    <link itemprop="mainEntityOfPage" href="http://yoursite.com/2020/11/19/k8s/k8s-集群访问/">
-
-    <span hidden itemprop="author" itemscope itemtype="http://schema.org/Person">
-      <meta itemprop="name" content="姜纪光">
-      <meta itemprop="description" content="">
-      <meta itemprop="image" content="/images/avatar.gif">
-    </span>
-
-    <span hidden itemprop="publisher" itemscope itemtype="http://schema.org/Organization">
-      <meta itemprop="name" content="纪光的博客">
-    </span>
-      <header class="post-header">
-        <h1 class="post-title" itemprop="name headline">
-          
-            
-            <a href="/2020/11/19/k8s/k8s-集群访问/" class="post-title-link" itemprop="url">k8s的集群访问</a>
-          
-        </h1>
-
-        <div class="post-meta">
-            <span class="post-meta-item">
-              <span class="post-meta-item-icon">
-                <i class="fa fa-calendar-o"></i>
-              </span>
-              <span class="post-meta-item-text">发表于</span>
-
-              
-                
-              
-
-              <time title="创建时间：2020-11-19 17:08:28" itemprop="dateCreated datePublished" datetime="2020-11-19T17:08:28+08:00">2020-11-19</time>
-            </span>
-          
-            
-
-            
-              <span class="post-meta-item">
-                <span class="post-meta-item-icon">
-                  <i class="fa fa-calendar-check-o"></i>
-                </span>
-                <span class="post-meta-item-text">更新于</span>
-                <time title="修改时间：2020-11-30 17:01:56" itemprop="dateModified" datetime="2020-11-30T17:01:56+08:00">2020-11-30</time>
-              </span>
             
           
             <span class="post-meta-item">
@@ -543,7 +1134,7 @@
           
 
           
-            <span id="/2020/11/19/k8s/k8s-集群访问/" class="post-meta-item leancloud_visitors" data-flag-title="k8s的集群访问" title="阅读次数">
+            <span id="/2020/12/03/k8s/k8s-网络原理/" class="post-meta-item leancloud_visitors" data-flag-title="k8s-网络原理" title="阅读次数">
               <span class="post-meta-item-icon">
                 <i class="fa fa-eye"></i>
               </span>
@@ -563,30 +1154,7 @@
     <div class="post-body" itemprop="articleBody">
 
       
-          <h2 id="Web界面（Dashboard）"><a href="#Web界面（Dashboard）" class="headerlink" title="Web界面（Dashboard）"></a>Web界面（Dashboard）</h2><ul>
-<li><p>请首先阅读 <a href="https://github.com/kubernetes/dashboard/blob/master/docs/user/access-control/README.md" target="_blank" rel="noopener">权限控制</a></p>
-</li>
-<li><p>Dashboard是k8s集群网页版的用户界面</p>
-</li>
-<li><p>设置步骤</p>
-<figure class="highlight shell"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br><span class="line">3</span><br><span class="line">4</span><br><span class="line">5</span><br><span class="line">6</span><br><span class="line">7</span><br><span class="line">8</span><br><span class="line">9</span><br><span class="line">10</span><br><span class="line">11</span><br><span class="line">12</span><br><span class="line">13</span><br><span class="line">14</span><br><span class="line">15</span><br><span class="line">16</span><br><span class="line">17</span><br><span class="line">18</span><br><span class="line">19</span><br><span class="line">20</span><br><span class="line">21</span><br><span class="line">22</span><br></pre></td><td class="code"><pre><span class="line"><span class="meta">#</span> 在master节点 部署Dashboard</span><br><span class="line"><span class="meta">$</span> kubectl apply -f https://raw.githubusercontent.com/kubernetes/dashboard/v2.0.0/aio/deploy/recommended.yaml</span><br><span class="line"></span><br><span class="line"><span class="meta">#</span> 访问Dashboard  在访问节点 执行以下命令</span><br><span class="line"><span class="meta">$</span> kubectl proxy</span><br><span class="line"><span class="meta">#</span> 访问以下链接</span><br><span class="line"><span class="meta">#</span> http://localhost:8001/api/v1/namespaces/kubernetes-dashboard/services/https:kubernetes-dashboard:/proxy/</span><br><span class="line"></span><br><span class="line"><span class="meta">#</span> 登录dashboard，执行以下命令</span><br><span class="line"><span class="meta">#</span> Create service account</span><br><span class="line"><span class="meta">$</span> kubectl create serviceaccount dashboard-test1 -n kube-system</span><br><span class="line"></span><br><span class="line"><span class="meta">$</span> kubectl create clusterrolebinding dashboard-test1 \</span><br><span class="line">  --clusterrole=cluster-admin \</span><br><span class="line">  --serviceaccount=kube-system:dashboard-test1</span><br><span class="line">  </span><br><span class="line"><span class="meta">#</span> Parse the token </span><br><span class="line"><span class="meta">$</span> TOKEN=$(kubectl -n kube-system describe secret $(kubectl -n kube-system get secret | awk '/^dashboard-test1-token-/&#123;print $1&#125;') | awk '$1=="token:"&#123;print $2&#125;')</span><br><span class="line"></span><br><span class="line"><span class="meta">#</span> 或者通过 kubectl get serviceaccounts dashboard-test1 -o yaml -n kube-system 得到token名称 然后再执行 kubectl -n kube-system describe secret &lt;token-name&gt; 获取token内容</span><br><span class="line"></span><br><span class="line"><span class="meta">#</span> 使用生成的token即可登录</span><br></pre></td></tr></table></figure>
-
-</li>
-</ul>
-<h2 id="参考文档"><a href="#参考文档" class="headerlink" title="参考文档"></a>参考文档</h2><p><a href="https://qastack.cn/programming/46664104/how-to-sign-in-kubernetes-dashboard" target="_blank" rel="noopener">如何登录Kubernetes仪表板</a></p>
-<p><a href="https://github.com/kubernetes/dashboard" target="_blank" rel="noopener">kubernetes/dashboard</a></p>
-<p><a href="https://github.com/kubernetes/dashboard/tree/master/docs" target="_blank" rel="noopener">dashboard/docs</a></p>
-<h1 id="kubeconfig"><a href="#kubeconfig" class="headerlink" title="kubeconfig"></a>kubeconfig</h1><h2 id="参考文档-1"><a href="#参考文档-1" class="headerlink" title="参考文档"></a>参考文档</h2><p><a href="https://kubernetes.io/zh/docs/tasks/access-application-cluster/configure-access-multiple-clusters/#set-the-kubeconfig-environment-variable" target="_blank" rel="noopener">配置对多集群的访问</a></p>
-<p><a href="https://kubernetes.io/zh/docs/concepts/configuration/organize-cluster-access-kubeconfig/" target="_blank" rel="noopener">使用 kubeconfig 文件组织集群访问</a></p>
-<p><a href="https://jimmysong.io/kubernetes-handbook/guide/kubectl-user-authentication-authorization.html" target="_blank" rel="noopener">创建用户认证授权的kubeconfig文件</a></p>
-<h1 id="访问API"><a href="#访问API" class="headerlink" title="访问API"></a>访问API</h1><h1 id="实用命令"><a href="#实用命令" class="headerlink" title="实用命令"></a>实用命令</h1><figure class="highlight shell"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br><span class="line">3</span><br><span class="line">4</span><br></pre></td><td class="code"><pre><span class="line"><span class="meta">#</span> kubectl的版本</span><br><span class="line"><span class="meta">$</span> kubectl version --client</span><br><span class="line"><span class="meta">#</span> 设置当前上下文</span><br><span class="line"><span class="meta">$</span> kubectl config use-context &lt;context-name&gt;</span><br></pre></td></tr></table></figure>
-
-<h1 id="参考文档-2"><a href="#参考文档-2" class="headerlink" title="参考文档"></a>参考文档</h1><p><a href="https://v1-18.docs.kubernetes.io/docs/reference/generated/kubernetes-api/v1.18/" target="_blank" rel="noopener">API</a></p>
-<p><a href="https://kubernetes.io/zh/docs/tasks/access-application-cluster/" target="_blank" rel="noopener">访问集群中的应用程序</a></p>
-<p><a href="https://github.com/kubernetes/dashboard/blob/master/docs/user/access-control/README.md" target="_blank" rel="noopener">权限控制</a></p>
-<p><a href="https://kubernetes.io/zh/docs/reference/access-authn-authz/" target="_blank" rel="noopener">访问API</a></p>
-<p><a href="https://kubernetes.io/zh/docs/reference/kubectl/jsonpath/" target="_blank" rel="noopener">JSONPath 支持</a></p>
-
+          <h1 id="k8s网络模型"><a href="#k8s网络模型" class="headerlink" title="k8s网络模型"></a>k8s网络模型</h1><h1 id="参考文档"><a href="#参考文档" class="headerlink" title="参考文档"></a>参考文档</h1>
         
       
     </div>
@@ -607,7 +1175,7 @@
   
   
   <article itemscope itemtype="http://schema.org/Article" class="post-block home" lang="zh-CN">
-    <link itemprop="mainEntityOfPage" href="http://yoursite.com/2020/11/17/go/go实践/">
+    <link itemprop="mainEntityOfPage" href="http://yoursite.com/2020/12/02/flink/flink-SQL实践/">
 
     <span hidden itemprop="author" itemscope itemtype="http://schema.org/Person">
       <meta itemprop="name" content="姜纪光">
@@ -622,7 +1190,7 @@
         <h1 class="post-title" itemprop="name headline">
           
             
-            <a href="/2020/11/17/go/go实践/" class="post-title-link" itemprop="url">go实践</a>
+            <a href="/2020/12/02/flink/flink-SQL实践/" class="post-title-link" itemprop="url">flink-SQL实践</a>
           
         </h1>
 
@@ -637,106 +1205,7 @@
                 
               
 
-              <time title="创建时间：2020-11-17 11:47:12 / 修改时间：14:29:21" itemprop="dateCreated datePublished" datetime="2020-11-17T11:47:12+08:00">2020-11-17</time>
-            </span>
-          
-            
-
-            
-          
-            <span class="post-meta-item">
-              <span class="post-meta-item-icon">
-                <i class="fa fa-folder-o"></i>
-              </span>
-              <span class="post-meta-item-text">分类于</span>
-              
-                <span itemprop="about" itemscope itemtype="http://schema.org/Thing">
-                  <a href="/categories/go/" itemprop="url" rel="index">
-                    <span itemprop="name">go</span>
-                  </a>
-                </span>
-
-                
-                
-              
-            </span>
-          
-
-          
-            <span id="/2020/11/17/go/go实践/" class="post-meta-item leancloud_visitors" data-flag-title="go实践" title="阅读次数">
-              <span class="post-meta-item-icon">
-                <i class="fa fa-eye"></i>
-              </span>
-              <span class="post-meta-item-text">阅读次数：</span>
-              <span class="leancloud-visitors-count"></span>
-            </span>
-          
-  
-  
-
-        </div>
-      </header>
-
-    
-    
-    
-    <div class="post-body" itemprop="articleBody">
-
-      
-          <h1 id="概述"><a href="#概述" class="headerlink" title="概述"></a>概述</h1><h1 id="参考文档"><a href="#参考文档" class="headerlink" title="参考文档"></a>参考文档</h1><p><a href="https://developer.aliyun.com/article/710165" target="_blank" rel="noopener">在 GitHub 上构建一个看上去正规的 Golang 项目</a></p>
-<p><a href="https://github.com/golang-standards/project-layout/blob/master/README_zh.md" target="_blank" rel="noopener">Standard Go Project Layout</a></p>
-
-        
-      
-    </div>
-
-    
-    
-    
-      <footer class="post-footer">
-        <div class="post-eof"></div>
-      </footer>
-  </article>
-  
-  
-  
-
-    
-        
-  
-  
-  <article itemscope itemtype="http://schema.org/Article" class="post-block home" lang="zh-CN">
-    <link itemprop="mainEntityOfPage" href="http://yoursite.com/2020/11/17/k8s/k8s-源码构建/">
-
-    <span hidden itemprop="author" itemscope itemtype="http://schema.org/Person">
-      <meta itemprop="name" content="姜纪光">
-      <meta itemprop="description" content="">
-      <meta itemprop="image" content="/images/avatar.gif">
-    </span>
-
-    <span hidden itemprop="publisher" itemscope itemtype="http://schema.org/Organization">
-      <meta itemprop="name" content="纪光的博客">
-    </span>
-      <header class="post-header">
-        <h1 class="post-title" itemprop="name headline">
-          
-            
-            <a href="/2020/11/17/k8s/k8s-源码构建/" class="post-title-link" itemprop="url">k8s-源码构建</a>
-          
-        </h1>
-
-        <div class="post-meta">
-            <span class="post-meta-item">
-              <span class="post-meta-item-icon">
-                <i class="fa fa-calendar-o"></i>
-              </span>
-              <span class="post-meta-item-text">发表于</span>
-
-              
-                
-              
-
-              <time title="创建时间：2020-11-17 10:00:15" itemprop="dateCreated datePublished" datetime="2020-11-17T10:00:15+08:00">2020-11-17</time>
+              <time title="创建时间：2020-12-02 18:02:55" itemprop="dateCreated datePublished" datetime="2020-12-02T18:02:55+08:00">2020-12-02</time>
             </span>
           
             
@@ -747,7 +1216,7 @@
                   <i class="fa fa-calendar-check-o"></i>
                 </span>
                 <span class="post-meta-item-text">更新于</span>
-                <time title="修改时间：2020-11-21 11:43:27" itemprop="dateModified" datetime="2020-11-21T11:43:27+08:00">2020-11-21</time>
+                <time title="修改时间：2021-01-15 10:58:17" itemprop="dateModified" datetime="2021-01-15T10:58:17+08:00">2021-01-15</time>
               </span>
             
           
@@ -758,8 +1227,8 @@
               <span class="post-meta-item-text">分类于</span>
               
                 <span itemprop="about" itemscope itemtype="http://schema.org/Thing">
-                  <a href="/categories/k8s/" itemprop="url" rel="index">
-                    <span itemprop="name">k8s</span>
+                  <a href="/categories/flink/" itemprop="url" rel="index">
+                    <span itemprop="name">flink</span>
                   </a>
                 </span>
 
@@ -770,7 +1239,7 @@
           
 
           
-            <span id="/2020/11/17/k8s/k8s-源码构建/" class="post-meta-item leancloud_visitors" data-flag-title="k8s-源码构建" title="阅读次数">
+            <span id="/2020/12/02/flink/flink-SQL实践/" class="post-meta-item leancloud_visitors" data-flag-title="flink-SQL实践" title="阅读次数">
               <span class="post-meta-item-icon">
                 <i class="fa fa-eye"></i>
               </span>
@@ -790,89 +1259,80 @@
     <div class="post-body" itemprop="articleBody">
 
       
-          <h1 id="构建过程"><a href="#构建过程" class="headerlink" title="构建过程"></a>构建过程</h1><ul>
-<li>k8s源码构建分为三种：<code>本地环境构建、容器环境构建、Bazel环境构建</code></li>
-</ul>
-<h2 id="本地环境构建"><a href="#本地环境构建" class="headerlink" title="本地环境构建"></a>本地环境构建</h2><ul>
-<li><p>设置GO环境，包括安装go、设置GOROOT、GOPATH环境变量</p>
+          <h1 id="SQL-Client"><a href="#SQL-Client" class="headerlink" title="SQL Client"></a>SQL Client</h1><figure class="highlight shell"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br><span class="line">3</span><br><span class="line">4</span><br><span class="line">5</span><br><span class="line">6</span><br><span class="line">7</span><br><span class="line">8</span><br><span class="line">9</span><br><span class="line">10</span><br><span class="line">11</span><br><span class="line">12</span><br><span class="line">13</span><br><span class="line">14</span><br><span class="line">15</span><br><span class="line">16</span><br><span class="line">17</span><br><span class="line">18</span><br></pre></td><td class="code"><pre><span class="line"><span class="meta">#</span> 172.16.190.63</span><br><span class="line"><span class="meta">$</span> export HADOOP_USER_NAME=stream</span><br><span class="line"><span class="meta">$</span> export HADOOP_CONF_DIR=/etc/apps/hadoop-conf</span><br><span class="line"><span class="meta">$</span> export FLINK_HOME=/data/flink/jjgtest/flink-1.12.0</span><br><span class="line"><span class="meta">$</span> export FLINK_CONF_DIR=/data/flink/jjgtest/flink-1.12.0/conf</span><br><span class="line"><span class="meta">$</span> export HADOOP_CLASSPATH=</span><br><span class="line"><span class="meta">$</span> cd /data/flink/jjgtest/flink-1.12.0</span><br><span class="line"><span class="meta">$</span> ./bin/sql-client.sh embedded -e jjg-sql-conf/sql-client-hive.yaml </span><br><span class="line"></span><br><span class="line"><span class="meta">#</span> 设置TM的数量</span><br><span class="line"><span class="meta">$</span> set table.exec.resource.default-parallelism=3;</span><br><span class="line"></span><br><span class="line"></span><br><span class="line"></span><br><span class="line"><span class="meta">#</span> Iceberg</span><br><span class="line"><span class="meta">$</span> export FLINK_HOME=/data/flink/jjgtest/flink-1.11.1_scala12</span><br><span class="line"><span class="meta">$</span> export FLINK_CONF_DIR=/data/flink/jjgtest/flink-1.11.1_scala12/conf</span><br><span class="line"><span class="meta">$</span> ./bin/sql-client.sh embedded -e jjg-sql-conf/sql-client-hive.yaml -l jjg-sql-lib</span><br></pre></td></tr></table></figure>
+
+<h1 id="Iceberg"><a href="#Iceberg" class="headerlink" title="Iceberg"></a>Iceberg</h1><ul>
+<li><p>创建catalogs</p>
+<figure class="highlight shell"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br><span class="line">3</span><br><span class="line">4</span><br><span class="line">5</span><br><span class="line">6</span><br><span class="line">7</span><br><span class="line">8</span><br><span class="line">9</span><br><span class="line">10</span><br><span class="line">11</span><br><span class="line">12</span><br><span class="line">13</span><br><span class="line">14</span><br><span class="line">15</span><br></pre></td><td class="code"><pre><span class="line">CREATE CATALOG iceberg_hive_catalog WITH (</span><br><span class="line">  'type'='iceberg',</span><br><span class="line">  'catalog-type'='hive',</span><br><span class="line">  'uri'='thrift://di-h1-hm.1sapp.com:9083',</span><br><span class="line">  'clients'='5',</span><br><span class="line">  'property-version'='1',</span><br><span class="line">  'hive-conf-dir'='/data/flink/jjgtest/flink-1.12.0/hive-conf-dir'</span><br><span class="line">);</span><br><span class="line"></span><br><span class="line">CREATE CATALOG iceberg_hadoop_catalog WITH (</span><br><span class="line">  'type'='iceberg',</span><br><span class="line">  'catalog-type'='hadoop',</span><br><span class="line">  'warehouse'='hdfs://nn:8020/warehouse/path',</span><br><span class="line">  'property-version'='1'</span><br><span class="line">);</span><br></pre></td></tr></table></figure>
 </li>
-<li><p>创建目录，用于存放k8s源码</p>
-<figure class="highlight shell"><table><tr><td class="gutter"><pre><span class="line">1</span><br></pre></td><td class="code"><pre><span class="line"><span class="meta">$</span> mkdir -p $GOPATH/src/k8s.io</span><br></pre></td></tr></table></figure>
-</li>
-<li><p>下载k8s源码</p>
-<figure class="highlight shell"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br><span class="line">3</span><br><span class="line">4</span><br><span class="line">5</span><br></pre></td><td class="code"><pre><span class="line"><span class="meta">$</span> cd $GOPATH/src/k8s.io</span><br><span class="line"><span class="meta">$</span> git clone https://github.com/kubernetes/kubernetes.git</span><br><span class="line"></span><br><span class="line"><span class="meta">#</span> 选择1.18作为构建版本</span><br><span class="line"><span class="meta">$</span> git checkout -b release-1.18 origin/release-1.18</span><br></pre></td></tr></table></figure>
-</li>
-<li><p>构建命令</p>
-<figure class="highlight shell"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br><span class="line">3</span><br><span class="line">4</span><br><span class="line">5</span><br><span class="line">6</span><br><span class="line">7</span><br><span class="line">8</span><br><span class="line">9</span><br><span class="line">10</span><br><span class="line">11</span><br><span class="line">12</span><br><span class="line">13</span><br><span class="line">14</span><br><span class="line">15</span><br><span class="line">16</span><br></pre></td><td class="code"><pre><span class="line"><span class="meta">$</span> cd $GOPATH/src/k8s.io/kubernetes</span><br><span class="line"><span class="meta">#</span> 编译k8s所有组件</span><br><span class="line"><span class="meta">#</span> 编译通过后会在 _output目录下可以见到构建结果</span><br><span class="line"><span class="meta">$</span> make all</span><br><span class="line"></span><br><span class="line"><span class="meta">#</span> 对Makefile的执行过程调试，但是不真正执行构建</span><br><span class="line"><span class="meta">$</span> make -n</span><br><span class="line"></span><br><span class="line"><span class="meta">#</span> 构建特定组件</span><br><span class="line"><span class="meta">$</span> make WHAT=cmd/kubectl</span><br><span class="line"></span><br><span class="line"><span class="meta">#</span> 构建帮助，展示所有构建选项</span><br><span class="line"><span class="meta">$</span> make help</span><br><span class="line"></span><br><span class="line"><span class="meta">#</span> 清理构建环境</span><br><span class="line"><span class="meta">$</span> make clean</span><br></pre></td></tr></table></figure>
-</li>
-<li><p>构建过程</p>
-<blockquote>
-<p>1、Makefile：顶层Makefile文件，描述了整个项目所有代码文件的编译顺序、编译规则以及编译后的二进制输出等</p>
-<p>2、Makefile.generated_file：描述了代码生成的逻辑</p>
-<p>3、通过调用<code>hack/make-rules/build.sh</code>脚本开始构建</p>
-</blockquote>
+<li><p>操作</p>
+<figure class="highlight shell"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br></pre></td><td class="code"><pre><span class="line"><span class="meta">$</span> USE CATALOG iceberg_hive_catalog</span><br><span class="line"><span class="meta">$</span> USE test;</span><br></pre></td></tr></table></figure>
+
+
+
+
+
 </li>
 </ul>
-<h2 id="Docker容器环境构建"><a href="#Docker容器环境构建" class="headerlink" title="Docker容器环境构建"></a>Docker容器环境构建</h2><ul>
-<li><p>kubeadm方式安装时基于docker镜像的</p>
-</li>
-<li><p>最终代码以tar.gz压缩包的形式输出至_output/release-tar的文件夹</p>
-</li>
-<li><p>构建命令</p>
-<figure class="highlight shell"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br><span class="line">3</span><br></pre></td><td class="code"><pre><span class="line"><span class="meta">#</span> 有两种构建方式</span><br><span class="line"><span class="meta">$</span> make release #构建所有目标平台，并执行单元测试</span><br><span class="line"><span class="meta">$</span> make quick-release #构建当前平台，不执行单元测试</span><br></pre></td></tr></table></figure>
-</li>
-<li><p>构建过程</p>
-<blockquote>
-<p>最终执行<code>build/release.sh</code>脚本名</p>
-</blockquote>
-</li>
-</ul>
-<h1 id="源码目录"><a href="#源码目录" class="headerlink" title="源码目录"></a>源码目录</h1><ul>
-<li><p>api</p>
-<blockquote>
-<p>​</p>
-</blockquote>
-</li>
-<li><p>build</p>
-</li>
-<li><p>cmd</p>
-<blockquote>
-<p>所有的二进制可执行文件入口代码</p>
-</blockquote>
-</li>
-<li><p>pkg</p>
-<blockquote>
-<p>项目代码主目录，cmd的只是个入口，这里是所有的具体实现</p>
-</blockquote>
-</li>
-<li><p>plugin</p>
-<blockquote>
-<p>插件，k8s认为调度器是插件的一部分，所以调度器的代码在这里</p>
-</blockquote>
-</li>
-<li><p>test</p>
-</li>
-<li><p>third_party</p>
-</li>
-<li><p>docs</p>
-</li>
-<li><p>Godeps</p>
-<blockquote>
-<p>项目中依赖使用的Go第三方包，例如docker客户端SDK，rest等</p>
-</blockquote>
-</li>
-<li><p>hack</p>
-<blockquote>
-<p>工具箱，各种编译、构建、测试、校验的脚本都在这里面</p>
-</blockquote>
+<h1 id="支持hive-UDF"><a href="#支持hive-UDF" class="headerlink" title="支持hive UDF"></a>支持hive UDF</h1><ul>
+<li><p>通过加载module支持</p>
+<figure class="highlight yaml"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br><span class="line">3</span><br><span class="line">4</span><br><span class="line">5</span><br></pre></td><td class="code"><pre><span class="line"><span class="attr">modules:</span></span><br><span class="line"><span class="attr">  - name:</span> <span class="string">core</span></span><br><span class="line"><span class="attr">    type:</span> <span class="string">core</span></span><br><span class="line"><span class="attr">  - name:</span> <span class="string">myhive</span></span><br><span class="line"><span class="attr">    type:</span> <span class="string">hive</span></span><br></pre></td></tr></table></figure>
+
+
+
+
+
+
+
+
+
+
+
 </li>
 </ul>
-<h1 id="参考文档"><a href="#参考文档" class="headerlink" title="参考文档"></a>参考文档</h1><p><a href="https://blog.csdn.net/boling_cavalry/article/details/88591982" target="_blank" rel="noopener">Kubernetes源码学习之一:下载和编译源码</a></p>
-<p><a href="https://xinchen.blog.csdn.net/article/details/88603293" target="_blank" rel="noopener">Kubernetes深入学习之二:编译和部署镜像(api-server)</a></p>
-<p><a href="https://github.com/kubernetes/community" target="_blank" rel="noopener">社区共享</a></p>
-<p><a href="https://github.com/kubernetes/community/blob/master/sig-list.md" target="_blank" rel="noopener">SIG</a></p>
-<p><a href="https://github.com/kubernetes/kubernetes/tree/master/build/" target="_blank" rel="noopener">build</a></p>
-<p><a href="https://cloud.tencent.com/developer/article/1433219" target="_blank" rel="noopener">国内环境下 Kubernetes 源码编译及运行</a></p>
+<h1 id="Modules"><a href="#Modules" class="headerlink" title="Modules"></a>Modules</h1><ul>
+<li><p>Modules允许用户扩展flink的内置对象（built-in objects）</p>
+</li>
+<li><p>Modules是可插拔的（pluggable），用户可以实现自己的Modules</p>
+<blockquote>
+<p>1、用户可以定义函数，并将其作为flink的内置函数，以供SQL和Table API使用</p>
+<p>2、用户可以加载hive的内置函数作为flink的内置函数</p>
+</blockquote>
+</li>
+<li><p>core Module包含所有flink内置函数，并且默认被加载</p>
+</li>
+<li><p>hive Module提供了hive的内置函数作为flink的内置函数</p>
+</li>
+<li><p>用户可以实现自定义modules</p>
+</li>
+<li><p>Modules提供的对象（函数）是被看做flink内置对象，因为没有命名空间，当多个modules中的对象的名称相同时，以第一个被加载的module为准</p>
+</li>
+</ul>
+<h1 id="Catalogs"><a href="#Catalogs" class="headerlink" title="Catalogs"></a>Catalogs</h1><ul>
+<li><p>用来提供metadata</p>
+<blockquote>
+<p>例如databases, tables, partitions, views and functions 以及其他用于访问数据的信息</p>
+</blockquote>
+</li>
+<li><p>Catalogs提供了统一的API，用来管理元数据，使元数据可以在查询时使用</p>
+</li>
+<li><p>数据处理的最关键方面就是管理元数据</p>
+<blockquote>
+<p>1、可能是临时表的瞬态元数据、UDF</p>
+<p>2、可能是永久元数据，像Hive MetaStore</p>
+</blockquote>
+</li>
+<li><p>Catalogs可以使用户使用其数据系统中的已有元数据，并将其映射到Flink的相应元数据</p>
+<blockquote>
+<p>1、Flink能够自动映射JDBC表到Flink表，用户不需要手动在Flink写DDL</p>
+</blockquote>
+</li>
+<li><p>Catalogs极大地简化了Flink与现有系统的使用</p>
+</li>
+</ul>
+<h1 id="参考文档"><a href="#参考文档" class="headerlink" title="参考文档"></a>参考文档</h1><p><a href="https://cwiki.apache.org/confluence/display/FLINK/FLIP-24+-+SQL+Client" target="_blank" rel="noopener">FLIP-24 - SQL Client</a></p>
+<p><a href="https://cwiki.apache.org/confluence/display/FLINK/FLIP-91%3A+Support+SQL+Client+Gateway" target="_blank" rel="noopener">FLIP-91: Support SQL Client Gateway</a></p>
+<p><a href="https://github.com/ververica/flink-sql-gateway" target="_blank" rel="noopener">flink-sql-gateway</a></p>
 
         
       
@@ -894,7 +1354,7 @@
   
   
   <article itemscope itemtype="http://schema.org/Article" class="post-block home" lang="zh-CN">
-    <link itemprop="mainEntityOfPage" href="http://yoursite.com/2020/11/12/go/go基本知识/">
+    <link itemprop="mainEntityOfPage" href="http://yoursite.com/2020/12/02/flink/flink-SQL基本知识/">
 
     <span hidden itemprop="author" itemscope itemtype="http://schema.org/Person">
       <meta itemprop="name" content="姜纪光">
@@ -909,7 +1369,7 @@
         <h1 class="post-title" itemprop="name headline">
           
             
-            <a href="/2020/11/12/go/go基本知识/" class="post-title-link" itemprop="url">go基本知识</a>
+            <a href="/2020/12/02/flink/flink-SQL基本知识/" class="post-title-link" itemprop="url">flink-SQL基本知识</a>
           
         </h1>
 
@@ -924,7 +1384,7 @@
                 
               
 
-              <time title="创建时间：2020-11-12 16:23:24" itemprop="dateCreated datePublished" datetime="2020-11-12T16:23:24+08:00">2020-11-12</time>
+              <time title="创建时间：2020-12-02 18:02:43" itemprop="dateCreated datePublished" datetime="2020-12-02T18:02:43+08:00">2020-12-02</time>
             </span>
           
             
@@ -935,7 +1395,7 @@
                   <i class="fa fa-calendar-check-o"></i>
                 </span>
                 <span class="post-meta-item-text">更新于</span>
-                <time title="修改时间：2020-11-16 20:32:03" itemprop="dateModified" datetime="2020-11-16T20:32:03+08:00">2020-11-16</time>
+                <time title="修改时间：2020-12-16 14:36:40" itemprop="dateModified" datetime="2020-12-16T14:36:40+08:00">2020-12-16</time>
               </span>
             
           
@@ -946,8 +1406,8 @@
               <span class="post-meta-item-text">分类于</span>
               
                 <span itemprop="about" itemscope itemtype="http://schema.org/Thing">
-                  <a href="/categories/go/" itemprop="url" rel="index">
-                    <span itemprop="name">go</span>
+                  <a href="/categories/flink/" itemprop="url" rel="index">
+                    <span itemprop="name">flink</span>
                   </a>
                 </span>
 
@@ -958,7 +1418,7 @@
           
 
           
-            <span id="/2020/11/12/go/go基本知识/" class="post-meta-item leancloud_visitors" data-flag-title="go基本知识" title="阅读次数">
+            <span id="/2020/12/02/flink/flink-SQL基本知识/" class="post-meta-item leancloud_visitors" data-flag-title="flink-SQL基本知识" title="阅读次数">
               <span class="post-meta-item-icon">
                 <i class="fa fa-eye"></i>
               </span>
@@ -978,703 +1438,169 @@
     <div class="post-body" itemprop="articleBody">
 
       
-          <h1 id="基本知识"><a href="#基本知识" class="headerlink" title="基本知识"></a>基本知识</h1><ul>
-<li><p>对于<code>包</code></p>
-<blockquote>
-<p>1、同一个文件夹下只能有一个包名</p>
-<p>2、包名和文件夹名没有直接关系</p>
-</blockquote>
+          <h1 id="概述"><a href="#概述" class="headerlink" title="概述"></a>概述</h1><ul>
+<li><p>本文基于<strong>flink1.12版本</strong></p>
 </li>
+<li><p>Planner 的作用主要是把关系型的操作翻译成可执行的、经过优化的 Flink 任务。</p>
+</li>
+<li><p>对于生产环境，建议使用在1.11版本之后已经变成默认的Blink Planner。</p>
+</li>
+<li><p><code>TableEnvironment</code> 是 Table API 和 SQL 的核心概念。它负责:</p>
+<blockquote>
+<ul>
+<li>在内部的 catalog 中注册 <code>Table</code></li>
 </ul>
 <ul>
-<li><p>对于<code>标识符</code></p>
-<blockquote>
-<p>1、标识符包含常量、变量、类型、方法名、结构字段等</p>
-<p>2、如果以大写字母开头，则包外可见；以小写字母开头，包外不可见，但是包内可见并且可用</p>
+<li>注册外部的 catalog</li>
+<li>加载可插拔模块</li>
+<li>执行 SQL 查询</li>
+<li>注册自定义函数 （scalar、table 或 aggregation）</li>
+<li>将 <code>DataStream</code> 或 <code>DataSet</code> 转换成 <code>Table</code></li>
+<li>持有对 <code>ExecutionEnvironment</code> 或 <code>StreamExecutionEnvironment</code> 的引用</li>
+</ul>
 </blockquote>
 </li>
-<li><p><code>package main</code>包中的文件中必须包含main函数，作为程序开始执行的函数，即程序入口。</p>
-</li>
-<li><p>常量使用const定义</p>
-</li>
-<li><p>数组</p>
+<li><p>TableEnvironment持有表的catalogs的映射，表创建时都有标识符（identifier）</p>
 <blockquote>
-<p>数组是具有相同唯一类型的一组已编号且长度固定的数据项序列。</p>
-<p>定义数组需要指定元素类型和个数</p>
+<p>标识符由3部分组成：catalog name, database name and object name</p>
 </blockquote>
 </li>
-<li><p>切片（Slice）</p>
+<li><p>可以分为VIEWS和TABLES</p>
+</li>
+<li><p>表分为临时（Temporary）和永久表（Permanent）</p>
 <blockquote>
-<p>切片是对数组的抽象，可以认为是动态数组</p>
-<p>切片定义时不需要指定长度，可以指定初始长度和容量</p>
-<p>append函数可以扩大切片的容量</p>
+<p>1、临时表是指，生命周期在单个flink session中，存储在内存中，不和catalog或者database绑定，但是可以在一个namespace在中创建，即使相关的database被删除，临时表也不会被drop</p>
+<p>2、永久表是指，在跨session、跨集群中可见，由catalog存储元数据，除非显示drop，否则一直存在</p>
 </blockquote>
 </li>
-<li><p>结构体</p>
+<li><p>屏蔽（Shadowing）</p>
 <blockquote>
-<p>结构体是由一系列具有相同类型或不同类型的数据构成的数据集合。</p>
-<p>定义结构体需要使用type 和 struct语句</p>
+<p>拥有一样标识的临时表可以屏蔽永久表，直到临时表被drop</p>
 </blockquote>
 </li>
-<li><p>通道</p>
-<blockquote>
-<p>通道是一种数据结构，用于goroutine之间的安全数据通信，同一时刻保证只会有一个goroutine修改数据</p>
-</blockquote>
+<li><p>表总是通过三元标识符注册，包括 catalog 名、数据库名和表名。</p>
 </li>
-<li><p>使用组合而不是继承</p>
-<blockquote>
-<p>Go提供了无继承的类型系统，使用组合设计模式</p>
-</blockquote>
+</ul>
+<h1 id="动态表-Dynamic-Table"><a href="#动态表-Dynamic-Table" class="headerlink" title="动态表 (Dynamic Table)"></a>动态表 (Dynamic Table)</h1><ul>
+<li><em>动态表</em> 是 Flink 的支持流数据的 Table API 和 SQL 的核心概念</li>
+<li>与表示批处理数据的静态表不同，动态表是随时间变化的。</li>
+<li>查询动态表将生成一个 <em>连续查询</em> 。一个连续查询永远不会终止，会生成一个结果表</li>
+</ul>
+<h2 id="sink"><a href="#sink" class="headerlink" title="sink"></a>sink</h2><ul>
+<li>在batch场景下，sink仅仅能以insert-only方式写有界数据流</li>
+<li>在streaming场景下，sink仅仅能以insert-only方式写无界数据流</li>
+<li>在<strong>cdc（change data capture）</strong>场景下，sink可以以*<em>insert, update, and delete *</em>的方式写有界或无界数据流</li>
+<li></li>
+</ul>
+<h1 id="数据类型"><a href="#数据类型" class="headerlink" title="数据类型"></a>数据类型</h1><ul>
+<li><p>对于基于 JVM 的语言，所有预定义的数据类型都在 <code>org.apache.flink.table.api.DataTypes</code> 里提供</p>
 </li>
-<li><p>接口实现机制</p>
+<li><p>org.apache.flink.types.Row</p>
 <blockquote>
-<p>Go是对行为建模而不是类型</p>
-<p>不需要显示声明某个类型实现了某个接口，而是由编译器判断</p>
-<p>Go的接口更小，一个接口一般只会描述单一的动作</p>
-</blockquote>
-</li>
-<li><p>分享go</p>
-<blockquote>
-<p><a href="https://play.golang.org/" target="_blank" rel="noopener">https://play.golang.org/</a>  可以运行、分享Go程序</p>
-</blockquote>
-</li>
-<li><p>包</p>
-<blockquote>
-<p>1、go的每个代码文件都必须属于一个包</p>
-<p>2、一个包定义一组编译过的代码，包的名字类似的命名空间，可以用来简介访问包内声明的标识符</p>
-<p>3、所有属于同一文件夹下的代码文件，包名必须相同</p>
-<p>4、默认情况下，Go不允许声明导入某个包却不使用，为了解决这个问题，在导入包的时候在前面加”_”，编译器接受这类导入并且会调用包内所有代码文件的init函数</p>
-</blockquote>
-</li>
-<li><p>Map</p>
-<blockquote>
-<p>两种方式定义Map：</p>
-<p>/* 声明变量，默认 map 是 nil */</p>
-<p>var map_variable map[key_data_type]value_data_type</p>
-<p>/* 使用 make 函数 ，并对map进行了初始化*/<br>map_variable := make(map[key_data_type]value_data_type)</p>
-</blockquote>
-</li>
-<li><p>指针</p>
-<blockquote>
-<p>取地址符是”&amp;”，放到一个变量前就会返回其内存地址</p>
-<p>获取指针指向的值是使用”*”</p>
-<p>一个指针变量指向了一个值的内存地址</p>
-<p>指针在使用前也需要声明：var var_name *var-type</p>
-<p>如：var ip <em>int        /</em> 指向整型<em>/          var fp *float32    /</em> 指向浮点型 */</p>
-</blockquote>
-</li>
-<li><p>函数</p>
-<blockquote>
-<p>1、使用func声明函数，函数名首字母大写表示包外可见</p>
-<p>​</p>
-</blockquote>
-</li>
-<li><p>:=</p>
-<blockquote>
-<p>用于声明一个变量，同时给这个变量赋值</p>
-<p>如果声明初始值为零的变量，应该使用var关键字；否则应该使用”:=”</p>
-</blockquote>
-</li>
-<li><p>range</p>
-<blockquote>
-<p>用于迭代数组、字符串、切片、映射和通道</p>
-</blockquote>
-</li>
-<li><p>闭包</p>
-<blockquote>
-<p>闭包使函数可以直接访问那些没有作为参数传入的变量，不是访问变量副本，而是直接访问这些变量</p>
-</blockquote>
-</li>
-<li><p>defer</p>
-<blockquote>
-<p>使随后的函数在函数返回时才执行，一般用来文件的Close函数。</p>
-<p>即使函数发生异常，也会保证defer安排调用的函数被执行</p>
 </blockquote>
 </li>
 </ul>
-<h1 id="通道-channel"><a href="#通道-channel" class="headerlink" title="通道(channel)"></a>通道(channel)</h1><ul>
-<li>​</li>
+<h1 id="关键类"><a href="#关键类" class="headerlink" title="关键类"></a>关键类</h1><ul>
+<li><p>org.apache.flink.types.Row</p>
+<blockquote>
+<p>1、Row是Table、SQL和其它API之间的bridge。</p>
+<p>2、Row是长度固定的、有明确字段排序的、可为null的多种类型的复合类型。</p>
+<p>3、Row字段的类型不能自动推断，需要在创建时提供字段类型信息</p>
+<p>4、除了字段之外，还有RowKind用以指明change的类型</p>
+</blockquote>
+</li>
+<li><p>org.apache.flink.table.data.RowData</p>
+<blockquote>
+<p>1、</p>
+</blockquote>
+</li>
+<li><p>org.apache.flink.table.factories.Factory</p>
+<blockquote>
+<p>1、用来创建Talbe &amp; SQL所有类型相关的实例，使用SPI发现</p>
+<p>2、每个实现类都应该一个字符串唯一标识自己</p>
+<p>3、实现该接口的实现类，必须放置于该路径下：META_INF/services/org.apache.flink.table.factories.Factory</p>
+<p>4、每个实现类都有必须和可选的属性值，这些属性值不用于发现，但是会用于产生文档和验证</p>
+</blockquote>
+</li>
+<li><p>org.apache.flink.table.factories.TableFactory</p>
+<blockquote>
+<p>1、用来从基于字符串的属性中创建Table相关的实例，使用SPI发现。</p>
+<p>2、实现该接口的类，必须放置于该路径下：META_INF/services/org.apache.flink.table.factories.TableFactory</p>
+<p>3、框架保证根据属性值仅仅匹配唯一的实现类</p>
+</blockquote>
+</li>
+<li><p>org.apache.flink.table.descriptors.FormatDescriptorValidator</p>
+<blockquote>
+</blockquote>
+</li>
+<li><p>org.apache.flink.api.common.serialization.BulkWriter<t></t></p>
+<blockquote>
+<p>1、是一个编码器，以批量方式对数据进行编码</p>
+<p>2、块编码器大多是压缩格式的（Parquet、ORC），分批编码为列向量块</p>
+<p>3、定义了工厂接口，用于创建编码器</p>
+</blockquote>
+</li>
+<li><p>org.apache.flink.table.connector.format.Format</p>
+<blockquote>
+<p>1、连接器格式的基本接口</p>
+<p>2、根据外部系统的不同，连接器支持不同的读写行数据。</p>
+<p>3、格式可以按照两个维度区分：</p>
+<p>​    格式被用于DynamicTableSource中的上下文</p>
+<p>​    运行时接口，需要DeserializationSchema或者bulk interface</p>
+</blockquote>
+</li>
+<li><p>org.apache.flink.connector.file.src.reader.BulkFormat</p>
+<blockquote>
+<p>1、BulkFormat分批读并且解码数据，例如ORC、Parquet</p>
+<p>2、BulkFormat.Reader负责实际的读操作，可以读取一个checkpoint的数据</p>
+</blockquote>
+</li>
+<li><p>org.apache.flink.table.factories.EncodingFormatFactory<i></i></p>
+<blockquote>
+<p>1、I  table sink时需要的接口</p>
+<p>2、用来为了DynamicTableSink配置EncodingFormat</p>
+</blockquote>
+</li>
+<li><p>org.apache.flink.table.types.AbstractDataType&lt;T extends AbstractDataType<t>&gt;</t></p>
+<blockquote>
+<p>1、描述表生态中值的数据类型的最高抽象</p>
+<p>2、包括两种数据类型：</p>
+<p>​    完全解析的数据类型，用以直接声明输入输出类型，DataType</p>
+<p>​    部分解析的数据类型，需要在catalog或者configuration查找才能解析为DataType，UnresolvedDataType</p>
+</blockquote>
+</li>
+<li><p>org.apache.flink.table.types.DataType</p>
+<blockquote>
+<p>1、有两个作用：</p>
+<p>​    声明一个logical type，是强制性的</p>
+<p>​    giving hints about the physical representation of data to the planner，是可选的</p>
+<p>2、逻辑类型独立于任何物理表示，并且接近SQL标准的“数据类型”术语。</p>
+<p>3、Hints指明了实现的数据格式</p>
+</blockquote>
+</li>
+<li><p>org.apache.flink.table.types.logical.LogicalType</p>
+<blockquote>
+<p>1、描述了值的数据类型</p>
+<p>2、它并不意味着传输或存储的具体物理表示，而是定义了基于JVM的语言和表生态系统之间的界限。</p>
+<p>3、与SQL标准类型类似，必须支持null</p>
+<p>4、</p>
+</blockquote>
+</li>
 </ul>
-<h1 id="包"><a href="#包" class="headerlink" title="包"></a>包</h1><ul>
-<li>设计理念是：使用包来封装不同的语义单元的功能。</li>
-<li>给包命名的惯例是使用包所在目录的名字</li>
-<li>每个包可以包含任意多个init函数，所有这些函数都会在main函数之前执行，用在设置包、初始化变量等</li>
-</ul>
-<h2 id="govendor"><a href="#govendor" class="headerlink" title="govendor"></a>govendor</h2><h1 id="数组"><a href="#数组" class="headerlink" title="数组"></a>数组</h1><ul>
-<li><p>长度固定、元素类型相同、内存连续分配</p>
-</li>
-<li><p>数组声明、初始化</p>
-<figure class="highlight go"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br><span class="line">3</span><br><span class="line">4</span><br></pre></td><td class="code"><pre><span class="line"><span class="comment">//数组声明必须包含 数组长度、元素类型，长度不可变</span></span><br><span class="line"><span class="keyword">var</span> array [<span class="number">5</span>]<span class="keyword">int</span></span><br><span class="line"><span class="comment">//初始化</span></span><br><span class="line">array := [<span class="number">5</span>]<span class="keyword">int</span>&#123;<span class="number">10</span>, <span class="number">20</span>, <span class="number">30</span>, <span class="number">40</span>, <span class="number">50</span>&#125;</span><br></pre></td></tr></table></figure>
-</li>
-<li><p>不要在函数间传递数组，要传递数组指针</p>
-</li>
-</ul>
-<h1 id="切片"><a href="#切片" class="headerlink" title="切片"></a>切片</h1><ul>
-<li><p>切片是围绕动态数组的的概念构建的</p>
-</li>
-<li><p>可以按需自动增长和缩小，切片的底层内存也是在连续块中分配的，能获得索引、迭代和垃圾回收优化的好处</p>
-</li>
-<li><p>切片有三个数据结构</p>
+<h1 id="函数"><a href="#函数" class="headerlink" title="函数"></a>函数</h1><ul>
+<li><p>有两个划分标准</p>
 <blockquote>
-<p>指向底层数组的指针、切片的长度、切片的容量</p>
+<p>1、系统（内置）函数和 Catalog 函数</p>
+<p>​    系统函数没有名称空间，只能通过其名称来进行引用</p>
+<p>​    Catalog 函数属于 Catalog 和数据库，因此它们拥有 Catalog 和数据库命名空间</p>
+<p>2、临时函数和持久化函数</p>
+<p>   临时函数始终由用户创建，仅仅在一个session中有效</p>
+<p>   持久化函数可以跨session，是由系统提供或者持久化在 catalog</p>
 </blockquote>
 </li>
-<li><p>创建和初始化</p>
-<figure class="highlight go"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br><span class="line">3</span><br><span class="line">4</span><br><span class="line">5</span><br></pre></td><td class="code"><pre><span class="line">slice := <span class="built_in">make</span>([]<span class="keyword">string</span>, <span class="number">5</span>)</span><br><span class="line"><span class="comment">//初始化后并不能访问所有的数组元素</span></span><br><span class="line">slice := <span class="built_in">make</span>([]<span class="keyword">string</span>, <span class="number">3</span>, <span class="number">5</span>)</span><br><span class="line"></span><br><span class="line">slice := []<span class="keyword">int</span>&#123;<span class="number">10</span>, <span class="number">20</span>, <span class="number">30</span>&#125;</span><br></pre></td></tr></table></figure>
-</li>
-<li><p>迭代切片</p>
-<figure class="highlight go"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br><span class="line">3</span><br></pre></td><td class="code"><pre><span class="line"><span class="keyword">for</span> index, value := <span class="keyword">range</span> slice&#123;</span><br><span class="line">  </span><br><span class="line">&#125;</span><br></pre></td></tr></table></figure>
-</li>
-<li><p>在函数间可以直接传递切片，一个切片需要24字节的内存</p>
-</li>
-</ul>
-<h1 id="映射"><a href="#映射" class="headerlink" title="映射"></a>映射</h1><ul>
-<li>映射是一个集合，是无序的。</li>
-<li>映射通过合理数量的桶来平衡键值对的分布</li>
-</ul>
-<h1 id="类型系统"><a href="#类型系统" class="headerlink" title="类型系统"></a>类型系统</h1><ul>
-<li><p>go是静态类型的编程语言，即编译器需要在编译时知道每个值的类型</p>
-</li>
-<li><p>可以使用两种方式定义类型</p>
-<blockquote>
-<p>1、通过struct定义一个结构类型</p>
-<p>2、基于一个已有的类型，将其作为新类型的类型说明</p>
-</blockquote>
-</li>
-<li><p>函数与方法</p>
-<blockquote>
-<p>1、函数对应操作序列，分为具名和匿名，具名函数一般对应于包级的函数</p>
-<p>2、方法是绑定到一个具体类型的特殊函数，是依托于类型的，必须在编译时静态绑定。类型和指向类型的指针都可以调用方法。</p>
-<p>​    值接收者使用值的副本来调用方法，而指针接收者使用实际值来调用方法</p>
-</blockquote>
-</li>
-<li><p>引用类型</p>
-<blockquote>
-<p>包括：切片、映射、通道、接口和函数类型。</p>
-</blockquote>
-</li>
-<li><p>接口</p>
-<blockquote>
-<p>多态是指代码可以根据类型的具体实现采取不同行为的能力。</p>
-<p>接口是用来定义行为的类型</p>
-</blockquote>
-</li>
-</ul>
-<h1 id="并发"><a href="#并发" class="headerlink" title="并发"></a>并发</h1><ul>
-<li><p>并发同步模型叫做通讯顺序进程（CSP）的范型</p>
-<blockquote>
-<p>CSP是一种消息传递模型，用来在goroutine之间传递消息，而不是对数据加锁来实现同步访问。</p>
-</blockquote>
-</li>
-<li><p>defer</p>
-<blockquote>
-<p>关键字defer会修改函数调用时机，在正在执行的函数返回时才真正调用defer调用的函数</p>
-</blockquote>
-</li>
-</ul>
-<h1 id="go工具"><a href="#go工具" class="headerlink" title="go工具"></a>go工具</h1><figure class="highlight shell"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br><span class="line">3</span><br><span class="line">4</span><br><span class="line">5</span><br><span class="line">6</span><br><span class="line">7</span><br><span class="line">8</span><br><span class="line">9</span><br><span class="line">10</span><br><span class="line">11</span><br><span class="line">12</span><br><span class="line">13</span><br><span class="line">14</span><br><span class="line">15</span><br></pre></td><td class="code"><pre><span class="line"><span class="meta">$</span> go build hello.o</span><br><span class="line"><span class="meta">$</span> go clean hello.o</span><br><span class="line"><span class="meta">$</span> go run hello.o</span><br><span class="line"></span><br><span class="line"><span class="meta">#</span> 可以捕获一部分常见错误，对签入的代码先执行vet是一个好习惯</span><br><span class="line"><span class="meta">$</span> go vet main.go</span><br><span class="line"></span><br><span class="line"><span class="meta">#</span> go fmt 和 go imports在代码保存是可以格式化代码，具体设置请看参考文档，也可以使用命令</span><br><span class="line"><span class="meta">$</span> go fmt</span><br><span class="line"></span><br><span class="line"><span class="meta">#</span> 从命令行获取 帮助文档</span><br><span class="line"><span class="meta">$</span> go doc fmt</span><br><span class="line"></span><br><span class="line"><span class="meta">#</span> 检测竞争状态</span><br><span class="line"><span class="meta">$</span> go build -race</span><br></pre></td></tr></table></figure>
-
-<h1 id="参考文档"><a href="#参考文档" class="headerlink" title="参考文档"></a>参考文档</h1><p><a href="https://github.com/golang-standards/project-layout/blob/master/README_zh.md" target="_blank" rel="noopener">Standard Go Project Layout</a></p>
-<p><a href="https://shockerli.net/post/go-package-manage-tool-govendor/" target="_blank" rel="noopener">Go 包依赖管理工具 —— govendor</a></p>
-<p><a href="https://play.golang.org/" target="_blank" rel="noopener">运行、分享</a></p>
-<p><a href="https://golang.org/pkg/" target="_blank" rel="noopener">Packages</a></p>
-<p><a href="https://blog.csdn.net/fly910905/article/details/104255326" target="_blank" rel="noopener">GoLand：设置gofmt与goimports，保存时自动格式化代码</a></p>
-<p><a href="https://chai2010.cn/advanced-go-programming-book/ch1-basic/ch1-04-func-method-interface.html" target="_blank" rel="noopener">advanced-go-programming-book</a></p>
-
-        
-      
-    </div>
-
-    
-    
-    
-      <footer class="post-footer">
-        <div class="post-eof"></div>
-      </footer>
-  </article>
-  
-  
-  
-
-    
-        
-  
-  
-  <article itemscope itemtype="http://schema.org/Article" class="post-block home" lang="zh-CN">
-    <link itemprop="mainEntityOfPage" href="http://yoursite.com/2020/11/12/k8s/k8s-APIServer/">
-
-    <span hidden itemprop="author" itemscope itemtype="http://schema.org/Person">
-      <meta itemprop="name" content="姜纪光">
-      <meta itemprop="description" content="">
-      <meta itemprop="image" content="/images/avatar.gif">
-    </span>
-
-    <span hidden itemprop="publisher" itemscope itemtype="http://schema.org/Organization">
-      <meta itemprop="name" content="纪光的博客">
-    </span>
-      <header class="post-header">
-        <h1 class="post-title" itemprop="name headline">
-          
-            
-            <a href="/2020/11/12/k8s/k8s-APIServer/" class="post-title-link" itemprop="url">k8s-APIServer</a>
-          
-        </h1>
-
-        <div class="post-meta">
-            <span class="post-meta-item">
-              <span class="post-meta-item-icon">
-                <i class="fa fa-calendar-o"></i>
-              </span>
-              <span class="post-meta-item-text">发表于</span>
-
-              
-                
-              
-
-              <time title="创建时间：2020-11-12 09:02:30 / 修改时间：09:07:57" itemprop="dateCreated datePublished" datetime="2020-11-12T09:02:30+08:00">2020-11-12</time>
-            </span>
-          
-            
-
-            
-          
-            <span class="post-meta-item">
-              <span class="post-meta-item-icon">
-                <i class="fa fa-folder-o"></i>
-              </span>
-              <span class="post-meta-item-text">分类于</span>
-              
-                <span itemprop="about" itemscope itemtype="http://schema.org/Thing">
-                  <a href="/categories/k8s/" itemprop="url" rel="index">
-                    <span itemprop="name">k8s</span>
-                  </a>
-                </span>
-
-                
-                
-              
-            </span>
-          
-
-          
-            <span id="/2020/11/12/k8s/k8s-APIServer/" class="post-meta-item leancloud_visitors" data-flag-title="k8s-APIServer" title="阅读次数">
-              <span class="post-meta-item-icon">
-                <i class="fa fa-eye"></i>
-              </span>
-              <span class="post-meta-item-text">阅读次数：</span>
-              <span class="leancloud-visitors-count"></span>
-            </span>
-          
-  
-  
-
-        </div>
-      </header>
-
-    
-    
-    
-    <div class="post-body" itemprop="articleBody">
-
-      
-          <h1 id="概述"><a href="#概述" class="headerlink" title="概述"></a>概述</h1><ul>
-<li><p>API Server的核心功能是提供k8s各类资源对象（如Pod、RC、Service）的增、删、改、查以及Watch等Http Rest接口，成为集群内各个功能模块之间数据交互和通讯的中心枢纽，是整个系统的数据总线和数据中心。</p>
-</li>
-<li><p>功能特性：</p>
-<blockquote>
-<p>1、集群管理的API入口</p>
-<p>2、资源配额控制的入口</p>
-<p>3、提供了完备的集群安全机制</p>
-</blockquote>
-</li>
+<li></li>
 </ul>
 <h1 id="参考文档"><a href="#参考文档" class="headerlink" title="参考文档"></a>参考文档</h1>
-        
-      
-    </div>
-
-    
-    
-    
-      <footer class="post-footer">
-        <div class="post-eof"></div>
-      </footer>
-  </article>
-  
-  
-  
-
-    
-        
-  
-  
-  <article itemscope itemtype="http://schema.org/Article" class="post-block home" lang="zh-CN">
-    <link itemprop="mainEntityOfPage" href="http://yoursite.com/2020/11/11/docker/docker实践/">
-
-    <span hidden itemprop="author" itemscope itemtype="http://schema.org/Person">
-      <meta itemprop="name" content="姜纪光">
-      <meta itemprop="description" content="">
-      <meta itemprop="image" content="/images/avatar.gif">
-    </span>
-
-    <span hidden itemprop="publisher" itemscope itemtype="http://schema.org/Organization">
-      <meta itemprop="name" content="纪光的博客">
-    </span>
-      <header class="post-header">
-        <h1 class="post-title" itemprop="name headline">
-          
-            
-            <a href="/2020/11/11/docker/docker实践/" class="post-title-link" itemprop="url">docker实践</a>
-          
-        </h1>
-
-        <div class="post-meta">
-            <span class="post-meta-item">
-              <span class="post-meta-item-icon">
-                <i class="fa fa-calendar-o"></i>
-              </span>
-              <span class="post-meta-item-text">发表于</span>
-
-              
-                
-              
-
-              <time title="创建时间：2020-11-11 09:53:14" itemprop="dateCreated datePublished" datetime="2020-11-11T09:53:14+08:00">2020-11-11</time>
-            </span>
-          
-            
-
-            
-              <span class="post-meta-item">
-                <span class="post-meta-item-icon">
-                  <i class="fa fa-calendar-check-o"></i>
-                </span>
-                <span class="post-meta-item-text">更新于</span>
-                <time title="修改时间：2020-12-09 09:40:22" itemprop="dateModified" datetime="2020-12-09T09:40:22+08:00">2020-12-09</time>
-              </span>
-            
-          
-            <span class="post-meta-item">
-              <span class="post-meta-item-icon">
-                <i class="fa fa-folder-o"></i>
-              </span>
-              <span class="post-meta-item-text">分类于</span>
-              
-                <span itemprop="about" itemscope itemtype="http://schema.org/Thing">
-                  <a href="/categories/docker/" itemprop="url" rel="index">
-                    <span itemprop="name">docker</span>
-                  </a>
-                </span>
-
-                
-                
-              
-            </span>
-          
-
-          
-            <span id="/2020/11/11/docker/docker实践/" class="post-meta-item leancloud_visitors" data-flag-title="docker实践" title="阅读次数">
-              <span class="post-meta-item-icon">
-                <i class="fa fa-eye"></i>
-              </span>
-              <span class="post-meta-item-text">阅读次数：</span>
-              <span class="leancloud-visitors-count"></span>
-            </span>
-          
-  
-  
-
-        </div>
-      </header>
-
-    
-    
-    
-    <div class="post-body" itemprop="articleBody">
-
-      
-          <h1 id="概述"><a href="#概述" class="headerlink" title="概述"></a>概述</h1><figure class="highlight shell"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br><span class="line">3</span><br></pre></td><td class="code"><pre><span class="line"><span class="meta">#</span> docker帮助命令</span><br><span class="line"><span class="meta">$</span> docker --help</span><br><span class="line"><span class="meta">$</span> docker pull --help</span><br></pre></td></tr></table></figure>
-
-<h1 id="构建镜像"><a href="#构建镜像" class="headerlink" title="构建镜像"></a>构建镜像</h1><ul>
-<li>建议首先阅读<a href="https://jiangjiguang.me/2020/10/27/docker/docker%E5%9F%BA%E6%9C%AC%E7%9F%A5%E8%AF%86/" target="_blank" rel="noopener">docker基本知识</a>镜像构建原理</li>
-</ul>
-<ul>
-<li><p>scratch是一个空白镜像，以这个镜像为基础，意味着不以任何镜像为基础。</p>
-</li>
-<li><p>实用命令</p>
-<figure class="highlight shell"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br><span class="line">3</span><br><span class="line">4</span><br><span class="line">5</span><br><span class="line">6</span><br><span class="line">7</span><br></pre></td><td class="code"><pre><span class="line"><span class="meta">#</span> cd 到Dockerfile文件的目录</span><br><span class="line"><span class="meta">$</span> docker build -t mynginx:v1.1 .</span><br><span class="line"><span class="meta">#</span> 或者通过-f 参数指定Dockerfile路径</span><br><span class="line"><span class="meta">$</span> docker build -t mynginx:v1.1 . -f Dockerfile</span><br><span class="line"></span><br><span class="line"><span class="meta">#</span> 使用commit生成镜像</span><br><span class="line"><span class="meta">$</span> docker commit -a zuozhe -m "remarks" &lt;imageId&gt; &lt;imageName&gt;:&lt;tag&gt;</span><br></pre></td></tr></table></figure>
-
-</li>
-</ul>
-<h2 id="构建flink任务镜像"><a href="#构建flink任务镜像" class="headerlink" title="构建flink任务镜像"></a>构建flink任务镜像</h2><ul>
-<li><p>建议显示指定flink和scala版本</p>
-</li>
-<li><p>构建命令</p>
-<figure class="highlight shell"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br><span class="line">3</span><br><span class="line">4</span><br><span class="line">5</span><br><span class="line">6</span><br><span class="line">7</span><br></pre></td><td class="code"><pre><span class="line"><span class="meta">#</span> 构建镜像</span><br><span class="line"><span class="meta">$</span> docker build -t diy:1.1 . -f flink/Dockerfile</span><br><span class="line"><span class="meta">#</span> 查看构建成功的镜像</span><br><span class="line"><span class="meta">$</span> docker images</span><br><span class="line"><span class="meta">#</span> 向阿里云推送镜像</span><br><span class="line"><span class="meta">$</span> docker tag 72e0c0add627 registry.cn-shanghai.aliyuncs.com/libra-dev/diy:1.2</span><br><span class="line"><span class="meta">$</span> docker push registry.cn-shanghai.aliyuncs.com/libra-dev/diy:1.2</span><br></pre></td></tr></table></figure>
-
-<p>​</p>
-</li>
-</ul>
-<h1 id="使用镜像"><a href="#使用镜像" class="headerlink" title="使用镜像"></a>使用镜像</h1><ul>
-<li><p>获取镜像</p>
-<figure class="highlight shell"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br><span class="line">3</span><br><span class="line">4</span><br><span class="line">5</span><br></pre></td><td class="code"><pre><span class="line"><span class="meta">#</span> 搜索镜像版本，只能到docker hub中查看</span><br><span class="line"><span class="meta">$</span> docker search flink</span><br><span class="line"></span><br><span class="line"><span class="meta">#</span> 拉取镜像</span><br><span class="line"><span class="meta">$</span> docker pull flink:1.11.2</span><br></pre></td></tr></table></figure>
-</li>
-<li><p>列出镜像</p>
-<figure class="highlight shell"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br><span class="line">3</span><br><span class="line">4</span><br><span class="line">5</span><br><span class="line">6</span><br><span class="line">7</span><br><span class="line">8</span><br><span class="line">9</span><br></pre></td><td class="code"><pre><span class="line"><span class="meta">#</span> 列出镜像</span><br><span class="line"><span class="meta">$</span> docker image ls</span><br><span class="line"><span class="meta">#</span> 仓库名、标签、镜像 ID、创建时间 以及 所占用的空间</span><br><span class="line"></span><br><span class="line"><span class="meta">#</span> 包含中间层镜像</span><br><span class="line"><span class="meta">$</span> docker image ls -a</span><br><span class="line"></span><br><span class="line"><span class="meta">#</span> 查看镜像、容器、数据卷所占用的空间</span><br><span class="line"><span class="meta">$</span> docker system df</span><br></pre></td></tr></table></figure>
-</li>
-<li><p>删除本地镜像</p>
-<figure class="highlight shell"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br></pre></td><td class="code"><pre><span class="line"><span class="meta">$</span> docker image rm nginx:v3</span><br><span class="line"><span class="meta">$</span> docker rmi -f nginx:v3</span><br></pre></td></tr></table></figure>
-</li>
-<li><p>虚悬镜像</p>
-<blockquote>
-<p>​     由于新旧镜像同名，旧镜像名称被取消，从而出现仓库名、标签均为 <code>&lt;none&gt;</code> 的镜像。</p>
-<p>​    docker pull 和 docker build都可能导致。</p>
-<p>​    虚悬镜像已经失去了存在的价值，是可以随意删除的。docker image prune</p>
-</blockquote>
-</li>
-<li><p>理解镜像构成</p>
-<p>容器同样也是多层存储，是在以镜像为基础层，在其基础上加一层作为容器运行时的存储层</p>
-<figure class="highlight shell"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br><span class="line">3</span><br><span class="line">4</span><br><span class="line">5</span><br><span class="line">6</span><br><span class="line">7</span><br><span class="line">8</span><br><span class="line">9</span><br><span class="line">10</span><br><span class="line">11</span><br><span class="line">12</span><br><span class="line">13</span><br><span class="line">14</span><br><span class="line">15</span><br><span class="line">16</span><br></pre></td><td class="code"><pre><span class="line"><span class="meta">#</span> 以交互式方式进入容器，并执行了bash命令</span><br><span class="line"><span class="meta">$</span> docker exec -it webserver bash</span><br><span class="line"></span><br><span class="line"><span class="meta">#</span> 查看容器文件修改</span><br><span class="line"><span class="meta">$</span> docker diff &#123;容器名&#125;</span><br><span class="line"><span class="meta">#</span> 当我们运行一个容器的时候（如果不使用卷的话），我们做的任何文件修改都会被记录于容器存储层里。</span><br><span class="line"><span class="meta">#</span> 而 Docker 提供了一个 docker commit 命令，可以将容器的存储层保存下来成为镜像。换句话说，就是在原有# 镜像的基础上，再叠加上容器的存储层，并构成新的镜像。</span><br><span class="line"><span class="meta">#</span> docker commit 的语法格式为：</span><br><span class="line"><span class="meta">#</span> docker commit [选项] &lt;容器ID或容器名&gt; [&lt;仓库名&gt;[:&lt;标签&gt;]]</span><br><span class="line"></span><br><span class="line"><span class="meta">$</span> docker history flink:1.11.2</span><br><span class="line"></span><br><span class="line"><span class="meta">#</span> 慎用 docker commit</span><br><span class="line"></span><br><span class="line"><span class="meta">#</span> docker build [选项] &lt;上下文路径/URL/-&gt;</span><br><span class="line"><span class="meta">$</span> docker build -t nginx:v3 .</span><br></pre></td></tr></table></figure>
-
-</li>
-</ul>
-<h1 id="本地镜像推送阿里云"><a href="#本地镜像推送阿里云" class="headerlink" title="本地镜像推送阿里云"></a>本地镜像推送阿里云</h1><ul>
-<li><p>登录<a href="https://cr.console.aliyun.com/cn-shanghai/instances/repositories" target="_blank" rel="noopener">阿里云镜像服务控制台</a></p>
-</li>
-<li><p>新建命名空间</p>
-</li>
-<li><p>创建镜像仓库</p>
-<blockquote>
-<p>1、镜像仓库可以不创建，在推送时可以自定义镜像仓库，阿里云会自动创建</p>
-<p>2、创建镜像仓库后，<strong>点击具体的镜像仓库名称，进入操作指南</strong></p>
-</blockquote>
-</li>
-<li><p>实用命令</p>
-<figure class="highlight shell"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br><span class="line">3</span><br><span class="line">4</span><br><span class="line">5</span><br><span class="line">6</span><br><span class="line">7</span><br><span class="line">8</span><br><span class="line">9</span><br><span class="line">10</span><br><span class="line">11</span><br><span class="line">12</span><br><span class="line">13</span><br></pre></td><td class="code"><pre><span class="line"><span class="meta">#</span> 拉取私有镜像需要登录，拉取公有镜像不需要登录</span><br><span class="line"><span class="meta">$</span> docker pull registry.cn-shanghai.aliyuncs.com/[命名空间]/[镜像仓库名称]:[镜像版本号]</span><br><span class="line"><span class="meta">$</span> docker pull registry.cn-shanghai.aliyuncs.com/jjg/mynginx:v8</span><br><span class="line"></span><br><span class="line"><span class="meta">#</span> 推送镜像需要登录</span><br><span class="line"><span class="meta">#</span> 1、首先需要登录，在终端中执行，密码为访问凭证，不是阿里云登录密码</span><br><span class="line"><span class="meta">$</span> docker login --username=[登录名] registry.cn-shanghai.aliyuncs.com</span><br><span class="line"><span class="meta">#</span> 推送到阿里云上的镜像和本地镜像关联</span><br><span class="line"><span class="meta">#</span> ImageId为docker images 命令显示的IMAGE ID，不能随便填</span><br><span class="line"><span class="meta">#</span> 镜像版本号可以任意指定</span><br><span class="line"><span class="meta">$</span> docker tag [ImageId] registry.cn-shanghai.aliyuncs.com/[命名空间]/[镜像仓库名称]:[镜像版本号]</span><br><span class="line"><span class="meta">#</span> 推送镜像</span><br><span class="line"><span class="meta">$</span> docker push registry.cn-shanghai.aliyuncs.com/[命名空间]/[镜像仓库名称]:[镜像版本号]</span><br></pre></td></tr></table></figure>
-
-</li>
-</ul>
-<h1 id="参考文档"><a href="#参考文档" class="headerlink" title="参考文档"></a>参考文档</h1>
-        
-      
-    </div>
-
-    
-    
-    
-      <footer class="post-footer">
-        <div class="post-eof"></div>
-      </footer>
-  </article>
-  
-  
-  
-
-    
-        
-  
-  
-  <article itemscope itemtype="http://schema.org/Article" class="post-block home" lang="zh-CN">
-    <link itemprop="mainEntityOfPage" href="http://yoursite.com/2020/11/04/k8s/k8s-Helm/">
-
-    <span hidden itemprop="author" itemscope itemtype="http://schema.org/Person">
-      <meta itemprop="name" content="姜纪光">
-      <meta itemprop="description" content="">
-      <meta itemprop="image" content="/images/avatar.gif">
-    </span>
-
-    <span hidden itemprop="publisher" itemscope itemtype="http://schema.org/Organization">
-      <meta itemprop="name" content="纪光的博客">
-    </span>
-      <header class="post-header">
-        <h1 class="post-title" itemprop="name headline">
-          
-            
-            <a href="/2020/11/04/k8s/k8s-Helm/" class="post-title-link" itemprop="url">k8s-Helm</a>
-          
-        </h1>
-
-        <div class="post-meta">
-            <span class="post-meta-item">
-              <span class="post-meta-item-icon">
-                <i class="fa fa-calendar-o"></i>
-              </span>
-              <span class="post-meta-item-text">发表于</span>
-
-              
-                
-              
-
-              <time title="创建时间：2020-11-04 14:24:12 / 修改时间：14:41:36" itemprop="dateCreated datePublished" datetime="2020-11-04T14:24:12+08:00">2020-11-04</time>
-            </span>
-          
-            
-
-            
-          
-            <span class="post-meta-item">
-              <span class="post-meta-item-icon">
-                <i class="fa fa-folder-o"></i>
-              </span>
-              <span class="post-meta-item-text">分类于</span>
-              
-                <span itemprop="about" itemscope itemtype="http://schema.org/Thing">
-                  <a href="/categories/k8s/" itemprop="url" rel="index">
-                    <span itemprop="name">k8s</span>
-                  </a>
-                </span>
-
-                
-                
-              
-            </span>
-          
-
-          
-            <span id="/2020/11/04/k8s/k8s-Helm/" class="post-meta-item leancloud_visitors" data-flag-title="k8s-Helm" title="阅读次数">
-              <span class="post-meta-item-icon">
-                <i class="fa fa-eye"></i>
-              </span>
-              <span class="post-meta-item-text">阅读次数：</span>
-              <span class="leancloud-visitors-count"></span>
-            </span>
-          
-  
-  
-
-        </div>
-      </header>
-
-    
-    
-    
-    <div class="post-body" itemprop="articleBody">
-
-      
-          <h1 id="概述"><a href="#概述" class="headerlink" title="概述"></a>概述</h1><ul>
-<li><p>使用helm可以解决的问题</p>
-<blockquote>
-<p>1、可以把多个yaml文件作为一个整体管理</p>
-<p>2、实现yaml文件的高效复用</p>
-<p>3、实现应用级别的版本管理</p>
-</blockquote>
-</li>
-<li><p>helm是一个k8s的包管理工具，就如linux下的yum，可以方便的将之前打好的yaml文件部署到k8s上。</p>
-</li>
-</ul>
-<h1 id="参考文档"><a href="#参考文档" class="headerlink" title="参考文档"></a>参考文档</h1>
-        
-      
-    </div>
-
-    
-    
-    
-      <footer class="post-footer">
-        <div class="post-eof"></div>
-      </footer>
-  </article>
-  
-  
-  
-
-    
-        
-  
-  
-  <article itemscope itemtype="http://schema.org/Article" class="post-block home" lang="zh-CN">
-    <link itemprop="mainEntityOfPage" href="http://yoursite.com/2020/11/04/k8s/Ingress/">
-
-    <span hidden itemprop="author" itemscope itemtype="http://schema.org/Person">
-      <meta itemprop="name" content="姜纪光">
-      <meta itemprop="description" content="">
-      <meta itemprop="image" content="/images/avatar.gif">
-    </span>
-
-    <span hidden itemprop="publisher" itemscope itemtype="http://schema.org/Organization">
-      <meta itemprop="name" content="纪光的博客">
-    </span>
-      <header class="post-header">
-        <h1 class="post-title" itemprop="name headline">
-          
-            
-            <a href="/2020/11/04/k8s/Ingress/" class="post-title-link" itemprop="url">Ingress</a>
-          
-        </h1>
-
-        <div class="post-meta">
-            <span class="post-meta-item">
-              <span class="post-meta-item-icon">
-                <i class="fa fa-calendar-o"></i>
-              </span>
-              <span class="post-meta-item-text">发表于</span>
-
-              
-                
-              
-
-              <time title="创建时间：2020-11-04 11:54:24 / 修改时间：13:07:21" itemprop="dateCreated datePublished" datetime="2020-11-04T11:54:24+08:00">2020-11-04</time>
-            </span>
-          
-            
-
-            
-          
-            <span class="post-meta-item">
-              <span class="post-meta-item-icon">
-                <i class="fa fa-folder-o"></i>
-              </span>
-              <span class="post-meta-item-text">分类于</span>
-              
-                <span itemprop="about" itemscope itemtype="http://schema.org/Thing">
-                  <a href="/categories/k8s/" itemprop="url" rel="index">
-                    <span itemprop="name">k8s</span>
-                  </a>
-                </span>
-
-                
-                
-              
-            </span>
-          
-
-          
-            <span id="/2020/11/04/k8s/Ingress/" class="post-meta-item leancloud_visitors" data-flag-title="Ingress" title="阅读次数">
-              <span class="post-meta-item-icon">
-                <i class="fa fa-eye"></i>
-              </span>
-              <span class="post-meta-item-text">阅读次数：</span>
-              <span class="leancloud-visitors-count"></span>
-            </span>
-          
-  
-  
-
-        </div>
-      </header>
-
-    
-    
-    
-    <div class="post-body" itemprop="articleBody">
-
-      
-          <h1 id="概述"><a href="#概述" class="headerlink" title="概述"></a>概述</h1><ul>
-<li><p>NodePort的缺陷</p>
-<blockquote>
-<p>在每个节点上都会起相应的端口，通过节点ip+暴露的端口实现访问</p>
-<p>这意味着每个端口只能使用一次，对应一个应用</p>
-<p>实际访问都是使用域名，根据不同域名跳转到不同的端口服务中</p>
-</blockquote>
-</li>
-<li><p>Ingress和Pod的关系</p>
-<blockquote>
-<p>Pod和Ingress通过service关联</p>
-<p>Ingress作为统一入口，由service关联一组Pod，service启动负载均衡的作用</p>
-</blockquote>
-</li>
-</ul>
-<h1 id="Ingress使用"><a href="#Ingress使用" class="headerlink" title="Ingress使用"></a>Ingress使用</h1><h1 id="参考文档"><a href="#参考文档" class="headerlink" title="参考文档"></a>参考文档</h1>
         
       
     </div>
@@ -1695,7 +1621,7 @@
 
   
   <nav class="pagination">
-    <a class="extend prev" rel="prev" href="/page/2/"><i class="fa fa-angle-left" aria-label="上一页"></i></a><a class="page-number" href="/">1</a><a class="page-number" href="/page/2/">2</a><span class="page-number current">3</span><a class="page-number" href="/page/4/">4</a><span class="space">&hellip;</span><a class="page-number" href="/page/13/">13</a><a class="extend next" rel="next" href="/page/4/"><i class="fa fa-angle-right" aria-label="下一页"></i></a>
+    <a class="extend prev" rel="prev" href="/page/2/"><i class="fa fa-angle-left" aria-label="上一页"></i></a><a class="page-number" href="/">1</a><a class="page-number" href="/page/2/">2</a><span class="page-number current">3</span><a class="page-number" href="/page/4/">4</a><span class="space">&hellip;</span><a class="page-number" href="/page/15/">15</a><a class="extend next" rel="next" href="/page/4/"><i class="fa fa-angle-right" aria-label="下一页"></i></a>
   </nav>
 
 
@@ -1740,7 +1666,7 @@
         
           <a href="/archives/">
         
-          <span class="site-state-item-count">125</span>
+          <span class="site-state-item-count">143</span>
           <span class="site-state-item-name">日志</span>
         </a>
       </div>
@@ -1753,7 +1679,7 @@
             <a href="/categories/">
           
         
-        <span class="site-state-item-count">17</span>
+        <span class="site-state-item-count">22</span>
         <span class="site-state-item-name">分类</span>
         </a>
       </div>
@@ -1766,7 +1692,7 @@
             <a href="/tags/">
           
         
-        <span class="site-state-item-count">16</span>
+        <span class="site-state-item-count">15</span>
         <span class="site-state-item-name">标签</span>
         </a>
       </div>
@@ -1792,7 +1718,7 @@
 
 <div class="copyright">
   &copy; 
-  <span itemprop="copyrightYear">2020</span>
+  <span itemprop="copyrightYear">2021</span>
   <span class="with-love">
     <i class="fa fa-user"></i>
   </span>

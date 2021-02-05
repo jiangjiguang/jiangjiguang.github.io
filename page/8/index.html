@@ -241,7 +241,7 @@
   
   
   <article itemscope itemtype="http://schema.org/Article" class="post-block home" lang="zh-CN">
-    <link itemprop="mainEntityOfPage" href="http://yoursite.com/2020/08/17/java/Java锁知识/">
+    <link itemprop="mainEntityOfPage" href="http://yoursite.com/2020/09/22/linux/CPU探究/">
 
     <span hidden itemprop="author" itemscope itemtype="http://schema.org/Person">
       <meta itemprop="name" content="姜纪光">
@@ -256,7 +256,7 @@
         <h1 class="post-title" itemprop="name headline">
           
             
-            <a href="/2020/08/17/java/Java锁知识/" class="post-title-link" itemprop="url">Java锁知识</a>
+            <a href="/2020/09/22/linux/CPU探究/" class="post-title-link" itemprop="url">CPU探究</a>
           
         </h1>
 
@@ -271,1092 +271,7 @@
                 
               
 
-              <time title="创建时间：2020-08-17 09:49:39" itemprop="dateCreated datePublished" datetime="2020-08-17T09:49:39+08:00">2020-08-17</time>
-            </span>
-          
-
-          
-            <span id="/2020/08/17/java/Java锁知识/" class="post-meta-item leancloud_visitors" data-flag-title="Java锁知识" title="阅读次数">
-              <span class="post-meta-item-icon">
-                <i class="fa fa-eye"></i>
-              </span>
-              <span class="post-meta-item-text">阅读次数：</span>
-              <span class="leancloud-visitors-count"></span>
-            </span>
-          
-  
-  
-
-        </div>
-      </header>
-
-    
-    
-    
-    <div class="post-body" itemprop="articleBody">
-
-      
-          
-        
-      
-    </div>
-
-    
-    
-    
-      <footer class="post-footer">
-        <div class="post-eof"></div>
-      </footer>
-  </article>
-  
-  
-  
-
-    
-        
-  
-  
-  <article itemscope itemtype="http://schema.org/Article" class="post-block home" lang="zh-CN">
-    <link itemprop="mainEntityOfPage" href="http://yoursite.com/2020/08/17/java/Java线程知识/">
-
-    <span hidden itemprop="author" itemscope itemtype="http://schema.org/Person">
-      <meta itemprop="name" content="姜纪光">
-      <meta itemprop="description" content="">
-      <meta itemprop="image" content="/images/avatar.gif">
-    </span>
-
-    <span hidden itemprop="publisher" itemscope itemtype="http://schema.org/Organization">
-      <meta itemprop="name" content="纪光的博客">
-    </span>
-      <header class="post-header">
-        <h1 class="post-title" itemprop="name headline">
-          
-            
-            <a href="/2020/08/17/java/Java线程知识/" class="post-title-link" itemprop="url">Java线程知识</a>
-          
-        </h1>
-
-        <div class="post-meta">
-            <span class="post-meta-item">
-              <span class="post-meta-item-icon">
-                <i class="fa fa-calendar-o"></i>
-              </span>
-              <span class="post-meta-item-text">发表于</span>
-
-              
-                
-              
-
-              <time title="创建时间：2020-08-17 09:49:31 / 修改时间：10:54:05" itemprop="dateCreated datePublished" datetime="2020-08-17T09:49:31+08:00">2020-08-17</time>
-            </span>
-          
-            
-
-            
-          
-            <span class="post-meta-item">
-              <span class="post-meta-item-icon">
-                <i class="fa fa-folder-o"></i>
-              </span>
-              <span class="post-meta-item-text">分类于</span>
-              
-                <span itemprop="about" itemscope itemtype="http://schema.org/Thing">
-                  <a href="/categories/java/" itemprop="url" rel="index">
-                    <span itemprop="name">java</span>
-                  </a>
-                </span>
-
-                
-                
-              
-            </span>
-          
-
-          
-            <span id="/2020/08/17/java/Java线程知识/" class="post-meta-item leancloud_visitors" data-flag-title="Java线程知识" title="阅读次数">
-              <span class="post-meta-item-icon">
-                <i class="fa fa-eye"></i>
-              </span>
-              <span class="post-meta-item-text">阅读次数：</span>
-              <span class="leancloud-visitors-count"></span>
-            </span>
-          
-  
-  
-
-        </div>
-      </header>
-
-    
-    
-    
-    <div class="post-body" itemprop="articleBody">
-
-      
-          <h1 id="基本知识"><a href="#基本知识" class="headerlink" title="基本知识"></a>基本知识</h1><h2 id="线程知识"><a href="#线程知识" class="headerlink" title="线程知识"></a>线程知识</h2><h2 id="线程状态"><a href="#线程状态" class="headerlink" title="线程状态"></a>线程状态</h2><p>线程的状态由Thread.State枚举常量标识：</p>
-<ul>
-<li><p>NEW</p>
-<blockquote>
-<p>线程还没有开始执行</p>
-</blockquote>
-</li>
-<li><p>RUNNABLE</p>
-<blockquote>
-<p>线程正在JVM中执行</p>
-</blockquote>
-</li>
-<li><p>BLOCKED</p>
-<blockquote>
-<p>线程被阻塞并等待一个监听锁</p>
-</blockquote>
-</li>
-<li><p>WAITING</p>
-<blockquote>
-<p>线程无期限地等待另外一条线程执行特定操作，调用以下方法会进入该状态：</p>
-<p>1.Object.wait()   //其它线程调用Object.notify()或Object.notifyAll() 唤醒该线程</p>
-<p>2.Thread.join()   //其它线程终止唤醒该线程</p>
-<p>3.LockSupport.park</p>
-</blockquote>
-</li>
-<li><p>TIMED_WAITING</p>
-<blockquote>
-<p>线程在特定的时间内等待另外一条线程执行特定操作：</p>
-<p>1.Thread.sleep</p>
-<p>2.Object.wait(long)</p>
-<p>3.Thread.join(long)</p>
-<p>4.LockSupport.parkNanos</p>
-<p>5.LockSupport.parkUntil</p>
-</blockquote>
-</li>
-<li><p>TERMINATED</p>
-<blockquote>
-<p>线程已经退出</p>
-</blockquote>
-</li>
-</ul>
-<h2 id="调用修饰"><a href="#调用修饰" class="headerlink" title="调用修饰"></a>调用修饰</h2><p>表示线程在方法调用时，额外的重要操作</p>
-<figure class="highlight plain"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br><span class="line">3</span><br><span class="line">4</span><br><span class="line">5</span><br></pre></td><td class="code"><pre><span class="line">locked &lt;地址&gt; 目标：使用synchronized申请对象锁成功,监视器的拥有者。</span><br><span class="line">waiting to lock &lt;地址&gt; 目标：使用synchronized申请对象锁未成功,在进入区等待。</span><br><span class="line">waiting on &lt;地址&gt; 目标：使用synchronized申请对象锁成功后,释放锁并在等待区等待。</span><br><span class="line">parking to wait for &lt;地址&gt; 目标 //park是基本的线程阻塞原语,不通过监视器在对象上阻塞。</span><br><span class="line">  随concurrent包会出现的新的机制,和synchronized体系不同。</span><br></pre></td></tr></table></figure>
-
-<h1 id="参考文档"><a href="#参考文档" class="headerlink" title="参考文档"></a>参考文档</h1><p><a href>Java线程与并发编程实践</a></p>
-
-        
-      
-    </div>
-
-    
-    
-    
-      <footer class="post-footer">
-        <div class="post-eof"></div>
-      </footer>
-  </article>
-  
-  
-  
-
-    
-        
-  
-  
-  <article itemscope itemtype="http://schema.org/Article" class="post-block home" lang="zh-CN">
-    <link itemprop="mainEntityOfPage" href="http://yoursite.com/2020/08/17/java/JVM常用命令/">
-
-    <span hidden itemprop="author" itemscope itemtype="http://schema.org/Person">
-      <meta itemprop="name" content="姜纪光">
-      <meta itemprop="description" content="">
-      <meta itemprop="image" content="/images/avatar.gif">
-    </span>
-
-    <span hidden itemprop="publisher" itemscope itemtype="http://schema.org/Organization">
-      <meta itemprop="name" content="纪光的博客">
-    </span>
-      <header class="post-header">
-        <h1 class="post-title" itemprop="name headline">
-          
-            
-            <a href="/2020/08/17/java/JVM常用命令/" class="post-title-link" itemprop="url">JVM常用命令</a>
-          
-        </h1>
-
-        <div class="post-meta">
-            <span class="post-meta-item">
-              <span class="post-meta-item-icon">
-                <i class="fa fa-calendar-o"></i>
-              </span>
-              <span class="post-meta-item-text">发表于</span>
-
-              
-                
-              
-
-              <time title="创建时间：2020-08-17 08:53:28" itemprop="dateCreated datePublished" datetime="2020-08-17T08:53:28+08:00">2020-08-17</time>
-            </span>
-          
-            
-
-            
-              <span class="post-meta-item">
-                <span class="post-meta-item-icon">
-                  <i class="fa fa-calendar-check-o"></i>
-                </span>
-                <span class="post-meta-item-text">更新于</span>
-                <time title="修改时间：2020-10-21 09:55:59" itemprop="dateModified" datetime="2020-10-21T09:55:59+08:00">2020-10-21</time>
-              </span>
-            
-          
-            <span class="post-meta-item">
-              <span class="post-meta-item-icon">
-                <i class="fa fa-folder-o"></i>
-              </span>
-              <span class="post-meta-item-text">分类于</span>
-              
-                <span itemprop="about" itemscope itemtype="http://schema.org/Thing">
-                  <a href="/categories/java/" itemprop="url" rel="index">
-                    <span itemprop="name">java</span>
-                  </a>
-                </span>
-
-                
-                
-              
-            </span>
-          
-
-          
-            <span id="/2020/08/17/java/JVM常用命令/" class="post-meta-item leancloud_visitors" data-flag-title="JVM常用命令" title="阅读次数">
-              <span class="post-meta-item-icon">
-                <i class="fa fa-eye"></i>
-              </span>
-              <span class="post-meta-item-text">阅读次数：</span>
-              <span class="leancloud-visitors-count"></span>
-            </span>
-          
-  
-  
-
-        </div>
-      </header>
-
-    
-    
-    
-    <div class="post-body" itemprop="articleBody">
-
-      
-          <h1 id="常用命令"><a href="#常用命令" class="headerlink" title="常用命令"></a>常用命令</h1><h2 id="jstat"><a href="#jstat" class="headerlink" title="jstat"></a>jstat</h2><ul>
-<li><p>全称为：JVM Statistics Monitoring Tool</p>
-</li>
-<li><p>用于监控虚拟机各种运行状态信息。包括：类加载、内存、垃圾收集、JIT编译等运行数据。</p>
-</li>
-<li><p>命令格式</p>
-<blockquote>
-<p> jstat (-命令选项) (vmid) (间隔时间/毫秒) (查询次数)</p>
-</blockquote>
-</li>
-<li><p>命令选项</p>
-<blockquote>
-<p>-class  监控类加载、卸载数量、总空间以及类加载所耗费时间</p>
-<p>-compiler 输出JIT编译器编译过得方法、耗时等信息</p>
-<p>-printcompilation 输出已经被JIT编译的方法</p>
-<p>-gc 监视Java堆状况，包括eden、survivor区、老年代、永久区的容量和已使用空间、GC时间合计等信息</p>
-<p>-gcutil 与-gc基本相同，侧重于百分比</p>
-</blockquote>
-</li>
-<li><p>类加载</p>
-<figure class="highlight shell"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br><span class="line">3</span><br></pre></td><td class="code"><pre><span class="line"><span class="meta">#</span> jstat -class 15780</span><br><span class="line">Loaded  Bytes  Unloaded  Bytes     Time   </span><br><span class="line"> 12969  23843.9      0     0.0     7.43</span><br></pre></td></tr></table></figure>
-</li>
-<li><p>编译统计</p>
-<figure class="highlight shell"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br><span class="line">3</span><br></pre></td><td class="code"><pre><span class="line"><span class="meta">#</span> jstat -compiler 15780 </span><br><span class="line">Compiled Failed Invalid   Time   FailedType FailedMethod</span><br><span class="line">   12948      5       0    54.25          1 org/springframework/transaction/interceptor/TransactionAttributeSourcePointcut matches</span><br></pre></td></tr></table></figure>
-</li>
-<li><p>堆内存统计</p>
-<figure class="highlight shell"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br><span class="line">3</span><br></pre></td><td class="code"><pre><span class="line"><span class="meta">#</span> jstat -gccapacity 26114 30000 30</span><br><span class="line"> NGCMN    NGCMX     NGC     S0C   S1C       EC      OGCMN      OGCMX       OGC         OC       MCMN     MCMX      MC     CCSMN    CCSMX     CCSC    YGC    FGC </span><br><span class="line">340736.0 340736.0 340736.0 34048.0 34048.0 272640.0  7130368.0  7130368.0  7130368.0  7130368.0      0.0 1116160.0  76152.0      0.0 1048576.0   9424.0  12572    31</span><br></pre></td></tr></table></figure>
-</li>
-<li><p>元数据空间统计</p>
-<figure class="highlight shell"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br><span class="line">3</span><br></pre></td><td class="code"><pre><span class="line"><span class="meta">#</span>jstat -gcmetacapacity 26114 30000 30    </span><br><span class="line">   MCMN       MCMX        MC       CCSMN      CCSMX       CCSC     YGC   FGC    FGCT     GCT   </span><br><span class="line">   0.0  1116160.0    76152.0        0.0  1048576.0     9424.0 13661    34    8.851  436.361</span><br></pre></td></tr></table></figure>
-</li>
-<li><p>垃圾回收统计</p>
-<figure class="highlight shell"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br><span class="line">3</span><br><span class="line">4</span><br></pre></td><td class="code"><pre><span class="line"><span class="meta">#</span> jstat -gc 15780</span><br><span class="line"> S0C    S1C    S0U    S1U      EC       EU        OC         OU       MC     MU    </span><br><span class="line"> CCSC   CCSU   YGC     YGCT    FGC    FGCT     GCT   </span><br><span class="line"> 0.0   3072.0  0.0   3072.0 1098752.0 730112.0  995328.0   68874.4   75904.0 71841.1 9344.0 8645.2    134    1.588   0      0.000    1.588</span><br></pre></td></tr></table></figure>
-
-</li>
-</ul>
-<h2 id="jstack"><a href="#jstack" class="headerlink" title="jstack"></a>jstack</h2><ul>
-<li><p>用于生成虚拟机当前时刻的线程快照</p>
-<blockquote>
-<p>线程快照就是当前虚拟机内每一条线程正在执行的方法堆栈的集合。</p>
-<p>主要目的是定位导致线程长时间停顿的原因，如线程间死锁、死循环、请求外部资源导致长时间等待。</p>
-</blockquote>
-</li>
-<li><p>命令格式</p>
-<blockquote>
-<p>jstack (option) vmid</p>
-<p>option选项：</p>
-<p>-F 强制输出线程堆栈</p>
-<p>-l 除堆栈外，显示关于锁的附加信息</p>
-<p>-m 如果调用本地方法，可显示C/C++的堆栈</p>
-</blockquote>
-</li>
-<li><p>命令使用</p>
-<blockquote>
-<p>jstack -F vmid</p>
-</blockquote>
-</li>
-</ul>
-<h2 id="jmap"><a href="#jmap" class="headerlink" title="jmap"></a>jmap</h2><ul>
-<li><p>用于输出所有内存中的对象的工具</p>
-</li>
-<li><p>输出堆存储快照</p>
-<figure class="highlight shell"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br><span class="line">3</span><br></pre></td><td class="code"><pre><span class="line"><span class="meta">#</span> live子选项是只输出活的对象到文件</span><br><span class="line">jmap -dump:live,format=b,file=dump.hprof 19570</span><br><span class="line">jmap -dump:format=b,file=dump.hprof 19570</span><br></pre></td></tr></table></figure>
-</li>
-<li><p>打印正等候回收的对象的信息</p>
-<figure class="highlight shell"><table><tr><td class="gutter"><pre><span class="line">1</span><br></pre></td><td class="code"><pre><span class="line">jmap -finalizerinfo 3772</span><br></pre></td></tr></table></figure>
-</li>
-<li><p>打印堆的概要信息</p>
-<figure class="highlight shell"><table><tr><td class="gutter"><pre><span class="line">1</span><br></pre></td><td class="code"><pre><span class="line">jmap -heap 47365</span><br></pre></td></tr></table></figure>
-</li>
-<li><p>显示堆中对象统计信息，类、实例数量、占用空间</p>
-<figure class="highlight shell"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br></pre></td><td class="code"><pre><span class="line">jmap -histo:live 19570</span><br><span class="line">jmap -F -histo 19570</span><br></pre></td></tr></table></figure>
-</li>
-<li><p>打印类加载器信息</p>
-<figure class="highlight shell"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br></pre></td><td class="code"><pre><span class="line">jmap -clstats 47365</span><br><span class="line"><span class="meta">#</span>会报错，没有解决</span><br></pre></td></tr></table></figure>
-
-</li>
-</ul>
-<h1 id="jinfo"><a href="#jinfo" class="headerlink" title="jinfo"></a>jinfo</h1><ul>
-<li><p>全称Configuration Info for Java，用来实时查看和调整虚拟机的各项参数</p>
-</li>
-<li><p>用法</p>
-<figure class="highlight shell"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br><span class="line">3</span><br><span class="line">4</span><br><span class="line">5</span><br><span class="line">6</span><br><span class="line">7</span><br><span class="line">8</span><br></pre></td><td class="code"><pre><span class="line"><span class="meta">#</span> jinfo -help</span><br><span class="line"><span class="meta">#</span> jinfo [option] pid</span><br><span class="line">  no option 输出全部的参数和系统属性</span><br><span class="line">  -flag name 输出对应名称的参数</span><br><span class="line">  -flag [+|-]name 开启或者关闭对应名称的参数</span><br><span class="line">  -flag name=value 设定对应名称的参数</span><br><span class="line">  -flags 输出全部的参数</span><br><span class="line">  -sysprops 输出系统属性</span><br></pre></td></tr></table></figure>
-
-<p>​</p>
-</li>
-</ul>
-<h1 id="实用命令"><a href="#实用命令" class="headerlink" title="实用命令"></a>实用命令</h1><ul>
-<li><code>jar -tf xxx.jar |grep xxx.java</code> 查看是否 jar 中存在某个类，如果考虑冲突的话，可以加个参数看下类是由哪里加处理的: <code>-verbose:class</code></li>
-</ul>
-<h1 id="参考文档"><a href="#参考文档" class="headerlink" title="参考文档"></a>参考文档</h1><p><a href="https://www.cnblogs.com/alter888/p/10407952.html" target="_blank" rel="noopener">jstat命令查看jvm的GC情况</a></p>
-<p><a href="https://www.cnblogs.com/kongzhongqijing/articles/3630264.html" target="_blank" rel="noopener">java命令—jstack工具</a></p>
-<p><a href="https://www.jianshu.com/p/8d8aef212b25" target="_blank" rel="noopener">jvm 性能调优工具之 jinfo</a></p>
-
-        
-      
-    </div>
-
-    
-    
-    
-      <footer class="post-footer">
-        <div class="post-eof"></div>
-      </footer>
-  </article>
-  
-  
-  
-
-    
-        
-  
-  
-  <article itemscope itemtype="http://schema.org/Article" class="post-block home" lang="zh-CN">
-    <link itemprop="mainEntityOfPage" href="http://yoursite.com/2020/08/17/java/JVM问题排查实践/">
-
-    <span hidden itemprop="author" itemscope itemtype="http://schema.org/Person">
-      <meta itemprop="name" content="姜纪光">
-      <meta itemprop="description" content="">
-      <meta itemprop="image" content="/images/avatar.gif">
-    </span>
-
-    <span hidden itemprop="publisher" itemscope itemtype="http://schema.org/Organization">
-      <meta itemprop="name" content="纪光的博客">
-    </span>
-      <header class="post-header">
-        <h1 class="post-title" itemprop="name headline">
-          
-            
-            <a href="/2020/08/17/java/JVM问题排查实践/" class="post-title-link" itemprop="url">JVM问题排查实践</a>
-          
-        </h1>
-
-        <div class="post-meta">
-            <span class="post-meta-item">
-              <span class="post-meta-item-icon">
-                <i class="fa fa-calendar-o"></i>
-              </span>
-              <span class="post-meta-item-text">发表于</span>
-
-              
-                
-              
-
-              <time title="创建时间：2020-08-17 08:27:23" itemprop="dateCreated datePublished" datetime="2020-08-17T08:27:23+08:00">2020-08-17</time>
-            </span>
-          
-            
-
-            
-              <span class="post-meta-item">
-                <span class="post-meta-item-icon">
-                  <i class="fa fa-calendar-check-o"></i>
-                </span>
-                <span class="post-meta-item-text">更新于</span>
-                <time title="修改时间：2020-09-02 17:26:12" itemprop="dateModified" datetime="2020-09-02T17:26:12+08:00">2020-09-02</time>
-              </span>
-            
-          
-            <span class="post-meta-item">
-              <span class="post-meta-item-icon">
-                <i class="fa fa-folder-o"></i>
-              </span>
-              <span class="post-meta-item-text">分类于</span>
-              
-                <span itemprop="about" itemscope itemtype="http://schema.org/Thing">
-                  <a href="/categories/java/" itemprop="url" rel="index">
-                    <span itemprop="name">java</span>
-                  </a>
-                </span>
-
-                
-                
-              
-            </span>
-          
-
-          
-            <span id="/2020/08/17/java/JVM问题排查实践/" class="post-meta-item leancloud_visitors" data-flag-title="JVM问题排查实践" title="阅读次数">
-              <span class="post-meta-item-icon">
-                <i class="fa fa-eye"></i>
-              </span>
-              <span class="post-meta-item-text">阅读次数：</span>
-              <span class="leancloud-visitors-count"></span>
-            </span>
-          
-  
-  
-
-        </div>
-      </header>
-
-    
-    
-    
-    <div class="post-body" itemprop="articleBody">
-
-      
-          <h1 id="工具实践"><a href="#工具实践" class="headerlink" title="工具实践"></a>工具实践</h1><h2 id="top"><a href="#top" class="headerlink" title="top"></a>top</h2><p><a href="https://jiangjiguang.me/2020/07/10/linux/%E5%B7%A5%E5%85%B7%E5%AE%9E%E8%B7%B5-top/" target="_blank" rel="noopener">工具实战-top</a></p>
-<blockquote>
-<p>显示进程的所有线程：</p>
-<p>top -H -p pid</p>
-<p>f add/remove/order/sort 列</p>
-<p>R 切换正序/倒序排序</p>
-</blockquote>
-<h2 id="jstack"><a href="#jstack" class="headerlink" title="jstack"></a>jstack</h2><p>用于生成虚拟机当前时刻的线程快照</p>
-<blockquote>
-<p>jstack -F mvid</p>
-</blockquote>
-<h1 id="参考文档"><a href="#参考文档" class="headerlink" title="参考文档"></a>参考文档</h1>
-        
-      
-    </div>
-
-    
-    
-    
-      <footer class="post-footer">
-        <div class="post-eof"></div>
-      </footer>
-  </article>
-  
-  
-  
-
-    
-        
-  
-  
-  <article itemscope itemtype="http://schema.org/Article" class="post-block home" lang="zh-CN">
-    <link itemprop="mainEntityOfPage" href="http://yoursite.com/2020/08/12/java/Java反射实践/">
-
-    <span hidden itemprop="author" itemscope itemtype="http://schema.org/Person">
-      <meta itemprop="name" content="姜纪光">
-      <meta itemprop="description" content="">
-      <meta itemprop="image" content="/images/avatar.gif">
-    </span>
-
-    <span hidden itemprop="publisher" itemscope itemtype="http://schema.org/Organization">
-      <meta itemprop="name" content="纪光的博客">
-    </span>
-      <header class="post-header">
-        <h1 class="post-title" itemprop="name headline">
-          
-            
-            <a href="/2020/08/12/java/Java反射实践/" class="post-title-link" itemprop="url">Java反射实践</a>
-          
-        </h1>
-
-        <div class="post-meta">
-            <span class="post-meta-item">
-              <span class="post-meta-item-icon">
-                <i class="fa fa-calendar-o"></i>
-              </span>
-              <span class="post-meta-item-text">发表于</span>
-
-              
-                
-              
-
-              <time title="创建时间：2020-08-12 10:29:03" itemprop="dateCreated datePublished" datetime="2020-08-12T10:29:03+08:00">2020-08-12</time>
-            </span>
-          
-            
-
-            
-              <span class="post-meta-item">
-                <span class="post-meta-item-icon">
-                  <i class="fa fa-calendar-check-o"></i>
-                </span>
-                <span class="post-meta-item-text">更新于</span>
-                <time title="修改时间：2020-08-31 15:57:44" itemprop="dateModified" datetime="2020-08-31T15:57:44+08:00">2020-08-31</time>
-              </span>
-            
-          
-            <span class="post-meta-item">
-              <span class="post-meta-item-icon">
-                <i class="fa fa-folder-o"></i>
-              </span>
-              <span class="post-meta-item-text">分类于</span>
-              
-                <span itemprop="about" itemscope itemtype="http://schema.org/Thing">
-                  <a href="/categories/java/" itemprop="url" rel="index">
-                    <span itemprop="name">java</span>
-                  </a>
-                </span>
-
-                
-                
-              
-            </span>
-          
-
-          
-            <span id="/2020/08/12/java/Java反射实践/" class="post-meta-item leancloud_visitors" data-flag-title="Java反射实践" title="阅读次数">
-              <span class="post-meta-item-icon">
-                <i class="fa fa-eye"></i>
-              </span>
-              <span class="post-meta-item-text">阅读次数：</span>
-              <span class="leancloud-visitors-count"></span>
-            </span>
-          
-  
-  
-
-        </div>
-      </header>
-
-    
-    
-    
-    <div class="post-body" itemprop="articleBody">
-
-      
-          <h1 id="简介"><a href="#简介" class="headerlink" title="简介"></a>简介</h1><ul>
-<li>Java反射就是在运行状态中，对于任意一个类，都能够知道该类的所有属性和方法；对于任意一个对象，都能够调用它的任意方法和属性；并且能改变它的属性</li>
-<li>反射机制允许程序在运行时取得任何一个已知名称的class的内部信息，包括包括其modifiers(修饰符)，fields(属性)，methods(方法)等，并可于运行时改变fields内容或调用methods</li>
-<li>​</li>
-</ul>
-<h1 id="泛型擦除"><a href="#泛型擦除" class="headerlink" title="泛型擦除"></a>泛型擦除</h1><ul>
-<li><p>Java泛型是在编译器层次上实现的，在编译生成字节码的期间，所有的泛型信息都会被擦除掉</p>
-</li>
-<li><p>在JVM生成的字节码中是没有泛型信息的</p>
-</li>
-<li><p>那么泛型被擦除后，保留在字节码中的是什么类型呢？</p>
-<blockquote>
-<p>1.原始类型  类型被擦除后，保留在字节码中的类型变量的真正类型。</p>
-<p>2.无论何时定义一个泛型，相应的原始类型会被自动提供。</p>
-<p>3.如果无限定类型变量，其原始类型就是Object</p>
-<p>4.如果有限定类型变量，那么其原始类型就是第一个边界的类型变量</p>
-<p>5.在不指定泛型的情况下，泛型变量的类型为该方法中的几种类型的同一父类的最小级，直到Object</p>
-<p>6.在指定泛型的情况下，该方法的几种类型必须是该泛型的实例的类型或者其子类</p>
-</blockquote>
-</li>
-<li><p>Java编译器是通过先检查代码中泛型的类型，然后在进行类型擦除，再进行编译</p>
-</li>
-<li><p>类型检查是针对引用的，不是针对真正的实例对象</p>
-</li>
-<li><p>虚拟机巧妙的使用了桥方法，来解决了类型擦除和多态的冲突</p>
-</li>
-</ul>
-<h1 id="参考文档"><a href="#参考文档" class="headerlink" title="参考文档"></a>参考文档</h1><p><a href="http://commons.apache.org/proper/commons-lang/javadocs/api-release/" target="_blank" rel="noopener">commons-lang</a></p>
-<p><a href="https://guava.dev/releases/23.0/api/docs/" target="_blank" rel="noopener">guava</a></p>
-<p><a href="https://docs.oracle.com/javase/8/docs/api/" target="_blank" rel="noopener">java_docs</a></p>
-<p><a href="https://www.jianshu.com/p/2315dda64ad2" target="_blank" rel="noopener">Java Reflection(反射机制)详解</a></p>
-<p><a href="https://www.cnblogs.com/ysocean/p/6516248.html#_label3" target="_blank" rel="noopener">Java反射详解</a></p>
-<p><a href="https://www.jianshu.com/p/009d621a4128" target="_blank" rel="noopener">Google Guava 反射机制工具类</a></p>
-<p><a href="https://blog.csdn.net/wuyuxing24/article/details/95079618" target="_blank" rel="noopener">Google Guava 反射机制工具类</a></p>
-<p><a href="https://juejin.im/post/6844903654424576013" target="_blank" rel="noopener">Java反射详解</a></p>
-<p><a href="https://www.cnblogs.com/wuqinglong/p/9456193.html" target="_blank" rel="noopener">Java泛型类型擦除以及类型擦除带来的问题</a></p>
-
-        
-      
-    </div>
-
-    
-    
-    
-      <footer class="post-footer">
-        <div class="post-eof"></div>
-      </footer>
-  </article>
-  
-  
-  
-
-    
-        
-  
-  
-  <article itemscope itemtype="http://schema.org/Article" class="post-block home" lang="zh-CN">
-    <link itemprop="mainEntityOfPage" href="http://yoursite.com/2020/08/10/es/ES的Client实践/">
-
-    <span hidden itemprop="author" itemscope itemtype="http://schema.org/Person">
-      <meta itemprop="name" content="姜纪光">
-      <meta itemprop="description" content="">
-      <meta itemprop="image" content="/images/avatar.gif">
-    </span>
-
-    <span hidden itemprop="publisher" itemscope itemtype="http://schema.org/Organization">
-      <meta itemprop="name" content="纪光的博客">
-    </span>
-      <header class="post-header">
-        <h1 class="post-title" itemprop="name headline">
-          
-            
-            <a href="/2020/08/10/es/ES的Client实践/" class="post-title-link" itemprop="url">ES使用实践</a>
-          
-        </h1>
-
-        <div class="post-meta">
-            <span class="post-meta-item">
-              <span class="post-meta-item-icon">
-                <i class="fa fa-calendar-o"></i>
-              </span>
-              <span class="post-meta-item-text">发表于</span>
-
-              
-                
-              
-
-              <time title="创建时间：2020-08-10 15:51:49" itemprop="dateCreated datePublished" datetime="2020-08-10T15:51:49+08:00">2020-08-10</time>
-            </span>
-          
-            
-
-            
-              <span class="post-meta-item">
-                <span class="post-meta-item-icon">
-                  <i class="fa fa-calendar-check-o"></i>
-                </span>
-                <span class="post-meta-item-text">更新于</span>
-                <time title="修改时间：2020-08-16 17:10:45" itemprop="dateModified" datetime="2020-08-16T17:10:45+08:00">2020-08-16</time>
-              </span>
-            
-          
-            <span class="post-meta-item">
-              <span class="post-meta-item-icon">
-                <i class="fa fa-folder-o"></i>
-              </span>
-              <span class="post-meta-item-text">分类于</span>
-              
-                <span itemprop="about" itemscope itemtype="http://schema.org/Thing">
-                  <a href="/categories/es/" itemprop="url" rel="index">
-                    <span itemprop="name">es</span>
-                  </a>
-                </span>
-
-                
-                
-              
-            </span>
-          
-
-          
-            <span id="/2020/08/10/es/ES的Client实践/" class="post-meta-item leancloud_visitors" data-flag-title="ES使用实践" title="阅读次数">
-              <span class="post-meta-item-icon">
-                <i class="fa fa-eye"></i>
-              </span>
-              <span class="post-meta-item-text">阅读次数：</span>
-              <span class="leancloud-visitors-count"></span>
-            </span>
-          
-  
-  
-
-        </div>
-      </header>
-
-    
-    
-    
-    <div class="post-body" itemprop="articleBody">
-
-      
-          <h1 id="索引"><a href="#索引" class="headerlink" title="索引"></a>索引</h1><h2 id="分片和分片副本数量设置"><a href="#分片和分片副本数量设置" class="headerlink" title="分片和分片副本数量设置"></a>分片和分片副本数量设置</h2><p>目前ES集群有18个节点</p>
-<h1 id="API操作"><a href="#API操作" class="headerlink" title="API操作"></a>API操作</h1><h1 id="springboot整合"><a href="#springboot整合" class="headerlink" title="springboot整合"></a>springboot整合</h1><h1 id="参考文档"><a href="#参考文档" class="headerlink" title="参考文档"></a>参考文档</h1><p><a href="https://blog.csdn.net/u013515384/article/details/84994763" target="_blank" rel="noopener">springboot elasticsearch整合实践（RestHighLevelClient）</a></p>
-<p><a href="https://xiaoxiami.gitbook.io/elasticsearch/ji-chu/33-apis" target="_blank" rel="noopener">Elasticsearch高手之路</a></p>
-
-        
-      
-    </div>
-
-    
-    
-    
-      <footer class="post-footer">
-        <div class="post-eof"></div>
-      </footer>
-  </article>
-  
-  
-  
-
-    
-        
-  
-  
-  <article itemscope itemtype="http://schema.org/Article" class="post-block home" lang="zh-CN">
-    <link itemprop="mainEntityOfPage" href="http://yoursite.com/2020/08/10/java/虚拟机监控和管理/">
-
-    <span hidden itemprop="author" itemscope itemtype="http://schema.org/Person">
-      <meta itemprop="name" content="姜纪光">
-      <meta itemprop="description" content="">
-      <meta itemprop="image" content="/images/avatar.gif">
-    </span>
-
-    <span hidden itemprop="publisher" itemscope itemtype="http://schema.org/Organization">
-      <meta itemprop="name" content="纪光的博客">
-    </span>
-      <header class="post-header">
-        <h1 class="post-title" itemprop="name headline">
-          
-            
-            <a href="/2020/08/10/java/虚拟机监控和管理/" class="post-title-link" itemprop="url">虚拟机监控和管理</a>
-          
-        </h1>
-
-        <div class="post-meta">
-            <span class="post-meta-item">
-              <span class="post-meta-item-icon">
-                <i class="fa fa-calendar-o"></i>
-              </span>
-              <span class="post-meta-item-text">发表于</span>
-
-              
-                
-              
-
-              <time title="创建时间：2020-08-10 11:00:25 / 修改时间：12:08:54" itemprop="dateCreated datePublished" datetime="2020-08-10T11:00:25+08:00">2020-08-10</time>
-            </span>
-          
-            
-
-            
-          
-            <span class="post-meta-item">
-              <span class="post-meta-item-icon">
-                <i class="fa fa-folder-o"></i>
-              </span>
-              <span class="post-meta-item-text">分类于</span>
-              
-                <span itemprop="about" itemscope itemtype="http://schema.org/Thing">
-                  <a href="/categories/java/" itemprop="url" rel="index">
-                    <span itemprop="name">java</span>
-                  </a>
-                </span>
-
-                
-                
-              
-            </span>
-          
-
-          
-            <span id="/2020/08/10/java/虚拟机监控和管理/" class="post-meta-item leancloud_visitors" data-flag-title="虚拟机监控和管理" title="阅读次数">
-              <span class="post-meta-item-icon">
-                <i class="fa fa-eye"></i>
-              </span>
-              <span class="post-meta-item-text">阅读次数：</span>
-              <span class="leancloud-visitors-count"></span>
-            </span>
-          
-  
-  
-
-        </div>
-      </header>
-
-    
-    
-    
-    <div class="post-body" itemprop="articleBody">
-
-      
-          <h1 id="java-lang-management简介"><a href="#java-lang-management简介" class="headerlink" title="java.lang.management简介"></a>java.lang.management简介</h1><p>​    该包提供了用于监控和管理Java虚拟机和Java运行时中的其他组件的管理接口。它可以对正在运行的Java虚拟机进行本地和远程的监控和管理。</p>
-<h1 id="信号量"><a href="#信号量" class="headerlink" title="信号量"></a>信号量</h1><h1 id="Shutdownhook"><a href="#Shutdownhook" class="headerlink" title="Shutdownhook"></a>Shutdownhook</h1><h1 id="参考文档"><a href="#参考文档" class="headerlink" title="参考文档"></a>参考文档</h1><p><a href="https://blog.csdn.net/zgljl2012/article/details/50989976" target="_blank" rel="noopener">Java获取当前进程ID以及所有Java进程的进程ID</a></p>
-<p><a href="https://docs.oracle.com/javase/8/docs/api/java/lang/management/package-summary.html" target="_blank" rel="noopener">java.lang.management</a></p>
-<p><a href="https://www.cnblogs.com/nuccch/p/10903162.html" target="_blank" rel="noopener">如何优雅地停止Java进程</a></p>
-<p><a href="https://blog.csdn.net/loveli178/article/details/90704869" target="_blank" rel="noopener">浅析java的退出钩子(Hook)</a></p>
-<p><a href="https://openjdk.java.net/groups/serviceability/jvmstat/overview-summary.html" target="_blank" rel="noopener">Jvmstat</a></p>
-<p><a href="https://www.cnblogs.com/dongguacai/p/5900507.html" target="_blank" rel="noopener">JMX超详细解读</a></p>
-
-        
-      
-    </div>
-
-    
-    
-    
-      <footer class="post-footer">
-        <div class="post-eof"></div>
-      </footer>
-  </article>
-  
-  
-  
-
-    
-        
-  
-  
-  <article itemscope itemtype="http://schema.org/Article" class="post-block home" lang="zh-CN">
-    <link itemprop="mainEntityOfPage" href="http://yoursite.com/2020/08/09/java/java性能优化/">
-
-    <span hidden itemprop="author" itemscope itemtype="http://schema.org/Person">
-      <meta itemprop="name" content="姜纪光">
-      <meta itemprop="description" content="">
-      <meta itemprop="image" content="/images/avatar.gif">
-    </span>
-
-    <span hidden itemprop="publisher" itemscope itemtype="http://schema.org/Organization">
-      <meta itemprop="name" content="纪光的博客">
-    </span>
-      <header class="post-header">
-        <h1 class="post-title" itemprop="name headline">
-          
-            
-            <a href="/2020/08/09/java/java性能优化/" class="post-title-link" itemprop="url">Java性能优化</a>
-          
-        </h1>
-
-        <div class="post-meta">
-            <span class="post-meta-item">
-              <span class="post-meta-item-icon">
-                <i class="fa fa-calendar-o"></i>
-              </span>
-              <span class="post-meta-item-text">发表于</span>
-
-              
-                
-              
-
-              <time title="创建时间：2020-08-09 12:59:07 / 修改时间：18:11:58" itemprop="dateCreated datePublished" datetime="2020-08-09T12:59:07+08:00">2020-08-09</time>
-            </span>
-          
-            
-
-            
-          
-            <span class="post-meta-item">
-              <span class="post-meta-item-icon">
-                <i class="fa fa-folder-o"></i>
-              </span>
-              <span class="post-meta-item-text">分类于</span>
-              
-                <span itemprop="about" itemscope itemtype="http://schema.org/Thing">
-                  <a href="/categories/java/" itemprop="url" rel="index">
-                    <span itemprop="name">java</span>
-                  </a>
-                </span>
-
-                
-                
-              
-            </span>
-          
-
-          
-            <span id="/2020/08/09/java/java性能优化/" class="post-meta-item leancloud_visitors" data-flag-title="Java性能优化" title="阅读次数">
-              <span class="post-meta-item-icon">
-                <i class="fa fa-eye"></i>
-              </span>
-              <span class="post-meta-item-text">阅读次数：</span>
-              <span class="leancloud-visitors-count"></span>
-            </span>
-          
-  
-  
-
-        </div>
-      </header>
-
-    
-    
-    
-    <div class="post-body" itemprop="articleBody">
-
-      
-          <h1 id="JVM参数设置"><a href="#JVM参数设置" class="headerlink" title="JVM参数设置"></a>JVM参数设置</h1><h2 id="开启逃逸分析"><a href="#开启逃逸分析" class="headerlink" title="开启逃逸分析"></a>开启逃逸分析</h2><p>jvm参数设置：<code>-XX:+DoEscapeAnalysis</code></p>
-<p>JDK8中默认是开启的，开启后对热点代码，到达一定次数后会触发JIT编译，之后实例对象就会在栈上分配而不是在堆上</p>
-<h2 id="开启TLAB-Thread-Local-Application-Buffer"><a href="#开启TLAB-Thread-Local-Application-Buffer" class="headerlink" title="开启TLAB(Thread Local Application Buffer)"></a>开启TLAB(Thread Local Application Buffer)</h2><p>jvm参数设置：<code>-XX:+UseTLAB</code></p>
-<p>默认是开启的，TLAB的空间默认栈eden区的1%</p>
-<p>当eden进行GC时也会回收TLAB空间</p>
-<h1 id="参考文档"><a href="#参考文档" class="headerlink" title="参考文档"></a>参考文档</h1>
-        
-      
-    </div>
-
-    
-    
-    
-      <footer class="post-footer">
-        <div class="post-eof"></div>
-      </footer>
-  </article>
-  
-  
-  
-
-    
-        
-  
-  
-  <article itemscope itemtype="http://schema.org/Article" class="post-block home" lang="zh-CN">
-    <link itemprop="mainEntityOfPage" href="http://yoursite.com/2020/08/07/java/java程序捕获signal实践/">
-
-    <span hidden itemprop="author" itemscope itemtype="http://schema.org/Person">
-      <meta itemprop="name" content="姜纪光">
-      <meta itemprop="description" content="">
-      <meta itemprop="image" content="/images/avatar.gif">
-    </span>
-
-    <span hidden itemprop="publisher" itemscope itemtype="http://schema.org/Organization">
-      <meta itemprop="name" content="纪光的博客">
-    </span>
-      <header class="post-header">
-        <h1 class="post-title" itemprop="name headline">
-          
-            
-            <a href="/2020/08/07/java/java程序捕获signal实践/" class="post-title-link" itemprop="url">java程序捕获signal实践</a>
-          
-        </h1>
-
-        <div class="post-meta">
-            <span class="post-meta-item">
-              <span class="post-meta-item-icon">
-                <i class="fa fa-calendar-o"></i>
-              </span>
-              <span class="post-meta-item-text">发表于</span>
-
-              
-                
-              
-
-              <time title="创建时间：2020-08-07 14:33:41 / 修改时间：16:48:20" itemprop="dateCreated datePublished" datetime="2020-08-07T14:33:41+08:00">2020-08-07</time>
-            </span>
-          
-            
-
-            
-          
-            <span class="post-meta-item">
-              <span class="post-meta-item-icon">
-                <i class="fa fa-folder-o"></i>
-              </span>
-              <span class="post-meta-item-text">分类于</span>
-              
-                <span itemprop="about" itemscope itemtype="http://schema.org/Thing">
-                  <a href="/categories/java/" itemprop="url" rel="index">
-                    <span itemprop="name">java</span>
-                  </a>
-                </span>
-
-                
-                
-              
-            </span>
-          
-
-          
-            <span id="/2020/08/07/java/java程序捕获signal实践/" class="post-meta-item leancloud_visitors" data-flag-title="java程序捕获signal实践" title="阅读次数">
-              <span class="post-meta-item-icon">
-                <i class="fa fa-eye"></i>
-              </span>
-              <span class="post-meta-item-text">阅读次数：</span>
-              <span class="leancloud-visitors-count"></span>
-            </span>
-          
-  
-  
-
-        </div>
-      </header>
-
-    
-    
-    
-    <div class="post-body" itemprop="articleBody">
-
-      
-          <h1 id="简介"><a href="#简介" class="headerlink" title="简介"></a>简介</h1><h1 id="参考文档"><a href="#参考文档" class="headerlink" title="参考文档"></a>参考文档</h1><p><a href="https://blog.csdn.net/loveli178/article/details/90704869" target="_blank" rel="noopener">浅析java的退出钩子(Hook)</a></p>
-
-        
-      
-    </div>
-
-    
-    
-    
-      <footer class="post-footer">
-        <div class="post-eof"></div>
-      </footer>
-  </article>
-  
-  
-  
-
-    
-        
-  
-  
-  <article itemscope itemtype="http://schema.org/Article" class="post-block home" lang="zh-CN">
-    <link itemprop="mainEntityOfPage" href="http://yoursite.com/2020/08/07/linux/linux的signal机制/">
-
-    <span hidden itemprop="author" itemscope itemtype="http://schema.org/Person">
-      <meta itemprop="name" content="姜纪光">
-      <meta itemprop="description" content="">
-      <meta itemprop="image" content="/images/avatar.gif">
-    </span>
-
-    <span hidden itemprop="publisher" itemscope itemtype="http://schema.org/Organization">
-      <meta itemprop="name" content="纪光的博客">
-    </span>
-      <header class="post-header">
-        <h1 class="post-title" itemprop="name headline">
-          
-            
-            <a href="/2020/08/07/linux/linux的signal机制/" class="post-title-link" itemprop="url">linux的signal机制</a>
-          
-        </h1>
-
-        <div class="post-meta">
-            <span class="post-meta-item">
-              <span class="post-meta-item-icon">
-                <i class="fa fa-calendar-o"></i>
-              </span>
-              <span class="post-meta-item-text">发表于</span>
-
-              
-                
-              
-
-              <time title="创建时间：2020-08-07 09:24:23 / 修改时间：17:12:49" itemprop="dateCreated datePublished" datetime="2020-08-07T09:24:23+08:00">2020-08-07</time>
+              <time title="创建时间：2020-09-22 09:46:22 / 修改时间：14:33:16" itemprop="dateCreated datePublished" datetime="2020-09-22T09:46:22+08:00">2020-09-22</time>
             </span>
           
             
@@ -1382,7 +297,7 @@
           
 
           
-            <span id="/2020/08/07/linux/linux的signal机制/" class="post-meta-item leancloud_visitors" data-flag-title="linux的signal机制" title="阅读次数">
+            <span id="/2020/09/22/linux/CPU探究/" class="post-meta-item leancloud_visitors" data-flag-title="CPU探究" title="阅读次数">
               <span class="post-meta-item-icon">
                 <i class="fa fa-eye"></i>
               </span>
@@ -1402,195 +317,1599 @@
     <div class="post-body" itemprop="articleBody">
 
       
-          <h1 id="基本概念"><a href="#基本概念" class="headerlink" title="基本概念"></a>基本概念</h1><ul>
-<li><p>信号(signal)是一种软中断，是进程间异步通讯的一种方式。</p>
-<blockquote>
-<p>每个信号都有一个编号和一个宏定义名称，查看方式：cat /usr/include/bits/signum.h</p>
-</blockquote>
+          <h1 id="原理介绍"><a href="#原理介绍" class="headerlink" title="原理介绍"></a>原理介绍</h1><h1 id="实用工具"><a href="#实用工具" class="headerlink" title="实用工具"></a>实用工具</h1><h2 id="async-profiler"><a href="#async-profiler" class="headerlink" title="async-profiler"></a>async-profiler</h2><ul>
+<li><p>这是一个用于Java的低开销的采样探测器，没有<strong>Safepoint bias</strong>问题</p>
 </li>
-<li><p>Linux系统共定义了64种信号，分为可靠信号和不可靠信号</p>
-<blockquote>
-<p>不可靠信号：称为非实时信号、不支持排队，信号可能丢失，比如发送多次相同的信号, 进程只能收到一   次。取值范围：1~31</p>
-<p>可靠信号：称为实时信号、支持排队，信号不会丢失，发多少次, 就可以收到多少次。取值范围：32~64</p>
-</blockquote>
+<li><p>适用于HotSpot JVM，收集<strong>stack traces and to track memory allocations</strong></p>
 </li>
-<li><p>kill -l查看所有的signal</p>
+<li><p>可以跟踪以下事件</p>
 <blockquote>
-<p>1) SIGHUP       2) SIGINT       3) SIGQUIT      4) SIGILL       5) SIGTRAP<br> 6) SIGABRT      7) SIGBUS       8) SIGFPE       9) SIGKILL     10) SIGUSR1<br>11) SIGSEGV     12) SIGUSR2     13) SIGPIPE     14) SIGALRM     15) SIGTERM<br>16) SIGSTKFLT   17) SIGCHLD     18) SIGCONT     19) SIGSTOP     20) SIGTSTP<br>21) SIGTTIN     22) SIGTTOU     23) SIGURG      24) SIGXCPU     25) SIGXFSZ<br>26) SIGVTALRM   27) SIGPROF     28) SIGWINCH    29) SIGIO       30) SIGPWR<br>31) SIGSYS      34) SIGRTMIN    35) SIGRTMIN+1  36) SIGRTMIN+2  37) SIGRTMIN+3<br>38) SIGRTMIN+4  39) SIGRTMIN+5  40) SIGRTMIN+6  41) SIGRTMIN+7  42) SIGRTMIN+8<br>43) SIGRTMIN+9  44) SIGRTMIN+10 45) SIGRTMIN+11 46) SIGRTMIN+12 47) SIGRTMIN+13<br>48) SIGRTMIN+14 49) SIGRTMIN+15 50) SIGRTMAX-14 51) SIGRTMAX-13 52) SIGRTMAX-12<br>53) SIGRTMAX-11 54) SIGRTMAX-10 55) SIGRTMAX-9  56) SIGRTMAX-8  57) SIGRTMAX-7<br>58) SIGRTMAX-6  59) SIGRTMAX-5  60) SIGRTMAX-4  61) SIGRTMAX-3  62) SIGRTMAX-2<br>63) SIGRTMAX-1  64) SIGRTMAX</p>
-</blockquote>
-</li>
-<li><p>信号解释，cat /usr/include/bits/signum.h</p>
-<blockquote>
-<p>Fake signal：</p>
-<p>SIG_ERR ((__sighandler_t) -1)    Error return</p>
-<p>SIG_DFL ((__sighandler_t) 0)      Default action</p>
-<p>SIG_IGN ((__sighandler_t) 1)      Ignore signal</p>
-<p>Signals：</p>
-<p>SIGHUP          1       挂起/* Hangup (POSIX).  */</p>
-<p>SIGINT            2       中断/* Interrupt (ANSI).  */       可由Ctrl-C产生</p>
-<p>SIGQUIT         3       退出/* Quit (POSIX).  */</p>
-<p>SIGILL             4       非法指令/* Illegal instruction (ANSI).  */</p>
-<p>SIGTRAP         5       断点或陷阱指令/* Trace trap (POSIX).  */</p>
-<p>SIGABRT         6       abort发出的信号/* Abort (ANSI).  */</p>
-<p>SIGIOT            6       /* IOT trap (4.2 BSD).  */</p>
-<p>SIGBUS           7       非法内存访问/* BUS error (4.2 BSD).  */</p>
-<p>SIGFPE            8      浮点异常 /* Floating-point exception (ANSI).  */</p>
-<p>SIGKILL           9       kill信号（不能被拦截、忽略、处理和阻塞）/* Kill, unblockable (POSIX).  */</p>
-<p>SIGUSR1         10      用户信号1/* User-defined signal 1 (POSIX).  */</p>
-<p>SIGSEGV         11      无效内存访问/* Segmentation violation (ANSI).  */</p>
-<p>SIGUSR2         12      用户信号2/* User-defined signal 2 (POSIX).  */</p>
-<p>SIGPIPE           13      管道破损，没有读端的管道写数据/* Broken pipe (POSIX).  */</p>
-<p>SIGALRM         14      alarm发出的信号/* Alarm clock (POSIX).  */</p>
-<p>SIGTERM         15      终止信号/* Termination (ANSI).  */</p>
-<p>SIGSTKFLT       16      栈溢出/* Stack fault.  */</p>
-<p>SIGCLD          SIGCHLD /* Same as SIGCHLD (System V).  */</p>
-<p>SIGCHLD         17      子进程退出（默认忽略）/* Child status has changed (POSIX).  */</p>
-<p>SIGCONT         18      进程继续/* Continue (POSIX).  */</p>
-<p>SIGSTOP          19      进程停止（不能被忽略、处理和阻塞）/* Stop, unblockable (POSIX).  */</p>
-<p>SIGTSTP           20      进程停止/* Keyboard stop (POSIX).  */          可由Ctrl-Z产生</p>
-<p>SIGTTIN            21      进程停止，后台进程从终端读数据时/* Background read from tty (POSIX).  */</p>
-<p>SIGTTOU          22      进程停止，后台进程想终端写数据时/* Background write to tty (POSIX).  */</p>
-<p>SIGURG            23      I/O有紧急数据到达当前进程（默认忽略）/* Urgent condition on socket (4.2 BSD).  */</p>
-<p>SIGXCPU           24      进程的CPU时间片到期/* CPU limit exceeded (4.2 BSD).  */</p>
-<p>SIGXFSZ            25      文件大小的超出上限/* File size limit exceeded (4.2 BSD).  */</p>
-<p>SIGVTALRM      26      虚拟时钟超时/* Virtual alarm clock (4.2 BSD).  */</p>
-<p>SIGPROF           27      profile时钟超时/* Profiling alarm clock (4.2 BSD).  */</p>
-<p>SIGWINCH        28      窗口大小改变（默认忽略）/* Window size change (4.3 BSD, Sun).  */</p>
-<p>SIGPOLL         SIGIO   /* Pollable event occurred (System V).  */</p>
-<p>SIGIO                29      I/O相关/* I/O now possible (4.2 BSD).  */</p>
-<p>SIGPWR            30      关机（默认忽略）/* Power failure restart (System V).  */</p>
-<p>SIGSYS              31      系统调用异常/* Bad system call.  */</p>
-<p>SIGUNUSED     31</p>
-</blockquote>
-</li>
-<li><p>signal的默认处理动作</p>
-<blockquote>
-<p>Term表示终止当前进程</p>
-<p>Core表示终止当前进程并且Core Dump</p>
-<p>Ign表示忽略该信号</p>
-<p>Stop表示停止当前进程</p>
-<p>Cont表示继续执行先前停止的进程，</p>
+<p>1、CPU cycles(CPU周期)</p>
+<p>2、硬件和软件性能计数器，例如高速缓存未命中，分支未命中，页面错误，上下文切换等。</p>
+<p>3、Java堆分配</p>
+<p>4、<strong>Contented lock attempts</strong>，包括Java对象监视器和ReentrantLocks</p>
 </blockquote>
 </li>
 </ul>
-<h1 id="信号产生"><a href="#信号产生" class="headerlink" title="信号产生"></a>信号产生</h1><p>信号的来源可分为：硬件类和软件类</p>
-<h2 id="硬件方式"><a href="#硬件方式" class="headerlink" title="硬件方式"></a>硬件方式</h2><ul>
-<li><p>用户输入</p>
+<h3 id="CPU-profiling"><a href="#CPU-profiling" class="headerlink" title="CPU profiling"></a>CPU profiling</h3><ul>
+<li><p>在这种模式下，profiler收集<strong>stack trace samples</strong></p>
 <blockquote>
-<p>ctrl-c 发送 <code>SIGINT</code> 中断信号给前台进程组中的所有进程。常用于终止正在运行的程序。<br>ctrl-z 发送 <code>SIGTSTP</code> 进程停止信号给前台进程组中的所有进程，常用于挂起一个进程。<br>ctrl-d 不是发送信号，而是表示一个特殊的二进制值，表示 EOF。<br>ctrl-\ 发送 <code>SIGQUIT</code> 退出信号给前台进程组中的所有进程，终止前台进程并生成 core 文件。</p>
+<p>包含了 <strong>Java</strong> methods, <strong>native</strong> calls, <strong>JVM</strong> code and <strong>kernel</strong> functions.</p>
 </blockquote>
 </li>
-<li><p>硬件异常</p>
-<blockquote>
-<p>由硬件检测到并通知内核、然后内核向当前进程发送适当的信号，例如：</p>
-<p>1、当前进程执行了除以0的指令，CPU的运算单元会产生异常，内核将这个异常解释为<code>SIGFPE</code>浮点异常信号发送给进程</p>
-<p>2、当前进程访问了非法内存地址，MMU会产生异常，内核将这个异常解释为<code>SIGSEGV</code>无效内存访问信号发送给进程。</p>
-</blockquote>
+<li><p>通常的方法是接收perf_events生成的调用堆栈，并将其与AsyncGetCallTrace生成的调用堆栈进行匹配</p>
 </li>
-</ul>
-<h2 id="软件方式"><a href="#软件方式" class="headerlink" title="软件方式"></a>软件方式</h2><ul>
-<li><p>进程间</p>
+<li><p>与直接将perf_events与将地址转换为Java方法名称的Java代理一起使用相比，此方法具有以下优点：</p>
 <blockquote>
-<p>一个进程调用<code>kill(2)</code>函数可以发送信号给另一个进程。</p>
-<p>可以用<code>kill(1)</code>命令发送信号给某个进程，<code>kill(1)</code>命令也是调用<code>kill(2)</code>函数实现的，如果不明确指定信号则发送<code>SIGTERM</code>信号，该信号的默认处理动作是终止进程。</p>
-</blockquote>
-</li>
-<li><p>编程语言</p>
-<blockquote>
-<p>kernel,使用 kill_proc_info(）等</p>
-<p>native,使用 kill() 或者raise()  等</p>
-<p>java,使用 Procees.sendSignal()等</p>
+<p>1、不需要<strong>-XX:+PreserveFramePointer</strong> 参数，可以用在JDK 8u60 之前的版本</p>
+<p>2、不需要<strong>-XX:+PreserveFramePointer</strong> 参数，提高了性能</p>
+<p>3、不需要生成将Java代码地址映射到方法名称的映射文件。</p>
+<p>4、Works with interpreter frames.</p>
+<p>5、不需要写出perf.data文件以在用户空间脚本中进行进一步处理。</p>
 </blockquote>
 </li>
 </ul>
-<h1 id="信号注册和注销"><a href="#信号注册和注销" class="headerlink" title="信号注册和注销"></a>信号注册和注销</h1><h2 id="信号注册"><a href="#信号注册" class="headerlink" title="信号注册"></a>信号注册</h2><p>​    在进程task_struct结构体中有一个未决信号的成员变量 <code>struct sigpending pending</code>。每个信号在进程中注册都会把信号值加入到进程的未决信号集。</p>
-<ul>
-<li>非实时信号发送给进程时，如果该信息已经在进程中注册过，不会再次注册，故信号会丢失</li>
-<li>实时信号发送给进程时，不管该信号是否在进程中注册过，都会再次注册。故信号不会丢失</li>
+<h3 id="ALLOCATION-profiling"><a href="#ALLOCATION-profiling" class="headerlink" title="ALLOCATION profiling"></a>ALLOCATION profiling</h3><ul>
+<li><p>除了可以进行CPU消耗检测，还可以收集分配了最大堆内存的调用站点</p>
+<blockquote>
+<p>async-profiler不使用侵入性技术，例如字节码检测工具或昂贵的DTrace探针，这些技术会对性能产生重大影响。它也不会影响转义分析或防止JIT优化（如分配消除）。 仅测量实际堆分配。</p>
+</blockquote>
+</li>
+<li><p>profiler具有TLAB驱动的采样功能。 它依赖于HotSpot特定的回调来接收两种通知：</p>
+<blockquote>
+<p>1、在新创建的TLAB中分配对象时（火焰图中的浅绿色帧）；</p>
+<p>2、当在TLAB之外的慢路径上分配对象时（棕色框架）。</p>
+<p>这意味着不计算每个分配，而仅计算每N kB的分配，其中N是TLAB的平均大小。</p>
+<p>这使得堆采样成本低并且适合于生产。 另一方面，所收集的数据可能不完整，尽管在实践中通常会反映出最主要的分配来源。</p>
+</blockquote>
+</li>
+<li><p>可以使用-i选项来调整采样间隔。</p>
+<blockquote>
+<p>例如，-i 500k将平均分配500 KB的分配空间后进行一次采样。 但是，小于TLAB大小的间隔不会生效。</p>
+<p>与使用类似方法的Java Mission Control不同，async-profiler不需要Java Flight Recorder或任何其他JDK商业功能。 它完全基于开源技术，并且可以与OpenJDK一起使用。</p>
+</blockquote>
+</li>
+<li><p>支持的最低JDK版本是7u40，其中会出现TLAB回调。</p>
+</li>
 </ul>
-<h2 id="信号注销"><a href="#信号注销" class="headerlink" title="信号注销"></a>信号注销</h2><ul>
-<li>非实时信号：不可重复注册，最多只有一个sigqueue结构；当该结构被释放后，把该信号从进程未决信号集中删除，则信号注销完毕</li>
-<li>实时信号：可重复注册，可能存在多个sigqueue结构；当该信号的所有sigqueue处理完毕后，把该信号从进程未决信号集中删除，则信号注销完毕</li>
+<h4 id="Installing-Debug-Symbols"><a href="#Installing-Debug-Symbols" class="headerlink" title="Installing Debug Symbols"></a>Installing Debug Symbols</h4><ul>
+<li>分配分析器需要HotSpot调试符号。 Oracle JDK已经将它们嵌入libjvm.so中，但是在OpenJDK构建中，它们通常以单独的软件包提供。</li>
 </ul>
-<h1 id="信号处理"><a href="#信号处理" class="headerlink" title="信号处理"></a>信号处理</h1><p>​    内核处理进程收到的signal是在当前进程的上下文，故进程必须是Running状态。</p>
-<p>​    当进程唤醒或者调度后获取CPU，则会从内核态转到用户态时检测是否有signal等待处理，处理完，进程会把相应的未决信号从链表中去掉。</p>
-<p>​    信号处理动作称为信号<em>递达</em>（Delivery）。信号从产生到递达之间的状态，称为信号<em>未决</em>（Pending）</p>
-<ul>
-<li><p>signal信号处理时机</p>
-<blockquote>
-<p>内核态 -&gt; signal信号处理 -&gt; 用户态</p>
-<p>在内核态，signal信号不起作用</p>
-<p>在用户态，signal所有未被屏蔽的信号都处理完毕</p>
-<p>当屏蔽信号，取消屏蔽时，会在下一次内核转用户态的过程中执行</p>
-</blockquote>
+<h3 id="Wall-clock-profiling"><a href="#Wall-clock-profiling" class="headerlink" title="Wall-clock profiling"></a>Wall-clock profiling</h3><ul>
+<li><p>-e wall选项告诉async-profiler在每个给定的时间段内平均采样所有线程，而不管线程状态如何：正在运行，正在睡眠或已阻塞。 例如，在分析应用程序启动时间时这可能会有所帮助。</p>
 </li>
-<li><p>处理方式</p>
+<li><p>Wall-clock Profiler在每个线程模式下最有用：-t</p>
 <blockquote>
-<p>默认：接收到信号后按默认的行为处理该信号，这是多数应用采取的处理方式</p>
-<p>自定义：用自定义的信号处理函数来执行特定的动作</p>
-<p>忽略：接收到信号后不做任何反应</p>
-</blockquote>
-</li>
-<li><p>信号安装</p>
-<blockquote>
-<p>进程处理某个信号前，需要先在进程中安装此信号。安装过程主要是建立信号值和进程对相应信息值的动作。</p>
-<p>信号安装函数:</p>
-<p>1、signal()：不支持信号传递信息，主要用于非实时信号安装</p>
-<p>2、sigaction()：支持信号传递信息，可用于所有信号安装</p>
-<p>函数原型：</p>
-<p>int sigaction(int signum, const struct sigaction *act, struct sigaction *oldact)</p>
-<p>1、signum：要操作的signal信号</p>
-<p>2、act：设置对signal信号的新处理方式</p>
-<p>3、oldact：原来对信号的处理方式</p>
-<p>4、返回值：0 表示成功，-1 表示有错误发生</p>
-<p>其中 sigaction结构体：</p>
-<p>1、sa_handler：信号处理函数</p>
-<p>2、sa_mask：指定信号处理程序执行过程中需要阻塞的信号</p>
-<p>3、sa_flags：标示位</p>
-<ul>
-<li>SA_RESTART：使被信号打断的syscall重新发起。</li>
-<li>SA_NOCLDSTOP：使父进程在它的子进程暂停或继续运行时不会收到 SIGCHLD 信号。</li>
-<li>SA_NOCLDWAIT：使父进程在它的子进程退出时不会收到SIGCHLD信号，这时子进程如果退出也不会成为僵 尸进程。</li>
-<li>SA_NODEFER：使对信号的屏蔽无效，即在信号处理函数执行期间仍能发出这个信号。</li>
-<li>SA_RESETHAND：信号处理之后重新设置为默认的处理方式。</li>
-<li>SA_SIGINFO：使用sa_sigaction成员而不是sa_handler作为信号处理函数</li>
-</ul>
-</blockquote>
-</li>
-<li><p>信号发送</p>
-<blockquote>
-<p>1、kill()：用于向进程或进程组发送信号</p>
-<p>2、sigqueue()：只能向一个进程发送信号，不能像进程组发送信号；主要针对实时信号提出，与sigaction()组合使用，当然也支持非实时信号的发送</p>
-<p>3、alarm()：用于调用进程指定时间后发出SIGALARM信号</p>
-<p>4、setitimer()：设置定时器，计时达到后给进程发送SIGALRM信号，功能比alarm更强大</p>
-<p>5、abort()：向进程发送SIGABORT信号，默认进程会异常退出</p>
-<p>6、raise()：用于向进程自身发送信号</p>
-</blockquote>
-</li>
-<li><p>信号函数</p>
-<blockquote>
-<p>信号集操作函数：</p>
-<p>1、sigemptyset(sigset_t *set)：信号集全部清0</p>
-<p>2、sigfillset(sigset_t *set)： 信号集全部置1，则信号集包含linux支持的64种信号</p>
-<p>3、sigaddset(sigset_t *set, int signum)：向信号集中加入signum信号</p>
-<p>4、sigdelset(sigset_t *set, int signum)：向信号集中删除signum信号</p>
-<p>5、sigismember(const sigset_t *set, int signum)：判定信号signum是否存在信号集中</p>
-<p>信号阻塞函数：</p>
-<p>1、sigprocmask(int how, const sigset_t *set, sigset_t *oldset))； 不同how参数，实现不同功能</p>
-<p>​        SIG_BLOCK：将set指向信号集中的信号，添加到进程阻塞信号集</p>
-<p>​        SIG_UNBLOCK：将set指向信号集中的信号，从进程阻塞信号集删除</p>
-<p>​        SIG_SETMASK：将set指向信号集中的信号，设置成进程阻塞信号集</p>
-<p>2、sigpending(sigset_t *set))：获取已发送到进程，却被阻塞的所有信号</p>
-<p>3、sigsuspend(const sigset_t *mask))：用mask代替进程的原有掩码，并暂停进程执行，直到收到信号再恢复原有掩码并继续执行进程</p>
+<p>Example: <code>./profiler.sh -e wall -t -i 5ms -f result.svg 8983</code></p>
 </blockquote>
 </li>
 </ul>
-<h1 id="参考文档"><a href="#参考文档" class="headerlink" title="参考文档"></a>参考文档</h1><p><a href="http://gityuan.com/2015/12/20/signal/" target="_blank" rel="noopener">Linux信号(signal)机制</a></p>
-<p><a href="http://akaedu.github.io/book/ch33s01.html" target="_blank" rel="noopener">信号</a></p>
-<p><a href="https://blog.csdn.net/melody_1016/article/details/84959962" target="_blank" rel="noopener">signal信号宏定义查看</a></p>
-<p><a href="https://www.cnblogs.com/jiangzhaowei/p/8971265.html" target="_blank" rel="noopener">Linux后台进程管理</a></p>
-<p><a href="https://www.coder.work/article/2816595" target="_blank" rel="noopener">java - CTRL-C在Java程序上不起作用</a></p>
+<h3 id="Java-method-profiling"><a href="#Java-method-profiling" class="headerlink" title="Java method profiling"></a>Java method profiling</h3><ul>
+<li>-e ClassName.methodName选项用于检测给定的Java方法，以便使用堆栈跟踪记录该方法的所有调用。</li>
+<li>Only non-native Java methods are supported. To profile a native method, use hardware breakpoint event instead, e.g. <code>-e Java_java_lang_Throwable_fillInStackTrace</code></li>
+</ul>
+<h3 id="Building"><a href="#Building" class="headerlink" title="Building"></a>Building</h3><h3 id="Basic-Usage"><a href="#Basic-Usage" class="headerlink" title="Basic Usage"></a>Basic Usage</h3><ul>
+<li><p>start</p>
+<blockquote>
+<p>starts profiling in semi-automatic mode, i.e. profiler will run until <code>stop</code> command is explicitly called.</p>
+</blockquote>
+</li>
+<li><p>resume</p>
+<blockquote>
+<p>starts or resumes earlier profiling session that has been stopped. All the collected data remains valid. The profiling options are not preserved between sessions, and should be specified again.</p>
+</blockquote>
+</li>
+<li><p>stop</p>
+<blockquote>
+<p>stops profiling and prints the report</p>
+</blockquote>
+</li>
+<li><p>check</p>
+<blockquote>
+<p>check if the specified profiling event is available</p>
+</blockquote>
+</li>
+<li><p>status</p>
+<blockquote>
+<p>prints profiling status: whether profiler is active and for how long</p>
+</blockquote>
+</li>
+<li><p>list</p>
+<blockquote>
+<p>show the list of available profiling events. This option still requires PID, since supported events may differ depending on JVM version</p>
+</blockquote>
+</li>
+<li><p>-d N</p>
+<blockquote>
+<p>the profiling duration, in seconds. If no <code>start</code>, <code>resume</code>, <code>stop</code> or <code>status</code> option is given, the profiler will run for the specified period of time and then automatically stop</p>
+<p>./profiler.sh -d 30 8983</p>
+</blockquote>
+</li>
+<li><p>-e event</p>
+<blockquote>
+<p>the profiling event: <code>cpu</code>, <code>alloc</code>, <code>lock</code>, <code>cache-misses</code> etc. Use <code>list</code> to see the complete list of available events</p>
+</blockquote>
+</li>
+<li><p>​</p>
+</li>
+</ul>
+<h1 id="参考文档"><a href="#参考文档" class="headerlink" title="参考文档"></a>参考文档</h1><p><a href="https://tech.meituan.com/2019/10/10/jvm-cpu-profiler.html" target="_blank" rel="noopener">JVM CPU Profiler技术原理及源码深度解析</a></p>
+<p><a href="https://github.com/jvm-profiling-tools/async-profiler" target="_blank" rel="noopener">async-profiler</a></p>
 
+        
+      
+    </div>
+
+    
+    
+    
+      <footer class="post-footer">
+        <div class="post-eof"></div>
+      </footer>
+  </article>
+  
+  
+  
+
+    
+        
+  
+  
+  <article itemscope itemtype="http://schema.org/Article" class="post-block home" lang="zh-CN">
+    <link itemprop="mainEntityOfPage" href="http://yoursite.com/2020/09/09/linux/工具实践-ps/">
+
+    <span hidden itemprop="author" itemscope itemtype="http://schema.org/Person">
+      <meta itemprop="name" content="姜纪光">
+      <meta itemprop="description" content="">
+      <meta itemprop="image" content="/images/avatar.gif">
+    </span>
+
+    <span hidden itemprop="publisher" itemscope itemtype="http://schema.org/Organization">
+      <meta itemprop="name" content="纪光的博客">
+    </span>
+      <header class="post-header">
+        <h1 class="post-title" itemprop="name headline">
+          
+            
+            <a href="/2020/09/09/linux/工具实践-ps/" class="post-title-link" itemprop="url">工具实践-ps</a>
+          
+        </h1>
+
+        <div class="post-meta">
+            <span class="post-meta-item">
+              <span class="post-meta-item-icon">
+                <i class="fa fa-calendar-o"></i>
+              </span>
+              <span class="post-meta-item-text">发表于</span>
+
+              
+                
+              
+
+              <time title="创建时间：2020-09-09 17:45:11" itemprop="dateCreated datePublished" datetime="2020-09-09T17:45:11+08:00">2020-09-09</time>
+            </span>
+          
+            
+
+            
+              <span class="post-meta-item">
+                <span class="post-meta-item-icon">
+                  <i class="fa fa-calendar-check-o"></i>
+                </span>
+                <span class="post-meta-item-text">更新于</span>
+                <time title="修改时间：2020-09-10 11:31:39" itemprop="dateModified" datetime="2020-09-10T11:31:39+08:00">2020-09-10</time>
+              </span>
+            
+          
+            <span class="post-meta-item">
+              <span class="post-meta-item-icon">
+                <i class="fa fa-folder-o"></i>
+              </span>
+              <span class="post-meta-item-text">分类于</span>
+              
+                <span itemprop="about" itemscope itemtype="http://schema.org/Thing">
+                  <a href="/categories/linux/" itemprop="url" rel="index">
+                    <span itemprop="name">linux</span>
+                  </a>
+                </span>
+
+                
+                
+              
+            </span>
+          
+
+          
+            <span id="/2020/09/09/linux/工具实践-ps/" class="post-meta-item leancloud_visitors" data-flag-title="工具实践-ps" title="阅读次数">
+              <span class="post-meta-item-icon">
+                <i class="fa fa-eye"></i>
+              </span>
+              <span class="post-meta-item-text">阅读次数：</span>
+              <span class="leancloud-visitors-count"></span>
+            </span>
+          
+  
+  
+
+        </div>
+      </header>
+
+    
+    
+    
+    <div class="post-body" itemprop="articleBody">
+
+      
+          <h1 id="说明"><a href="#说明" class="headerlink" title="说明"></a>说明</h1><ul>
+<li><p>进程状态命令<strong>ps</strong>可以列出包括内存使用统计信息在内的所有进程细节</p>
+</li>
+<li><p>帮助命令</p>
+<figure class="highlight shell"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br></pre></td><td class="code"><pre><span class="line"><span class="meta">$</span> man ps</span><br><span class="line"><span class="meta">$</span> ps --help all</span><br></pre></td></tr></table></figure>
+
+</li>
+</ul>
+<h1 id="实用命令"><a href="#实用命令" class="headerlink" title="实用命令"></a>实用命令</h1><ul>
+<li><p>输出所有数据项</p>
+<figure class="highlight shell"><table><tr><td class="gutter"><pre><span class="line">1</span><br></pre></td><td class="code"><pre><span class="line"><span class="meta">$</span> ps L			#第一列是-o 选项的参数，第二列的大写字母是命令输出的结果集标题栏名称</span><br></pre></td></tr></table></figure>
+</li>
+<li><p>自定义输出选项</p>
+<figure class="highlight shell"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br></pre></td><td class="code"><pre><span class="line"><span class="meta">$</span> ps -o sid,pgid	#自定义输出选项</span><br><span class="line"><span class="meta">$</span> ps -O 			#添加默认输出选项</span><br></pre></td></tr></table></figure>
+</li>
+<li><p>字段修饰选项</p>
+<figure class="highlight shell"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br></pre></td><td class="code"><pre><span class="line"><span class="meta">#</span>w选项会拓宽屏幕，显示完整的进程命令信息</span><br><span class="line"><span class="meta">$</span> ps -e u wwww</span><br></pre></td></tr></table></figure>
+
+</li>
+</ul>
+<h1 id="常用字段"><a href="#常用字段" class="headerlink" title="常用字段"></a>常用字段</h1><ul>
+<li><p>进程ID类字段</p>
+<figure class="highlight shell"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br><span class="line">3</span><br><span class="line">4</span><br><span class="line">5</span><br><span class="line">6</span><br><span class="line">7</span><br></pre></td><td class="code"><pre><span class="line">pid:	进程ID</span><br><span class="line">ppid:	父进程ID</span><br><span class="line">pgid:	进程组ID</span><br><span class="line">tid: 	进程的线程ID</span><br><span class="line">nlwp:	当前线程组中线程的个数</span><br><span class="line">sid:	会话ID</span><br><span class="line">tpgid:	进程连接到的tty(终端)所在的前台进程组的ID</span><br></pre></td></tr></table></figure>
+</li>
+<li><p>CPU时间和使用率字段</p>
+<figure class="highlight shell"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br><span class="line">3</span><br><span class="line">4</span><br></pre></td><td class="code"><pre><span class="line"><span class="meta">#</span> 记录了进程所消耗的CPU时间片和CPU使用率信息</span><br><span class="line"><span class="meta">$</span> ps -e -o bsdtime,cputime,pcpu,cp,c</span><br><span class="line">cp:	单位是千分比，不能超过999</span><br><span class="line">c:	是百分比，不能超过99</span><br></pre></td></tr></table></figure>
+</li>
+<li><p>进程内存相关字段</p>
+<figure class="highlight shell"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br><span class="line">3</span><br><span class="line">4</span><br><span class="line">5</span><br><span class="line">6</span><br><span class="line">7</span><br><span class="line">8</span><br><span class="line">9</span><br><span class="line">10</span><br><span class="line">11</span><br></pre></td><td class="code"><pre><span class="line"><span class="meta">$</span> ps -e -o drs,vsz,size,sz,rss,trs,pmem,minflt,majflt k -rss</span><br><span class="line"></span><br><span class="line">vsz(virtual memory size):	表示进程所申请的虚拟地址空间的内存大小，单位KB。在64位系统中，每个进程都有128TB大小的堆内存虚拟地址空间的内存空间大小。vsz值并不反映进程占用的真正物理内存大小。</span><br><span class="line">rss(resident set size):	表示进程真正占用了的物理内存大小，单位KB</span><br><span class="line">pmem:	表示进程占用的物理内存大小(rss)占本机总物理内存大小百分比</span><br><span class="line">trs(text resident set size):	表示用于可执行代码的物理内存大小，约等于进程的程序尺寸大小</span><br><span class="line">drs(data resident set size):	表示可执行代码之外的内存大小，实际基本等于vsz减去trs的值</span><br><span class="line">size:	表示如果进程交换到磁盘所需的交换空间大小</span><br><span class="line">sz:		表示进程在物理页面中的核心镜像的大小</span><br><span class="line">minflt:	表示此进程中发生的次缺页异常的数量</span><br><span class="line">majflt:	表示此进程中发生的主缺页异常的数量</span><br></pre></td></tr></table></figure>
+
+<p>​</p>
+</li>
+<li><p>命令名字段</p>
+<figure class="highlight shell"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br><span class="line">3</span><br></pre></td><td class="code"><pre><span class="line"><span class="meta">$</span> ps -e -o fname,ucmd,cmd </span><br><span class="line">ucmd:	短命令名字段</span><br><span class="line">cmd:	长命令名字段</span><br></pre></td></tr></table></figure>
+</li>
+<li><p>进程状态字段</p>
+<figure class="highlight shell"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br><span class="line">3</span><br><span class="line">4</span><br><span class="line">5</span><br><span class="line">6</span><br><span class="line">7</span><br><span class="line">8</span><br><span class="line">9</span><br></pre></td><td class="code"><pre><span class="line"><span class="meta">$</span> ps -e -o s,state,stat</span><br><span class="line">字段s和state互为别名，值为单字节进程状态</span><br><span class="line">stat:	多字节进程状态</span><br><span class="line">&lt;:	表示nice值小于0，nice值最小为-20</span><br><span class="line">N: 	表示nice值大于0，nice值最大为19。因此字符'N'表示此进程可能在调度过程中不能获得优势。</span><br><span class="line">L:	表示进程vm_lock值为真，即此进程有内存页被锁在内存中，这些内存页不能通过换页换出</span><br><span class="line">s:	表示进程的tgid(pid)值等于进程的session(sid)值，这说明当前进程是会话的leader</span><br><span class="line">l:	表示进程中的线程数量大于1，这说明当前进程是一个多线程程序</span><br><span class="line">+:	表示进程的pgrp(pgid)值等于进程的tpgid前台进程组ID，这表示当前进程在前台进程组中</span><br></pre></td></tr></table></figure>
+</li>
+<li><p>时钟(系统)时间类字段</p>
+<figure class="highlight shell"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br></pre></td><td class="code"><pre><span class="line"><span class="meta">#</span> 记录了进程开始时间点和运行的时长信息，4个记录进程开始时间点，2个记录进程执行时长信息</span><br><span class="line"><span class="meta">$</span> ps -e -o lstart,start,bsdstart,stime,etimes,etime</span><br></pre></td></tr></table></figure>
+
+<p>​</p>
+</li>
+</ul>
+<h1 id="常用选项"><a href="#常用选项" class="headerlink" title="常用选项"></a>常用选项</h1><figure class="highlight shell"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br><span class="line">3</span><br><span class="line">4</span><br><span class="line">5</span><br><span class="line">6</span><br><span class="line">7</span><br></pre></td><td class="code"><pre><span class="line">-e: 显示所有进程的记录</span><br><span class="line">h:  隐藏输出结果的标题栏信息</span><br><span class="line">k:  对结果排序</span><br><span class="line">-L: 把多线程的进程展开每个线程的细颗粒度</span><br><span class="line">-l: 列出进程的最基本信息</span><br><span class="line">u:	列出cpu使用率、mem使用率、rss内存等字段信息</span><br><span class="line">-o: 自定义输出字段</span><br></pre></td></tr></table></figure>
+
+<h1 id="参考文档"><a href="#参考文档" class="headerlink" title="参考文档"></a>参考文档</h1><p><a href="https://blog.csdn.net/juS3Ve/article/details/89007912" target="_blank" rel="noopener">史上最全Linux ps命令详解</a></p>
+
+        
+      
+    </div>
+
+    
+    
+    
+      <footer class="post-footer">
+        <div class="post-eof"></div>
+      </footer>
+  </article>
+  
+  
+  
+
+    
+        
+  
+  
+  <article itemscope itemtype="http://schema.org/Article" class="post-block home" lang="zh-CN">
+    <link itemprop="mainEntityOfPage" href="http://yoursite.com/2020/09/09/linux/工具实践-slabtop/">
+
+    <span hidden itemprop="author" itemscope itemtype="http://schema.org/Person">
+      <meta itemprop="name" content="姜纪光">
+      <meta itemprop="description" content="">
+      <meta itemprop="image" content="/images/avatar.gif">
+    </span>
+
+    <span hidden itemprop="publisher" itemscope itemtype="http://schema.org/Organization">
+      <meta itemprop="name" content="纪光的博客">
+    </span>
+      <header class="post-header">
+        <h1 class="post-title" itemprop="name headline">
+          
+            
+            <a href="/2020/09/09/linux/工具实践-slabtop/" class="post-title-link" itemprop="url">工具实践-slabtop</a>
+          
+        </h1>
+
+        <div class="post-meta">
+            <span class="post-meta-item">
+              <span class="post-meta-item-icon">
+                <i class="fa fa-calendar-o"></i>
+              </span>
+              <span class="post-meta-item-text">发表于</span>
+
+              
+                
+              
+
+              <time title="创建时间：2020-09-09 17:34:05 / 修改时间：17:44:37" itemprop="dateCreated datePublished" datetime="2020-09-09T17:34:05+08:00">2020-09-09</time>
+            </span>
+          
+            
+
+            
+          
+            <span class="post-meta-item">
+              <span class="post-meta-item-icon">
+                <i class="fa fa-folder-o"></i>
+              </span>
+              <span class="post-meta-item-text">分类于</span>
+              
+                <span itemprop="about" itemscope itemtype="http://schema.org/Thing">
+                  <a href="/categories/linux/" itemprop="url" rel="index">
+                    <span itemprop="name">linux</span>
+                  </a>
+                </span>
+
+                
+                
+              
+            </span>
+          
+
+          
+            <span id="/2020/09/09/linux/工具实践-slabtop/" class="post-meta-item leancloud_visitors" data-flag-title="工具实践-slabtop" title="阅读次数">
+              <span class="post-meta-item-icon">
+                <i class="fa fa-eye"></i>
+              </span>
+              <span class="post-meta-item-text">阅读次数：</span>
+              <span class="leancloud-visitors-count"></span>
+            </span>
+          
+  
+  
+
+        </div>
+      </header>
+
+    
+    
+    
+    <div class="post-body" itemprop="articleBody">
+
+      
+          <h1 id="说明"><a href="#说明" class="headerlink" title="说明"></a>说明</h1><ul>
+<li><p>通过slab分配器输出内核slab缓存使用情况</p>
+<blockquote>
+<p>​</p>
+</blockquote>
+</li>
+<li><p>使用姿势</p>
+<figure class="highlight shell"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br><span class="line">3</span><br><span class="line">4</span><br><span class="line">5</span><br><span class="line">6</span><br><span class="line">7</span><br><span class="line">8</span><br><span class="line">9</span><br><span class="line">10</span><br><span class="line">11</span><br><span class="line">12</span><br><span class="line">13</span><br><span class="line">14</span><br><span class="line">15</span><br><span class="line">16</span><br><span class="line">17</span><br><span class="line">18</span><br><span class="line">19</span><br><span class="line">20</span><br><span class="line">21</span><br><span class="line">22</span><br><span class="line">23</span><br><span class="line">24</span><br><span class="line">25</span><br><span class="line">26</span><br></pre></td><td class="code"><pre><span class="line"><span class="meta">#</span> slabtop -h</span><br><span class="line"></span><br><span class="line">Usage:</span><br><span class="line"> slabtop [options]</span><br><span class="line"></span><br><span class="line">Options:</span><br><span class="line"> -d, --delay &lt;secs&gt;  delay updates</span><br><span class="line"> -o, --once          only display once, then exit</span><br><span class="line"> -s, --sort &lt;char&gt;   specify sort criteria by character (see below)</span><br><span class="line"></span><br><span class="line"> -h, --help     display this help and exit</span><br><span class="line"> -V, --version  output version information and exit</span><br><span class="line"></span><br><span class="line">The following are valid sort criteria:</span><br><span class="line"> a: sort by number of active objects</span><br><span class="line"> b: sort by objects per slab</span><br><span class="line"> c: sort by cache size</span><br><span class="line"> l: sort by number of slabs</span><br><span class="line"> v: sort by number of active slabs</span><br><span class="line"> n: sort by name</span><br><span class="line"> o: sort by number of objects (the default)</span><br><span class="line"> p: sort by pages per slab</span><br><span class="line"> s: sort by object size</span><br><span class="line"> u: sort by cache utilization</span><br><span class="line"></span><br><span class="line">For more details see slabtop(1).</span><br></pre></td></tr></table></figure>
+
+</li>
+</ul>
+<h1 id="参考文档"><a href="#参考文档" class="headerlink" title="参考文档"></a>参考文档</h1><p><a href="http://www.361way.com/slabtop/5023.html" target="_blank" rel="noopener">Linux slabtop显示内核片缓存信息</a></p>
+
+        
+      
+    </div>
+
+    
+    
+    
+      <footer class="post-footer">
+        <div class="post-eof"></div>
+      </footer>
+  </article>
+  
+  
+  
+
+    
+        
+  
+  
+  <article itemscope itemtype="http://schema.org/Article" class="post-block home" lang="zh-CN">
+    <link itemprop="mainEntityOfPage" href="http://yoursite.com/2020/09/09/linux/工具实践-sar/">
+
+    <span hidden itemprop="author" itemscope itemtype="http://schema.org/Person">
+      <meta itemprop="name" content="姜纪光">
+      <meta itemprop="description" content="">
+      <meta itemprop="image" content="/images/avatar.gif">
+    </span>
+
+    <span hidden itemprop="publisher" itemscope itemtype="http://schema.org/Organization">
+      <meta itemprop="name" content="纪光的博客">
+    </span>
+      <header class="post-header">
+        <h1 class="post-title" itemprop="name headline">
+          
+            
+            <a href="/2020/09/09/linux/工具实践-sar/" class="post-title-link" itemprop="url">工具实践-sar</a>
+          
+        </h1>
+
+        <div class="post-meta">
+            <span class="post-meta-item">
+              <span class="post-meta-item-icon">
+                <i class="fa fa-calendar-o"></i>
+              </span>
+              <span class="post-meta-item-text">发表于</span>
+
+              
+                
+              
+
+              <time title="创建时间：2020-09-09 11:16:12 / 修改时间：17:21:56" itemprop="dateCreated datePublished" datetime="2020-09-09T11:16:12+08:00">2020-09-09</time>
+            </span>
+          
+            
+
+            
+          
+            <span class="post-meta-item">
+              <span class="post-meta-item-icon">
+                <i class="fa fa-folder-o"></i>
+              </span>
+              <span class="post-meta-item-text">分类于</span>
+              
+                <span itemprop="about" itemscope itemtype="http://schema.org/Thing">
+                  <a href="/categories/linux/" itemprop="url" rel="index">
+                    <span itemprop="name">linux</span>
+                  </a>
+                </span>
+
+                
+                
+              
+            </span>
+          
+
+          
+            <span id="/2020/09/09/linux/工具实践-sar/" class="post-meta-item leancloud_visitors" data-flag-title="工具实践-sar" title="阅读次数">
+              <span class="post-meta-item-icon">
+                <i class="fa fa-eye"></i>
+              </span>
+              <span class="post-meta-item-text">阅读次数：</span>
+              <span class="leancloud-visitors-count"></span>
+            </span>
+          
+  
+  
+
+        </div>
+      </header>
+
+    
+    
+    
+    <div class="post-body" itemprop="articleBody">
+
+      
+          <h1 id="说明"><a href="#说明" class="headerlink" title="说明"></a>说明</h1><ul>
+<li><p>全称System Activity Reporter 系统活动情况报告，是linux上最为全面的系统性能分析工具之一</p>
+<blockquote>
+<p>可以从多方面对系统活动进行报告：</p>
+<p>1、文件的读写情况</p>
+<p>2、系统调用的使用情况</p>
+<p>3、磁盘I/O</p>
+<p>4、CPU效率</p>
+<p>5、内存使用状况</p>
+<p>6、进程活动以及IPC有关的活动</p>
+</blockquote>
+</li>
+<li><p>具体使用</p>
+<figure class="highlight shell"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br><span class="line">3</span><br><span class="line">4</span><br><span class="line">5</span><br><span class="line">6</span><br><span class="line">7</span><br><span class="line">8</span><br><span class="line">9</span><br><span class="line">10</span><br><span class="line">11</span><br><span class="line">12</span><br><span class="line">13</span><br><span class="line">14</span><br><span class="line">15</span><br><span class="line">16</span><br><span class="line">17</span><br><span class="line">18</span><br><span class="line">19</span><br><span class="line">20</span><br><span class="line">21</span><br><span class="line">22</span><br><span class="line">23</span><br><span class="line">24</span><br><span class="line">25</span><br><span class="line">26</span><br><span class="line">27</span><br><span class="line">28</span><br><span class="line">29</span><br><span class="line">30</span><br><span class="line">31</span><br><span class="line">32</span><br><span class="line">33</span><br><span class="line">34</span><br><span class="line">35</span><br><span class="line">36</span><br><span class="line">37</span><br><span class="line">38</span><br><span class="line">39</span><br><span class="line">40</span><br><span class="line">41</span><br><span class="line">42</span><br><span class="line">43</span><br><span class="line">44</span><br><span class="line">45</span><br><span class="line">46</span><br><span class="line">47</span><br><span class="line">48</span><br><span class="line">49</span><br><span class="line">50</span><br><span class="line">51</span><br></pre></td><td class="code"><pre><span class="line"><span class="meta">#</span> sar -h</span><br><span class="line">Usage: sar [ options ] [ &lt;interval&gt; [ &lt;count&gt; ] ]</span><br><span class="line">Main options and reports:</span><br><span class="line">        -b      I/O and transfer rate statistics</span><br><span class="line">        -B      Paging statistics</span><br><span class="line">        -d      Block device statistics</span><br><span class="line">        -F [ MOUNT ]</span><br><span class="line">                Filesystems statistics</span><br><span class="line">        -H      Hugepages utilization statistics</span><br><span class="line">        -I &#123; &lt;int&gt; | SUM | ALL | XALL &#125;</span><br><span class="line">                Interrupts statistics</span><br><span class="line">        -m &#123; &lt;keyword&gt; [,...] | ALL &#125;</span><br><span class="line">                Power management statistics</span><br><span class="line">                Keywords are:</span><br><span class="line">                CPU     CPU instantaneous clock frequency</span><br><span class="line">                FAN     Fans speed</span><br><span class="line">                FREQ    CPU average clock frequency</span><br><span class="line">                IN      Voltage inputs</span><br><span class="line">                TEMP    Devices temperature</span><br><span class="line">                USB     USB devices plugged into the system</span><br><span class="line">        -n &#123; &lt;keyword&gt; [,...] | ALL &#125;</span><br><span class="line">                Network statistics</span><br><span class="line">                Keywords are:</span><br><span class="line">                DEV     Network interfaces</span><br><span class="line">                EDEV    Network interfaces (errors)</span><br><span class="line">                NFS     NFS client</span><br><span class="line">                NFSD    NFS server</span><br><span class="line">                SOCK    Sockets (v4)</span><br><span class="line">                IP      IP traffic      (v4)</span><br><span class="line">                EIP     IP traffic      (v4) (errors)</span><br><span class="line">                ICMP    ICMP traffic    (v4)</span><br><span class="line">                EICMP   ICMP traffic    (v4) (errors)</span><br><span class="line">                TCP     TCP traffic     (v4)</span><br><span class="line">                ETCP    TCP traffic     (v4) (errors)</span><br><span class="line">                UDP     UDP traffic     (v4)</span><br><span class="line">                SOCK6   Sockets (v6)</span><br><span class="line">                IP6     IP traffic      (v6)</span><br><span class="line">                EIP6    IP traffic      (v6) (errors)</span><br><span class="line">                ICMP6   ICMP traffic    (v6)</span><br><span class="line">                EICMP6  ICMP traffic    (v6) (errors)</span><br><span class="line">                UDP6    UDP traffic     (v6)</span><br><span class="line">        -q      Queue length and load average statistics</span><br><span class="line">        -r      Memory utilization statistics</span><br><span class="line">        -R      Memory statistics</span><br><span class="line">        -S      Swap space utilization statistics</span><br><span class="line">        -u [ ALL ]</span><br><span class="line">                CPU utilization statistics</span><br><span class="line">        -v      Kernel table statistics</span><br><span class="line">        -w      Task creation and system switching statistics</span><br><span class="line">        -W      Swapping statistics</span><br><span class="line">        -y      TTY device statistics</span><br></pre></td></tr></table></figure>
+
+</li>
+</ul>
+<h1 id="使用实践"><a href="#使用实践" class="headerlink" title="使用实践"></a>使用实践</h1><ul>
+<li><p>CPU资源监控</p>
+<figure class="highlight shell"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br><span class="line">3</span><br><span class="line">4</span><br><span class="line">5</span><br><span class="line">6</span><br><span class="line">7</span><br><span class="line">8</span><br><span class="line">9</span><br></pre></td><td class="code"><pre><span class="line"><span class="meta">#</span>每3秒采样一次，采样5次</span><br><span class="line"><span class="meta">$</span> sar -u 3 5</span><br><span class="line">all: 表示统计信息为所有CPU的平均值</span><br><span class="line"><span class="meta">%</span>user: 显示在用户级别(application)运行使用 CPU 总时间的百分比</span><br><span class="line"><span class="meta">%</span>nice: 显示在用户级别，用于nice操作，所占用 CPU 总时间的百分比</span><br><span class="line"><span class="meta">%</span>system: 在核心级别(kernel)运行所使用 CPU 总时间的百分比</span><br><span class="line"><span class="meta">%</span>iowait: 等待I/O操作占用CPU总时间的百分比          			#值高，表示存在磁盘I/O瓶颈</span><br><span class="line"><span class="meta">%</span>steal: 管理程序(hypervisor)为另一个虚拟进程提供服务而等待虚拟 CPU 的百分比</span><br><span class="line"><span class="meta">%</span>idle: 显示 CPU 空闲时间占用 CPU 总时间的百分比			#值低，表示CPU的处理能力弱</span><br></pre></td></tr></table></figure>
+</li>
+<li><p>进程等待运行队列和平均负载状态监控</p>
+<figure class="highlight shell"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br><span class="line">3</span><br><span class="line">4</span><br><span class="line">5</span><br><span class="line">6</span><br><span class="line">7</span><br></pre></td><td class="code"><pre><span class="line"><span class="meta">#</span>每3秒采样一次，采样5次</span><br><span class="line"><span class="meta">$</span> sar -q 3 5</span><br><span class="line">runq-sz: 运行队列的长度（等待运行的进程数）</span><br><span class="line">plist-sz: 进程列表中进程（processes）和线程（threads）的数量</span><br><span class="line">ldavg-1: 最后1分钟的系统平均负载（System load average）</span><br><span class="line">ldavg-5: 过去5分钟的系统平均负载</span><br><span class="line">ldavg-15: 过去15分钟的系统平均负载</span><br></pre></td></tr></table></figure>
+</li>
+<li><p>内存和交换空间监控</p>
+<figure class="highlight shell"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br><span class="line">3</span><br><span class="line">4</span><br><span class="line">5</span><br><span class="line">6</span><br><span class="line">7</span><br></pre></td><td class="code"><pre><span class="line"><span class="meta">$</span> sar -r 3 5</span><br><span class="line">kbmemfree：这个值和free命令中的free值基本一致,所以它不包括buffer和cache的空间.</span><br><span class="line">kbmemused：这个值和free命令中的used值基本一致,所以它包括buffer和cache的空间.</span><br><span class="line"><span class="meta">%</span>memused：这个值是kbmemused和内存总量(不包括swap)的一个百分比.</span><br><span class="line">kbbuffers和kbcached：这两个值就是free命令中的buffer和cache.</span><br><span class="line">kbcommit：保证当前系统所需要的内存,即为了确保不溢出而需要的内存(RAM+swap).</span><br><span class="line"><span class="meta">%</span>commit：这个值是kbcommit与内存总量(包括swap)的一个百分比.</span><br></pre></td></tr></table></figure>
+</li>
+<li><p>内存分页监控</p>
+<figure class="highlight shell"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br><span class="line">3</span><br><span class="line">4</span><br><span class="line">5</span><br><span class="line">6</span><br><span class="line">7</span><br><span class="line">8</span><br><span class="line">9</span><br><span class="line">10</span><br><span class="line">11</span><br></pre></td><td class="code"><pre><span class="line"><span class="meta">$</span> sar -B 3 5</span><br><span class="line"></span><br><span class="line">pgpgin/s：表示每秒从磁盘或SWAP置换到内存的字节数(KB)</span><br><span class="line">pgpgout/s：表示每秒从内存置换到磁盘或SWAP的字节数(KB)</span><br><span class="line">fault/s：每秒钟系统产生的缺页数,即主缺页与次缺页之和(major + minor)</span><br><span class="line">majflt/s：每秒钟产生的主缺页数.</span><br><span class="line">pgfree/s：每秒被放入空闲队列中的页个数</span><br><span class="line">pgscank/s：每秒被kswapd扫描的页个数</span><br><span class="line">pgscand/s：每秒直接被扫描的页个数</span><br><span class="line">pgsteal/s：每秒钟从cache中被清除来满足内存需要的页个数</span><br><span class="line"><span class="meta">%</span>vmeff：每秒清除的页(pgsteal)占总扫描页(pgscank+pgscand)的百分比</span><br></pre></td></tr></table></figure>
+</li>
+<li><p>I/O和传送速率监控</p>
+<figure class="highlight shell"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br><span class="line">3</span><br><span class="line">4</span><br><span class="line">5</span><br><span class="line">6</span><br></pre></td><td class="code"><pre><span class="line"><span class="meta">$</span> sar -b 3 10 </span><br><span class="line">tps：每秒钟物理设备的 I/O 传输总量</span><br><span class="line">rtps：每秒钟从物理设备读入的数据总量</span><br><span class="line">wtps：每秒钟向物理设备写入的数据总量</span><br><span class="line">bread/s：每秒钟从物理设备读入的数据量，单位为 块/s</span><br><span class="line">bwrtn/s：每秒钟向物理设备写入的数据量，单位为 块/s</span><br></pre></td></tr></table></figure>
+</li>
+<li><p>设备使用情况监控</p>
+<figure class="highlight shell"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br><span class="line">3</span><br><span class="line">4</span><br><span class="line">5</span><br><span class="line">6</span><br><span class="line">7</span><br><span class="line">8</span><br><span class="line">9</span><br><span class="line">10</span><br><span class="line">11</span><br><span class="line">12</span><br><span class="line">13</span><br><span class="line">14</span><br><span class="line">15</span><br><span class="line">16</span><br><span class="line">17</span><br></pre></td><td class="code"><pre><span class="line"><span class="meta">$</span> sar -d 3 3 -p</span><br><span class="line">参数-p可以打印出sda,hdc等磁盘设备名称,如果不用参数-p,设备节点则有可能是dev8-0,dev22-0</span><br><span class="line"></span><br><span class="line">tps:每秒从物理磁盘I/O的次数.多个逻辑请求会被合并为一个I/O磁盘请求,一次传输的大小是不确定的.</span><br><span class="line">rd_sec/s:每秒读扇区的次数.</span><br><span class="line">wr_sec/s:每秒写扇区的次数.</span><br><span class="line">avgrq-sz:平均每次设备I/O操作的数据大小(扇区).</span><br><span class="line">avgqu-sz:磁盘请求队列的平均长度.</span><br><span class="line">await:从请求磁盘操作到系统完成处理,每次请求的平均消耗时间,包括请求队列等待时间,单位是毫秒(1秒=1000毫秒).</span><br><span class="line">svctm:系统处理每次请求的平均时间,不包括在请求队列中消耗的时间.</span><br><span class="line"><span class="meta">%</span>util:I/O请求占CPU的百分比,比率越大,说明越饱和.</span><br><span class="line">1. avgqu-sz 的值较低时，设备的利用率较高。</span><br><span class="line">2. 当%util的值接近 1% 时，表示设备带宽已经占满。</span><br><span class="line"></span><br><span class="line">怀疑CPU存在瓶颈，可用 sar -u 和 sar -q 等来查看</span><br><span class="line">怀疑内存存在瓶颈，可用 sar -B、sar -r 和 sar -W 等来查看</span><br><span class="line">怀疑I/O存在瓶颈，可用 sar -b、sar -u 和 sar -d 等来查看</span><br></pre></td></tr></table></figure>
+
+<p>​</p>
+</li>
+<li><p>inode、文件和其他内核表监控</p>
+<figure class="highlight shell"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br><span class="line">3</span><br><span class="line">4</span><br><span class="line">5</span><br><span class="line">6</span><br></pre></td><td class="code"><pre><span class="line"><span class="meta">#</span>每3秒采样一次，采样5次</span><br><span class="line"><span class="meta">$</span> sar -v 3 5</span><br><span class="line">dentunusd：目录高速缓存中未被使用的条目数量</span><br><span class="line">file-nr：文件句柄（file handle）的使用数量</span><br><span class="line">inode-nr：索引节点句柄（inode handle）的使用数量</span><br><span class="line">pty-nr：使用的pty数量</span><br></pre></td></tr></table></figure>
+
+<p>​</p>
+</li>
+</ul>
+<h1 id="参考文档"><a href="#参考文档" class="headerlink" title="参考文档"></a>参考文档</h1><p><a href="https://www.cnblogs.com/276815076/archive/2013/04/16/3024200.html" target="_blank" rel="noopener">linux sar命令详解</a></p>
+
+        
+      
+    </div>
+
+    
+    
+    
+      <footer class="post-footer">
+        <div class="post-eof"></div>
+      </footer>
+  </article>
+  
+  
+  
+
+    
+        
+  
+  
+  <article itemscope itemtype="http://schema.org/Article" class="post-block home" lang="zh-CN">
+    <link itemprop="mainEntityOfPage" href="http://yoursite.com/2020/09/09/linux/工具实践-vmstat/">
+
+    <span hidden itemprop="author" itemscope itemtype="http://schema.org/Person">
+      <meta itemprop="name" content="姜纪光">
+      <meta itemprop="description" content="">
+      <meta itemprop="image" content="/images/avatar.gif">
+    </span>
+
+    <span hidden itemprop="publisher" itemscope itemtype="http://schema.org/Organization">
+      <meta itemprop="name" content="纪光的博客">
+    </span>
+      <header class="post-header">
+        <h1 class="post-title" itemprop="name headline">
+          
+            
+            <a href="/2020/09/09/linux/工具实践-vmstat/" class="post-title-link" itemprop="url">工具实践-vmstat</a>
+          
+        </h1>
+
+        <div class="post-meta">
+            <span class="post-meta-item">
+              <span class="post-meta-item-icon">
+                <i class="fa fa-calendar-o"></i>
+              </span>
+              <span class="post-meta-item-text">发表于</span>
+
+              
+                
+              
+
+              <time title="创建时间：2020-09-09 09:16:33 / 修改时间：11:14:53" itemprop="dateCreated datePublished" datetime="2020-09-09T09:16:33+08:00">2020-09-09</time>
+            </span>
+          
+            
+
+            
+          
+            <span class="post-meta-item">
+              <span class="post-meta-item-icon">
+                <i class="fa fa-folder-o"></i>
+              </span>
+              <span class="post-meta-item-text">分类于</span>
+              
+                <span itemprop="about" itemscope itemtype="http://schema.org/Thing">
+                  <a href="/categories/linux/" itemprop="url" rel="index">
+                    <span itemprop="name">linux</span>
+                  </a>
+                </span>
+
+                
+                
+              
+            </span>
+          
+
+          
+            <span id="/2020/09/09/linux/工具实践-vmstat/" class="post-meta-item leancloud_visitors" data-flag-title="工具实践-vmstat" title="阅读次数">
+              <span class="post-meta-item-icon">
+                <i class="fa fa-eye"></i>
+              </span>
+              <span class="post-meta-item-text">阅读次数：</span>
+              <span class="leancloud-visitors-count"></span>
+            </span>
+          
+  
+  
+
+        </div>
+      </header>
+
+    
+    
+    
+    <div class="post-body" itemprop="articleBody">
+
+      
+          <h1 id="说明"><a href="#说明" class="headerlink" title="说明"></a>说明</h1><ul>
+<li><p>是虚拟内存统计信息的命令，提供CPU使用率、内存使用、虚拟内存交换、IO读写等信息</p>
+</li>
+<li><p>使用姿势：</p>
+<figure class="highlight shell"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br><span class="line">3</span><br><span class="line">4</span><br><span class="line">5</span><br><span class="line">6</span><br><span class="line">7</span><br><span class="line">8</span><br><span class="line">9</span><br><span class="line">10</span><br><span class="line">11</span><br><span class="line">12</span><br><span class="line">13</span><br><span class="line">14</span><br><span class="line">15</span><br><span class="line">16</span><br><span class="line">17</span><br><span class="line">18</span><br><span class="line">19</span><br><span class="line">20</span><br></pre></td><td class="code"><pre><span class="line"><span class="meta">#</span> vmstat -h</span><br><span class="line"></span><br><span class="line">Usage:</span><br><span class="line"> vmstat [options] [delay [count]]</span><br><span class="line"></span><br><span class="line">Options:</span><br><span class="line"> -a, --active           active/inactive memory      	#显示活跃和非活跃内存</span><br><span class="line"> -f, --forks            number of forks since boot		#系统启动以来fork的数量</span><br><span class="line"> -m, --slabs            slabinfo						#显示slabinfo</span><br><span class="line"> -n, --one-header       do not redisplay header			#只在开始时显示一次各字段名称</span><br><span class="line"> -s, --stats            event counter statistics   #显示内存相关统计信息及多种系统活动数量</span><br><span class="line"> -d, --disk             disk statistics					#显示磁盘相关统计信息。</span><br><span class="line"> -D, --disk-sum         summarize disk statistics		</span><br><span class="line"> -p, --partition &lt;dev&gt;  partition specific statistics</span><br><span class="line"> -S, --unit &lt;char&gt;      define display unit             #requires k, K, m or M 默认k</span><br><span class="line"> -w, --wide             wide output</span><br><span class="line"> -t, --timestamp        show timestamp</span><br><span class="line"></span><br><span class="line"> -h, --help     display this help and exit</span><br><span class="line"> -V, --version  output version information and exit</span><br></pre></td></tr></table></figure>
+</li>
+<li><p>字段说明</p>
+<figure class="highlight plain"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br><span class="line">3</span><br><span class="line">4</span><br><span class="line">5</span><br><span class="line">6</span><br><span class="line">7</span><br><span class="line">8</span><br><span class="line">9</span><br><span class="line">10</span><br><span class="line">11</span><br><span class="line">12</span><br><span class="line">13</span><br><span class="line">14</span><br><span class="line">15</span><br><span class="line">16</span><br><span class="line">17</span><br><span class="line">18</span><br><span class="line">19</span><br><span class="line">20</span><br><span class="line">21</span><br><span class="line">22</span><br></pre></td><td class="code"><pre><span class="line">------------------------procs---------------------------</span><br><span class="line">r: 等待运行的进程数，一般认为超过了CPU数目，就会出现CPU瓶颈了</span><br><span class="line">b: 阻塞的进程数</span><br><span class="line">------------------------memory--------------------------</span><br><span class="line">swpd: 交换出的内存量，如果大于0，说明物理内存不足，也可能是内存泄漏</span><br><span class="line">free: 空闲的物理内存大小</span><br><span class="line">buff: 用于缓冲缓存的内存，比如目录、权限等，当程序使用时，可以很快回收掉</span><br><span class="line">cache: 用于页缓存的内存，给文件本身做缓冲，当程序使用时，可以很快回收掉</span><br><span class="line">------------------------swap----------------------------</span><br><span class="line">si: 每秒从磁盘读入虚拟内存的大小，如果大于0，表示物理内存不够或者内存泄漏</span><br><span class="line">so: 每秒从虚拟内存写入磁盘的大小，如果大于0，表示物理内存不够或者内存泄漏</span><br><span class="line">-------------------------io-----------------------------</span><br><span class="line">bi: 每秒从块设备接收到的块数，即读块设备，块设备一般指磁盘，默认块大小1KB</span><br><span class="line">bo: 每秒发送到块设备的块数，即写块设备</span><br><span class="line">-------------------------system-----------------------------</span><br><span class="line">in: 每秒CPU中断次数，包括时间中断</span><br><span class="line">cs: 每秒上下文切换次数，例如调用系统函数、线程切换等都会导致上下线切换</span><br><span class="line">---------------------------cpu--------------------------------</span><br><span class="line">us: 运行非内核所占CPU</span><br><span class="line">sy: 系统CPU时间（内核），如果太高，表示系统调用时间过程</span><br><span class="line">id: 空闲CPU时间</span><br><span class="line">wa: 等待IO CPU时间</span><br></pre></td></tr></table></figure>
+
+</li>
+</ul>
+<h1 id="实践"><a href="#实践" class="headerlink" title="实践"></a>实践</h1><figure class="highlight shell"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br><span class="line">3</span><br><span class="line">4</span><br><span class="line">5</span><br><span class="line">6</span><br></pre></td><td class="code"><pre><span class="line"><span class="meta">#</span>每个3秒，输出5次</span><br><span class="line"><span class="meta">$</span> vmstat -wt -S m 3 5</span><br><span class="line"><span class="meta">#</span>显示内存相关统计信息及多种系统活动数量</span><br><span class="line"><span class="meta">$</span> vmstat -s -S m</span><br><span class="line"><span class="meta">#</span>显示磁盘相关统计信息</span><br><span class="line"><span class="meta">$</span> vmstat -d</span><br></pre></td></tr></table></figure>
+
+<h1 id="参考文档"><a href="#参考文档" class="headerlink" title="参考文档"></a>参考文档</h1><p><a href="http://www.361way.com/linux-context-switch/5131.html" target="_blank" rel="noopener">进程上下文频繁切换导致load average过高</a></p>
+<p><a href="https://access.redhat.com/solutions/1160343" target="_blank" rel="noopener">How to read Vmstat output</a></p>
+<p><a href="https://developer.aliyun.com/article/7990" target="_blank" rel="noopener">Linux vmstat命令详解</a></p>
+<p><a href="https://cloud.tencent.com/developer/article/1498377" target="_blank" rel="noopener">Linux fork那些隐藏的开销</a></p>
+<p><a href="https://fivezh.github.io/2017/06/25/Linux-slab-info/" target="_blank" rel="noopener">Linux内存之Slab</a></p>
+<p><a href="http://blog.sina.com.cn/s/blog_3dbab2840100j4fe.html" target="_blank" rel="noopener">vmstat工具</a></p>
+<p><a href="https://blog.csdn.net/longdel/article/details/7317511?utm_medium=distribute.pc_relevant.none-task-blog-BlogCommendFromMachineLearnPai2-1.channel_param&depth_1-utm_source=distribute.pc_relevant.none-task-blog-BlogCommendFromMachineLearnPai2-1.channel_param" target="_blank" rel="noopener">进程优先级，进程nice值和%nice的解释</a></p>
+
+        
+      
+    </div>
+
+    
+    
+    
+      <footer class="post-footer">
+        <div class="post-eof"></div>
+      </footer>
+  </article>
+  
+  
+  
+
+    
+        
+  
+  
+  <article itemscope itemtype="http://schema.org/Article" class="post-block home" lang="zh-CN">
+    <link itemprop="mainEntityOfPage" href="http://yoursite.com/2020/09/08/flink/Flink任务进程/">
+
+    <span hidden itemprop="author" itemscope itemtype="http://schema.org/Person">
+      <meta itemprop="name" content="姜纪光">
+      <meta itemprop="description" content="">
+      <meta itemprop="image" content="/images/avatar.gif">
+    </span>
+
+    <span hidden itemprop="publisher" itemscope itemtype="http://schema.org/Organization">
+      <meta itemprop="name" content="纪光的博客">
+    </span>
+      <header class="post-header">
+        <h1 class="post-title" itemprop="name headline">
+          
+            
+            <a href="/2020/09/08/flink/Flink任务进程/" class="post-title-link" itemprop="url">Flink任务进程</a>
+          
+        </h1>
+
+        <div class="post-meta">
+            <span class="post-meta-item">
+              <span class="post-meta-item-icon">
+                <i class="fa fa-calendar-o"></i>
+              </span>
+              <span class="post-meta-item-text">发表于</span>
+
+              
+                
+              
+
+              <time title="创建时间：2020-09-08 14:55:52 / 修改时间：16:06:43" itemprop="dateCreated datePublished" datetime="2020-09-08T14:55:52+08:00">2020-09-08</time>
+            </span>
+          
+            
+
+            
+          
+            <span class="post-meta-item">
+              <span class="post-meta-item-icon">
+                <i class="fa fa-folder-o"></i>
+              </span>
+              <span class="post-meta-item-text">分类于</span>
+              
+                <span itemprop="about" itemscope itemtype="http://schema.org/Thing">
+                  <a href="/categories/flink/" itemprop="url" rel="index">
+                    <span itemprop="name">flink</span>
+                  </a>
+                </span>
+
+                
+                
+              
+            </span>
+          
+
+          
+            <span id="/2020/09/08/flink/Flink任务进程/" class="post-meta-item leancloud_visitors" data-flag-title="Flink任务进程" title="阅读次数">
+              <span class="post-meta-item-icon">
+                <i class="fa fa-eye"></i>
+              </span>
+              <span class="post-meta-item-text">阅读次数：</span>
+              <span class="leancloud-visitors-count"></span>
+            </span>
+          
+  
+  
+
+        </div>
+      </header>
+
+    
+    
+    
+    <div class="post-body" itemprop="articleBody">
+
+      
+          <h1 id="简介"><a href="#简介" class="headerlink" title="简介"></a>简介</h1><ul>
+<li>如图所示，每个Flink任务的TaskManager的进程依赖：</li>
+</ul>
+<p><img src="/images/flink/flink-task-pid.png" alt="TM进程依赖"></p>
+<p>可见每个TM其实由4个进程依赖，分别是：</p>
+<ul>
+<li><p>12027</p>
+<blockquote>
+<p>NodeManager进程</p>
+</blockquote>
+</li>
+<li><p>40972，父进程12027</p>
+<blockquote>
+<p>由3个脚本组成：</p>
+<p>1、/data1/yarn/usercache/stream/appcache/application_1588838921607_3751/container_1588838921607_3751_01_000002/default_container_executor.sh</p>
+<p>  主要作用就是执行脚本2</p>
+<p>  $?：上个命令的退出状态，或函数的返回值。</p>
+<p>2、/data1/yarn/usercache/stream/appcache/application_1588838921607_3751/container_1588838921607_3751_01_000002/default_container_executor_session.sh</p>
+<p>  $$：当前Shell进程ID。对于 Shell 脚本，就是这些脚本所在的进程ID。</p>
+<p>  执行脚本3</p>
+<p>3、/data1/yarn/usercache/stream/appcache/application_1588838921607_3751/container_1588838921607_3751_01_000002/launch_container.sh </p>
+<p>   用于启动40973进程</p>
+</blockquote>
+</li>
+<li><p>40973，父进程40972</p>
+</li>
+<li><p>41005，父进程40973</p>
+<blockquote>
+<p>TM所属进程</p>
+</blockquote>
+</li>
+</ul>
+<h1 id="参考文档"><a href="#参考文档" class="headerlink" title="参考文档"></a>参考文档</h1><p><a href="http://c.biancheng.net/cpp/view/2739.html" target="_blank" rel="noopener">Shell教程</a></p>
+
+        
+      
+    </div>
+
+    
+    
+    
+      <footer class="post-footer">
+        <div class="post-eof"></div>
+      </footer>
+  </article>
+  
+  
+  
+
+    
+        
+  
+  
+  <article itemscope itemtype="http://schema.org/Article" class="post-block home" lang="zh-CN">
+    <link itemprop="mainEntityOfPage" href="http://yoursite.com/2020/09/08/flink/Flink任务发布流程解析/">
+
+    <span hidden itemprop="author" itemscope itemtype="http://schema.org/Person">
+      <meta itemprop="name" content="姜纪光">
+      <meta itemprop="description" content="">
+      <meta itemprop="image" content="/images/avatar.gif">
+    </span>
+
+    <span hidden itemprop="publisher" itemscope itemtype="http://schema.org/Organization">
+      <meta itemprop="name" content="纪光的博客">
+    </span>
+      <header class="post-header">
+        <h1 class="post-title" itemprop="name headline">
+          
+            
+            <a href="/2020/09/08/flink/Flink任务发布流程解析/" class="post-title-link" itemprop="url">Flink任务发布流程解析</a>
+          
+        </h1>
+
+        <div class="post-meta">
+            <span class="post-meta-item">
+              <span class="post-meta-item-icon">
+                <i class="fa fa-calendar-o"></i>
+              </span>
+              <span class="post-meta-item-text">发表于</span>
+
+              
+                
+              
+
+              <time title="创建时间：2020-09-08 13:56:27" itemprop="dateCreated datePublished" datetime="2020-09-08T13:56:27+08:00">2020-09-08</time>
+            </span>
+          
+            
+
+            
+              <span class="post-meta-item">
+                <span class="post-meta-item-icon">
+                  <i class="fa fa-calendar-check-o"></i>
+                </span>
+                <span class="post-meta-item-text">更新于</span>
+                <time title="修改时间：2020-10-10 16:28:31" itemprop="dateModified" datetime="2020-10-10T16:28:31+08:00">2020-10-10</time>
+              </span>
+            
+          
+            <span class="post-meta-item">
+              <span class="post-meta-item-icon">
+                <i class="fa fa-folder-o"></i>
+              </span>
+              <span class="post-meta-item-text">分类于</span>
+              
+                <span itemprop="about" itemscope itemtype="http://schema.org/Thing">
+                  <a href="/categories/flink/" itemprop="url" rel="index">
+                    <span itemprop="name">flink</span>
+                  </a>
+                </span>
+
+                
+                
+              
+            </span>
+          
+
+          
+            <span id="/2020/09/08/flink/Flink任务发布流程解析/" class="post-meta-item leancloud_visitors" data-flag-title="Flink任务发布流程解析" title="阅读次数">
+              <span class="post-meta-item-icon">
+                <i class="fa fa-eye"></i>
+              </span>
+              <span class="post-meta-item-text">阅读次数：</span>
+              <span class="leancloud-visitors-count"></span>
+            </span>
+          
+  
+  
+
+        </div>
+      </header>
+
+    
+    
+    
+    <div class="post-body" itemprop="articleBody">
+
+      
+          <h1 id="提交流程图"><a href="#提交流程图" class="headerlink" title="提交流程图"></a>提交流程图</h1><p><strong>说明：本文基于flink1.10.1版本，且只介绍 yarn per-job</strong></p>
+<h2 id="StreamNode"><a href="#StreamNode" class="headerlink" title="StreamNode"></a>StreamNode</h2><ul>
+<li><p>主要属性</p>
+<figure class="highlight java"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br><span class="line">3</span><br><span class="line">4</span><br><span class="line">5</span><br><span class="line">6</span><br><span class="line">7</span><br><span class="line">8</span><br><span class="line">9</span><br><span class="line">10</span><br><span class="line">11</span><br><span class="line">12</span><br><span class="line">13</span><br><span class="line">14</span><br><span class="line">15</span><br><span class="line">16</span><br><span class="line">17</span><br><span class="line">18</span><br><span class="line">19</span><br><span class="line">20</span><br><span class="line">21</span><br><span class="line">22</span><br><span class="line">23</span><br><span class="line">24</span><br><span class="line">25</span><br><span class="line">26</span><br></pre></td><td class="code"><pre><span class="line"><span class="keyword">private</span> <span class="keyword">final</span> <span class="keyword">int</span> id;</span><br><span class="line"><span class="keyword">private</span> <span class="keyword">int</span> parallelism;</span><br><span class="line"><span class="keyword">private</span> <span class="keyword">int</span> maxParallelism;</span><br><span class="line"><span class="keyword">private</span> ResourceSpec minResources = ResourceSpec.DEFAULT;</span><br><span class="line"><span class="keyword">private</span> ResourceSpec preferredResources = ResourceSpec.DEFAULT;</span><br><span class="line"><span class="keyword">private</span> <span class="keyword">int</span> managedMemoryWeight = Transformation.DEFAULT_MANAGED_MEMORY_WEIGHT;</span><br><span class="line"><span class="keyword">private</span> <span class="keyword">long</span> bufferTimeout;</span><br><span class="line"><span class="keyword">private</span> <span class="keyword">final</span> String operatorName;</span><br><span class="line"><span class="keyword">private</span> <span class="meta">@Nullable</span> String slotSharingGroup;</span><br><span class="line"><span class="keyword">private</span> <span class="meta">@Nullable</span> String coLocationGroup;</span><br><span class="line"><span class="keyword">private</span> KeySelector&lt;?, ?&gt; statePartitioner1;</span><br><span class="line"><span class="keyword">private</span> KeySelector&lt;?, ?&gt; statePartitioner2;</span><br><span class="line"><span class="keyword">private</span> TypeSerializer&lt;?&gt; stateKeySerializer;</span><br><span class="line"><span class="keyword">private</span> <span class="keyword">transient</span> StreamOperatorFactory&lt;?&gt; operatorFactory;</span><br><span class="line"><span class="keyword">private</span> List&lt;OutputSelector&lt;?&gt;&gt; outputSelectors;</span><br><span class="line"><span class="keyword">private</span> TypeSerializer&lt;?&gt; typeSerializerIn1;</span><br><span class="line"><span class="keyword">private</span> TypeSerializer&lt;?&gt; typeSerializerIn2;</span><br><span class="line"><span class="keyword">private</span> TypeSerializer&lt;?&gt; typeSerializerOut;</span><br><span class="line"><span class="keyword">private</span> List&lt;StreamEdge&gt; inEdges</span><br><span class="line"><span class="comment">//</span></span><br><span class="line"><span class="keyword">private</span> List&lt;StreamEdge&gt; outEdges</span><br><span class="line"><span class="keyword">private</span> <span class="keyword">final</span> Class&lt;? extends AbstractInvokable&gt; jobVertexClass;</span><br><span class="line"><span class="keyword">private</span> InputFormat&lt;?, ?&gt; inputFormat;</span><br><span class="line"><span class="keyword">private</span> OutputFormat&lt;?&gt; outputFormat;</span><br><span class="line"><span class="keyword">private</span> String transformationUID;</span><br><span class="line"><span class="keyword">private</span> String userHash;</span><br></pre></td></tr></table></figure>
+
+<p>​</p>
+</li>
+</ul>
+<h2 id="StreamEdge"><a href="#StreamEdge" class="headerlink" title="StreamEdge"></a>StreamEdge</h2><ul>
+<li><p>用于连接两个StreamNode</p>
+<blockquote>
+<p>//由于链接/优化，这样的一条边不一定会转换为两个JobVertex的连接</p>
+</blockquote>
+</li>
+<li><p>主要属性</p>
+<figure class="highlight java"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br><span class="line">3</span><br><span class="line">4</span><br><span class="line">5</span><br><span class="line">6</span><br><span class="line">7</span><br><span class="line">8</span><br><span class="line">9</span><br><span class="line">10</span><br><span class="line">11</span><br><span class="line">12</span><br><span class="line">13</span><br><span class="line">14</span><br><span class="line">15</span><br><span class="line">16</span><br></pre></td><td class="code"><pre><span class="line"><span class="keyword">private</span> <span class="keyword">final</span> String edgeId;</span><br><span class="line"><span class="keyword">private</span> <span class="keyword">final</span> <span class="keyword">int</span> sourceId;</span><br><span class="line"><span class="keyword">private</span> <span class="keyword">final</span> <span class="keyword">int</span> targetId;</span><br><span class="line"><span class="comment">//The type number of the input for co-tasks.</span></span><br><span class="line"><span class="keyword">private</span> <span class="keyword">final</span> <span class="keyword">int</span> typeNumber;</span><br><span class="line"><span class="comment">//A list of output names that the target vertex listens to (if there is output selection).</span></span><br><span class="line"><span class="keyword">private</span> <span class="keyword">final</span> List&lt;String&gt; selectedNames;</span><br><span class="line"><span class="comment">//The side-output tag (if any) of this &#123;@link StreamEdge&#125;.</span></span><br><span class="line"><span class="keyword">private</span> <span class="keyword">final</span> OutputTag outputTag;</span><br><span class="line"><span class="comment">//The &#123;@link StreamPartitioner&#125; on this &#123;@link StreamEdge&#125;.</span></span><br><span class="line"><span class="keyword">private</span> StreamPartitioner&lt;?&gt; outputPartitioner;</span><br><span class="line"><span class="comment">//The name of the operator in the source vertex.</span></span><br><span class="line"><span class="keyword">private</span> <span class="keyword">final</span> String sourceOperatorName;</span><br><span class="line"><span class="comment">//The name of the operator in the target vertex.</span></span><br><span class="line"><span class="keyword">private</span> <span class="keyword">final</span> String targetOperatorName;</span><br><span class="line"><span class="keyword">private</span> <span class="keyword">final</span> ShuffleMode shuffleMode;</span><br></pre></td></tr></table></figure>
+
+</li>
+</ul>
+<h2 id="JobVertex"><a href="#JobVertex" class="headerlink" title="JobVertex"></a>JobVertex</h2><ul>
+<li><p>基本属性</p>
+<figure class="highlight java"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br><span class="line">3</span><br><span class="line">4</span><br><span class="line">5</span><br><span class="line">6</span><br><span class="line">7</span><br><span class="line">8</span><br><span class="line">9</span><br><span class="line">10</span><br><span class="line">11</span><br><span class="line">12</span><br><span class="line">13</span><br><span class="line">14</span><br><span class="line">15</span><br><span class="line">16</span><br><span class="line">17</span><br><span class="line">18</span><br><span class="line">19</span><br><span class="line">20</span><br><span class="line">21</span><br><span class="line">22</span><br><span class="line">23</span><br><span class="line">24</span><br><span class="line">25</span><br><span class="line">26</span><br></pre></td><td class="code"><pre><span class="line"><span class="keyword">private</span> <span class="keyword">final</span> JobVertexID id;</span><br><span class="line"><span class="keyword">private</span> <span class="keyword">final</span> ArrayList&lt;JobVertexID&gt; idAlternatives</span><br><span class="line"><span class="keyword">private</span> <span class="keyword">final</span> ArrayList&lt;OperatorID&gt; operatorIDs</span><br><span class="line"><span class="keyword">private</span> <span class="keyword">final</span> ArrayList&lt;OperatorID&gt; operatorIdsAlternatives</span><br><span class="line"><span class="comment">//产生的数据集列表，每个writer一个</span></span><br><span class="line"><span class="keyword">private</span> <span class="keyword">final</span> ArrayList&lt;IntermediateDataSet&gt; results</span><br><span class="line"><span class="comment">//传入的边的列表，每个Reader一个</span></span><br><span class="line"><span class="keyword">private</span> <span class="keyword">final</span> ArrayList&lt;JobEdge&gt; inputs</span><br><span class="line"><span class="comment">//运行时subtasks的数量</span></span><br><span class="line"><span class="keyword">private</span> <span class="keyword">int</span> parallelism</span><br><span class="line"><span class="keyword">private</span> <span class="keyword">int</span> maxParallelism</span><br><span class="line"><span class="keyword">private</span> ResourceSpec minResources = ResourceSpec.DEFAULT</span><br><span class="line"><span class="keyword">private</span> ResourceSpec preferredResources = ResourceSpec.DEFAULT</span><br><span class="line"><span class="comment">//运行时，传递给task的自定义配置</span></span><br><span class="line"><span class="keyword">private</span> Configuration configuration</span><br><span class="line"><span class="comment">//The class of the invokable</span></span><br><span class="line"><span class="keyword">private</span> String invokableClassName;</span><br><span class="line"><span class="keyword">private</span> <span class="keyword">boolean</span> isStoppable = <span class="keyword">false</span>;</span><br><span class="line"><span class="keyword">private</span> InputSplitSource&lt;?&gt; inputSplitSource;</span><br><span class="line"><span class="comment">//vertex的名称</span></span><br><span class="line"><span class="keyword">private</span> String name;</span><br><span class="line"><span class="comment">//一个共享组，允许来自不同作业顶点的子任务在一个插槽中同时运行，软限制</span></span><br><span class="line"><span class="keyword">private</span> SlotSharingGroup slotSharingGroup;</span><br><span class="line"><span class="comment">//规定了JobVertex的sub task必须一一对应，在同一个slot中执行</span></span><br><span class="line"><span class="keyword">private</span> CoLocationGroup coLocationGroup;</span><br><span class="line"><span class="keyword">private</span> String operatorName;</span><br></pre></td></tr></table></figure>
+
+<p>​</p>
+</li>
+</ul>
+<h1 id="StreamGraph转JobGraph"><a href="#StreamGraph转JobGraph" class="headerlink" title="StreamGraph转JobGraph"></a>StreamGraph转JobGraph</h1><h2 id="JobGraph介绍"><a href="#JobGraph介绍" class="headerlink" title="JobGraph介绍"></a>JobGraph介绍</h2><ul>
+<li><p>JobGraph是流StreamGraph和批OptimizedPlan的统一</p>
+</li>
+<li><p>JobGraph的核心对象：<strong>JobVertex、JobEdge、InternmediateDataSet</strong></p>
+</li>
+<li><p>JobVertex</p>
+<blockquote>
+<p>JobVertex包含一个或多个算子，是符合条件的多个StreamNode融合在一起的</p>
+<p>输入是JobEdge</p>
+<p>输出是InternmediateDataSet</p>
+</blockquote>
+</li>
+<li><p>JobEdge</p>
+<blockquote>
+<p>JobEdge是连接InternmediateDataSet和JobVertex的边，是一个数据流转通道</p>
+</blockquote>
+</li>
+<li><p>InternmediateDataSet</p>
+<blockquote>
+<p>是一种逻辑结构，是中间数据集，表示JobVertex的输出</p>
+<p>InternmediateDataSet的个数与该JobVertex对应的StreamNode的出边数量相同</p>
+</blockquote>
+</li>
+</ul>
+<h2 id="转换过程"><a href="#转换过程" class="headerlink" title="转换过程"></a>转换过程</h2><ul>
+<li><p>入口方法</p>
+<figure class="highlight java"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br><span class="line">3</span><br><span class="line">4</span><br></pre></td><td class="code"><pre><span class="line"><span class="comment">//java类</span></span><br><span class="line">org.apache.flink.client.deployment.executors</span><br><span class="line"></span><br><span class="line"><span class="keyword">final</span> JobGraph jobGraph = ExecutorUtils.getJobGraph(pipeline, configuration);</span><br></pre></td></tr></table></figure>
+</li>
+<li><p>为每个StreamNode节点生成确定性哈希</p>
+<figure class="highlight java"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br><span class="line">3</span><br><span class="line">4</span><br><span class="line">5</span><br><span class="line">6</span><br><span class="line">7</span><br><span class="line">8</span><br><span class="line">9</span><br><span class="line">10</span><br><span class="line">11</span><br><span class="line">12</span><br><span class="line">13</span><br><span class="line">14</span><br><span class="line">15</span><br><span class="line">16</span><br><span class="line">17</span><br><span class="line">18</span><br><span class="line">19</span><br><span class="line">20</span><br><span class="line">21</span><br><span class="line">22</span><br><span class="line">23</span><br><span class="line">24</span><br><span class="line">25</span><br><span class="line">26</span><br><span class="line">27</span><br><span class="line">28</span><br><span class="line">29</span><br><span class="line">30</span><br><span class="line">31</span><br><span class="line">32</span><br><span class="line">33</span><br></pre></td><td class="code"><pre><span class="line"><span class="comment">// Generate deterministic hashes for the nodes in order to identify them across</span></span><br><span class="line"><span class="comment">// submission iff they didn't change.</span></span><br><span class="line">Map&lt;Integer, <span class="keyword">byte</span>[]&gt; hashes = defaultStreamGraphHasher.traverseStreamGraphAndGenerateHashes(streamGraph);</span><br><span class="line"><span class="comment">//生成的哈希值作为JobVertexID</span></span><br><span class="line"></span><br><span class="line"><span class="comment">//首先根据source生成hash，然后再生成source下游节点的hash，最终生成全部节点的hash</span></span><br><span class="line">StreamNode currentNode;</span><br><span class="line"><span class="keyword">while</span> ((currentNode = remaining.poll()) != <span class="keyword">null</span>) &#123;</span><br><span class="line"><span class="keyword">if</span> (generateNodeHash(currentNode, hashFunction, hashes,   streamGraph.isChainingEnabled(), streamGraph)) &#123;</span><br><span class="line">	<span class="keyword">for</span> (StreamEdge outEdge : currentNode.getOutEdges()) &#123;</span><br><span class="line">		StreamNode child = streamGraph.getTargetVertex(outEdge);</span><br><span class="line">  		<span class="keyword">if</span> (!visited.contains(child.getId())) &#123;</span><br><span class="line">			remaining.add(child);</span><br><span class="line">			visited.add(child.getId());</span><br><span class="line">		&#125;</span><br><span class="line">	&#125;</span><br><span class="line">&#125; <span class="keyword">else</span> &#123;</span><br><span class="line">	visited.remove(currentNode.getId());</span><br><span class="line">	&#125;</span><br><span class="line">&#125;</span><br><span class="line"></span><br><span class="line"><span class="comment">//若算子设置了uid</span></span><br><span class="line">  hasher.putString(node.getTransformationUID(), Charset.forName(<span class="string">"UTF-8"</span>));</span><br><span class="line">  <span class="keyword">return</span> hasher.hash().asBytes();</span><br><span class="line"><span class="comment">//若算子没有设置uid</span></span><br><span class="line">  <span class="comment">//首先确认该StreamNode的所有上游的StreamNode已经生成过hash</span></span><br><span class="line">  <span class="comment">//生成的hash取决于StreamGraph中节点的顺序和上游算子的hash值</span></span><br><span class="line">  <span class="keyword">for</span> (StreamEdge inEdge : node.getInEdges()) &#123;</span><br><span class="line">    <span class="keyword">byte</span>[] otherHash = hashes.get(inEdge.getSourceId());</span><br><span class="line">	<span class="keyword">for</span> (<span class="keyword">int</span> j = <span class="number">0</span>; j &lt; hash.length; j++) &#123;</span><br><span class="line">		hash[j] = (<span class="keyword">byte</span>) (hash[j] * <span class="number">37</span> ^ otherHash[j]);</span><br><span class="line">	&#125;</span><br><span class="line">  &#125;</span><br></pre></td></tr></table></figure>
+</li>
+<li><p>setChaining</p>
+<figure class="highlight java"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br><span class="line">3</span><br><span class="line">4</span><br><span class="line">5</span><br><span class="line">6</span><br><span class="line">7</span><br><span class="line">8</span><br><span class="line">9</span><br><span class="line">10</span><br><span class="line">11</span><br><span class="line">12</span><br><span class="line">13</span><br><span class="line">14</span><br><span class="line">15</span><br><span class="line">16</span><br><span class="line">17</span><br><span class="line">18</span><br><span class="line">19</span><br><span class="line">20</span><br><span class="line">21</span><br><span class="line">22</span><br><span class="line">23</span><br><span class="line">24</span><br><span class="line">25</span><br><span class="line">26</span><br><span class="line">27</span><br><span class="line">28</span><br><span class="line">29</span><br><span class="line">30</span><br><span class="line">31</span><br><span class="line">32</span><br><span class="line">33</span><br><span class="line">34</span><br><span class="line">35</span><br><span class="line">36</span><br><span class="line">37</span><br><span class="line">38</span><br><span class="line">39</span><br><span class="line">40</span><br><span class="line">41</span><br><span class="line">42</span><br><span class="line">43</span><br><span class="line">44</span><br><span class="line">45</span><br><span class="line">46</span><br><span class="line">47</span><br><span class="line">48</span><br><span class="line">49</span><br><span class="line">50</span><br><span class="line">51</span><br></pre></td><td class="code"><pre><span class="line"><span class="comment">//可以看到是先从souce开始chain</span></span><br><span class="line"><span class="function"><span class="keyword">private</span> <span class="keyword">void</span> <span class="title">setChaining</span><span class="params">(Map&lt;Integer, <span class="keyword">byte</span>[]&gt; hashes, List&lt;Map&lt;Integer, <span class="keyword">byte</span>[]&gt;&gt; legacyHashes, Map&lt;Integer, List&lt;Tuple2&lt;<span class="keyword">byte</span>[], <span class="keyword">byte</span>[]&gt;&gt;&gt; chainedOperatorHashes)</span> </span>&#123;</span><br><span class="line">	<span class="keyword">for</span> (Integer sourceNodeId : streamGraph.getSourceIDs()) &#123;</span><br><span class="line">		createChain(sourceNodeId, sourceNodeId, hashes, legacyHashes, <span class="number">0</span>, chainedOperatorHashes);</span><br><span class="line">	&#125;</span><br><span class="line">&#125;</span><br><span class="line"></span><br><span class="line"><span class="comment">//从source开始，获取可以链接在一起的StreamEdge，这里可以当做是递归，获取到该source的chain</span></span><br><span class="line"><span class="keyword">for</span> (StreamEdge chainable : chainableOutputs) &#123;</span><br><span class="line">	transitiveOutEdges.addAll(</span><br><span class="line">	createChain(startNodeId, chainable.getTargetId(), hashes, legacyHashes, chainIndex + <span class="number">1</span>, chainedOperatorHashes));</span><br><span class="line">&#125;</span><br><span class="line"></span><br><span class="line"><span class="comment">//可以chain在一起的逻辑代码</span></span><br><span class="line">	<span class="function"><span class="keyword">public</span> <span class="keyword">static</span> <span class="keyword">boolean</span> <span class="title">isChainable</span><span class="params">(StreamEdge edge, StreamGraph streamGraph)</span> </span>&#123;</span><br><span class="line">		StreamNode upStreamVertex = streamGraph.getSourceVertex(edge);</span><br><span class="line">		StreamNode downStreamVertex = streamGraph.getTargetVertex(edge);</span><br><span class="line"></span><br><span class="line">		StreamOperatorFactory&lt;?&gt; headOperator = upStreamVertex.getOperatorFactory();</span><br><span class="line">		StreamOperatorFactory&lt;?&gt; outOperator = downStreamVertex.getOperatorFactory();</span><br><span class="line"></span><br><span class="line">		<span class="keyword">return</span> downStreamVertex.getInEdges().size() == <span class="number">1</span></span><br><span class="line">				&amp;&amp; outOperator != <span class="keyword">null</span></span><br><span class="line">				&amp;&amp; headOperator != <span class="keyword">null</span></span><br><span class="line">				&amp;&amp; upStreamVertex.isSameSlotSharingGroup(downStreamVertex)</span><br><span class="line">				&amp;&amp; outOperator.getChainingStrategy() == ChainingStrategy.ALWAYS</span><br><span class="line">				&amp;&amp; (headOperator.getChainingStrategy() == ChainingStrategy.HEAD ||</span><br><span class="line">					headOperator.getChainingStrategy() == ChainingStrategy.ALWAYS)</span><br><span class="line">				&amp;&amp; (edge.getPartitioner() <span class="keyword">instanceof</span> ForwardPartitioner)</span><br><span class="line">				&amp;&amp; edge.getShuffleMode() != ShuffleMode.BATCH</span><br><span class="line">				&amp;&amp; upStreamVertex.getParallelism() == downStreamVertex.getParallelism()</span><br><span class="line">				&amp;&amp; streamGraph.isChainingEnabled();</span><br><span class="line">	&#125;</span><br><span class="line"></span><br><span class="line"><span class="comment">//每个StreamNode chain的name为</span></span><br><span class="line">&#123;<span class="number">1</span>=Source: name_source -&gt; Map -&gt; Sink: name_kafka, <span class="number">2</span>=Map -&gt; Sink: name_kafka, <span class="number">3</span>=Sink: name_kafka&#125;</span><br><span class="line"><span class="comment">//由此可见，每个StreamNode都会得出一个chain的名称，是可以chain在一起的operatorName的组合</span></span><br><span class="line"></span><br><span class="line"><span class="comment">//接下来是计算资源，基本逻辑是所有chain在一起的StreamNode的资源相加，但是由于默认资源是UNKNOWN，</span></span><br><span class="line"><span class="comment">//UNKNOWN类型的资源都是null，因此会得出UNKNOWN，目前没有看到意义</span></span><br><span class="line">chainedMinResources.put(currentNodeId, createChainedMinResources(currentNodeId, chainableOutputs));</span><br><span class="line">chainedPreferredResources.put(currentNodeId, createChainedPreferredResources(currentNodeId, chainableOutputs));</span><br><span class="line"></span><br><span class="line"><span class="keyword">private</span> ResourceSpec minResources = ResourceSpec.DEFAULT;</span><br><span class="line"><span class="keyword">public</span> <span class="keyword">static</span> <span class="keyword">final</span> ResourceSpec DEFAULT = UNKNOWN;</span><br><span class="line">	<span class="function"><span class="keyword">private</span> <span class="title">ResourceSpec</span><span class="params">()</span> </span>&#123;</span><br><span class="line">		<span class="keyword">this</span>.cpuCores = <span class="keyword">null</span>;</span><br><span class="line">		<span class="keyword">this</span>.taskHeapMemory = <span class="keyword">null</span>;</span><br><span class="line">		<span class="keyword">this</span>.taskOffHeapMemory = <span class="keyword">null</span>;</span><br><span class="line">		<span class="keyword">this</span>.managedMemory = <span class="keyword">null</span>;</span><br><span class="line">	&#125;</span><br></pre></td></tr></table></figure>
+
+<p>​</p>
+</li>
+</ul>
+<h1 id="deployInternal"><a href="#deployInternal" class="headerlink" title="deployInternal"></a>deployInternal</h1><ul>
+<li><p>入口方法</p>
+<figure class="highlight plain"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br><span class="line">3</span><br><span class="line">4</span><br><span class="line">5</span><br><span class="line">6</span><br><span class="line">7</span><br><span class="line">8</span><br><span class="line">9</span><br></pre></td><td class="code"><pre><span class="line">//java类</span><br><span class="line">org.apache.flink.yarn.YarnClusterDescriptor</span><br><span class="line">//java方法</span><br><span class="line">private ClusterClientProvider&lt;ApplicationId&gt; deployInternal(</span><br><span class="line">            ClusterSpecification clusterSpecification,</span><br><span class="line">            String applicationName,</span><br><span class="line">            String yarnClusterEntrypoint,</span><br><span class="line">            @Nullable JobGraph jobGraph,</span><br><span class="line">            boolean detached) throws Exception</span><br></pre></td></tr></table></figure>
+</li>
+<li><p>isReadyForDeployment</p>
+<figure class="highlight plain"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br><span class="line">3</span><br></pre></td><td class="code"><pre><span class="line">检查flinkJarPath是否存在</span><br><span class="line">检查flinkConfiguration是否存在</span><br><span class="line">检查JM和TM的slot个数是否大于机器可用vcore</span><br></pre></td></tr></table></figure>
+</li>
+<li><p>checkYarnQueues</p>
+<figure class="highlight plain"><table><tr><td class="gutter"><pre><span class="line">1</span><br></pre></td><td class="code"><pre><span class="line">检查YARN 队列是否存在</span><br></pre></td></tr></table></figure>
+</li>
+<li><p>创建Yarn Application</p>
+<figure class="highlight plain"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br></pre></td><td class="code"><pre><span class="line">获取yarn集群的CPU和内存资源</span><br><span class="line">检查yarn集群的资源是否能够满足任务的需求</span><br></pre></td></tr></table></figure>
+
+<p>​</p>
+</li>
+</ul>
+<h1 id="启动JobMaster"><a href="#启动JobMaster" class="headerlink" title="启动JobMaster"></a>启动JobMaster</h1><ul>
+<li><p>入口方法</p>
+<figure class="highlight plain"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br><span class="line">3</span><br><span class="line">4</span><br><span class="line">5</span><br><span class="line">6</span><br><span class="line">7</span><br><span class="line">8</span><br><span class="line">9</span><br><span class="line">10</span><br><span class="line">11</span><br><span class="line">12</span><br><span class="line">13</span><br><span class="line">14</span><br><span class="line">15</span><br><span class="line">16</span><br><span class="line">17</span><br><span class="line">18</span><br><span class="line">19</span><br><span class="line">20</span><br><span class="line">21</span><br><span class="line">22</span><br><span class="line">23</span><br><span class="line">24</span><br><span class="line">25</span><br><span class="line">26</span><br><span class="line">27</span><br><span class="line">28</span><br><span class="line">29</span><br><span class="line">30</span><br><span class="line">31</span><br><span class="line">32</span><br></pre></td><td class="code"><pre><span class="line">//java类</span><br><span class="line">org.apache.flink.yarn.YarnClusterDescriptor</span><br><span class="line">//java 方法</span><br><span class="line">private ApplicationReport startAppMaster(</span><br><span class="line">            Configuration configuration,</span><br><span class="line">            String applicationName,</span><br><span class="line">            String yarnClusterEntrypoint,</span><br><span class="line">            JobGraph jobGraph,</span><br><span class="line">            YarnClient yarnClient,</span><br><span class="line">            YarnClientApplication yarnApplication,</span><br><span class="line">            ClusterSpecification clusterSpecification) throws Exception &#123;</span><br><span class="line">  org.apache.flink.core.fs.FileSystem.initialize(</span><br><span class="line">                configuration,</span><br><span class="line">                PluginUtils.createPluginManagerFromRootFolder(configuration));</span><br><span class="line">  </span><br><span class="line">  //设置高可用</span><br><span class="line">  if (HighAvailabilityMode.isHighAvailabilityModeActivated(configuration)) &#123;</span><br><span class="line">            // activate re-execution of failed applications</span><br><span class="line">            appContext.setMaxAppAttempts(</span><br><span class="line">                    configuration.getInteger(</span><br><span class="line">                            YarnConfigOptions.APPLICATION_ATTEMPTS.key(),</span><br><span class="line">                            YarnConfiguration.DEFAULT_RM_AM_MAX_ATTEMPTS));</span><br><span class="line"></span><br><span class="line">            activateHighAvailabilitySupport(appContext);</span><br><span class="line">        &#125; else &#123;</span><br><span class="line">            // set number of application retries to 1 in the default case</span><br><span class="line">            appContext.setMaxAppAttempts(</span><br><span class="line">                    configuration.getInteger(</span><br><span class="line">                            YarnConfigOptions.APPLICATION_ATTEMPTS.key(),</span><br><span class="line">                            1));</span><br><span class="line">        &#125;</span><br><span class="line">&#125;</span><br></pre></td></tr></table></figure>
+</li>
+<li><p>初始化共享文件系统</p>
+<figure class="highlight plain"><table><tr><td class="gutter"><pre><span class="line">1</span><br></pre></td><td class="code"><pre><span class="line">//插件根目录：&#123;flink部署路径&#125;/plugins</span><br></pre></td></tr></table></figure>
+</li>
+<li><p>获取应用的jar文件</p>
+<figure class="highlight plain"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br></pre></td><td class="code"><pre><span class="line">//从jobGraph获取任务的jar包</span><br><span class="line">jobGraph.getUserJars()</span><br></pre></td></tr></table></figure>
+</li>
+<li><p>从本地复制文件到HDFS</p>
+<figure class="highlight plain"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br><span class="line">3</span><br><span class="line">4</span><br><span class="line">5</span><br><span class="line">6</span><br><span class="line">7</span><br><span class="line">8</span><br><span class="line">9</span><br><span class="line">10</span><br><span class="line">11</span><br></pre></td><td class="code"><pre><span class="line">//上传到HDFS的文件包括，</span><br><span class="line">//上传地址：hdfs://rt2/user/qttods/.flink/application_1597847003686_1649</span><br><span class="line">//qttods为hadoop提交用户</span><br><span class="line">//上传文件包括：lib目录全部文件 + plugins目录全部文件 + log配置 + 任务jar包</span><br><span class="line">conf/log4j.properties</span><br><span class="line">lib/*</span><br><span class="line">/tmp/application_1597847003686_1649-flink-conf.yaml203382511937819807.tmp</span><br><span class="line">/tmp/application_1597847003686_16496774392247977738481.tmp</span><br><span class="line">任务jar包路径</span><br><span class="line"></span><br><span class="line">//最后把HDFS文件路径写到jobGraph的userArtifacts属性</span><br></pre></td></tr></table></figure>
+</li>
+<li><p>获取MasterContainer配置</p>
+<figure class="highlight plain"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br></pre></td><td class="code"><pre><span class="line"># amContainer实际的堆内存=配置 - 600MB</span><br><span class="line">$JAVA_HOME/bin/java -Xms1448m -Xmx1448m -server -XX:+UseConcMarkSweepGC -XX:+UseCMSInitiatingOccupancyOnly -XX:CMSInitiatingOccupancyFraction=75 -XX:ParallelGCThreads=4 -XX:+AlwaysPreTouch -XX:NewRatio=1 -DjobName=jjg-test-1.10kafka-consumer -Dlog.file=&quot;/jobmanager.log&quot; -Dlog4j.configuration=file:log4j.properties org.apache.flink.yarn.entrypoint.YarnJobClusterEntrypoint 1&gt; /jobmanager.out 2&gt; /jobmanager.err</span><br></pre></td></tr></table></figure>
+</li>
+<li><p>设置MasterContainer的env</p>
+<figure class="highlight plain"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br><span class="line">3</span><br><span class="line">4</span><br><span class="line">5</span><br><span class="line">6</span><br><span class="line">7</span><br><span class="line">8</span><br><span class="line">9</span><br><span class="line">10</span><br><span class="line">11</span><br><span class="line">12</span><br><span class="line">13</span><br><span class="line">14</span><br><span class="line">15</span><br><span class="line">16</span><br><span class="line">17</span><br><span class="line">18</span><br><span class="line">19</span><br><span class="line">20</span><br><span class="line">21</span><br><span class="line">22</span><br><span class="line">23</span><br><span class="line">24</span><br></pre></td><td class="code"><pre><span class="line">&#123;</span><br><span class="line">    _APP_ID=application_1597847003686_1688,</span><br><span class="line">    _FLINK_YARN_FILES=hdfs: //rt2/user/qttods/.flink/application_1597847003686_1688,</span><br><span class="line">    HADOOP_USER_NAME=qttods,</span><br><span class="line">    _ZOOKEEPER_NAMESPACE=application_1597847003686_1688,</span><br><span class="line">    _FLINK_JAR_PATH=hdfs: //rt2/user/qttods/.flink/application_1597847003686_1688/flink-dist_2.11-1.10.1.jar,</span><br><span class="line">    _FLINK_CLASSPATH=: f449f5d4408548b89470470418ced176-1600328175015533266107575692596.jar: lib/aliyun-log-log4j-appender-0.1.13-shade.jar: lib/flink-avro-1.10.1.jar: lib/flink-csv-1.10.1.jar: lib/flink-json-1.10.1.jar: lib/flink-shaded-hadoop-2-uber-2.7.5-10.0.jar: lib/flink-table-blink_2.11-1.10.1.jar: lib/flink-table_2.11-1.10.1.jar: lib/log4j-1.2.17.jar: lib/slf4j-log4j12-1.7.15.jar: flink-dist_2.11-1.10.1.jar: flink-conf.yaml: job.graph: ,</span><br><span class="line">    _CLIENT_SHIP_FILES=log4j.properties=hdfs: //rt2/user/qttods/.flink/application_1597847003686_1688/log4j.properties,</span><br><span class="line">    lib/slf4j-log4j12-1.7.15.jar=hdfs: //rt2/user/qttods/.flink/application_1597847003686_1688/lib/slf4j-log4j12-1.7.15.jar,</span><br><span class="line">    lib/flink-shaded-hadoop-2-uber-2.7.5-10.0.jar=hdfs: //rt2/user/qttods/.flink/application_1597847003686_1688/lib/flink-shaded-hadoop-2-uber-2.7.5-10.0.jar,</span><br><span class="line">    lib/log4j-1.2.17.jar=hdfs: //rt2/user/qttods/.flink/application_1597847003686_1688/lib/log4j-1.2.17.jar,</span><br><span class="line">    lib/flink-table_2.11-1.10.1.jar=hdfs: //rt2/user/qttods/.flink/application_1597847003686_1688/lib/flink-table_2.11-1.10.1.jar,</span><br><span class="line">    lib/flink-avro-1.10.1.jar=hdfs: //rt2/user/qttods/.flink/application_1597847003686_1688/lib/flink-avro-1.10.1.jar,</span><br><span class="line">    lib/flink-csv-1.10.1.jar=hdfs: //rt2/user/qttods/.flink/application_1597847003686_1688/lib/flink-csv-1.10.1.jar,</span><br><span class="line">    lib/aliyun-log-log4j-appender-0.1.13-shade.jar=hdfs: //rt2/user/qttods/.flink/application_1597847003686_1688/lib/aliyun-log-log4j-appender-0.1.13-shade.jar,</span><br><span class="line">    lib/flink-json-1.10.1.jar=hdfs: //rt2/user/qttods/.flink/application_1597847003686_1688/lib/flink-json-1.10.1.jar,</span><br><span class="line">    lib/flink-table-blink_2.11-1.10.1.jar=hdfs: //rt2/user/qttods/.flink/application_1597847003686_1688/lib/flink-table-blink_2.11-1.10.1.jar,</span><br><span class="line">    plugins/README.txt=hdfs: //rt2/user/qttods/.flink/application_1597847003686_1688/plugins/README.txt,</span><br><span class="line">    f449f5d4408548b89470470418ced176-1600328175015533266107575692596.jar=hdfs: //rt2/user/qttods/.flink/application_1597847003686_1688/f449f5d4408548b89470470418ced176-1600328175015533266107575692596.jar,</span><br><span class="line">    flink-conf.yaml=hdfs: //rt2/user/qttods/.flink/application_1597847003686_1688/application_1597847003686_1688-flink-conf.yaml3364080218736489439.tmp,</span><br><span class="line">    ,</span><br><span class="line">    _CLIENT_HOME_DIR=hdfs: //rt2/user/qttods,</span><br><span class="line">    CLASSPATH=: f449f5d4408548b89470470418ced176-1600328175015533266107575692596.jar: lib/aliyun-log-log4j-appender-0.1.13-shade.jar: lib/flink-avro-1.10.1.jar: lib/flink-csv-1.10.1.jar: lib/flink-json-1.10.1.jar: lib/flink-shaded-hadoop-2-uber-2.7.5-10.0.jar: lib/flink-table-blink_2.11-1.10.1.jar: lib/flink-table_2.11-1.10.1.jar: lib/log4j-1.2.17.jar: lib/slf4j-log4j12-1.7.15.jar: flink-dist_2.11-1.10.1.jar: flink-conf.yaml: job.graph: : $HADOOP_CONF_DIR: $HADOOP_COMMON_HOME/share/hadoop/common/*: $HADOOP_COMMON_HOME/share/hadoop/common/lib/*: $HADOOP_HDFS_HOME/share/hadoop/hdfs/*: $HADOOP_HDFS_HOME/share/hadoop/hdfs/lib/*: $HADOOP_YARN_HOME/share/hadoop/yarn/*: $HADOOP_YARN_HOME/share/hadoop/yarn/lib/*: /opt/apps/extra-jars/*: $HADOOP_HOME/share/hadoop/tools/lib/*</span><br><span class="line">&#125;</span><br></pre></td></tr></table></figure>
+</li>
+<li><p>setApplicationNodeLabel(appContext);</p>
+</li>
+<li><p>setApplicationTags(appContext);</p>
+</li>
+<li><p>任务发布失败时添加<strong>ShutdownHook</strong></p>
+</li>
+<li><p>发布master</p>
+<figure class="highlight plain"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br></pre></td><td class="code"><pre><span class="line">yarnClient.submitApplication(appContext);</span><br><span class="line">采用while(true)发布，知道发布成功/失败/异常等</span><br></pre></td></tr></table></figure>
+</li>
+<li><p>发布成功后移除钩子</p>
+</li>
+</ul>
+<h1 id="发布入口类解析"><a href="#发布入口类解析" class="headerlink" title="发布入口类解析"></a>发布入口类解析</h1><ul>
+<li>入口类：org.apache.flink.client.cli.CliFrontend</li>
+</ul>
+<ul>
+<li><p>用于执行程序的简单命令行前端的实现。</p>
+</li>
+<li><p>main函数解析</p>
+<figure class="highlight plain"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br><span class="line">3</span><br><span class="line">4</span><br><span class="line">5</span><br></pre></td><td class="code"><pre><span class="line">#提交命令</span><br><span class="line"> /data/flink/test/jjg-test/flink-1.10.1/bin/flink run -d -m yarn-cluster -p 5 -yjm 2048 -ytm 8192 -ys 5 -yqu root.data.stream -ynm jjg-test-1.10kafka-consumer_jiangjiguang -yD taskmanager.memory.network.fraction=&quot;0.2&quot; -yD taskmanager.memory.managed.fraction=&quot;0.3&quot; -yD taskmanager.memory.framework.off-heap.size=&quot;500 mb&quot; -yD metrics.reporter.prom.labels=&quot;libra_job_name=jjg-test-1.10kafka-consumer;libra_job_owner=jiangjiguang@qutoutiao.net,yanggang@qutoutiao.net&quot; -yD env.java.opts=&quot;-server -XX:+UseConcMarkSweepGC -XX:+UseCMSInitiatingOccupancyOnly -XX:CMSInitiatingOccupancyFraction=75 -XX:ParallelGCThreads=4 -XX:+AlwaysPreTouch -XX:NewRatio=1 -DjobName=jjg-test-1.10kafka-consumer&quot; -c net.qutoutiao.libra.flink110.app.KafkaConsumerDemo /tmp/915622fbb5e7457a9d4149c039e893cb-15995463001176478074492659573282.jar --key1 v1 --key2 v2 --key3 v3 --job.name jjg-test-1.10kafka-consumer</span><br><span class="line"></span><br><span class="line">#main参数</span><br><span class="line">[run, -d, -m, yarn-cluster, -p, 5, -yjm, 2048, -ytm, 8192, -ys, 5, -yqu, root.data.stream, -ynm, jjg-test-1.10kafka-consumer_jiangjiguang, -yD, taskmanager.memory.network.fraction=0.2, -yD, taskmanager.memory.managed.fraction=0.3, -yD, taskmanager.memory.framework.off-heap.size=500 mb, -yD, metrics.reporter.prom.labels=libra_job_name=jjg-test-1.10kafka-consumer;libra_job_owner=jiangjiguang@qutoutiao.net,yanggang@qutoutiao.net, -yD, env.java.opts=-server -XX:+UseConcMarkSweepGC -XX:+UseCMSInitiatingOccupancyOnly -XX:CMSInitiatingOccupancyFraction=75 -XX:ParallelGCThreads=4 -XX:+AlwaysPreTouch -XX:NewRatio=1 -DjobName=jjg-test-1.10kafka-consumer, -c, net.qutoutiao.libra.flink110.app.KafkaConsumerDemo, /tmp/915622fbb5e7457a9d4149c039e893cb-15995463001176478074492659573282.jar, --key1, v1, --key2, v2, --key3, v3, --job.name, jjg-test-1.10kafka-consumer]</span><br></pre></td></tr></table></figure>
+</li>
+<li><p>可见main参数就是 提交命令</p>
+</li>
+<li><p>获取flink源码 版本和提交信息</p>
+<blockquote>
+<p>即flink任务 dashboard中的 右上角信息</p>
+</blockquote>
+</li>
+<li><p>获取FLINK_CONF_DIR 配置文件，得到全局配置</p>
+</li>
+</ul>
+<h1 id="生成StreamGraph"><a href="#生成StreamGraph" class="headerlink" title="生成StreamGraph"></a>生成StreamGraph</h1><h2 id="Transformation"><a href="#Transformation" class="headerlink" title="Transformation"></a>Transformation</h2><ul>
+<li><p>一共有11种Transformation</p>
+<blockquote>
+<p>1、PartitionTransformation：不是PhysicalTransformation，仅仅作用是上游operation如何连接下游operations</p>
+<p>2、SourceTransformation：是PhysicalTransformation，不会转变任何数据，但是是拓扑的root</p>
+<p>3、OneInputTransformation：是PhysicalTransformation</p>
+<p>4、TwoInputTransformation：是PhysicalTransformation</p>
+<p>5、SinkTransformation：是PhysicalTransformation</p>
+<p>6、UnionTransformation：不是PhysicalTransformation，多个Transformation的联合，仅仅作用是上游operation如何连接下游operations</p>
+<p>7、SplitTransformation：不是PhysicalTransformation，是将一个DataStream转化为多个DataStream，仅仅作用是上游operation如何连接下游operations</p>
+<p>8、SelectTransformation：不是PhysicalTransformation，选择上游的某种元素，然后转换成另一个DataStream</p>
+<p>9、FeedbackTransformation</p>
+<p>10、CoFeedbackTransformation</p>
+<p>11、SideOutputTransformation：不是PhysicalTransformation</p>
+</blockquote>
+</li>
+</ul>
+<ul>
+<li><p>重要属性</p>
+<blockquote>
+<p>1、每个Transformation都有个managedMemoryWeight的属性，也会设置到StreamGraph</p>
+<p>2、每个Transformation都有个input属性，input也是Transformation，是该Transformation的上游</p>
+<p>3、所有的Transformation是按照sink的在外层，上游是其input的规则链在一起</p>
+</blockquote>
+</li>
+<li><p>Transformation就是创建DataStream的一个operation</p>
+</li>
+<li><p>Transformation分为：PhysicalTransformation和非PhysicalTransformation</p>
+</li>
+<li><p>addOperator方法的参数就是Transformation</p>
+<blockquote>
+<p>创建operators必须调用此方法</p>
+</blockquote>
+</li>
+</ul>
+<h1 id="StreamGraph生成JobGraph"><a href="#StreamGraph生成JobGraph" class="headerlink" title="StreamGraph生成JobGraph"></a>StreamGraph生成JobGraph</h1><ul>
+<li><p>生成之前configuration的主要信息</p>
+<blockquote>
+<p>jobmanager.heap.size=2048m</p>
+<p>taskmanager.memory.process.size=8gb,</p>
+</blockquote>
+</li>
+<li><p>为StreamGraph的每个StreamNode产生hash值</p>
+<blockquote>
+<p>如果StreamNode设置了uid那么久根据uid生成hash</p>
+<p>如果没有设置uid，就会根据拓扑结构，入边、出边等生成hash值</p>
+</blockquote>
+</li>
+<li><p>setChaining</p>
+<blockquote>
+<p>从StreamNode是source的节点开始设置</p>
+<p>生成的结果是List<streamedge></streamedge></p>
+</blockquote>
+</li>
+<li><p>setPhysicalEdges</p>
+</li>
+<li><p>setSlotSharing</p>
+</li>
+<li><p>setCoLocation</p>
+</li>
+<li><p>setManagedMemoryFraction</p>
+</li>
+<li><p>​</p>
+</li>
+</ul>
+<h1 id="deployJobCluster"><a href="#deployJobCluster" class="headerlink" title="deployJobCluster"></a>deployJobCluster</h1><h1 id="参考文档"><a href="#参考文档" class="headerlink" title="参考文档"></a>参考文档</h1><p><a href="https://blog.csdn.net/lmalds/article/details/70174778" target="_blank" rel="noopener">Flink源码–CLI提交Job</a></p>
+<h1 id="deployInternal-1"><a href="#deployInternal-1" class="headerlink" title="deployInternal"></a>deployInternal</h1><ul>
+<li><p>入口方法</p>
+<figure class="highlight java"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br><span class="line">3</span><br><span class="line">4</span><br><span class="line">5</span><br><span class="line">6</span><br><span class="line">7</span><br><span class="line">8</span><br><span class="line">9</span><br></pre></td><td class="code"><pre><span class="line"><span class="comment">//java类</span></span><br><span class="line">org.apache.flink.yarn.YarnClusterDescriptor</span><br><span class="line"><span class="comment">//java方法</span></span><br><span class="line"><span class="function"><span class="keyword">private</span> ClusterClientProvider&lt;ApplicationId&gt; <span class="title">deployInternal</span><span class="params">(</span></span></span><br><span class="line"><span class="function"><span class="params">			ClusterSpecification clusterSpecification,</span></span></span><br><span class="line"><span class="function"><span class="params">			String applicationName,</span></span></span><br><span class="line"><span class="function"><span class="params">			String yarnClusterEntrypoint,</span></span></span><br><span class="line"><span class="function"><span class="params">			@Nullable JobGraph jobGraph,</span></span></span><br><span class="line"><span class="function"><span class="params">			<span class="keyword">boolean</span> detached)</span> <span class="keyword">throws</span> Exception</span></span><br></pre></td></tr></table></figure>
+</li>
+<li><p>isReadyForDeployment</p>
+<figure class="highlight plain"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br><span class="line">3</span><br></pre></td><td class="code"><pre><span class="line">检查flinkJarPath是否存在</span><br><span class="line">检查flinkConfiguration是否存在</span><br><span class="line">检查JM和TM的slot个数是否大于机器可用vcore</span><br></pre></td></tr></table></figure>
+</li>
+<li><p>checkYarnQueues</p>
+<figure class="highlight plain"><table><tr><td class="gutter"><pre><span class="line">1</span><br></pre></td><td class="code"><pre><span class="line">检查YARN 队列是否存在</span><br></pre></td></tr></table></figure>
+</li>
+<li><p>创建Yarn Application</p>
+<figure class="highlight plain"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br></pre></td><td class="code"><pre><span class="line">获取yarn集群的CPU和内存资源</span><br><span class="line">检查yarn集群的资源是否能够满足任务的需求</span><br></pre></td></tr></table></figure>
+
+<p>​</p>
+</li>
+</ul>
+<h1 id="启动JobMaster-1"><a href="#启动JobMaster-1" class="headerlink" title="启动JobMaster"></a>启动JobMaster</h1><ul>
+<li><p>入口方法</p>
+<figure class="highlight java"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br><span class="line">3</span><br><span class="line">4</span><br><span class="line">5</span><br><span class="line">6</span><br><span class="line">7</span><br><span class="line">8</span><br><span class="line">9</span><br><span class="line">10</span><br><span class="line">11</span><br><span class="line">12</span><br><span class="line">13</span><br><span class="line">14</span><br><span class="line">15</span><br><span class="line">16</span><br><span class="line">17</span><br><span class="line">18</span><br><span class="line">19</span><br><span class="line">20</span><br><span class="line">21</span><br><span class="line">22</span><br><span class="line">23</span><br><span class="line">24</span><br><span class="line">25</span><br><span class="line">26</span><br><span class="line">27</span><br><span class="line">28</span><br><span class="line">29</span><br><span class="line">30</span><br><span class="line">31</span><br><span class="line">32</span><br></pre></td><td class="code"><pre><span class="line"><span class="comment">//java类</span></span><br><span class="line">org.apache.flink.yarn.YarnClusterDescriptor</span><br><span class="line"><span class="comment">//java 方法</span></span><br><span class="line"><span class="function"><span class="keyword">private</span> ApplicationReport <span class="title">startAppMaster</span><span class="params">(</span></span></span><br><span class="line"><span class="function"><span class="params">			Configuration configuration,</span></span></span><br><span class="line"><span class="function"><span class="params">			String applicationName,</span></span></span><br><span class="line"><span class="function"><span class="params">			String yarnClusterEntrypoint,</span></span></span><br><span class="line"><span class="function"><span class="params">			JobGraph jobGraph,</span></span></span><br><span class="line"><span class="function"><span class="params">			YarnClient yarnClient,</span></span></span><br><span class="line"><span class="function"><span class="params">			YarnClientApplication yarnApplication,</span></span></span><br><span class="line"><span class="function"><span class="params">			ClusterSpecification clusterSpecification)</span> <span class="keyword">throws</span> Exception </span>&#123;</span><br><span class="line">  org.apache.flink.core.fs.FileSystem.initialize(</span><br><span class="line">				configuration,</span><br><span class="line">				PluginUtils.createPluginManagerFromRootFolder(configuration));</span><br><span class="line">  </span><br><span class="line">  <span class="comment">//设置高可用</span></span><br><span class="line">  <span class="keyword">if</span> (HighAvailabilityMode.isHighAvailabilityModeActivated(configuration)) &#123;</span><br><span class="line">			<span class="comment">// activate re-execution of failed applications</span></span><br><span class="line">			appContext.setMaxAppAttempts(</span><br><span class="line">					configuration.getInteger(</span><br><span class="line">							YarnConfigOptions.APPLICATION_ATTEMPTS.key(),</span><br><span class="line">							YarnConfiguration.DEFAULT_RM_AM_MAX_ATTEMPTS));</span><br><span class="line"></span><br><span class="line">			activateHighAvailabilitySupport(appContext);</span><br><span class="line">		&#125; <span class="keyword">else</span> &#123;</span><br><span class="line">			<span class="comment">// set number of application retries to 1 in the default case</span></span><br><span class="line">			appContext.setMaxAppAttempts(</span><br><span class="line">					configuration.getInteger(</span><br><span class="line">							YarnConfigOptions.APPLICATION_ATTEMPTS.key(),</span><br><span class="line">							<span class="number">1</span>));</span><br><span class="line">		&#125;</span><br><span class="line">&#125;</span><br></pre></td></tr></table></figure>
+</li>
+<li><p>初始化共享文件系统</p>
+<figure class="highlight java"><table><tr><td class="gutter"><pre><span class="line">1</span><br></pre></td><td class="code"><pre><span class="line"><span class="comment">//插件根目录：&#123;flink部署路径&#125;/plugins</span></span><br></pre></td></tr></table></figure>
+</li>
+<li><p>获取应用的jar文件</p>
+<figure class="highlight java"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br></pre></td><td class="code"><pre><span class="line"><span class="comment">//从jobGraph获取任务的jar包</span></span><br><span class="line">jobGraph.getUserJars()</span><br></pre></td></tr></table></figure>
+</li>
+<li><p>从本地复制文件到HDFS</p>
+<figure class="highlight java"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br><span class="line">3</span><br><span class="line">4</span><br><span class="line">5</span><br><span class="line">6</span><br><span class="line">7</span><br><span class="line">8</span><br><span class="line">9</span><br><span class="line">10</span><br><span class="line">11</span><br></pre></td><td class="code"><pre><span class="line"><span class="comment">//上传到HDFS的文件包括，</span></span><br><span class="line"><span class="comment">//上传地址：hdfs://rt2/user/qttods/.flink/application_1597847003686_1649</span></span><br><span class="line"><span class="comment">//qttods为hadoop提交用户</span></span><br><span class="line"><span class="comment">//上传文件包括：lib目录全部文件 + plugins目录全部文件 + log配置 + 任务jar包</span></span><br><span class="line">conf/log4j.properties</span><br><span class="line">lib<span class="comment">/*</span></span><br><span class="line"><span class="comment">/tmp/application_1597847003686_1649-flink-conf.yaml203382511937819807.tmp</span></span><br><span class="line"><span class="comment">/tmp/application_1597847003686_16496774392247977738481.tmp</span></span><br><span class="line"><span class="comment">任务jar包路径</span></span><br><span class="line"><span class="comment"></span></span><br><span class="line"><span class="comment">//最后把HDFS文件路径写到jobGraph的userArtifacts属性</span></span><br></pre></td></tr></table></figure>
+</li>
+<li><p>获取MasterContainer配置</p>
+<figure class="highlight shell"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br></pre></td><td class="code"><pre><span class="line"><span class="meta">#</span> amContainer实际的堆内存=配置 - 600MB</span><br><span class="line"><span class="meta">$</span>JAVA_HOME/bin/java -Xms1448m -Xmx1448m -server -XX:+UseConcMarkSweepGC -XX:+UseCMSInitiatingOccupancyOnly -XX:CMSInitiatingOccupancyFraction=75 -XX:ParallelGCThreads=4 -XX:+AlwaysPreTouch -XX:NewRatio=1 -DjobName=jjg-test-1.10kafka-consumer -Dlog.file="/jobmanager.log" -Dlog4j.configuration=file:log4j.properties org.apache.flink.yarn.entrypoint.YarnJobClusterEntrypoint 1&gt; /jobmanager.out 2&gt; /jobmanager.err</span><br></pre></td></tr></table></figure>
+</li>
+<li><p>设置MasterContainer的env</p>
+<figure class="highlight shell"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br><span class="line">3</span><br><span class="line">4</span><br><span class="line">5</span><br><span class="line">6</span><br><span class="line">7</span><br><span class="line">8</span><br><span class="line">9</span><br><span class="line">10</span><br><span class="line">11</span><br><span class="line">12</span><br><span class="line">13</span><br><span class="line">14</span><br><span class="line">15</span><br><span class="line">16</span><br><span class="line">17</span><br><span class="line">18</span><br><span class="line">19</span><br><span class="line">20</span><br><span class="line">21</span><br><span class="line">22</span><br><span class="line">23</span><br><span class="line">24</span><br></pre></td><td class="code"><pre><span class="line">&#123;</span><br><span class="line">    _APP_ID=application_1597847003686_1688,</span><br><span class="line">    _FLINK_YARN_FILES=hdfs: //rt2/user/qttods/.flink/application_1597847003686_1688,</span><br><span class="line">    HADOOP_USER_NAME=qttods,</span><br><span class="line">    _ZOOKEEPER_NAMESPACE=application_1597847003686_1688,</span><br><span class="line">    _FLINK_JAR_PATH=hdfs: //rt2/user/qttods/.flink/application_1597847003686_1688/flink-dist_2.11-1.10.1.jar,</span><br><span class="line">    _FLINK_CLASSPATH=: f449f5d4408548b89470470418ced176-1600328175015533266107575692596.jar: lib/aliyun-log-log4j-appender-0.1.13-shade.jar: lib/flink-avro-1.10.1.jar: lib/flink-csv-1.10.1.jar: lib/flink-json-1.10.1.jar: lib/flink-shaded-hadoop-2-uber-2.7.5-10.0.jar: lib/flink-table-blink_2.11-1.10.1.jar: lib/flink-table_2.11-1.10.1.jar: lib/log4j-1.2.17.jar: lib/slf4j-log4j12-1.7.15.jar: flink-dist_2.11-1.10.1.jar: flink-conf.yaml: job.graph: ,</span><br><span class="line">    _CLIENT_SHIP_FILES=log4j.properties=hdfs: //rt2/user/qttods/.flink/application_1597847003686_1688/log4j.properties,</span><br><span class="line">    lib/slf4j-log4j12-1.7.15.jar=hdfs: //rt2/user/qttods/.flink/application_1597847003686_1688/lib/slf4j-log4j12-1.7.15.jar,</span><br><span class="line">    lib/flink-shaded-hadoop-2-uber-2.7.5-10.0.jar=hdfs: //rt2/user/qttods/.flink/application_1597847003686_1688/lib/flink-shaded-hadoop-2-uber-2.7.5-10.0.jar,</span><br><span class="line">    lib/log4j-1.2.17.jar=hdfs: //rt2/user/qttods/.flink/application_1597847003686_1688/lib/log4j-1.2.17.jar,</span><br><span class="line">    lib/flink-table_2.11-1.10.1.jar=hdfs: //rt2/user/qttods/.flink/application_1597847003686_1688/lib/flink-table_2.11-1.10.1.jar,</span><br><span class="line">    lib/flink-avro-1.10.1.jar=hdfs: //rt2/user/qttods/.flink/application_1597847003686_1688/lib/flink-avro-1.10.1.jar,</span><br><span class="line">    lib/flink-csv-1.10.1.jar=hdfs: //rt2/user/qttods/.flink/application_1597847003686_1688/lib/flink-csv-1.10.1.jar,</span><br><span class="line">    lib/aliyun-log-log4j-appender-0.1.13-shade.jar=hdfs: //rt2/user/qttods/.flink/application_1597847003686_1688/lib/aliyun-log-log4j-appender-0.1.13-shade.jar,</span><br><span class="line">    lib/flink-json-1.10.1.jar=hdfs: //rt2/user/qttods/.flink/application_1597847003686_1688/lib/flink-json-1.10.1.jar,</span><br><span class="line">    lib/flink-table-blink_2.11-1.10.1.jar=hdfs: //rt2/user/qttods/.flink/application_1597847003686_1688/lib/flink-table-blink_2.11-1.10.1.jar,</span><br><span class="line">    plugins/README.txt=hdfs: //rt2/user/qttods/.flink/application_1597847003686_1688/plugins/README.txt,</span><br><span class="line">    f449f5d4408548b89470470418ced176-1600328175015533266107575692596.jar=hdfs: //rt2/user/qttods/.flink/application_1597847003686_1688/f449f5d4408548b89470470418ced176-1600328175015533266107575692596.jar,</span><br><span class="line">    flink-conf.yaml=hdfs: //rt2/user/qttods/.flink/application_1597847003686_1688/application_1597847003686_1688-flink-conf.yaml3364080218736489439.tmp,</span><br><span class="line">    ,</span><br><span class="line">    _CLIENT_HOME_DIR=hdfs: //rt2/user/qttods,</span><br><span class="line">    CLASSPATH=: f449f5d4408548b89470470418ced176-1600328175015533266107575692596.jar: lib/aliyun-log-log4j-appender-0.1.13-shade.jar: lib/flink-avro-1.10.1.jar: lib/flink-csv-1.10.1.jar: lib/flink-json-1.10.1.jar: lib/flink-shaded-hadoop-2-uber-2.7.5-10.0.jar: lib/flink-table-blink_2.11-1.10.1.jar: lib/flink-table_2.11-1.10.1.jar: lib/log4j-1.2.17.jar: lib/slf4j-log4j12-1.7.15.jar: flink-dist_2.11-1.10.1.jar: flink-conf.yaml: job.graph: : $HADOOP_CONF_DIR: $HADOOP_COMMON_HOME/share/hadoop/common/*: $HADOOP_COMMON_HOME/share/hadoop/common/lib/*: $HADOOP_HDFS_HOME/share/hadoop/hdfs/*: $HADOOP_HDFS_HOME/share/hadoop/hdfs/lib/*: $HADOOP_YARN_HOME/share/hadoop/yarn/*: $HADOOP_YARN_HOME/share/hadoop/yarn/lib/*: /opt/apps/extra-jars/*: $HADOOP_HOME/share/hadoop/tools/lib/*</span><br><span class="line">&#125;</span><br></pre></td></tr></table></figure>
+</li>
+<li><p>setApplicationNodeLabel(appContext);</p>
+</li>
+<li><p>setApplicationTags(appContext);</p>
+</li>
+<li><p>任务发布失败时添加<strong>ShutdownHook</strong></p>
+</li>
+<li><p>发布master</p>
+<figure class="highlight java"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br></pre></td><td class="code"><pre><span class="line">yarnClient.submitApplication(appContext);</span><br><span class="line">采用<span class="keyword">while</span>(<span class="keyword">true</span>)发布，知道发布成功/失败/异常等</span><br></pre></td></tr></table></figure>
+</li>
+<li><p>发布成功后移除钩子</p>
+</li>
+</ul>
+<h1 id="发布入口类解析-1"><a href="#发布入口类解析-1" class="headerlink" title="发布入口类解析"></a>发布入口类解析</h1><ul>
+<li>入口类：org.apache.flink.client.cli.CliFrontend</li>
+</ul>
+<ul>
+<li><p>用于执行程序的简单命令行前端的实现。</p>
+</li>
+<li><p>main函数解析</p>
+<figure class="highlight shell"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br><span class="line">3</span><br><span class="line">4</span><br><span class="line">5</span><br></pre></td><td class="code"><pre><span class="line"><span class="meta">#</span>提交命令</span><br><span class="line"> /data/flink/test/jjg-test/flink-1.10.1/bin/flink run -d -m yarn-cluster -p 5 -yjm 2048 -ytm 8192 -ys 5 -yqu root.data.stream -ynm jjg-test-1.10kafka-consumer_jiangjiguang -yD taskmanager.memory.network.fraction="0.2" -yD taskmanager.memory.managed.fraction="0.3" -yD taskmanager.memory.framework.off-heap.size="500 mb" -yD metrics.reporter.prom.labels="libra_job_name=jjg-test-1.10kafka-consumer;libra_job_owner=jiangjiguang@qutoutiao.net,yanggang@qutoutiao.net" -yD env.java.opts="-server -XX:+UseConcMarkSweepGC -XX:+UseCMSInitiatingOccupancyOnly -XX:CMSInitiatingOccupancyFraction=75 -XX:ParallelGCThreads=4 -XX:+AlwaysPreTouch -XX:NewRatio=1 -DjobName=jjg-test-1.10kafka-consumer" -c net.qutoutiao.libra.flink110.app.KafkaConsumerDemo /tmp/915622fbb5e7457a9d4149c039e893cb-15995463001176478074492659573282.jar --key1 v1 --key2 v2 --key3 v3 --job.name jjg-test-1.10kafka-consumer</span><br><span class="line"></span><br><span class="line"><span class="meta">#</span>main参数</span><br><span class="line">[run, -d, -m, yarn-cluster, -p, 5, -yjm, 2048, -ytm, 8192, -ys, 5, -yqu, root.data.stream, -ynm, jjg-test-1.10kafka-consumer_jiangjiguang, -yD, taskmanager.memory.network.fraction=0.2, -yD, taskmanager.memory.managed.fraction=0.3, -yD, taskmanager.memory.framework.off-heap.size=500 mb, -yD, metrics.reporter.prom.labels=libra_job_name=jjg-test-1.10kafka-consumer;libra_job_owner=jiangjiguang@qutoutiao.net,yanggang@qutoutiao.net, -yD, env.java.opts=-server -XX:+UseConcMarkSweepGC -XX:+UseCMSInitiatingOccupancyOnly -XX:CMSInitiatingOccupancyFraction=75 -XX:ParallelGCThreads=4 -XX:+AlwaysPreTouch -XX:NewRatio=1 -DjobName=jjg-test-1.10kafka-consumer, -c, net.qutoutiao.libra.flink110.app.KafkaConsumerDemo, /tmp/915622fbb5e7457a9d4149c039e893cb-15995463001176478074492659573282.jar, --key1, v1, --key2, v2, --key3, v3, --job.name, jjg-test-1.10kafka-consumer]</span><br></pre></td></tr></table></figure>
+</li>
+<li><p>可见main参数就是 提交命令</p>
+</li>
+<li><p>获取flink源码 版本和提交信息</p>
+<blockquote>
+<p>即flink任务 dashboard中的 右上角信息</p>
+</blockquote>
+</li>
+<li><p>获取FLINK_CONF_DIR 配置文件，得到全局配置</p>
+</li>
+</ul>
+<h1 id="生成StreamGraph-1"><a href="#生成StreamGraph-1" class="headerlink" title="生成StreamGraph"></a>生成StreamGraph</h1><h2 id="Transformation-1"><a href="#Transformation-1" class="headerlink" title="Transformation"></a>Transformation</h2><ul>
+<li><p>一共有11种Transformation</p>
+<blockquote>
+<p>1、PartitionTransformation：不是PhysicalTransformation，仅仅作用是上游operation如何连接下游operations</p>
+<p>2、SourceTransformation：是PhysicalTransformation，不会转变任何数据，但是是拓扑的root</p>
+<p>3、OneInputTransformation：是PhysicalTransformation</p>
+<p>4、TwoInputTransformation：是PhysicalTransformation</p>
+<p>5、SinkTransformation：是PhysicalTransformation</p>
+<p>6、UnionTransformation：不是PhysicalTransformation，多个Transformation的联合，仅仅作用是上游operation如何连接下游operations</p>
+<p>7、SplitTransformation：不是PhysicalTransformation，是将一个DataStream转化为多个DataStream，仅仅作用是上游operation如何连接下游operations</p>
+<p>8、SelectTransformation：不是PhysicalTransformation，选择上游的某种元素，然后转换成另一个DataStream</p>
+<p>9、FeedbackTransformation</p>
+<p>10、CoFeedbackTransformation</p>
+<p>11、SideOutputTransformation：不是PhysicalTransformation</p>
+</blockquote>
+</li>
+</ul>
+<ul>
+<li><p>重要属性</p>
+<blockquote>
+<p>1、每个Transformation都有个managedMemoryWeight的属性，也会设置到StreamGraph</p>
+<p>2、每个Transformation都有个input属性，input也是Transformation，是该Transformation的上游</p>
+<p>3、所有的Transformation是按照sink的在外层，上游是其input的规则链在一起</p>
+</blockquote>
+</li>
+<li><p>Transformation就是创建DataStream的一个operation</p>
+</li>
+<li><p>Transformation分为：PhysicalTransformation和非PhysicalTransformation</p>
+</li>
+<li><p>addOperator方法的参数就是Transformation</p>
+<blockquote>
+<p>创建operators必须调用此方法</p>
+</blockquote>
+</li>
+</ul>
+<h1 id="StreamGraph生成JobGraph-1"><a href="#StreamGraph生成JobGraph-1" class="headerlink" title="StreamGraph生成JobGraph"></a>StreamGraph生成JobGraph</h1><ul>
+<li><p>生成之前configuration的主要信息</p>
+<blockquote>
+<p>jobmanager.heap.size=2048m</p>
+<p>taskmanager.memory.process.size=8gb,</p>
+</blockquote>
+</li>
+<li><p>为StreamGraph的每个StreamNode产生hash值</p>
+<blockquote>
+<p>如果StreamNode设置了uid那么久根据uid生成hash</p>
+<p>如果没有设置uid，就会根据拓扑结构，入边、出边等生成hash值</p>
+</blockquote>
+</li>
+<li><p>setChaining</p>
+<blockquote>
+<p>从StreamNode是source的节点开始设置</p>
+<p>生成的结果是List<streamedge></streamedge></p>
+</blockquote>
+</li>
+<li><p>setPhysicalEdges</p>
+</li>
+<li><p>setSlotSharing</p>
+</li>
+<li><p>setCoLocation</p>
+</li>
+<li><p>setManagedMemoryFraction</p>
+</li>
+<li><p>​</p>
+</li>
+</ul>
+<h1 id="deployJobCluster-1"><a href="#deployJobCluster-1" class="headerlink" title="deployJobCluster"></a>deployJobCluster</h1><h1 id="参考文档-1"><a href="#参考文档-1" class="headerlink" title="参考文档"></a>参考文档</h1><p><a href="https://blog.csdn.net/lmalds/article/details/70174778" target="_blank" rel="noopener">Flink源码–CLI提交Job</a></p>
+
+        
+      
+    </div>
+
+    
+    
+    
+      <footer class="post-footer">
+        <div class="post-eof"></div>
+      </footer>
+  </article>
+  
+  
+  
+
+    
+        
+  
+  
+  <article itemscope itemtype="http://schema.org/Article" class="post-block home" lang="zh-CN">
+    <link itemprop="mainEntityOfPage" href="http://yoursite.com/2020/09/08/linux/内存探究/">
+
+    <span hidden itemprop="author" itemscope itemtype="http://schema.org/Person">
+      <meta itemprop="name" content="姜纪光">
+      <meta itemprop="description" content="">
+      <meta itemprop="image" content="/images/avatar.gif">
+    </span>
+
+    <span hidden itemprop="publisher" itemscope itemtype="http://schema.org/Organization">
+      <meta itemprop="name" content="纪光的博客">
+    </span>
+      <header class="post-header">
+        <h1 class="post-title" itemprop="name headline">
+          
+            
+            <a href="/2020/09/08/linux/内存探究/" class="post-title-link" itemprop="url">内存探究</a>
+          
+        </h1>
+
+        <div class="post-meta">
+            <span class="post-meta-item">
+              <span class="post-meta-item-icon">
+                <i class="fa fa-calendar-o"></i>
+              </span>
+              <span class="post-meta-item-text">发表于</span>
+
+              
+                
+              
+
+              <time title="创建时间：2020-09-08 09:36:10" itemprop="dateCreated datePublished" datetime="2020-09-08T09:36:10+08:00">2020-09-08</time>
+            </span>
+          
+            
+
+            
+              <span class="post-meta-item">
+                <span class="post-meta-item-icon">
+                  <i class="fa fa-calendar-check-o"></i>
+                </span>
+                <span class="post-meta-item-text">更新于</span>
+                <time title="修改时间：2020-09-10 11:35:45" itemprop="dateModified" datetime="2020-09-10T11:35:45+08:00">2020-09-10</time>
+              </span>
+            
+          
+            <span class="post-meta-item">
+              <span class="post-meta-item-icon">
+                <i class="fa fa-folder-o"></i>
+              </span>
+              <span class="post-meta-item-text">分类于</span>
+              
+                <span itemprop="about" itemscope itemtype="http://schema.org/Thing">
+                  <a href="/categories/linux/" itemprop="url" rel="index">
+                    <span itemprop="name">linux</span>
+                  </a>
+                </span>
+
+                
+                
+              
+            </span>
+          
+
+          
+            <span id="/2020/09/08/linux/内存探究/" class="post-meta-item leancloud_visitors" data-flag-title="内存探究" title="阅读次数">
+              <span class="post-meta-item-icon">
+                <i class="fa fa-eye"></i>
+              </span>
+              <span class="post-meta-item-text">阅读次数：</span>
+              <span class="leancloud-visitors-count"></span>
+            </span>
+          
+  
+  
+
+        </div>
+      </header>
+
+    
+    
+    
+    <div class="post-body" itemprop="articleBody">
+
+      
+          <h1 id="基本概念"><a href="#基本概念" class="headerlink" title="基本概念"></a>基本概念</h1><h2 id="主存"><a href="#主存" class="headerlink" title="主存"></a>主存</h2><p>也称为物理内存，是计算机的数据存储区域。通常是动态随机访问内存（DRAM）</p>
+<h2 id="虚拟内存"><a href="#虚拟内存" class="headerlink" title="虚拟内存"></a>虚拟内存</h2><ul>
+<li>是一个抽象概念</li>
+<li>大多数虚拟内存是以页的方式实现的</li>
+<li>它向每个进程和内核提供巨大的、线性的并且私有的地址空间</li>
+<li>它简化了软件开发，把物理内存的分配交给操作系统管理</li>
+<li>支持多任务，因为虚拟地址空间被设计成分离的，并且可以超额订购</li>
+<li>进程的地址空间由虚拟内存子系统映射到主内存和物理交换设备，内核按需在它们之间移动内存页，称为交换</li>
+</ul>
+<h2 id="常驻内存"><a href="#常驻内存" class="headerlink" title="常驻内存"></a>常驻内存</h2><p>当前处于主存中的内存</p>
+<h2 id="匿名内存"><a href="#匿名内存" class="headerlink" title="匿名内存"></a>匿名内存</h2><p>无文件系统位置或路径名的内存，包括进程地址空间的工作数据，称为堆。</p>
+<h2 id="地址空间"><a href="#地址空间" class="headerlink" title="地址空间"></a>地址空间</h2><p>内存上下文，每个进程和内核都有对应的虚拟地址空间</p>
+<h2 id="段"><a href="#段" class="headerlink" title="段"></a>段</h2><p>标记为特殊用途的一块内存区域，例如用来存储可执行或者可写的页</p>
+<h2 id="页"><a href="#页" class="headerlink" title="页"></a>页</h2><p>操作系统和CPU使用的内存单位。它一直以来是4KB或者8KB。允许多种页大小以支持更大的页面尺寸</p>
+<h2 id="缺页"><a href="#缺页" class="headerlink" title="缺页"></a>缺页</h2><p>无效的内存访问，使用按需虚拟内存时，这是正常事件</p>
+<h2 id="换页"><a href="#换页" class="headerlink" title="换页"></a>换页</h2><ul>
+<li>换页是将页换入和调出主存，分为称为页面换入和页面换出</li>
+<li>由于页的尺寸较小，换页是精确管理和释放主存的手段</li>
+<li>有两种类型的换页：文件系统换页和匿名换页</li>
+</ul>
+<h3 id="文件系统换页"><a href="#文件系统换页" class="headerlink" title="文件系统换页"></a>文件系统换页</h3><ul>
+<li>文件系统换页由读写位于内存中的映射文件页引发，对于使用文件内存映射（mmap()）的应用程序和使用了页缓存的文件系统，这是正常行为。是<strong>好的</strong>换页。</li>
+</ul>
+<h3 id="匿名换页"><a href="#匿名换页" class="headerlink" title="匿名换页"></a>匿名换页</h3><ul>
+<li>匿名换页牵涉进程的私有数据：进程堆和栈</li>
+<li>被称为匿名是由于它在操作系统中缺乏有名字的地址</li>
+<li>匿名页面换出要求迁移数据到物理交换设备或者交换文件，linux称为swapping</li>
+<li>匿名换页拖累性能，是<strong>坏</strong>的换页</li>
+</ul>
+<h2 id="按需换页"><a href="#按需换页" class="headerlink" title="按需换页"></a>按需换页</h2><ul>
+<li><p>是指支持按需换页的操作系统将虚拟内存按需映射到物理内存</p>
+</li>
+<li><p>把CPU创建映射的开销推迟到实际需要或访问时，而不是在初次分配这部分内存时</p>
+</li>
+<li><p>当访问一个尚未从虚拟映射到物理内存的页时，会发生缺页</p>
+</li>
+<li><p>如果这个映射可以由内存中其它的页满足，称为轻微缺页</p>
+</li>
+<li><p>需要访问存储设备的缺页，称为严重缺页</p>
+</li>
+<li><p>虚拟内存和按需换页的结果是任何虚拟内存也可能处于如下的一个状态：</p>
+<blockquote>
+<p>A. 未分配</p>
+<p>B. 也分配，未映射</p>
+<p>C. 已分配，已映射到主存（RAM）</p>
+<p>D. 已分配，已映射到物理交换空间（磁盘）</p>
+</blockquote>
+</li>
+<li><p>常驻集合大小（RSS）：已分配的主存页（C）大小</p>
+</li>
+<li><p>虚拟内存大小：所有已分配的区域（B+C+D）</p>
+</li>
+</ul>
+<h2 id="过度提交"><a href="#过度提交" class="headerlink" title="过度提交"></a>过度提交</h2><ul>
+<li>是指允许分配超过物理内存和交换设置的总和</li>
+<li>依赖于按需换页以及应用程序通常不会使用分配给他们的大部分内存</li>
+<li>linux可以用可调参数配置过度提交</li>
+<li>过度提交的后果取决于内核如何管理内存压力</li>
+</ul>
+<h1 id="性能调优"><a href="#性能调优" class="headerlink" title="性能调优"></a>性能调优</h1><h1 id="特别说明"><a href="#特别说明" class="headerlink" title="特别说明"></a>特别说明</h1><h2 id="nice值"><a href="#nice值" class="headerlink" title="nice值"></a>nice值</h2><p>​     进程特性nice值允许进程间接的影响内核调度算法。所谓nice就是指对其他进程的谦让程度，显然比0越小就越不谦让，比0越大就越谦让。顾名思义，越谦让的君子在CPU调度过程中占用CPU的时间会越少，反之不谦让的进程相比较可能占用更多的CPU时间。因此字符’&lt;’表示此进程可能在调度过程中获得优势。</p>
+<h2 id="缺页-1"><a href="#缺页-1" class="headerlink" title="缺页"></a>缺页</h2><p>​    操作系统管理内存的基本单元是4KB大小的页框，当进程访问尚未有物理内存建立页表映射关系的虚拟内存地址值时，会产生一次缺页异常。在缺页异常处理过程中会为虚拟内存页分配一个物理内存页并建立映射。所以每一次缺页异常就会分配4096（4kb）字节的物理内存，这样rss和minflt的比值当然就是4了。如果分配之后又有释放，后面再次分配，会使这个比值逐步小于4。如果这个比值过于小，那我们就有充足理由怀疑用户程序代码在内存管理上存在重大问题</p>
+<h1 id="参考文档"><a href="#参考文档" class="headerlink" title="参考文档"></a>参考文档</h1><p><a href>性能之巅</a></p>
+
+        
+      
+    </div>
+
+    
+    
+    
+      <footer class="post-footer">
+        <div class="post-eof"></div>
+      </footer>
+  </article>
+  
+  
+  
+
+    
+        
+  
+  
+  <article itemscope itemtype="http://schema.org/Article" class="post-block home" lang="zh-CN">
+    <link itemprop="mainEntityOfPage" href="http://yoursite.com/2020/09/07/java/GC基础知识/">
+
+    <span hidden itemprop="author" itemscope itemtype="http://schema.org/Person">
+      <meta itemprop="name" content="姜纪光">
+      <meta itemprop="description" content="">
+      <meta itemprop="image" content="/images/avatar.gif">
+    </span>
+
+    <span hidden itemprop="publisher" itemscope itemtype="http://schema.org/Organization">
+      <meta itemprop="name" content="纪光的博客">
+    </span>
+      <header class="post-header">
+        <h1 class="post-title" itemprop="name headline">
+          
+            
+            <a href="/2020/09/07/java/GC基础知识/" class="post-title-link" itemprop="url">GC基础知识</a>
+          
+        </h1>
+
+        <div class="post-meta">
+            <span class="post-meta-item">
+              <span class="post-meta-item-icon">
+                <i class="fa fa-calendar-o"></i>
+              </span>
+              <span class="post-meta-item-text">发表于</span>
+
+              
+                
+              
+
+              <time title="创建时间：2020-09-07 12:11:31" itemprop="dateCreated datePublished" datetime="2020-09-07T12:11:31+08:00">2020-09-07</time>
+            </span>
+          
+            
+
+            
+              <span class="post-meta-item">
+                <span class="post-meta-item-icon">
+                  <i class="fa fa-calendar-check-o"></i>
+                </span>
+                <span class="post-meta-item-text">更新于</span>
+                <time title="修改时间：2021-01-04 15:56:59" itemprop="dateModified" datetime="2021-01-04T15:56:59+08:00">2021-01-04</time>
+              </span>
+            
+          
+            <span class="post-meta-item">
+              <span class="post-meta-item-icon">
+                <i class="fa fa-folder-o"></i>
+              </span>
+              <span class="post-meta-item-text">分类于</span>
+              
+                <span itemprop="about" itemscope itemtype="http://schema.org/Thing">
+                  <a href="/categories/java/" itemprop="url" rel="index">
+                    <span itemprop="name">java</span>
+                  </a>
+                </span>
+
+                
+                
+              
+            </span>
+          
+
+          
+            <span id="/2020/09/07/java/GC基础知识/" class="post-meta-item leancloud_visitors" data-flag-title="GC基础知识" title="阅读次数">
+              <span class="post-meta-item-icon">
+                <i class="fa fa-eye"></i>
+              </span>
+              <span class="post-meta-item-text">阅读次数：</span>
+              <span class="leancloud-visitors-count"></span>
+            </span>
+          
+  
+  
+
+        </div>
+      </header>
+
+    
+    
+    
+    <div class="post-body" itemprop="articleBody">
+
+      
+          <h1 id="JVM区域总结"><a href="#JVM区域总结" class="headerlink" title="JVM区域总结"></a>JVM区域总结</h1><h2 id="jdk1-7"><a href="#jdk1-7" class="headerlink" title="jdk1.7"></a>jdk1.7</h2><ul>
+<li>线程共享区域：方法区、堆</li>
+<li>线程隔离区域：程序计数器</li>
+<li></li>
+</ul>
+<h1 id="引用"><a href="#引用" class="headerlink" title="引用"></a>引用</h1><p>  Java中提供了4个级别的引用：强引用、软引用、弱引用和虚引用</p>
+<p>##强引用（Strong Reference）</p>
+<ul>
+<li>在一个线程内，可以直接使用的对象</li>
+</ul>
+<h2 id="软引用（Soft-Reference）"><a href="#软引用（Soft-Reference）" class="headerlink" title="软引用（Soft Reference）"></a>软引用（Soft Reference）</h2><ul>
+<li>虚拟机会尽量让软引用的对象存活时间长一些</li>
+<li>发生OOM之前会清理所有的软引用对象</li>
+<li>虚拟机在GC时会通过算法检查是否回收软引用对象</li>
+<li>虚拟机在回收时会将引用存放到一个引用队列</li>
+</ul>
+<h2 id="弱引用（Weak-Reference）"><a href="#弱引用（Weak-Reference）" class="headerlink" title="弱引用（Weak Reference）"></a>弱引用（Weak Reference）</h2><ul>
+<li>虚拟机在GC时总是回收弱引用对象</li>
+<li>复杂关系的弱引用对象常常需要几次GC才能完成回收</li>
+</ul>
+<h2 id="虚引用（Phantom-Reference）"><a href="#虚引用（Phantom-Reference）" class="headerlink" title="虚引用（Phantom Reference）"></a>虚引用（Phantom Reference）</h2><ul>
+<li>虚引用对象get方法返回总是null，因此无法获取被引用的对象</li>
+</ul>
+<h1 id="参考文档"><a href="#参考文档" class="headerlink" title="参考文档"></a>参考文档</h1>
+        
+      
+    </div>
+
+    
+    
+    
+      <footer class="post-footer">
+        <div class="post-eof"></div>
+      </footer>
+  </article>
+  
+  
+  
+
+    
+        
+  
+  
+  <article itemscope itemtype="http://schema.org/Article" class="post-block home" lang="zh-CN">
+    <link itemprop="mainEntityOfPage" href="http://yoursite.com/2020/09/06/java/G1小结/">
+
+    <span hidden itemprop="author" itemscope itemtype="http://schema.org/Person">
+      <meta itemprop="name" content="姜纪光">
+      <meta itemprop="description" content="">
+      <meta itemprop="image" content="/images/avatar.gif">
+    </span>
+
+    <span hidden itemprop="publisher" itemscope itemtype="http://schema.org/Organization">
+      <meta itemprop="name" content="纪光的博客">
+    </span>
+      <header class="post-header">
+        <h1 class="post-title" itemprop="name headline">
+          
+            
+            <a href="/2020/09/06/java/G1小结/" class="post-title-link" itemprop="url">G1小结</a>
+          
+        </h1>
+
+        <div class="post-meta">
+            <span class="post-meta-item">
+              <span class="post-meta-item-icon">
+                <i class="fa fa-calendar-o"></i>
+              </span>
+              <span class="post-meta-item-text">发表于</span>
+
+              
+                
+              
+
+              <time title="创建时间：2020-09-06 16:08:42 / 修改时间：16:09:38" itemprop="dateCreated datePublished" datetime="2020-09-06T16:08:42+08:00">2020-09-06</time>
+            </span>
+          
+            
+
+            
+          
+            <span class="post-meta-item">
+              <span class="post-meta-item-icon">
+                <i class="fa fa-folder-o"></i>
+              </span>
+              <span class="post-meta-item-text">分类于</span>
+              
+                <span itemprop="about" itemscope itemtype="http://schema.org/Thing">
+                  <a href="/categories/java/" itemprop="url" rel="index">
+                    <span itemprop="name">java</span>
+                  </a>
+                </span>
+
+                
+                
+              
+            </span>
+          
+
+          
+            <span id="/2020/09/06/java/G1小结/" class="post-meta-item leancloud_visitors" data-flag-title="G1小结" title="阅读次数">
+              <span class="post-meta-item-icon">
+                <i class="fa fa-eye"></i>
+              </span>
+              <span class="post-meta-item-text">阅读次数：</span>
+              <span class="leancloud-visitors-count"></span>
+            </span>
+          
+  
+  
+
+        </div>
+      </header>
+
+    
+    
+    
+    <div class="post-body" itemprop="articleBody">
+
+      
+          <h1 id="参考文档"><a href="#参考文档" class="headerlink" title="参考文档"></a>参考文档</h1>
         
       
     </div>
@@ -1611,7 +1930,7 @@
 
   
   <nav class="pagination">
-    <a class="extend prev" rel="prev" href="/page/7/"><i class="fa fa-angle-left" aria-label="上一页"></i></a><a class="page-number" href="/">1</a><span class="space">&hellip;</span><a class="page-number" href="/page/7/">7</a><span class="page-number current">8</span><a class="page-number" href="/page/9/">9</a><span class="space">&hellip;</span><a class="page-number" href="/page/13/">13</a><a class="extend next" rel="next" href="/page/9/"><i class="fa fa-angle-right" aria-label="下一页"></i></a>
+    <a class="extend prev" rel="prev" href="/page/7/"><i class="fa fa-angle-left" aria-label="上一页"></i></a><a class="page-number" href="/">1</a><span class="space">&hellip;</span><a class="page-number" href="/page/7/">7</a><span class="page-number current">8</span><a class="page-number" href="/page/9/">9</a><span class="space">&hellip;</span><a class="page-number" href="/page/15/">15</a><a class="extend next" rel="next" href="/page/9/"><i class="fa fa-angle-right" aria-label="下一页"></i></a>
   </nav>
 
 
@@ -1656,7 +1975,7 @@
         
           <a href="/archives/">
         
-          <span class="site-state-item-count">125</span>
+          <span class="site-state-item-count">143</span>
           <span class="site-state-item-name">日志</span>
         </a>
       </div>
@@ -1669,7 +1988,7 @@
             <a href="/categories/">
           
         
-        <span class="site-state-item-count">17</span>
+        <span class="site-state-item-count">22</span>
         <span class="site-state-item-name">分类</span>
         </a>
       </div>
@@ -1682,7 +2001,7 @@
             <a href="/tags/">
           
         
-        <span class="site-state-item-count">16</span>
+        <span class="site-state-item-count">15</span>
         <span class="site-state-item-name">标签</span>
         </a>
       </div>
@@ -1708,7 +2027,7 @@
 
 <div class="copyright">
   &copy; 
-  <span itemprop="copyrightYear">2020</span>
+  <span itemprop="copyrightYear">2021</span>
   <span class="with-love">
     <i class="fa fa-user"></i>
   </span>
