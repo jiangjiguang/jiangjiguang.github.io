@@ -1,0 +1,682 @@
+<!DOCTYPE html>
+
+
+
+
+
+<html lang="zh-CN">
+<head>
+  <meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1, maximum-scale=2">
+<meta name="theme-color" content="#222">
+<meta name="generator" content="Hexo 3.9.0">
+  <link rel="apple-touch-icon" sizes="180x180" href="/images/apple-touch-icon-next.png?v=7.4.1">
+  <link rel="icon" type="image/png" sizes="32x32" href="/images/favicon-32x32-next.png?v=7.4.1">
+  <link rel="icon" type="image/png" sizes="16x16" href="/images/favicon-16x16-next.png?v=7.4.1">
+  <link rel="mask-icon" href="/images/logo.svg?v=7.4.1" color="#222">
+
+<link rel="stylesheet" href="/css/main.css?v=7.4.1">
+
+
+<link rel="stylesheet" href="/lib/font-awesome/css/font-awesome.min.css?v=4.7.0">
+
+
+<script id="hexo-configurations">
+  var NexT = window.NexT || {};
+  var CONFIG = {
+    root: '/',
+    scheme: 'Mist',
+    version: '7.4.1',
+    exturl: false,
+    sidebar: {"position":"right","display":"hide","offset":12,"onmobile":false},
+    copycode: {"enable":false,"show_result":false,"style":null},
+    back2top: {"enable":true,"sidebar":false,"scrollpercent":false},
+    bookmark: {"enable":false,"color":"#222","save":"auto"},
+    fancybox: false,
+    mediumzoom: false,
+    lazyload: false,
+    pangu: false,
+    algolia: {
+      appID: '',
+      apiKey: '',
+      indexName: '',
+      hits: {"per_page":10},
+      labels: {"input_placeholder":"Search for Posts","hits_empty":"We didn't find any results for the search: ${query}","hits_stats":"${hits} results found in ${time} ms"}
+    },
+    localsearch: {"enable":false,"trigger":"auto","top_n_per_article":1,"unescape":false,"preload":false},
+    path: '',
+    motion: {"enable":true,"async":false,"transition":{"post_block":"fadeIn","post_header":"slideDownIn","post_body":"slideDownIn","coll_header":"slideLeftIn","sidebar":"slideUpIn"}},
+    translation: {
+      copy_button: '复制',
+      copy_success: '复制成功',
+      copy_failure: '复制失败'
+    },
+    sidebarPadding: 40
+  };
+</script>
+
+  <meta name="description" content="概述 服务发现就是服务（应用）之间相互定位的过程  通过创建 Service,可以为一组具有相同功能的容器应 用提供一个统一的入口地 址，并且将请求负载分发到后端的各个容器应用上  1、可以直接通过Pod的IP地址和端口号访问容器内的服务，但是Pod的IP地址是不可靠的，当Pod发生故障被重新调度时，IP地址会发生变化 2、直接使用Pod的IP发生也不能实现负载均衡   每个Pod都有一个Ip地址">
+<meta property="og:type" content="article">
+<meta property="og:title" content="k8s-Service">
+<meta property="og:url" content="http://yoursite.com/2020/11/03/k8s/k8s-Service/index.html">
+<meta property="og:site_name" content="纪光的博客">
+<meta property="og:description" content="概述 服务发现就是服务（应用）之间相互定位的过程  通过创建 Service,可以为一组具有相同功能的容器应 用提供一个统一的入口地 址，并且将请求负载分发到后端的各个容器应用上  1、可以直接通过Pod的IP地址和端口号访问容器内的服务，但是Pod的IP地址是不可靠的，当Pod发生故障被重新调度时，IP地址会发生变化 2、直接使用Pod的IP发生也不能实现负载均衡   每个Pod都有一个Ip地址">
+<meta property="og:locale" content="zh-CN">
+<meta property="og:updated_time" content="2021-06-20T04:19:35.157Z">
+<meta name="twitter:card" content="summary">
+<meta name="twitter:title" content="k8s-Service">
+<meta name="twitter:description" content="概述 服务发现就是服务（应用）之间相互定位的过程  通过创建 Service,可以为一组具有相同功能的容器应 用提供一个统一的入口地 址，并且将请求负载分发到后端的各个容器应用上  1、可以直接通过Pod的IP地址和端口号访问容器内的服务，但是Pod的IP地址是不可靠的，当Pod发生故障被重新调度时，IP地址会发生变化 2、直接使用Pod的IP发生也不能实现负载均衡   每个Pod都有一个Ip地址">
+  <link rel="canonical" href="http://yoursite.com/2020/11/03/k8s/k8s-Service/">
+
+
+<script id="page-configurations">
+  // https://hexo.io/docs/variables.html
+  CONFIG.page = {
+    sidebar: "",
+    isHome: false,
+    isPost: true,
+    isPage: false,
+    isArchive: false
+  };
+</script>
+
+  <title>k8s-Service | 纪光的博客</title>
+  
+
+
+  <script>
+    var _hmt = _hmt || [];
+    (function() {
+      var hm = document.createElement("script");
+      hm.src = "https://hm.baidu.com/hm.js?bca403b673d79e83a47dc62fea1dd605";
+      var s = document.getElementsByTagName("script")[0];
+      s.parentNode.insertBefore(hm, s);
+    })();
+  </script>
+
+
+
+
+
+
+  <noscript>
+  <style>
+  .use-motion .brand,
+  .use-motion .menu-item,
+  .sidebar-inner,
+  .use-motion .post-block,
+  .use-motion .pagination,
+  .use-motion .comments,
+  .use-motion .post-header,
+  .use-motion .post-body,
+  .use-motion .collection-header { opacity: initial; }
+
+  .use-motion .site-title,
+  .use-motion .site-subtitle {
+    opacity: initial;
+    top: initial;
+  }
+
+  .use-motion .logo-line-before i { left: initial; }
+  .use-motion .logo-line-after i { right: initial; }
+  </style>
+</noscript>
+
+</head>
+
+<body itemscope itemtype="http://schema.org/WebPage">
+  <div class="container use-motion">
+    <div class="headband"></div>
+
+    <header class="header" itemscope itemtype="http://schema.org/WPHeader">
+      <div class="header-inner"><div class="site-brand-container">
+  <div class="site-meta">
+
+    <div>
+      <a href="/" class="brand" rel="start">
+        <span class="logo-line-before"><i></i></span>
+        <span class="site-title">纪光的博客</span>
+        <span class="logo-line-after"><i></i></span>
+      </a>
+    </div>
+  </div>
+
+  <div class="site-nav-toggle">
+    <div class="toggle" aria-label="切换导航栏">
+      <span class="toggle-line toggle-line-first"></span>
+      <span class="toggle-line toggle-line-middle"></span>
+      <span class="toggle-line toggle-line-last"></span>
+    </div>
+  </div>
+</div>
+
+
+<nav class="site-nav">
+  
+  <ul id="menu" class="menu">
+      
+      
+        
+        
+        <li class="menu-item menu-item-home">
+      
+    
+
+    <a href="/" rel="section"><i class="fa fa-fw fa-home"></i>首页</a>
+
+  </li>
+      
+    
+      
+      
+        
+        
+        <li class="menu-item menu-item-categories">
+      
+    
+
+    <a href="/categories/" rel="section"><i class="fa fa-fw fa-th"></i>分类</a>
+
+  </li>
+      
+    
+      
+      
+        
+        
+        <li class="menu-item menu-item-tags">
+      
+    
+
+    <a href="/tags/" rel="section"><i class="fa fa-fw fa-tags"></i>标签</a>
+
+  </li>
+      
+    
+      
+      
+        
+        
+        <li class="menu-item menu-item-archives">
+      
+    
+
+    <a href="/archives/" rel="section"><i class="fa fa-fw fa-archive"></i>归档</a>
+
+  </li>
+      
+    
+      
+      
+        
+        
+        <li class="menu-item menu-item-about">
+      
+    
+
+    <a href="/about/" rel="section"><i class="fa fa-fw fa-user"></i>关于</a>
+
+  </li>
+      
+    
+  </ul>
+
+    
+
+</nav>
+</div>
+    </header>
+
+    
+  <div class="back-to-top">
+    <i class="fa fa-arrow-up"></i>
+    <span>0%</span>
+  </div>
+
+
+    <main class="main">
+      <div class="main-inner">
+        <div class="content-wrap">
+          <div class="content">
+            
+
+  <div class="posts-expand">
+      
+  
+  
+  <article itemscope itemtype="http://schema.org/Article" class="post-block " lang="zh-CN">
+    <link itemprop="mainEntityOfPage" href="http://yoursite.com/2020/11/03/k8s/k8s-Service/">
+
+    <span hidden itemprop="author" itemscope itemtype="http://schema.org/Person">
+      <meta itemprop="name" content="姜纪光">
+      <meta itemprop="description" content="">
+      <meta itemprop="image" content="/images/avatar.gif">
+    </span>
+
+    <span hidden itemprop="publisher" itemscope itemtype="http://schema.org/Organization">
+      <meta itemprop="name" content="纪光的博客">
+    </span>
+      <header class="post-header">
+        <h1 class="post-title" itemprop="name headline">
+          
+            k8s-Service
+            
+
+          
+        </h1>
+
+        <div class="post-meta">
+            <span class="post-meta-item">
+              <span class="post-meta-item-icon">
+                <i class="fa fa-calendar-o"></i>
+              </span>
+              <span class="post-meta-item-text">发表于</span>
+
+              
+                
+              
+
+              <time title="创建时间：2020-11-03 09:30:54" itemprop="dateCreated datePublished" datetime="2020-11-03T09:30:54+08:00">2020-11-03</time>
+            </span>
+          
+            
+
+            
+              <span class="post-meta-item">
+                <span class="post-meta-item-icon">
+                  <i class="fa fa-calendar-check-o"></i>
+                </span>
+                <span class="post-meta-item-text">更新于</span>
+                <time title="修改时间：2021-06-20 12:19:35" itemprop="dateModified" datetime="2021-06-20T12:19:35+08:00">2021-06-20</time>
+              </span>
+            
+          
+            <span class="post-meta-item">
+              <span class="post-meta-item-icon">
+                <i class="fa fa-folder-o"></i>
+              </span>
+              <span class="post-meta-item-text">分类于</span>
+              
+                <span itemprop="about" itemscope itemtype="http://schema.org/Thing">
+                  <a href="/categories/k8s/" itemprop="url" rel="index">
+                    <span itemprop="name">k8s</span>
+                  </a>
+                </span>
+
+                
+                
+              
+            </span>
+          
+
+          
+            <span id="/2020/11/03/k8s/k8s-Service/" class="post-meta-item leancloud_visitors" data-flag-title="k8s-Service" title="阅读次数">
+              <span class="post-meta-item-icon">
+                <i class="fa fa-eye"></i>
+              </span>
+              <span class="post-meta-item-text">阅读次数：</span>
+              <span class="leancloud-visitors-count"></span>
+            </span>
+          
+  
+  
+
+        </div>
+      </header>
+
+    
+    
+    
+    <div class="post-body" itemprop="articleBody">
+
+      
+        <h1 id="概述"><a href="#概述" class="headerlink" title="概述"></a>概述</h1><ul>
+<li><p>服务发现就是服务（应用）之间相互定位的过程</p>
+</li>
+<li><p>通过创建 Service,可以为一组具有相同功能的容器应 用提供一个统一的入口地 址，并且将请求负载分发到后端的各个容器应用上</p>
+<blockquote>
+<p>1、可以直接通过Pod的IP地址和端口号访问容器内的服务，但是Pod的IP地址是不可靠的，当Pod发生故障被重新调度时，IP地址会发生变化</p>
+<p>2、直接使用Pod的IP发生也不能实现负载均衡</p>
+</blockquote>
+</li>
+<li><p>每个Pod都有一个Ip地址，但是这个地址不是固定的</p>
+</li>
+<li><p>Pod注册Ip到Service，Service做服务发现，防止Pod失联</p>
+</li>
+<li><p>定义一组Pod访问策略（负载均衡）</p>
+</li>
+<li><p>Pod和Service通过label和selector建立关联</p>
+</li>
+<li><p>访问服务时先要进入Service，Service有其自己的ip（vip）</p>
+</li>
+</ul>
+<h1 id="Service类型"><a href="#Service类型" class="headerlink" title="Service类型"></a>Service类型</h1><ul>
+<li><p>ClusterIP</p>
+<blockquote>
+<p>集群内部使用，虚拟的服务IP地址，用于k8s集群内部的Pod访问，在Node上kube-proxy通过设置的iptables规则进行转发。</p>
+</blockquote>
+</li>
+<li><p>NodePort</p>
+<blockquote>
+<p>外部访问应用时使用。使用宿主机的端口，通过Node的IP地址和端口号就能访问服务。</p>
+</blockquote>
+</li>
+<li><p>LoadBalancer</p>
+<blockquote>
+<p>外部访问应用时使用，共有云。使用外接负载均衡器完成到服务的负载分发，需要在spec.status.loadBalancer字段外指定外部负载均衡器的IP地址，并同时定义nodePort和clusterIP，用于公有云环境。</p>
+</blockquote>
+</li>
+</ul>
+<h1 id="Headless-Service"><a href="#Headless-Service" class="headerlink" title="Headless Service"></a>Headless Service</h1><ul>
+<li><p>不为Service设置ClusterIP，仅通过Label Selector将后端的Pod列表返回给调用的客户端</p>
+</li>
+<li><p>Service不再具有一个特定的ClusterIP地址，客户端获取到全部Pod列表，然后自行处理Pod列表。</p>
+</li>
+<li><p>应用场景：</p>
+<blockquote>
+<p>1、自己控制负载均衡策略，不适用Service提供的默认负载均衡功能</p>
+<p>2、应用程序希望知道属于同组服务的其他实例</p>
+</blockquote>
+</li>
+</ul>
+<h1 id="集群外部访问"><a href="#集群外部访问" class="headerlink" title="集群外部访问"></a>集群外部访问</h1><ul>
+<li><p>Pod和Service都是k8s集群范围内的虚拟概念，集群外的客户端无法通过Pod或Service的虚拟IP地址和端口号访问它们</p>
+</li>
+<li><p>映射容器端口号到物理机</p>
+<figure class="highlight yaml"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br><span class="line">3</span><br></pre></td><td class="code"><pre><span class="line"><span class="attr">ports:</span></span><br><span class="line"><span class="attr">- containerPort:</span> <span class="number">8080</span>   <span class="string">容器端口号</span></span><br><span class="line"><span class="attr">  hostPort:</span> <span class="number">8081</span>  <span class="string">//物理机端口号</span></span><br></pre></td></tr></table></figure>
+</li>
+<li><p>映射Service端口号到物理机</p>
+<figure class="highlight yaml"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br><span class="line">3</span><br><span class="line">4</span><br><span class="line">5</span><br></pre></td><td class="code"><pre><span class="line"><span class="attr">type:</span> <span class="string">NodePort</span></span><br><span class="line"><span class="attr">ports:</span> </span><br><span class="line"><span class="attr">- port:</span> <span class="number">8080</span></span><br><span class="line"><span class="attr">  targetPort:</span> <span class="number">8080</span></span><br><span class="line"><span class="attr">  nodePort:</span> <span class="number">8081</span></span><br></pre></td></tr></table></figure>
+
+</li>
+</ul>
+<h1 id="DNS服务"><a href="#DNS服务" class="headerlink" title="DNS服务"></a>DNS服务</h1><ul>
+<li><p><code>在集群内</code>完成从服务名到ClusterIP的解析</p>
+<blockquote>
+<p>只负责维护”服务名”到”集群网络IP”之间的关系。</p>
+</blockquote>
+</li>
+<li><p>至今共经历了3个版本</p>
+<blockquote>
+<p>1、1.2版本时是SkyDNS</p>
+<p>2、1.4版本时是KubeDNS</p>
+<p>3、1.11版本开始是CoreDNS</p>
+</blockquote>
+</li>
+<li><p>配置：<a href="https://github.com/kubernetes/kubernetes/blob/master/cluster/addons/dns/coredns/coredns.yaml.base" target="_blank" rel="noopener">coredns.yaml.base</a></p>
+</li>
+<li><p>除了使用DNS可以发现服务外，使用<code>环境变量</code>也可以发现Pod创建之前的服务</p>
+</li>
+<li><p>客户端Pod可以通过全限定域名（FQDN）来访问其它Pod。</p>
+<blockquote>
+<p>FQDN的组成：&lt;服务名称&gt;.<namespace>.svc.cluster.local</namespace></p>
+</blockquote>
+</li>
+</ul>
+<h1 id="endpoint"><a href="#endpoint" class="headerlink" title="endpoint"></a>endpoint</h1><ul>
+<li><p>Service服务并不是和Pod直接相连，二者之间是Endpoint资源</p>
+</li>
+<li><p>Endpoint资源就是暴露一个服务的IP地址和端口的列表</p>
+<blockquote>
+<p>尽管在spec中定义了pod选择器，但在重定向传入连接时不会直接使用它，相反选择器用于构建IP和端口列表，然后存储在Endpoint资源中。</p>
+</blockquote>
+</li>
+<li><p>Endpoint是一个单独的资源并不是服务的一个属性</p>
+</li>
+<li><p>​</p>
+</li>
+</ul>
+<h1 id="Ingress"><a href="#Ingress" class="headerlink" title="Ingress"></a>Ingress</h1><ul>
+<li>Ingress资源对象用于将不同URL的访问请求转发到后端不同的Service，以实现HTTP层的业务路由机制。</li>
+</ul>
+<h1 id="就绪探针"><a href="#就绪探针" class="headerlink" title="就绪探针"></a>就绪探针</h1><h1 id="常用命令"><a href="#常用命令" class="headerlink" title="常用命令"></a>常用命令</h1><figure class="highlight shell"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br><span class="line">3</span><br><span class="line">4</span><br><span class="line">5</span><br><span class="line">6</span><br><span class="line">7</span><br><span class="line">8</span><br><span class="line">9</span><br><span class="line">10</span><br><span class="line">11</span><br><span class="line">12</span><br><span class="line">13</span><br><span class="line">14</span><br><span class="line">15</span><br><span class="line">16</span><br><span class="line">17</span><br></pre></td><td class="code"><pre><span class="line"><span class="meta">#</span> 删除pod</span><br><span class="line"><span class="meta">$</span> kubectl delete deployment web</span><br><span class="line"></span><br><span class="line"><span class="meta">#</span> 创建pod</span><br><span class="line"><span class="meta">$</span> kubectl apply -f web.yaml </span><br><span class="line"></span><br><span class="line"><span class="meta">#</span> 得出的IP地址应该是Pod的IP，在k8s内部可以访问</span><br><span class="line"><span class="meta">$</span> kubectl get pod -o wide</span><br><span class="line"><span class="meta">#</span> 得出的CLUSTER-IP 是什么IP呢？只能在Pod所在节点访问</span><br><span class="line"><span class="meta">$</span> kubectl get svc -o wide </span><br><span class="line"></span><br><span class="line"><span class="meta">#</span> 列出容器的环境变量，获取的是该Pod创建之前已经存在的环境变量</span><br><span class="line"><span class="meta">$</span> kubectl exec &lt;pod-name&gt; env</span><br><span class="line"></span><br><span class="line"><span class="meta">$</span> kubectl get endpoints kubia</span><br><span class="line"></span><br><span class="line"><span class="meta">$</span> kubectl get pods --all-namespaces -o -wide</span><br></pre></td></tr></table></figure>
+
+<h1 id="3个端口说明"><a href="#3个端口说明" class="headerlink" title="3个端口说明"></a>3个端口说明</h1><h2 id="port"><a href="#port" class="headerlink" title="port"></a>port</h2><p>​    The port that the service is exposed on the service’s cluster ip (virsual ip). Port is the service port which is accessed by others with cluster ip.</p>
+<p>​    这里的port表示：service暴露在cluster ip上的端口，<strong><cluster ip>:port</cluster></strong> 是提供给集群内部客户访问service的入口。</p>
+<h2 id="targetPort"><a href="#targetPort" class="headerlink" title="targetPort"></a>targetPort</h2><p>​    The port on the pod that the service should proxy traffic to.</p>
+<p>​    targetPort是pod上的端口，从port和nodePort上到来的数据最终经过kube-proxy流入到后端pod的targetPort上进入容器。</p>
+<h2 id="nodePort"><a href="#nodePort" class="headerlink" title="nodePort"></a>nodePort</h2><p>​    On top of having a cluster-internal IP, expose the service on a port on each node of the cluster (the same port on each node). You’ll be able to contact the service on any<strong><nodeip>:nodePort</nodeip></strong>address. So nodePort is alse the service port which can be accessed by the node ip by others with external ip.</p>
+<p>​    首先，nodePort是kubernetes提供给集群外部客户访问service入口的一种方式（另一种方式是LoadBalancer），所以，<nodeip>:nodePort 是提供给集群外部客户访问service的入口。</nodeip></p>
+<h2 id="总结"><a href="#总结" class="headerlink" title="总结"></a>总结</h2><h1 id="参考文档"><a href="#参考文档" class="headerlink" title="参考文档"></a>参考文档</h1><p><a href="https://blog.csdn.net/xinghun_4/article/details/50492041" target="_blank" rel="noopener">kubernetes中port、target port、node port的对比分析，以及kube-proxy代理</a></p>
+
+    </div>
+
+    
+    
+    
+        
+      
+
+      <footer class="post-footer">
+
+        
+
+          <div class="post-nav">
+            <div class="post-nav-next post-nav-item">
+              
+                <a href="/2020/11/02/k8s/k8s-Controller控制器/" rel="next" title="k8s-Controller Manager">
+                  <i class="fa fa-chevron-left"></i> k8s-Controller Manager
+                </a>
+              
+            </div>
+
+            <span class="post-nav-divider"></span>
+
+            <div class="post-nav-prev post-nav-item">
+              
+                <a href="/2020/11/04/k8s/k8s-ConfigMap/" rel="prev" title="k8s-ConfigMap">
+                  k8s-ConfigMap <i class="fa fa-chevron-right"></i>
+                </a>
+              
+            </div>
+          </div>
+        
+      </footer>
+    
+  </article>
+  
+  
+  
+
+  </div>
+
+
+          </div>
+          
+
+        </div>
+          
+  
+  <div class="toggle sidebar-toggle">
+    <span class="toggle-line toggle-line-first"></span>
+    <span class="toggle-line toggle-line-middle"></span>
+    <span class="toggle-line toggle-line-last"></span>
+  </div>
+
+  <aside class="sidebar">
+    <div class="sidebar-inner">
+        
+        
+        
+        
+      
+
+      <ul class="sidebar-nav motion-element">
+        <li class="sidebar-nav-toc">
+          文章目录
+        </li>
+        <li class="sidebar-nav-overview">
+          站点概览
+        </li>
+      </ul>
+
+      <!--noindex-->
+      <div class="post-toc-wrap sidebar-panel">
+          <div class="post-toc motion-element"><ol class="nav"><li class="nav-item nav-level-1"><a class="nav-link" href="#概述"><span class="nav-number">1.</span> <span class="nav-text">概述</span></a></li><li class="nav-item nav-level-1"><a class="nav-link" href="#Service类型"><span class="nav-number">2.</span> <span class="nav-text">Service类型</span></a></li><li class="nav-item nav-level-1"><a class="nav-link" href="#Headless-Service"><span class="nav-number">3.</span> <span class="nav-text">Headless Service</span></a></li><li class="nav-item nav-level-1"><a class="nav-link" href="#集群外部访问"><span class="nav-number">4.</span> <span class="nav-text">集群外部访问</span></a></li><li class="nav-item nav-level-1"><a class="nav-link" href="#DNS服务"><span class="nav-number">5.</span> <span class="nav-text">DNS服务</span></a></li><li class="nav-item nav-level-1"><a class="nav-link" href="#endpoint"><span class="nav-number">6.</span> <span class="nav-text">endpoint</span></a></li><li class="nav-item nav-level-1"><a class="nav-link" href="#Ingress"><span class="nav-number">7.</span> <span class="nav-text">Ingress</span></a></li><li class="nav-item nav-level-1"><a class="nav-link" href="#就绪探针"><span class="nav-number">8.</span> <span class="nav-text">就绪探针</span></a></li><li class="nav-item nav-level-1"><a class="nav-link" href="#常用命令"><span class="nav-number">9.</span> <span class="nav-text">常用命令</span></a></li><li class="nav-item nav-level-1"><a class="nav-link" href="#3个端口说明"><span class="nav-number">10.</span> <span class="nav-text">3个端口说明</span></a><ol class="nav-child"><li class="nav-item nav-level-2"><a class="nav-link" href="#port"><span class="nav-number">10.1.</span> <span class="nav-text">port</span></a></li><li class="nav-item nav-level-2"><a class="nav-link" href="#targetPort"><span class="nav-number">10.2.</span> <span class="nav-text">targetPort</span></a></li><li class="nav-item nav-level-2"><a class="nav-link" href="#nodePort"><span class="nav-number">10.3.</span> <span class="nav-text">nodePort</span></a></li><li class="nav-item nav-level-2"><a class="nav-link" href="#总结"><span class="nav-number">10.4.</span> <span class="nav-text">总结</span></a></li></ol></li><li class="nav-item nav-level-1"><a class="nav-link" href="#参考文档"><span class="nav-number">11.</span> <span class="nav-text">参考文档</span></a></li></ol></div>
+        
+      </div>
+      <!--/noindex-->
+
+      <div class="site-overview-wrap sidebar-panel">
+        <div class="site-author motion-element" itemprop="author" itemscope itemtype="http://schema.org/Person">
+  <p class="site-author-name" itemprop="name">姜纪光</p>
+  <div class="site-description" itemprop="description"></div>
+</div>
+<div class="site-state-wrap motion-element">
+  <nav class="site-state">
+      <div class="site-state-item site-state-posts">
+        
+          <a href="/archives/">
+        
+          <span class="site-state-item-count">158</span>
+          <span class="site-state-item-name">日志</span>
+        </a>
+      </div>
+    
+      
+      
+      <div class="site-state-item site-state-categories">
+        
+          
+            <a href="/categories/">
+          
+        
+        <span class="site-state-item-count">26</span>
+        <span class="site-state-item-name">分类</span>
+        </a>
+      </div>
+    
+      
+      
+      <div class="site-state-item site-state-tags">
+        
+          
+            <a href="/tags/">
+          
+        
+        <span class="site-state-item-count">14</span>
+        <span class="site-state-item-name">标签</span>
+        </a>
+      </div>
+    
+  </nav>
+</div>
+
+
+
+      </div>
+
+    </div>
+  </aside>
+  <div id="sidebar-dimmer"></div>
+
+
+      </div>
+    </main>
+
+    <footer class="footer">
+      <div class="footer-inner">
+        
+
+<div class="copyright">
+  &copy; 
+  <span itemprop="copyrightYear">2021</span>
+  <span class="with-love">
+    <i class="fa fa-user"></i>
+  </span>
+  <span class="author" itemprop="copyrightHolder">姜纪光</span>
+</div>
+  <div class="powered-by">由 <a href="https://hexo.io" class="theme-link" rel="noopener" target="_blank">Hexo</a> 强力驱动 v3.9.0
+  </div>
+  <span class="post-meta-divider">|</span>
+  <div class="theme-info">
+      
+    主题 – <a href="https://mist.theme-next.org" class="theme-link" rel="noopener" target="_blank">NexT.Mist</a> v7.4.1
+  </div>
+
+        
+
+
+
+
+
+
+
+
+
+
+
+
+        
+      </div>
+    </footer>
+  </div>
+
+  
+  <script src="/lib/anime.min.js?v=3.1.0"></script>
+  <script src="/lib/velocity/velocity.min.js?v=1.2.1"></script>
+  <script src="/lib/velocity/velocity.ui.min.js?v=1.2.1"></script>
+<script src="/js/utils.js?v=7.4.1"></script><script src="/js/motion.js?v=7.4.1"></script>
+<script src="/js/schemes/muse.js?v=7.4.1"></script>
+
+<script src="/js/next-boot.js?v=7.4.1"></script>
+
+
+
+  
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+  
+
+  
+
+  
+
+
+<script>
+NexT.utils.getScript('//unpkg.com/valine/dist/Valine.min.js', () => {
+  var GUEST = ['nick', 'mail', 'link'];
+  var guest = 'nick,mail,link';
+  guest = guest.split(',').filter(item => {
+    return GUEST.includes(item);
+  });
+  new Valine({
+    el: '#comments',
+    verify: false,
+    notify: false,
+    appId: 'MIQC4jJTknc0hjNXDAiIuQ21-9Nh9j0Va',
+    appKey: 'vaiXpSQLLMglwYsVLOBLzck4',
+    placeholder: "Just go go",
+    avatar: 'mm',
+    meta: guest,
+    pageSize: '10' || 10,
+    visitor: true,
+    lang: 'zh-cn' || 'zh-cn',
+    path: location.pathname,
+    recordIP: false,
+    serverURLs: ''
+  });
+}, window.Valine);
+</script>
+
+</body>
+</html>

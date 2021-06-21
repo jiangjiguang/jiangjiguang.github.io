@@ -1,0 +1,922 @@
+<!DOCTYPE html>
+
+
+
+
+
+<html lang="zh-CN">
+<head>
+  <meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1, maximum-scale=2">
+<meta name="theme-color" content="#222">
+<meta name="generator" content="Hexo 3.9.0">
+  <link rel="apple-touch-icon" sizes="180x180" href="/images/apple-touch-icon-next.png?v=7.4.1">
+  <link rel="icon" type="image/png" sizes="32x32" href="/images/favicon-32x32-next.png?v=7.4.1">
+  <link rel="icon" type="image/png" sizes="16x16" href="/images/favicon-16x16-next.png?v=7.4.1">
+  <link rel="mask-icon" href="/images/logo.svg?v=7.4.1" color="#222">
+
+<link rel="stylesheet" href="/css/main.css?v=7.4.1">
+
+
+<link rel="stylesheet" href="/lib/font-awesome/css/font-awesome.min.css?v=4.7.0">
+
+
+<script id="hexo-configurations">
+  var NexT = window.NexT || {};
+  var CONFIG = {
+    root: '/',
+    scheme: 'Mist',
+    version: '7.4.1',
+    exturl: false,
+    sidebar: {"position":"right","display":"hide","offset":12,"onmobile":false},
+    copycode: {"enable":false,"show_result":false,"style":null},
+    back2top: {"enable":true,"sidebar":false,"scrollpercent":false},
+    bookmark: {"enable":false,"color":"#222","save":"auto"},
+    fancybox: false,
+    mediumzoom: false,
+    lazyload: false,
+    pangu: false,
+    algolia: {
+      appID: '',
+      apiKey: '',
+      indexName: '',
+      hits: {"per_page":10},
+      labels: {"input_placeholder":"Search for Posts","hits_empty":"We didn't find any results for the search: ${query}","hits_stats":"${hits} results found in ${time} ms"}
+    },
+    localsearch: {"enable":false,"trigger":"auto","top_n_per_article":1,"unescape":false,"preload":false},
+    path: '',
+    motion: {"enable":true,"async":false,"transition":{"post_block":"fadeIn","post_header":"slideDownIn","post_body":"slideDownIn","coll_header":"slideLeftIn","sidebar":"slideUpIn"}},
+    translation: {
+      copy_button: '复制',
+      copy_success: '复制成功',
+      copy_failure: '复制失败'
+    },
+    sidebarPadding: 40
+  };
+</script>
+
+  <meta name="description" content="prometheus总览​    prometheus的客户端库提供4中核心指标类型。在prometheus server中没有利用类型信息，通过把数据展平成无类型的时间序列，将来可能会改变。 Counter​    counter是累加型指标，代表了一个单调递增计数器，其值仅仅能增加或者重启时置为0，不要使用counter暴露一直能够减少的指标。比如正在处理的数量，可以使用gauge代替 gau">
+<meta name="keywords" content="prometheus">
+<meta property="og:type" content="article">
+<meta property="og:title" content="Prometheus学习笔记">
+<meta property="og:url" content="http://yoursite.com/2020/07/21/prometheus/Prometheus学习笔记/index.html">
+<meta property="og:site_name" content="纪光的博客">
+<meta property="og:description" content="prometheus总览​    prometheus的客户端库提供4中核心指标类型。在prometheus server中没有利用类型信息，通过把数据展平成无类型的时间序列，将来可能会改变。 Counter​    counter是累加型指标，代表了一个单调递增计数器，其值仅仅能增加或者重启时置为0，不要使用counter暴露一直能够减少的指标。比如正在处理的数量，可以使用gauge代替 gau">
+<meta property="og:locale" content="zh-CN">
+<meta property="og:updated_time" content="2021-06-20T04:19:35.165Z">
+<meta name="twitter:card" content="summary">
+<meta name="twitter:title" content="Prometheus学习笔记">
+<meta name="twitter:description" content="prometheus总览​    prometheus的客户端库提供4中核心指标类型。在prometheus server中没有利用类型信息，通过把数据展平成无类型的时间序列，将来可能会改变。 Counter​    counter是累加型指标，代表了一个单调递增计数器，其值仅仅能增加或者重启时置为0，不要使用counter暴露一直能够减少的指标。比如正在处理的数量，可以使用gauge代替 gau">
+  <link rel="canonical" href="http://yoursite.com/2020/07/21/prometheus/Prometheus学习笔记/">
+
+
+<script id="page-configurations">
+  // https://hexo.io/docs/variables.html
+  CONFIG.page = {
+    sidebar: "",
+    isHome: false,
+    isPost: true,
+    isPage: false,
+    isArchive: false
+  };
+</script>
+
+  <title>Prometheus学习笔记 | 纪光的博客</title>
+  
+
+
+  <script>
+    var _hmt = _hmt || [];
+    (function() {
+      var hm = document.createElement("script");
+      hm.src = "https://hm.baidu.com/hm.js?bca403b673d79e83a47dc62fea1dd605";
+      var s = document.getElementsByTagName("script")[0];
+      s.parentNode.insertBefore(hm, s);
+    })();
+  </script>
+
+
+
+
+
+
+  <noscript>
+  <style>
+  .use-motion .brand,
+  .use-motion .menu-item,
+  .sidebar-inner,
+  .use-motion .post-block,
+  .use-motion .pagination,
+  .use-motion .comments,
+  .use-motion .post-header,
+  .use-motion .post-body,
+  .use-motion .collection-header { opacity: initial; }
+
+  .use-motion .site-title,
+  .use-motion .site-subtitle {
+    opacity: initial;
+    top: initial;
+  }
+
+  .use-motion .logo-line-before i { left: initial; }
+  .use-motion .logo-line-after i { right: initial; }
+  </style>
+</noscript>
+
+</head>
+
+<body itemscope itemtype="http://schema.org/WebPage">
+  <div class="container use-motion">
+    <div class="headband"></div>
+
+    <header class="header" itemscope itemtype="http://schema.org/WPHeader">
+      <div class="header-inner"><div class="site-brand-container">
+  <div class="site-meta">
+
+    <div>
+      <a href="/" class="brand" rel="start">
+        <span class="logo-line-before"><i></i></span>
+        <span class="site-title">纪光的博客</span>
+        <span class="logo-line-after"><i></i></span>
+      </a>
+    </div>
+  </div>
+
+  <div class="site-nav-toggle">
+    <div class="toggle" aria-label="切换导航栏">
+      <span class="toggle-line toggle-line-first"></span>
+      <span class="toggle-line toggle-line-middle"></span>
+      <span class="toggle-line toggle-line-last"></span>
+    </div>
+  </div>
+</div>
+
+
+<nav class="site-nav">
+  
+  <ul id="menu" class="menu">
+      
+      
+        
+        
+        <li class="menu-item menu-item-home">
+      
+    
+
+    <a href="/" rel="section"><i class="fa fa-fw fa-home"></i>首页</a>
+
+  </li>
+      
+    
+      
+      
+        
+        
+        <li class="menu-item menu-item-categories">
+      
+    
+
+    <a href="/categories/" rel="section"><i class="fa fa-fw fa-th"></i>分类</a>
+
+  </li>
+      
+    
+      
+      
+        
+        
+        <li class="menu-item menu-item-tags">
+      
+    
+
+    <a href="/tags/" rel="section"><i class="fa fa-fw fa-tags"></i>标签</a>
+
+  </li>
+      
+    
+      
+      
+        
+        
+        <li class="menu-item menu-item-archives">
+      
+    
+
+    <a href="/archives/" rel="section"><i class="fa fa-fw fa-archive"></i>归档</a>
+
+  </li>
+      
+    
+      
+      
+        
+        
+        <li class="menu-item menu-item-about">
+      
+    
+
+    <a href="/about/" rel="section"><i class="fa fa-fw fa-user"></i>关于</a>
+
+  </li>
+      
+    
+  </ul>
+
+    
+
+</nav>
+</div>
+    </header>
+
+    
+  <div class="back-to-top">
+    <i class="fa fa-arrow-up"></i>
+    <span>0%</span>
+  </div>
+
+
+    <main class="main">
+      <div class="main-inner">
+        <div class="content-wrap">
+          <div class="content">
+            
+
+  <div class="posts-expand">
+      
+  
+  
+  <article itemscope itemtype="http://schema.org/Article" class="post-block " lang="zh-CN">
+    <link itemprop="mainEntityOfPage" href="http://yoursite.com/2020/07/21/prometheus/Prometheus学习笔记/">
+
+    <span hidden itemprop="author" itemscope itemtype="http://schema.org/Person">
+      <meta itemprop="name" content="姜纪光">
+      <meta itemprop="description" content="">
+      <meta itemprop="image" content="/images/avatar.gif">
+    </span>
+
+    <span hidden itemprop="publisher" itemscope itemtype="http://schema.org/Organization">
+      <meta itemprop="name" content="纪光的博客">
+    </span>
+      <header class="post-header">
+        <h1 class="post-title" itemprop="name headline">
+          
+            Prometheus学习笔记
+            
+
+          
+        </h1>
+
+        <div class="post-meta">
+            <span class="post-meta-item">
+              <span class="post-meta-item-icon">
+                <i class="fa fa-calendar-o"></i>
+              </span>
+              <span class="post-meta-item-text">发表于</span>
+
+              
+                
+              
+
+              <time title="创建时间：2020-07-21 09:08:35" itemprop="dateCreated datePublished" datetime="2020-07-21T09:08:35+08:00">2020-07-21</time>
+            </span>
+          
+            
+
+            
+              <span class="post-meta-item">
+                <span class="post-meta-item-icon">
+                  <i class="fa fa-calendar-check-o"></i>
+                </span>
+                <span class="post-meta-item-text">更新于</span>
+                <time title="修改时间：2021-06-20 12:19:35" itemprop="dateModified" datetime="2021-06-20T12:19:35+08:00">2021-06-20</time>
+              </span>
+            
+          
+            <span class="post-meta-item">
+              <span class="post-meta-item-icon">
+                <i class="fa fa-folder-o"></i>
+              </span>
+              <span class="post-meta-item-text">分类于</span>
+              
+                <span itemprop="about" itemscope itemtype="http://schema.org/Thing">
+                  <a href="/categories/flink/" itemprop="url" rel="index">
+                    <span itemprop="name">flink</span>
+                  </a>
+                </span>
+
+                
+                
+              
+            </span>
+          
+
+          
+            <span id="/2020/07/21/prometheus/Prometheus学习笔记/" class="post-meta-item leancloud_visitors" data-flag-title="Prometheus学习笔记" title="阅读次数">
+              <span class="post-meta-item-icon">
+                <i class="fa fa-eye"></i>
+              </span>
+              <span class="post-meta-item-text">阅读次数：</span>
+              <span class="leancloud-visitors-count"></span>
+            </span>
+          
+  
+  
+
+        </div>
+      </header>
+
+    
+    
+    
+    <div class="post-body" itemprop="articleBody">
+
+      
+        <h1 id="prometheus"><a href="#prometheus" class="headerlink" title="prometheus"></a>prometheus</h1><h2 id="总览"><a href="#总览" class="headerlink" title="总览"></a>总览</h2><p>​    prometheus的客户端库提供4中核心指标类型。在prometheus server中没有利用类型信息，通过把数据展平成无类型的时间序列，将来可能会改变。</p>
+<h2 id="Counter"><a href="#Counter" class="headerlink" title="Counter"></a>Counter</h2><p>​    counter是累加型指标，代表了一个单调递增计数器，其值仅仅能增加或者重启时置为0，不要使用counter暴露一直能够减少的指标。比如正在处理的数量，可以使用gauge代替</p>
+<h2 id="gauge"><a href="#gauge" class="headerlink" title="gauge"></a>gauge</h2><p>​    gauge是仪表板的意思，表示可以任意上下波动的单个数值。其典型使用是温度、内存使用率等指标，但是也可以当做计数器使用。</p>
+<h2 id="Histogram"><a href="#Histogram" class="headerlink" title="Histogram"></a>Histogram</h2><p>直方图采样观察值（通常是请求的持续时间或响应大小等），并且在可配置的buckets中计数。也能提供所有观察值的总和。</p>
+<p>一个指标的直方图在抓取期间展示了多个时间序列。</p>
+<pre><code>观察桶的累积计数器，显示为&lt;basename&gt; _bucket {le =“ &lt;包含上边界&gt;”}
+
+观察值的总和，显示为&lt;basename&gt;_sum
+
+观察值的事件数量，显示为&lt;basename&gt;_count (identical to &lt;basename&gt;_bucket{le=&quot;+Inf&quot;} above)</code></pre><p>使用 histogram_quantile()函数计算直方图的分位数或者直方图的均匀聚合。</p>
+<h2 id="Summary"><a href="#Summary" class="headerlink" title="Summary"></a>Summary</h2><h2 id="prometheus集群"><a href="#prometheus集群" class="headerlink" title="prometheus集群"></a>prometheus集群</h2><ul>
+<li><p>启动命令</p>
+<blockquote>
+<p>/data/app/prometheus/prometheus –config.file=/data/app/prometheus/prometheus.yml –query.max-samples=500000000 –storage.remote.read-sample-limit=5e8 –log.level=info</p>
+<p>./prometheus -h 查看所有的命令行参数</p>
+</blockquote>
+</li>
+<li><p>global</p>
+<blockquote>
+<p>scrape_interval  抓取数据的间隔</p>
+<p>evaluation_interval  评估规则的频率，用来生产报警</p>
+<p>scrape_timeout   抓取数据的超时时间</p>
+<p>external_labels    外部标签，每个时间序列数据和报警都会自动有</p>
+</blockquote>
+</li>
+<li><p>scrape_configs</p>
+<blockquote>
+<p>job_name 做job label添加到时间序列中  必须是唯一的</p>
+<p>scrape_interval  抓取间隔（覆盖全局配置的中该值）</p>
+<p>honor_labels     用开控制抓取的数据中的冲突的label  默认值false  true：保持已经抓取的数据的label值，忽略掉server端的冲突的label   false：重命名冲突的label值</p>
+<p>consul_sd_configs   server：consul api，用来获取抓取目标   services：抓取的目标列表 允许通过consul 目录 api 获取抓取对象</p>
+<p>relabel_configs  在抓取之前，允许对任何抓取目标和label进行高级修改</p>
+<p>rule_files   规则文件制定了清单列表，从匹配的文件中读取规则和报警   1.在即席查询时，聚合很多时间序列可能会变慢，Prometheus允许在规则文件中预录入表达式，这样在采集数据时，就可以直接聚合形成新的时间序列数据</p>
+</blockquote>
+</li>
+</ul>
+<h1 id="alertmanager"><a href="#alertmanager" class="headerlink" title="alertmanager"></a>alertmanager</h1><p>​    alertmanager采用高可用配置，0.15版本以及以上才支持高可用，默认是开启的。alertmanager的高可用必须让alertmanager集群实例可以相互通讯，这通过在启动alertmanager服务时通过–cluster.*参数实现和官方建议的高可用方案不一致，官方建议的是每个alertmanager都会收到报警，而这里实际上使用的slb配置。</p>
+<table>
+<thead>
+<tr>
+<th align="left">命令行参数</th>
+<th align="left">作用</th>
+<th></th>
+</tr>
+</thead>
+<tbody><tr>
+<td align="left">–cluster.listen-address=0.0.0.0:9094</td>
+<td align="left">当前实例集群服务监听地址，默认值就是0.0.0.0:9094，因此启动时无需添加该参数</td>
+<td></td>
+</tr>
+<tr>
+<td align="left">–cluster.advertise-address=172.16.161.22:9094</td>
+<td align="left">本机地址:9094   cluster advertise address    如果实例的IP地址不是RFC 6980的一部分，且带有默认路由，则标志是必需的</td>
+<td></td>
+</tr>
+<tr>
+<td align="left">–cluster.peer=172.16.161.15:9094</td>
+<td align="left">初始化时关联的其它实例的集群服务地址   第一个节点启动时不需要加该参数    第二个节点启动时添加该参数，且参数相同</td>
+<td></td>
+</tr>
+<tr>
+<td align="left">–web.listen-address=0.0.0.0:9093</td>
+<td align="left">服务运行地址    需要配置在prometheus中，ip:端口</td>
+<td></td>
+</tr>
+<tr>
+<td align="left">–config.file=/data/app/alertmanager/alertmanager.yml</td>
+<td align="left">配置文件地址</td>
+<td></td>
+</tr>
+<tr>
+<td align="left">–log.level=info</td>
+<td align="left">日志级别</td>
+<td></td>
+</tr>
+<tr>
+<td align="left">–alerts.gc-interval=30m</td>
+<td align="left">Interval between alert GC.</td>
+<td></td>
+</tr>
+</tbody></table>
+<h2 id="配置文件"><a href="#配置文件" class="headerlink" title="配置文件"></a>配置文件</h2><ul>
+<li><p>global  resolve_timeout</p>
+<blockquote>
+<p>该参数定义了当Alertmanager持续多长时间未接收到告警后标记告警状态为resolved（已解决）。<br>该参数的定义可能会影响到告警恢复通知的接收时间，读者可根据自己的实际场景进行定义，其默认值为5分钟。既然是5分钟，那么为啥发送 恢复 的时间间隔小于5分钟</p>
+</blockquote>
+</li>
+<li><p>route group_by</p>
+<blockquote>
+<p>用来对告警进行分组，将多条告警合并为一个通知。基于告警中包含的标签，如果满足<strong>group_by</strong>中定义标签名称，那么这些告警将会合并为一个通知发送给接收器</p>
+</blockquote>
+</li>
+<li><p>route group_wait</p>
+<blockquote>
+<p>如果在等待时间内当前group接收到了新的告警，这些告警将会合并为一个通知向receiver发送。</p>
+</blockquote>
+</li>
+<li><p>route group_interval</p>
+<blockquote>
+<p>则用于定义相同的Group之间发送告警通知的时间间隔。</p>
+<p>也就是第二次之后发送该Group告警的间隔时间</p>
+</blockquote>
+</li>
+<li><p>route repeat_interval</p>
+</li>
+<li><p>receivers send_resolved</p>
+<blockquote>
+<p>true发送恢复 通知  false 不发送恢复通知</p>
+</blockquote>
+</li>
+<li><p>inhibit_rules</p>
+<blockquote>
+<p>source_match target_match equal</p>
+<p>1.当source已经匹配时，会静默target匹配的告警</p>
+<p>2.source和target必须有在equal定义的一样的label值</p>
+<p>3.如果label缺失或者值为空，那么就是相等</p>
+</blockquote>
+</li>
+</ul>
+<h1 id="pushgateway"><a href="#pushgateway" class="headerlink" title="pushgateway"></a>pushgateway</h1><h2 id="指标一致性检查"><a href="#指标一致性检查" class="headerlink" title="指标一致性检查"></a>指标一致性检查</h2><p>  然而如果大量的指标是被频繁推送的pushgateway，pushgateway聚合的成本非常高，那么push的时间将会非常长。可以使用–push.disable-consistency-check 来节省一致性检查的成本，但是这将导致不一致的指标。设置了该参数，在抓取时任然会进行一致性检查，但是只要有不一致的指标，那么所有的抓取都会失败。 <a href="https://github.com/prometheus/pushgateway/issues/313" target="_blank" rel="noopener">https://github.com/prometheus/pushgateway/issues/313</a></p>
+<h2 id="时间戳"><a href="#时间戳" class="headerlink" title="时间戳"></a>时间戳</h2><p>​    如果指标被推送到pushgateway的时间是t1，你可能错误地认为prometheus在同样的时间抓取他们，事实上，prometheus赋给指标的时间戳是抓取的时间。在prometheus的视角中，prometheus可以在任何时间抓取指标，直到指标被删除。验证：prometheus有时是宽容的，但是如果在5分钟内得不到一个指标的任何采样，那么将其视为已删除。pushed group（推送组）：按照推送组聚合，其实就是指标名称，每个推送组都有push_time_seconds和push_failure_time_seconds。</p>
+<ul>
+<li>pushgateway不需要任何配置，开箱即用</li>
+<li>默认情况下，所有指标均存储在内存中，即如果重新，那么将丢失所有指标。可以通过–persistence.file 持久化于磁盘路径</li>
+</ul>
+<h2 id="系统指标"><a href="#系统指标" class="headerlink" title="系统指标"></a>系统指标</h2><figure class="highlight plain"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br><span class="line">3</span><br><span class="line">4</span><br><span class="line">5</span><br><span class="line">6</span><br><span class="line">7</span><br><span class="line">8</span><br><span class="line">9</span><br><span class="line">10</span><br><span class="line">11</span><br></pre></td><td class="code"><pre><span class="line">push_time_seconds，表示每个指标组最新的成功推送时间</span><br><span class="line">push_failure_time_seconds，表示每个指标组的POST/PUT的失败时间，失败的原因一般是value值非法，如果该指标没有，那么可以去掉检查</span><br><span class="line">pushgateway_http_requests_total：用来记录http请求的数量。</span><br><span class="line">pushgateway_build_info：pushgateway的版本信息</span><br><span class="line">pushgateway_http_push_duration_seconds：推送到pushgateway的http请求持续时间秒的概况</span><br><span class="line">pushgateway_http_push_duration_seconds_sum：应该是时间总和</span><br><span class="line">pushgateway_http_push_duration_seconds_count：应该是总次数</span><br><span class="line">pushgateway_http_push_size_bytes：推送到pushgateway的http请求的大小</span><br><span class="line">pushgateway_http_push_size_bytes_sum：应该是字节总大小</span><br><span class="line">pushgateway_http_push_size_bytes_count：应该是总次数</span><br><span class="line">pushgateway_http_requests_total：http请求的次数</span><br></pre></td></tr></table></figure>
+
+<h2 id="系统方法"><a href="#系统方法" class="headerlink" title="系统方法"></a>系统方法</h2><figure class="highlight plain"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br><span class="line">3</span><br><span class="line">4</span><br><span class="line">5</span><br><span class="line">6</span><br><span class="line">7</span><br></pre></td><td class="code"><pre><span class="line">/metrics/job/&lt;JOB_NAME&gt;&#123;/&lt;LABEL_NAME&gt;/&lt;LABEL_VALUE&gt;&#125;</span><br><span class="line">在URL中设置的label，被用作grouping key，被设置在body中的label将会被覆盖。</span><br><span class="line">验证（todo）：body中的label是否被覆盖？是否只有URL中的label才能用作grouping key？</span><br><span class="line">返回码：包含200 202 400</span><br><span class="line">200：表示成功</span><br><span class="line">400：表示失败，包括请求不符合格式，指标不一致，或者group冲突</span><br><span class="line">202：表示设置了--push.disable-consistency-check的成功推送</span><br></pre></td></tr></table></figure>
+
+<ul>
+<li><p>PUT</p>
+<blockquote>
+<p>用来推送一组指标，在URL路径中的所有grouping key是被PUT的指标替换？啥意思？没看懂，不是说grouping key 是URL中的指标吗 怎么又被body中的替换呢如果body是空，那么意味着删除所有grouping key的指标，与DELETE不同的是，PUT会更新push_time_seconds</p>
+</blockquote>
+</li>
+<li><p>POST</p>
+<blockquote>
+<p>和put方法基本相同，区别是：<br>1.仅仅是新推送的并且名称一样才能被替换？查一下具体区别？<br>2.如果body是空，push_time_seconds也会更新，但是不会更新任何先前推送的指标值，也就是不会删除。</p>
+</blockquote>
+</li>
+<li><p>DELETE</p>
+<blockquote>
+<p>请求不能包含body，所有匹配URL中grouping key的指标将被删除。成功码总是202，和PUT/POST相比具有最高执行优先级。</p>
+</blockquote>
+</li>
+</ul>
+<h2 id="pushgateway的GC时间"><a href="#pushgateway的GC时间" class="headerlink" title="pushgateway的GC时间"></a>pushgateway的GC时间</h2><table>
+<thead>
+<tr>
+<th align="left">指标</th>
+<th align="left">数值</th>
+<th align="left">作用</th>
+</tr>
+</thead>
+<tbody><tr>
+<td align="left">go_gc_duration_seconds</td>
+<td align="left">0.018889618</td>
+<td align="left">持续时间的秒数</td>
+</tr>
+<tr>
+<td align="left">go_gc_duration_seconds_count</td>
+<td align="left">24547</td>
+<td align="left">总次数</td>
+</tr>
+<tr>
+<td align="left">go_gc_duration_seconds_sum</td>
+<td align="left">11.83551848</td>
+<td align="left">总秒数</td>
+</tr>
+<tr>
+<td align="left">go_memstats_last_gc_time_seconds</td>
+<td align="left">1584932274.8469074</td>
+<td align="left">上次发生GC的时间</td>
+</tr>
+<tr>
+<td align="left">go_memstats_gc_cpu_fraction</td>
+<td align="left">0.008819378754311585</td>
+<td align="left">自程序启动以来，GC时间占程序<br>可用CPU的比例，可以排除GC导致的系统CPU负载过高</td>
+</tr>
+<tr>
+<td align="left">go_goroutines</td>
+<td align="left">415</td>
+<td align="left"></td>
+</tr>
+<tr>
+<td align="left">go_memstats_alloc_bytes</td>
+<td align="left">16840443448=16G</td>
+<td align="left">分配以及仍在使用的字节数</td>
+</tr>
+<tr>
+<td align="left">go_memstats_alloc_bytes_total</td>
+<td align="left">225647979901736<br>=225647G</td>
+<td align="left">总共分配的字节数</td>
+</tr>
+<tr>
+<td align="left">go_threads</td>
+<td align="left">41</td>
+<td align="left">系统创建的线程数</td>
+</tr>
+</tbody></table>
+<h2 id="pushgateway处理指标"><a href="#pushgateway处理指标" class="headerlink" title="pushgateway处理指标"></a>pushgateway处理指标</h2><table>
+<thead>
+<tr>
+<th align="left">指标</th>
+<th align="left">数值</th>
+<th align="left">作用</th>
+<th></th>
+</tr>
+</thead>
+<tbody><tr>
+<td align="left">process_cpu_seconds_total</td>
+<td align="left"></td>
+<td align="left"></td>
+<td></td>
+</tr>
+<tr>
+<td align="left">process_max_fds</td>
+<td align="left"></td>
+<td align="left"></td>
+<td></td>
+</tr>
+<tr>
+<td align="left">process_open_fds</td>
+<td align="left">430</td>
+<td align="left">打开的文件描述符的数量</td>
+<td></td>
+</tr>
+<tr>
+<td align="left">process_resident_memory_bytes</td>
+<td align="left">40902533120=40G</td>
+<td align="left">常驻内存大小</td>
+<td></td>
+</tr>
+<tr>
+<td align="left">process_start_time_seconds</td>
+<td align="left">1584069726</td>
+<td align="left">启动的时间</td>
+<td></td>
+</tr>
+<tr>
+<td align="left">process_virtual_memory_bytes</td>
+<td align="left">40G</td>
+<td align="left">RAM和交互区所有内存大小</td>
+<td></td>
+</tr>
+<tr>
+<td align="left">process_virtual_memory_max_bytes</td>
+<td align="left"></td>
+<td align="left"></td>
+<td></td>
+</tr>
+</tbody></table>
+<h2 id="pushgateway的http指标"><a href="#pushgateway的http指标" class="headerlink" title="pushgateway的http指标"></a>pushgateway的http指标</h2><table>
+<thead>
+<tr>
+<th align="left">指标</th>
+<th align="left">数值</th>
+<th align="left">作用</th>
+</tr>
+</thead>
+<tbody><tr>
+<td align="left">pushgateway_http_push_duration_seconds</td>
+<td align="left">0.04857185</td>
+<td align="left">90线还不到0.05秒，说明写入的很快</td>
+</tr>
+<tr>
+<td align="left">pushgateway_http_push_duration_seconds_count</td>
+<td align="left">42310596</td>
+<td align="left">启动以来写入的次数</td>
+</tr>
+<tr>
+<td align="left">pushgateway_http_push_duration_seconds_sum</td>
+<td align="left">1001197.3480990011</td>
+<td align="left"></td>
+</tr>
+<tr>
+<td align="left">pushgateway_http_push_size_bytes</td>
+<td align="left">1MB</td>
+<td align="left"></td>
+</tr>
+<tr>
+<td align="left">pushgateway_http_push_size_bytes_count</td>
+<td align="left"></td>
+<td align="left"></td>
+</tr>
+<tr>
+<td align="left">pushgateway_http_push_size_bytes_sum</td>
+<td align="left">26T</td>
+<td align="left"></td>
+</tr>
+<tr>
+<td align="left">pushgateway_http_requests_total</td>
+<td align="left">get=1455次 <br>delete=1417次 put=42337258次</td>
+<td align="left"></td>
+</tr>
+</tbody></table>
+<h2 id="scrape指标"><a href="#scrape指标" class="headerlink" title="scrape指标"></a>scrape指标</h2><table>
+<thead>
+<tr>
+<th align="left">指标</th>
+<th align="left">数值</th>
+<th>作用</th>
+</tr>
+</thead>
+<tbody><tr>
+<td align="left">scrape_duration_seconds</td>
+<td align="left">69</td>
+<td>最近一次prometheus从pushgateway获取指标的秒数</td>
+</tr>
+<tr>
+<td align="left">scrape_samples_post_metric_relabeling</td>
+<td align="left">2543411</td>
+<td>表示度量指标的标签变化后，标签没有变化的度量指标数量。</td>
+</tr>
+<tr>
+<td align="left">scrape_samples_scraped</td>
+<td align="left">2543411</td>
+<td></td>
+</tr>
+<tr>
+<td align="left">scrape_series_added</td>
+<td align="left">48926</td>
+<td>本次抓取中新增时间序列的数量</td>
+</tr>
+</tbody></table>
+<h1 id="参考文档"><a href="#参考文档" class="headerlink" title="参考文档"></a>参考文档</h1><p><a href="https://github.com/prometheus/client_java#counter" target="_blank" rel="noopener">ClientJava</a></p>
+<p><a href="https://prometheus.io/docs/concepts/metric_types/" target="_blank" rel="noopener">数据类型</a></p>
+<p><a href="https://prometheus.io/docs/prometheus/latest/querying/functions/#histogram_quantile" target="_blank" rel="noopener">函数</a></p>
+<p><a href="https://prometheus.io/docs/practices/histograms/" target="_blank" rel="noopener">直方图详细</a></p>
+<p><a href="https://km.qutoutiao.net/display/yunwei/PrometheusApi" target="_blank" rel="noopener">PrometheusApi</a></p>
+<p><a href="https://yunlzheng.gitbook.io/prometheus-book/parti-prometheus-ji-chu/alert/prometheus-alert-rule" target="_blank" rel="noopener">prometheus-alert-rule</a></p>
+<p><a href="https://prometheus.io/docs/prometheus/latest/configuration/configuration/" target="_blank" rel="noopener">configuration</a></p>
+<p><a href="https://github.com/prometheus/alertmanager" target="_blank" rel="noopener">alertmanager</a></p>
+<p><a href="https://prometheus.io/docs/alerting/overview/" target="_blank" rel="noopener">overview</a></p>
+<p><a href="https://yunlzheng.gitbook.io/prometheus-book/parti-prometheus-ji-chu/alert/install-alert-manager" target="_blank" rel="noopener">install-alert-manager</a></p>
+<p><a href="https://yunlzheng.gitbook.io/prometheus-book/part-ii-prometheus-jin-jie/readmd/alertmanager-high-availability" target="_blank" rel="noopener">alertmanager-high-availability</a></p>
+<p><a href="https://manpages.debian.org/testing/prometheus-alertmanager/prometheus-alertmanager.1.en.html" target="_blank" rel="noopener">prometheus-alertmanager</a></p>
+<p><a href="https://github.com/prometheus/prometheus/blob/release-2.18/config/testdata/conf.good.yml" target="_blank" rel="noopener">promethues集群生产配置</a></p>
+
+    </div>
+
+    
+    
+    
+        
+      
+
+      <footer class="post-footer">
+          
+            
+          
+          <div class="post-tags">
+            
+              <a href="/tags/prometheus/" rel="tag"># prometheus</a>
+            
+          </div>
+        
+
+        
+
+          <div class="post-nav">
+            <div class="post-nav-next post-nav-item">
+              
+                <a href="/2020/07/20/hadoop/Hive元数据/" rel="next" title="hive元数据metastore">
+                  <i class="fa fa-chevron-left"></i> hive元数据metastore
+                </a>
+              
+            </div>
+
+            <span class="post-nav-divider"></span>
+
+            <div class="post-nav-prev post-nav-item">
+              
+                <a href="/2020/07/21/prometheus/Thanos学习笔记/" rel="prev" title="thanos学习笔记">
+                  thanos学习笔记 <i class="fa fa-chevron-right"></i>
+                </a>
+              
+            </div>
+          </div>
+        
+      </footer>
+    
+  </article>
+  
+  
+  
+
+  </div>
+
+
+          </div>
+          
+
+        </div>
+          
+  
+  <div class="toggle sidebar-toggle">
+    <span class="toggle-line toggle-line-first"></span>
+    <span class="toggle-line toggle-line-middle"></span>
+    <span class="toggle-line toggle-line-last"></span>
+  </div>
+
+  <aside class="sidebar">
+    <div class="sidebar-inner">
+        
+        
+        
+        
+      
+
+      <ul class="sidebar-nav motion-element">
+        <li class="sidebar-nav-toc">
+          文章目录
+        </li>
+        <li class="sidebar-nav-overview">
+          站点概览
+        </li>
+      </ul>
+
+      <!--noindex-->
+      <div class="post-toc-wrap sidebar-panel">
+          <div class="post-toc motion-element"><ol class="nav"><li class="nav-item nav-level-1"><a class="nav-link" href="#prometheus"><span class="nav-number">1.</span> <span class="nav-text">prometheus</span></a><ol class="nav-child"><li class="nav-item nav-level-2"><a class="nav-link" href="#总览"><span class="nav-number">1.1.</span> <span class="nav-text">总览</span></a></li><li class="nav-item nav-level-2"><a class="nav-link" href="#Counter"><span class="nav-number">1.2.</span> <span class="nav-text">Counter</span></a></li><li class="nav-item nav-level-2"><a class="nav-link" href="#gauge"><span class="nav-number">1.3.</span> <span class="nav-text">gauge</span></a></li><li class="nav-item nav-level-2"><a class="nav-link" href="#Histogram"><span class="nav-number">1.4.</span> <span class="nav-text">Histogram</span></a></li><li class="nav-item nav-level-2"><a class="nav-link" href="#Summary"><span class="nav-number">1.5.</span> <span class="nav-text">Summary</span></a></li><li class="nav-item nav-level-2"><a class="nav-link" href="#prometheus集群"><span class="nav-number">1.6.</span> <span class="nav-text">prometheus集群</span></a></li></ol></li><li class="nav-item nav-level-1"><a class="nav-link" href="#alertmanager"><span class="nav-number">2.</span> <span class="nav-text">alertmanager</span></a><ol class="nav-child"><li class="nav-item nav-level-2"><a class="nav-link" href="#配置文件"><span class="nav-number">2.1.</span> <span class="nav-text">配置文件</span></a></li></ol></li><li class="nav-item nav-level-1"><a class="nav-link" href="#pushgateway"><span class="nav-number">3.</span> <span class="nav-text">pushgateway</span></a><ol class="nav-child"><li class="nav-item nav-level-2"><a class="nav-link" href="#指标一致性检查"><span class="nav-number">3.1.</span> <span class="nav-text">指标一致性检查</span></a></li><li class="nav-item nav-level-2"><a class="nav-link" href="#时间戳"><span class="nav-number">3.2.</span> <span class="nav-text">时间戳</span></a></li><li class="nav-item nav-level-2"><a class="nav-link" href="#系统指标"><span class="nav-number">3.3.</span> <span class="nav-text">系统指标</span></a></li><li class="nav-item nav-level-2"><a class="nav-link" href="#系统方法"><span class="nav-number">3.4.</span> <span class="nav-text">系统方法</span></a></li><li class="nav-item nav-level-2"><a class="nav-link" href="#pushgateway的GC时间"><span class="nav-number">3.5.</span> <span class="nav-text">pushgateway的GC时间</span></a></li><li class="nav-item nav-level-2"><a class="nav-link" href="#pushgateway处理指标"><span class="nav-number">3.6.</span> <span class="nav-text">pushgateway处理指标</span></a></li><li class="nav-item nav-level-2"><a class="nav-link" href="#pushgateway的http指标"><span class="nav-number">3.7.</span> <span class="nav-text">pushgateway的http指标</span></a></li><li class="nav-item nav-level-2"><a class="nav-link" href="#scrape指标"><span class="nav-number">3.8.</span> <span class="nav-text">scrape指标</span></a></li></ol></li><li class="nav-item nav-level-1"><a class="nav-link" href="#参考文档"><span class="nav-number">4.</span> <span class="nav-text">参考文档</span></a></li></ol></div>
+        
+      </div>
+      <!--/noindex-->
+
+      <div class="site-overview-wrap sidebar-panel">
+        <div class="site-author motion-element" itemprop="author" itemscope itemtype="http://schema.org/Person">
+  <p class="site-author-name" itemprop="name">姜纪光</p>
+  <div class="site-description" itemprop="description"></div>
+</div>
+<div class="site-state-wrap motion-element">
+  <nav class="site-state">
+      <div class="site-state-item site-state-posts">
+        
+          <a href="/archives/">
+        
+          <span class="site-state-item-count">158</span>
+          <span class="site-state-item-name">日志</span>
+        </a>
+      </div>
+    
+      
+      
+      <div class="site-state-item site-state-categories">
+        
+          
+            <a href="/categories/">
+          
+        
+        <span class="site-state-item-count">26</span>
+        <span class="site-state-item-name">分类</span>
+        </a>
+      </div>
+    
+      
+      
+      <div class="site-state-item site-state-tags">
+        
+          
+            <a href="/tags/">
+          
+        
+        <span class="site-state-item-count">14</span>
+        <span class="site-state-item-name">标签</span>
+        </a>
+      </div>
+    
+  </nav>
+</div>
+
+
+
+      </div>
+
+    </div>
+  </aside>
+  <div id="sidebar-dimmer"></div>
+
+
+      </div>
+    </main>
+
+    <footer class="footer">
+      <div class="footer-inner">
+        
+
+<div class="copyright">
+  &copy; 
+  <span itemprop="copyrightYear">2021</span>
+  <span class="with-love">
+    <i class="fa fa-user"></i>
+  </span>
+  <span class="author" itemprop="copyrightHolder">姜纪光</span>
+</div>
+  <div class="powered-by">由 <a href="https://hexo.io" class="theme-link" rel="noopener" target="_blank">Hexo</a> 强力驱动 v3.9.0
+  </div>
+  <span class="post-meta-divider">|</span>
+  <div class="theme-info">
+      
+    主题 – <a href="https://mist.theme-next.org" class="theme-link" rel="noopener" target="_blank">NexT.Mist</a> v7.4.1
+  </div>
+
+        
+
+
+
+
+
+
+
+
+
+
+
+
+        
+      </div>
+    </footer>
+  </div>
+
+  
+  <script src="/lib/anime.min.js?v=3.1.0"></script>
+  <script src="/lib/velocity/velocity.min.js?v=1.2.1"></script>
+  <script src="/lib/velocity/velocity.ui.min.js?v=1.2.1"></script>
+<script src="/js/utils.js?v=7.4.1"></script><script src="/js/motion.js?v=7.4.1"></script>
+<script src="/js/schemes/muse.js?v=7.4.1"></script>
+
+<script src="/js/next-boot.js?v=7.4.1"></script>
+
+
+
+  
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+  
+
+  
+
+  
+
+
+<script>
+NexT.utils.getScript('//unpkg.com/valine/dist/Valine.min.js', () => {
+  var GUEST = ['nick', 'mail', 'link'];
+  var guest = 'nick,mail,link';
+  guest = guest.split(',').filter(item => {
+    return GUEST.includes(item);
+  });
+  new Valine({
+    el: '#comments',
+    verify: false,
+    notify: false,
+    appId: 'MIQC4jJTknc0hjNXDAiIuQ21-9Nh9j0Va',
+    appKey: 'vaiXpSQLLMglwYsVLOBLzck4',
+    placeholder: "Just go go",
+    avatar: 'mm',
+    meta: guest,
+    pageSize: '10' || 10,
+    visitor: true,
+    lang: 'zh-cn' || 'zh-cn',
+    path: location.pathname,
+    recordIP: false,
+    serverURLs: ''
+  });
+}, window.Valine);
+</script>
+
+</body>
+</html>

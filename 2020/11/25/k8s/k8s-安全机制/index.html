@@ -1,0 +1,786 @@
+<!DOCTYPE html>
+
+
+
+
+
+<html lang="zh-CN">
+<head>
+  <meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1, maximum-scale=2">
+<meta name="theme-color" content="#222">
+<meta name="generator" content="Hexo 3.9.0">
+  <link rel="apple-touch-icon" sizes="180x180" href="/images/apple-touch-icon-next.png?v=7.4.1">
+  <link rel="icon" type="image/png" sizes="32x32" href="/images/favicon-32x32-next.png?v=7.4.1">
+  <link rel="icon" type="image/png" sizes="16x16" href="/images/favicon-16x16-next.png?v=7.4.1">
+  <link rel="mask-icon" href="/images/logo.svg?v=7.4.1" color="#222">
+
+<link rel="stylesheet" href="/css/main.css?v=7.4.1">
+
+
+<link rel="stylesheet" href="/lib/font-awesome/css/font-awesome.min.css?v=4.7.0">
+
+
+<script id="hexo-configurations">
+  var NexT = window.NexT || {};
+  var CONFIG = {
+    root: '/',
+    scheme: 'Mist',
+    version: '7.4.1',
+    exturl: false,
+    sidebar: {"position":"right","display":"hide","offset":12,"onmobile":false},
+    copycode: {"enable":false,"show_result":false,"style":null},
+    back2top: {"enable":true,"sidebar":false,"scrollpercent":false},
+    bookmark: {"enable":false,"color":"#222","save":"auto"},
+    fancybox: false,
+    mediumzoom: false,
+    lazyload: false,
+    pangu: false,
+    algolia: {
+      appID: '',
+      apiKey: '',
+      indexName: '',
+      hits: {"per_page":10},
+      labels: {"input_placeholder":"Search for Posts","hits_empty":"We didn't find any results for the search: ${query}","hits_stats":"${hits} results found in ${time} ms"}
+    },
+    localsearch: {"enable":false,"trigger":"auto","top_n_per_article":1,"unescape":false,"preload":false},
+    path: '',
+    motion: {"enable":true,"async":false,"transition":{"post_block":"fadeIn","post_header":"slideDownIn","post_body":"slideDownIn","coll_header":"slideLeftIn","sidebar":"slideUpIn"}},
+    translation: {
+      copy_button: '复制',
+      copy_success: '复制成功',
+      copy_failure: '复制失败'
+    },
+    sidebarPadding: 40
+  };
+</script>
+
+  <meta name="description" content="概述 访问k8s集群资源时，需要三个具体步骤：认证、鉴权（授权）、准入控制  1、传输安全：8080端口对外不暴露，只能内部访问，对外保留6443端口 2、认证方式：https基于ca证书认证、http基于token认证 3、鉴权：基于RBAC进行鉴权操作 4、准入控制：基于准入控制器的列表，如果有就通过   访问过程都需要经过apiserver做统一协调  k8s中有两类用户  1、一类是use">
+<meta property="og:type" content="article">
+<meta property="og:title" content="k8s-安全机制">
+<meta property="og:url" content="http://yoursite.com/2020/11/25/k8s/k8s-安全机制/index.html">
+<meta property="og:site_name" content="纪光的博客">
+<meta property="og:description" content="概述 访问k8s集群资源时，需要三个具体步骤：认证、鉴权（授权）、准入控制  1、传输安全：8080端口对外不暴露，只能内部访问，对外保留6443端口 2、认证方式：https基于ca证书认证、http基于token认证 3、鉴权：基于RBAC进行鉴权操作 4、准入控制：基于准入控制器的列表，如果有就通过   访问过程都需要经过apiserver做统一协调  k8s中有两类用户  1、一类是use">
+<meta property="og:locale" content="zh-CN">
+<meta property="og:updated_time" content="2021-06-20T04:19:35.157Z">
+<meta name="twitter:card" content="summary">
+<meta name="twitter:title" content="k8s-安全机制">
+<meta name="twitter:description" content="概述 访问k8s集群资源时，需要三个具体步骤：认证、鉴权（授权）、准入控制  1、传输安全：8080端口对外不暴露，只能内部访问，对外保留6443端口 2、认证方式：https基于ca证书认证、http基于token认证 3、鉴权：基于RBAC进行鉴权操作 4、准入控制：基于准入控制器的列表，如果有就通过   访问过程都需要经过apiserver做统一协调  k8s中有两类用户  1、一类是use">
+  <link rel="canonical" href="http://yoursite.com/2020/11/25/k8s/k8s-安全机制/">
+
+
+<script id="page-configurations">
+  // https://hexo.io/docs/variables.html
+  CONFIG.page = {
+    sidebar: "",
+    isHome: false,
+    isPost: true,
+    isPage: false,
+    isArchive: false
+  };
+</script>
+
+  <title>k8s-安全机制 | 纪光的博客</title>
+  
+
+
+  <script>
+    var _hmt = _hmt || [];
+    (function() {
+      var hm = document.createElement("script");
+      hm.src = "https://hm.baidu.com/hm.js?bca403b673d79e83a47dc62fea1dd605";
+      var s = document.getElementsByTagName("script")[0];
+      s.parentNode.insertBefore(hm, s);
+    })();
+  </script>
+
+
+
+
+
+
+  <noscript>
+  <style>
+  .use-motion .brand,
+  .use-motion .menu-item,
+  .sidebar-inner,
+  .use-motion .post-block,
+  .use-motion .pagination,
+  .use-motion .comments,
+  .use-motion .post-header,
+  .use-motion .post-body,
+  .use-motion .collection-header { opacity: initial; }
+
+  .use-motion .site-title,
+  .use-motion .site-subtitle {
+    opacity: initial;
+    top: initial;
+  }
+
+  .use-motion .logo-line-before i { left: initial; }
+  .use-motion .logo-line-after i { right: initial; }
+  </style>
+</noscript>
+
+</head>
+
+<body itemscope itemtype="http://schema.org/WebPage">
+  <div class="container use-motion">
+    <div class="headband"></div>
+
+    <header class="header" itemscope itemtype="http://schema.org/WPHeader">
+      <div class="header-inner"><div class="site-brand-container">
+  <div class="site-meta">
+
+    <div>
+      <a href="/" class="brand" rel="start">
+        <span class="logo-line-before"><i></i></span>
+        <span class="site-title">纪光的博客</span>
+        <span class="logo-line-after"><i></i></span>
+      </a>
+    </div>
+  </div>
+
+  <div class="site-nav-toggle">
+    <div class="toggle" aria-label="切换导航栏">
+      <span class="toggle-line toggle-line-first"></span>
+      <span class="toggle-line toggle-line-middle"></span>
+      <span class="toggle-line toggle-line-last"></span>
+    </div>
+  </div>
+</div>
+
+
+<nav class="site-nav">
+  
+  <ul id="menu" class="menu">
+      
+      
+        
+        
+        <li class="menu-item menu-item-home">
+      
+    
+
+    <a href="/" rel="section"><i class="fa fa-fw fa-home"></i>首页</a>
+
+  </li>
+      
+    
+      
+      
+        
+        
+        <li class="menu-item menu-item-categories">
+      
+    
+
+    <a href="/categories/" rel="section"><i class="fa fa-fw fa-th"></i>分类</a>
+
+  </li>
+      
+    
+      
+      
+        
+        
+        <li class="menu-item menu-item-tags">
+      
+    
+
+    <a href="/tags/" rel="section"><i class="fa fa-fw fa-tags"></i>标签</a>
+
+  </li>
+      
+    
+      
+      
+        
+        
+        <li class="menu-item menu-item-archives">
+      
+    
+
+    <a href="/archives/" rel="section"><i class="fa fa-fw fa-archive"></i>归档</a>
+
+  </li>
+      
+    
+      
+      
+        
+        
+        <li class="menu-item menu-item-about">
+      
+    
+
+    <a href="/about/" rel="section"><i class="fa fa-fw fa-user"></i>关于</a>
+
+  </li>
+      
+    
+  </ul>
+
+    
+
+</nav>
+</div>
+    </header>
+
+    
+  <div class="back-to-top">
+    <i class="fa fa-arrow-up"></i>
+    <span>0%</span>
+  </div>
+
+
+    <main class="main">
+      <div class="main-inner">
+        <div class="content-wrap">
+          <div class="content">
+            
+
+  <div class="posts-expand">
+      
+  
+  
+  <article itemscope itemtype="http://schema.org/Article" class="post-block " lang="zh-CN">
+    <link itemprop="mainEntityOfPage" href="http://yoursite.com/2020/11/25/k8s/k8s-安全机制/">
+
+    <span hidden itemprop="author" itemscope itemtype="http://schema.org/Person">
+      <meta itemprop="name" content="姜纪光">
+      <meta itemprop="description" content="">
+      <meta itemprop="image" content="/images/avatar.gif">
+    </span>
+
+    <span hidden itemprop="publisher" itemscope itemtype="http://schema.org/Organization">
+      <meta itemprop="name" content="纪光的博客">
+    </span>
+      <header class="post-header">
+        <h1 class="post-title" itemprop="name headline">
+          
+            k8s-安全机制
+            
+
+          
+        </h1>
+
+        <div class="post-meta">
+            <span class="post-meta-item">
+              <span class="post-meta-item-icon">
+                <i class="fa fa-calendar-o"></i>
+              </span>
+              <span class="post-meta-item-text">发表于</span>
+
+              
+                
+              
+
+              <time title="创建时间：2020-11-25 10:32:48" itemprop="dateCreated datePublished" datetime="2020-11-25T10:32:48+08:00">2020-11-25</time>
+            </span>
+          
+            
+
+            
+              <span class="post-meta-item">
+                <span class="post-meta-item-icon">
+                  <i class="fa fa-calendar-check-o"></i>
+                </span>
+                <span class="post-meta-item-text">更新于</span>
+                <time title="修改时间：2021-06-20 12:19:35" itemprop="dateModified" datetime="2021-06-20T12:19:35+08:00">2021-06-20</time>
+              </span>
+            
+          
+            <span class="post-meta-item">
+              <span class="post-meta-item-icon">
+                <i class="fa fa-folder-o"></i>
+              </span>
+              <span class="post-meta-item-text">分类于</span>
+              
+                <span itemprop="about" itemscope itemtype="http://schema.org/Thing">
+                  <a href="/categories/k8s/" itemprop="url" rel="index">
+                    <span itemprop="name">k8s</span>
+                  </a>
+                </span>
+
+                
+                
+              
+            </span>
+          
+
+          
+            <span id="/2020/11/25/k8s/k8s-安全机制/" class="post-meta-item leancloud_visitors" data-flag-title="k8s-安全机制" title="阅读次数">
+              <span class="post-meta-item-icon">
+                <i class="fa fa-eye"></i>
+              </span>
+              <span class="post-meta-item-text">阅读次数：</span>
+              <span class="leancloud-visitors-count"></span>
+            </span>
+          
+  
+  
+
+        </div>
+      </header>
+
+    
+    
+    
+    <div class="post-body" itemprop="articleBody">
+
+      
+        <h1 id="概述"><a href="#概述" class="headerlink" title="概述"></a>概述</h1><ul>
+<li><p>访问k8s集群资源时，需要三个具体步骤：<code>认证、鉴权（授权）、准入控制</code></p>
+<blockquote>
+<p>1、传输安全：8080端口对外不暴露，只能内部访问，对外保留6443端口</p>
+<p>2、认证方式：https基于ca证书认证、http基于token认证</p>
+<p>3、鉴权：基于RBAC进行鉴权操作</p>
+<p>4、准入控制：基于准入控制器的列表，如果有就通过</p>
+</blockquote>
+</li>
+<li><p>访问过程都需要经过<code>apiserver</code>做统一协调</p>
+</li>
+<li><p>k8s中有两类用户</p>
+<blockquote>
+<p>1、一类是user account，当你访问集群时 apiserver将你的身份验证为特定的用户账户</p>
+<p>2、一类是service account，当pod里的进程访问集群时，apiserver将其验证为服务账户</p>
+</blockquote>
+</li>
+<li><p>user account</p>
+<blockquote>
+<p>用户账户是全局性的。 其名称在集群各 namespace 中都是全局唯一的，未来的用户资源不会做 namespace 隔离</p>
+</blockquote>
+</li>
+<li><p>service account</p>
+<blockquote>
+<p>服务账户是 namespace 隔离的。</p>
+</blockquote>
+</li>
+</ul>
+<h1 id="证书认证"><a href="#证书认证" class="headerlink" title="证书认证"></a>证书认证</h1><ul>
+<li><p>k8s集群中多个组件之间会通过网络相互调用，为了安全，通讯双方都需要做以下两件事情</p>
+<blockquote>
+<p>1、向对方提供证明自己身份的一个证书</p>
+<p>2、验证对方提供的身份证书是否合法</p>
+</blockquote>
+</li>
+<li><p>k8s中使用了数字证书提供身份证明，数字证书的验证是在协议层面通过TLS完成的，TLS有两种验证方式</p>
+<blockquote>
+<p>1、服务器单向认证，只需要服务器端提供证书，客户端通过服务器端证书验证服务的身份</p>
+<p>2、双向TLS认证，除了客户端需要验证服务器的证书，服务器也要通过客户端证书验证客户端的身份</p>
+</blockquote>
+</li>
+<li><p>双向TLS认证时，会涉及以下证书文件</p>
+<blockquote>
+<p>1、服务器端证书：主要包含了服务器端的公钥以及服务器的身份信息，用来验证服务器端身份的数字证书。</p>
+<p>2、服务器端私钥：服务器端证书中包含的公钥所对应的私钥。公钥和私钥是成对使用的，在进行 TLS 验证时，服务器使用该私钥来向客户端证明自己是服务器端证书的拥有者。</p>
+<p>3、客户端证书：客户端用于证明自身身份的数字证书，里面主要包含了客户端的公钥以及客户端的身份信息。</p>
+<p>4、客户端私钥：客户端证书中包含的公钥所对应的私钥，同理，客户端使用该私钥来向服务器端证明自己是客户端证书的拥有者。</p>
+<p>5、服务器端 CA 根证书：签发服务器端证书的 CA 根证书，客户端使用该 CA 根证书来验证服务器端证书的合法性。</p>
+<p>6、客户端端 CA 根证书：签发客户端证书的 CA 根证书，服务器端使用该 CA 根证书来验证客户端证书的合法性。</p>
+</blockquote>
+</li>
+<li><p>作为服务端，必须要有：</p>
+<blockquote>
+<p>服务器端证书、服务器端私钥、客户端端CA 根证书</p>
+</blockquote>
+</li>
+<li><p>作为客户端，必须要有：</p>
+<blockquote>
+<p>客户端证书、客户端私钥，服务器端 CA 根证书</p>
+</blockquote>
+</li>
+</ul>
+<h2 id="Service-Account-证书"><a href="#Service-Account-证书" class="headerlink" title="Service Account 证书"></a>Service Account 证书</h2><ul>
+<li><p>service account主要用于pod访问apiserver</p>
+<blockquote>
+<p>当为pod指定了service account后，k8s会使用<strong>token对应的secret</strong>将 service account token 加载到 pod 上。pod中的应用就可以使用service account token访问apiserver。</p>
+</blockquote>
+</li>
+<li><p>service account token包含公钥和私钥</p>
+<blockquote>
+<p>kube-controller-manager 会用<strong>私钥</strong>来生成 service account token，然后以 secret 的方式加载到 pod 中。pod 中的应用可以使用该 token 来访问 kube-apiserver， kube-apiserver 会使用<strong>公钥</strong>来验证请求中的 token。</p>
+</blockquote>
+</li>
+<li><p>每个服务账户中都存在token对应的Secret</p>
+<p>通过查询服务账户信息，可以看到系统已经自动创建了一个token</p>
+<p><code>$ kubectl get serviceaccounts default -o yaml</code></p>
+<figure class="highlight yaml"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br><span class="line">3</span><br><span class="line">4</span><br><span class="line">5</span><br><span class="line">6</span><br><span class="line">7</span><br><span class="line">8</span><br><span class="line">9</span><br><span class="line">10</span><br><span class="line">11</span><br></pre></td><td class="code"><pre><span class="line"><span class="attr">apiVersion:</span> <span class="string">v1</span></span><br><span class="line"><span class="attr">kind:</span> <span class="string">ServiceAccount</span></span><br><span class="line"><span class="attr">metadata:</span></span><br><span class="line"><span class="attr">  creationTimestamp:</span> <span class="string">"2020-11-26T04:02:16Z"</span></span><br><span class="line"><span class="attr">  name:</span> <span class="string">default</span></span><br><span class="line"><span class="attr">  namespace:</span> <span class="string">default</span></span><br><span class="line"><span class="attr">  resourceVersion:</span> <span class="string">"384"</span></span><br><span class="line"><span class="attr">  selfLink:</span> <span class="string">/api/v1/namespaces/default/serviceaccounts/default</span></span><br><span class="line"><span class="attr">  uid:</span> <span class="number">093</span><span class="string">c6172-1913-46f7-9853-b7d5b7ccbfd8</span></span><br><span class="line"><span class="attr">secrets:</span></span><br><span class="line"><span class="attr">- name:</span> <span class="string">default-token-dh5rl</span></span><br></pre></td></tr></table></figure>
+
+<p>查看Pod信息，发现服务账户中的token已经被自动挂载到Pod中</p>
+<p><code>kubectl get pods perjob-test05-5777fcbf64-654n4 -o yaml</code></p>
+<figure class="highlight yaml"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br><span class="line">3</span><br><span class="line">4</span><br><span class="line">5</span><br><span class="line">6</span><br></pre></td><td class="code"><pre><span class="line"><span class="attr">volumeMounts:</span></span><br><span class="line"><span class="attr">  - mountPath:</span> <span class="string">/opt/flink/conf</span></span><br><span class="line"><span class="attr">    name:</span> <span class="string">flink-config-volume</span></span><br><span class="line"><span class="attr">  - mountPath:</span> <span class="string">/var/run/secrets/kubernetes.io/serviceaccount</span></span><br><span class="line"><span class="attr">    name:</span> <span class="string">default-token-dh5rl</span></span><br><span class="line"><span class="attr">    readOnly:</span> <span class="literal">true</span></span><br></pre></td></tr></table></figure>
+
+<p>​</p>
+</li>
+<li><p>每个命名空间下都存在一个名为<strong>default</strong>的服务账户</p>
+</li>
+<li><p>每个Pod都会被指定一个服务账户，默认是命名空间下的<strong>default</strong>服务账户</p>
+</li>
+<li><p>更多详细细节 <a href="https://kubernetes.io/zh/docs/reference/access-authn-authz/service-accounts-admin/" target="_blank" rel="noopener">管理 Service Accounts</a> 和 <a href="https://kubernetes.io/zh/docs/tasks/configure-pod-container/configure-service-account/" target="_blank" rel="noopener">为Pod配置服务账户</a></p>
+</li>
+</ul>
+<h1 id="使用-TLS-bootstrapping-简化-Kubelet-证书制作"><a href="#使用-TLS-bootstrapping-简化-Kubelet-证书制作" class="headerlink" title="使用 TLS bootstrapping 简化 Kubelet 证书制作"></a>使用 TLS bootstrapping 简化 Kubelet 证书制作</h1><ul>
+<li><p>采用TLS bootstrapping 生成证书的流程如下：</p>
+<blockquote>
+<ol>
+<li>调用 kube-apiserver 生成一个 bootstrap token。</li>
+<li>将该 bootstrap token 写入到一个 kubeconfig 文件中，作为 kubelet 调用 kube-apiserver 的客户端验证方式。</li>
+<li>通过 <code>--bootstrap-kubeconfig</code> 启动参数将 bootstrap token 传递给 kubelet 进程。</li>
+<li>Kubelet 采用bootstrap token 调用 kube-apiserver API，生成自己所需的服务器和客户端证书。</li>
+<li>证书生成后，Kubelet 采用生成的证书和 kube-apiserver 进行通信，并删除本地的 kubeconfig 文件，以避免 bootstrap token 泄漏风险。</li>
+</ol>
+</blockquote>
+</li>
+</ul>
+<h1 id="用户账户和服务账户"><a href="#用户账户和服务账户" class="headerlink" title="用户账户和服务账户"></a>用户账户和服务账户</h1><ul>
+<li>用户和组都是使用<code>system:</code>为前缀</li>
+<li>服务账号使用<code>system:serviceaccount:</code>为前缀</li>
+<li>用户账户是针对人而言的。 服务账户是针对运行在 pod 中的进程而言的。</li>
+<li>用户账户是全局性的。 其名称在集群各 namespace 中都是全局唯一的，未来的用户资源不会做 namespace 隔离， 服务账户是 namespace 隔离的。</li>
+</ul>
+<h2 id="服务账户（Service-Account）"><a href="#服务账户（Service-Account）" class="headerlink" title="服务账户（Service Account）"></a>服务账户（Service Account）</h2><ul>
+<li><p>当创建Pod时，默认的服务账户为指定命名空间的default账户</p>
+</li>
+<li><p>不能更新已经创建好的Pod的服务账户</p>
+</li>
+<li><p>每个命名空间中都有一个default的服务账户</p>
+</li>
+<li><p>创建服务账户</p>
+<figure class="highlight yaml"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br><span class="line">3</span><br><span class="line">4</span><br><span class="line">5</span><br></pre></td><td class="code"><pre><span class="line"><span class="attr">apiVersion:</span> <span class="string">v1</span></span><br><span class="line"><span class="attr">kind:</span> <span class="string">ServiceAccount</span></span><br><span class="line"><span class="attr">metadata:</span></span><br><span class="line"><span class="attr">  name:</span> <span class="string">build-robot</span></span><br><span class="line"><span class="attr">  namespace:</span> <span class="string">di-flink-dev</span></span><br></pre></td></tr></table></figure>
+</li>
+<li><p>当创建服务账户时，系统会自动创建token</p>
+</li>
+</ul>
+<h1 id="RBAC"><a href="#RBAC" class="headerlink" title="RBAC"></a>RBAC</h1><ul>
+<li><p>RBAC（基于角色访问控制）</p>
+</li>
+<li><p>要启用 RBAC，在启动 kube-apiserver服务器时添加 <code>--authorization-mode=RBAC</code> 参数</p>
+</li>
+<li><p>使用”/“分隔资源和子资源</p>
+</li>
+<li><p>分为角色，主体、角色绑定</p>
+</li>
+<li><p>角色</p>
+<blockquote>
+<p>角色用来控制资源的访问</p>
+<p>包括：Role、ClusterRole</p>
+<p>Role：特定命名空间访问权限</p>
+<p>ClusterRole：所有命名空间访问权限</p>
+</blockquote>
+</li>
+<li><p>主体</p>
+<blockquote>
+<p>包括：user、group、serviceAccount</p>
+<p>user：用户</p>
+<p>group：用户组</p>
+<p>serviceAccount：服务账号，一般用于Pod访问</p>
+</blockquote>
+</li>
+<li><p>角色绑定</p>
+<blockquote>
+<p>RoleBinding：角色绑定到主体</p>
+<p>ClusterRoleBinding：集群角色绑定到主体</p>
+</blockquote>
+</li>
+</ul>
+<h2 id="Role"><a href="#Role" class="headerlink" title="Role"></a>Role</h2><ul>
+<li><p>一个 <code>Role</code> 只可以用来对某一命名空间中的资源赋予访问权限</p>
+</li>
+<li><p>角色绑定RoleBinding</p>
+<blockquote>
+<p>1、kind: RoleBinding 绑定的角色 即 roleRef中的  kind: ClusterRole，指定某一主体获取特定命名空间的权限</p>
+<p>2、不能修改绑定对象的roleRef字段的内容，必须先删除然后重新绑定</p>
+</blockquote>
+</li>
+</ul>
+<h2 id="ClusterRole"><a href="#ClusterRole" class="headerlink" title="ClusterRole"></a>ClusterRole</h2><ul>
+<li><p>ClusterRole可以授予的权限和Role相同</p>
+</li>
+<li><p>属于集群范围，还可以授予以下权限</p>
+<blockquote>
+<p>1、集群范围资源 （比如 nodes</p>
+<p>2、非资源端点（比如 “/health”）</p>
+<p>3、跨命名空间访问的有名字空间作用域的资源（如 Pods），比如运行命令<code>kubectl get pods --all-namespaces</code> 时需要此能力</p>
+</blockquote>
+</li>
+<li><p>Aggregated ClusterRoles</p>
+<blockquote>
+<p>1、集群角色（ClusterRole）可以通过使用 <code>aggregationRule</code> 的方式并组合其他 ClusterRoles 来创建</p>
+<p>2、聚合集群角色的权限是由控制器管理的，方法是通过过滤与标签选择器匹配的 ClusterRules，并将其中的权限进行组合</p>
+<p>3、仅仅是组合定义集群角色，并没有集群角色的绑定</p>
+</blockquote>
+</li>
+</ul>
+<ul>
+<li><p>创建角色</p>
+<figure class="highlight shell"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br></pre></td><td class="code"><pre><span class="line"><span class="meta">$</span> kubectl apply -f rabc-role.yaml </span><br><span class="line"><span class="meta">$</span> kubectl get role -n role-dev</span><br></pre></td></tr></table></figure>
+
+<p>​</p>
+<figure class="highlight yaml"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br><span class="line">3</span><br><span class="line">4</span><br><span class="line">5</span><br><span class="line">6</span><br><span class="line">7</span><br><span class="line">8</span><br><span class="line">9</span><br></pre></td><td class="code"><pre><span class="line"><span class="attr">kind:</span> <span class="string">Role</span></span><br><span class="line"><span class="attr">apiVersion:</span> <span class="string">rbac.authorization.k8s.io/v1</span></span><br><span class="line"><span class="attr">metadata:</span></span><br><span class="line"><span class="attr">  namespace:</span> <span class="string">role-dev</span></span><br><span class="line"><span class="attr">  name:</span> <span class="string">pod-reader</span></span><br><span class="line"><span class="attr">rules:</span></span><br><span class="line"><span class="attr">- apiGroups:</span> <span class="string">[""]</span> <span class="comment"># "" indicates the core API group</span></span><br><span class="line"><span class="attr">  resources:</span> <span class="string">["pods"]</span></span><br><span class="line"><span class="attr">  verbs:</span> <span class="string">["get",</span> <span class="string">"watch"</span><span class="string">,</span> <span class="string">"list"</span><span class="string">]</span></span><br></pre></td></tr></table></figure>
+</li>
+<li><p>创建角色绑定</p>
+<figure class="highlight shell"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br></pre></td><td class="code"><pre><span class="line"><span class="meta">$</span> kubectl create -f rbac-rolebinding.yaml </span><br><span class="line"><span class="meta">$</span> kubectl get role,rolebinding -n role-dev</span><br></pre></td></tr></table></figure>
+
+<figure class="highlight yaml"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br><span class="line">3</span><br><span class="line">4</span><br><span class="line">5</span><br><span class="line">6</span><br><span class="line">7</span><br><span class="line">8</span><br><span class="line">9</span><br><span class="line">10</span><br><span class="line">11</span><br><span class="line">12</span><br><span class="line">13</span><br></pre></td><td class="code"><pre><span class="line"><span class="attr">kind:</span> <span class="string">RoleBinding</span></span><br><span class="line"><span class="attr">apiVersion:</span> <span class="string">rbac.authorization.k8s.io/v1</span></span><br><span class="line"><span class="attr">metadata:</span></span><br><span class="line"><span class="attr">  name:</span> <span class="string">read-pods</span></span><br><span class="line"><span class="attr">  namespace:</span> <span class="string">role-dev</span></span><br><span class="line"><span class="attr">subjects:</span></span><br><span class="line"><span class="attr">- kind:</span> <span class="string">User</span></span><br><span class="line"><span class="attr">  name:</span> <span class="string">tom</span> <span class="comment"># Name is case sensitive</span></span><br><span class="line"><span class="attr">  apiGroup:</span> <span class="string">rbac.authorization.k8s.io</span></span><br><span class="line"><span class="attr">roleRef:</span></span><br><span class="line"><span class="attr">  kind:</span> <span class="string">Role</span> <span class="comment">#this must be Role or ClusterRole</span></span><br><span class="line"><span class="attr">  name:</span> <span class="string">pod-reader</span> <span class="comment"># this must match the name of the Role or ClusterRole you wish to bind to</span></span><br><span class="line"><span class="attr">  apiGroup:</span> <span class="string">rbac.authorization.k8s.io</span></span><br></pre></td></tr></table></figure>
+</li>
+<li><p>证书识别身份</p>
+<figure class="highlight shell"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br><span class="line">3</span><br><span class="line">4</span><br></pre></td><td class="code"><pre><span class="line"><span class="meta">$</span> cp /root/TLS/k8s/ca* ./</span><br><span class="line"><span class="meta">$</span> bash rbac-user.sh</span><br><span class="line"><span class="meta">#</span> 生成一个 tom-kubeconfig 文件</span><br><span class="line"><span class="meta">#</span> 该文件包含主要内容</span><br></pre></td></tr></table></figure>
+
+</li>
+</ul>
+<h1 id="Admission-Control（准入控制）"><a href="#Admission-Control（准入控制）" class="headerlink" title="Admission Control（准入控制）"></a>Admission Control（准入控制）</h1><ul>
+<li>经过了<strong>认证和鉴权</strong>之后，客户端的调用请求还需要经过<strong>准入控制</strong>才能得到API Server的相应</li>
+<li>​</li>
+</ul>
+<h1 id="参考文档"><a href="#参考文档" class="headerlink" title="参考文档"></a>参考文档</h1><p><a href="https://zhaohuabing.com/post/2020-03-19-pki/" target="_blank" rel="noopener">数字证书原理</a></p>
+<p><a href="https://zhaohuabing.com/post/2020-05-19-k8s-certificate/" target="_blank" rel="noopener">一文带你彻底厘清 Kubernetes 中的证书工作机制</a></p>
+<p><a href="https://kubernetes.io/zh/docs/concepts/cluster-administration/certificates/" target="_blank" rel="noopener">证书</a></p>
+<p><a href="https://blog.csdn.net/zwqjoy/article/details/101218028" target="_blank" rel="noopener">[kubernetes] 证书详细总结</a></p>
+<p><a href="https://www.jianshu.com/p/bb973ab1029b" target="_blank" rel="noopener">kubernetes认证授权机制</a></p>
+<p><a href="https://www.cnblogs.com/centos-python/articles/11043570.html" target="_blank" rel="noopener">k8s学习笔记-证书详解</a></p>
+<p><a href="https://kubernetes.io/zh/docs/reference/access-authn-authz/authentication/" target="_blank" rel="noopener">用户认证</a></p>
+<p><a href="https://kubernetes.io/zh/docs/reference/access-authn-authz/authorization/" target="_blank" rel="noopener">授权概述</a></p>
+
+    </div>
+
+    
+    
+    
+        
+      
+
+      <footer class="post-footer">
+
+        
+
+          <div class="post-nav">
+            <div class="post-nav-next post-nav-item">
+              
+                <a href="/2020/11/24/linux/systemd-service服务/" rel="next" title="systemd.service服务">
+                  <i class="fa fa-chevron-left"></i> systemd.service服务
+                </a>
+              
+            </div>
+
+            <span class="post-nav-divider"></span>
+
+            <div class="post-nav-prev post-nav-item">
+              
+                <a href="/2020/11/25/flink/flink-nativek8s实践/" rel="prev" title="flink-nativek8s实践">
+                  flink-nativek8s实践 <i class="fa fa-chevron-right"></i>
+                </a>
+              
+            </div>
+          </div>
+        
+      </footer>
+    
+  </article>
+  
+  
+  
+
+  </div>
+
+
+          </div>
+          
+
+        </div>
+          
+  
+  <div class="toggle sidebar-toggle">
+    <span class="toggle-line toggle-line-first"></span>
+    <span class="toggle-line toggle-line-middle"></span>
+    <span class="toggle-line toggle-line-last"></span>
+  </div>
+
+  <aside class="sidebar">
+    <div class="sidebar-inner">
+        
+        
+        
+        
+      
+
+      <ul class="sidebar-nav motion-element">
+        <li class="sidebar-nav-toc">
+          文章目录
+        </li>
+        <li class="sidebar-nav-overview">
+          站点概览
+        </li>
+      </ul>
+
+      <!--noindex-->
+      <div class="post-toc-wrap sidebar-panel">
+          <div class="post-toc motion-element"><ol class="nav"><li class="nav-item nav-level-1"><a class="nav-link" href="#概述"><span class="nav-number">1.</span> <span class="nav-text">概述</span></a></li><li class="nav-item nav-level-1"><a class="nav-link" href="#证书认证"><span class="nav-number">2.</span> <span class="nav-text">证书认证</span></a><ol class="nav-child"><li class="nav-item nav-level-2"><a class="nav-link" href="#Service-Account-证书"><span class="nav-number">2.1.</span> <span class="nav-text">Service Account 证书</span></a></li></ol></li><li class="nav-item nav-level-1"><a class="nav-link" href="#使用-TLS-bootstrapping-简化-Kubelet-证书制作"><span class="nav-number">3.</span> <span class="nav-text">使用 TLS bootstrapping 简化 Kubelet 证书制作</span></a></li><li class="nav-item nav-level-1"><a class="nav-link" href="#用户账户和服务账户"><span class="nav-number">4.</span> <span class="nav-text">用户账户和服务账户</span></a><ol class="nav-child"><li class="nav-item nav-level-2"><a class="nav-link" href="#服务账户（Service-Account）"><span class="nav-number">4.1.</span> <span class="nav-text">服务账户（Service Account）</span></a></li></ol></li><li class="nav-item nav-level-1"><a class="nav-link" href="#RBAC"><span class="nav-number">5.</span> <span class="nav-text">RBAC</span></a><ol class="nav-child"><li class="nav-item nav-level-2"><a class="nav-link" href="#Role"><span class="nav-number">5.1.</span> <span class="nav-text">Role</span></a></li><li class="nav-item nav-level-2"><a class="nav-link" href="#ClusterRole"><span class="nav-number">5.2.</span> <span class="nav-text">ClusterRole</span></a></li></ol></li><li class="nav-item nav-level-1"><a class="nav-link" href="#Admission-Control（准入控制）"><span class="nav-number">6.</span> <span class="nav-text">Admission Control（准入控制）</span></a></li><li class="nav-item nav-level-1"><a class="nav-link" href="#参考文档"><span class="nav-number">7.</span> <span class="nav-text">参考文档</span></a></li></ol></div>
+        
+      </div>
+      <!--/noindex-->
+
+      <div class="site-overview-wrap sidebar-panel">
+        <div class="site-author motion-element" itemprop="author" itemscope itemtype="http://schema.org/Person">
+  <p class="site-author-name" itemprop="name">姜纪光</p>
+  <div class="site-description" itemprop="description"></div>
+</div>
+<div class="site-state-wrap motion-element">
+  <nav class="site-state">
+      <div class="site-state-item site-state-posts">
+        
+          <a href="/archives/">
+        
+          <span class="site-state-item-count">158</span>
+          <span class="site-state-item-name">日志</span>
+        </a>
+      </div>
+    
+      
+      
+      <div class="site-state-item site-state-categories">
+        
+          
+            <a href="/categories/">
+          
+        
+        <span class="site-state-item-count">26</span>
+        <span class="site-state-item-name">分类</span>
+        </a>
+      </div>
+    
+      
+      
+      <div class="site-state-item site-state-tags">
+        
+          
+            <a href="/tags/">
+          
+        
+        <span class="site-state-item-count">14</span>
+        <span class="site-state-item-name">标签</span>
+        </a>
+      </div>
+    
+  </nav>
+</div>
+
+
+
+      </div>
+
+    </div>
+  </aside>
+  <div id="sidebar-dimmer"></div>
+
+
+      </div>
+    </main>
+
+    <footer class="footer">
+      <div class="footer-inner">
+        
+
+<div class="copyright">
+  &copy; 
+  <span itemprop="copyrightYear">2021</span>
+  <span class="with-love">
+    <i class="fa fa-user"></i>
+  </span>
+  <span class="author" itemprop="copyrightHolder">姜纪光</span>
+</div>
+  <div class="powered-by">由 <a href="https://hexo.io" class="theme-link" rel="noopener" target="_blank">Hexo</a> 强力驱动 v3.9.0
+  </div>
+  <span class="post-meta-divider">|</span>
+  <div class="theme-info">
+      
+    主题 – <a href="https://mist.theme-next.org" class="theme-link" rel="noopener" target="_blank">NexT.Mist</a> v7.4.1
+  </div>
+
+        
+
+
+
+
+
+
+
+
+
+
+
+
+        
+      </div>
+    </footer>
+  </div>
+
+  
+  <script src="/lib/anime.min.js?v=3.1.0"></script>
+  <script src="/lib/velocity/velocity.min.js?v=1.2.1"></script>
+  <script src="/lib/velocity/velocity.ui.min.js?v=1.2.1"></script>
+<script src="/js/utils.js?v=7.4.1"></script><script src="/js/motion.js?v=7.4.1"></script>
+<script src="/js/schemes/muse.js?v=7.4.1"></script>
+
+<script src="/js/next-boot.js?v=7.4.1"></script>
+
+
+
+  
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+  
+
+  
+
+  
+
+
+<script>
+NexT.utils.getScript('//unpkg.com/valine/dist/Valine.min.js', () => {
+  var GUEST = ['nick', 'mail', 'link'];
+  var guest = 'nick,mail,link';
+  guest = guest.split(',').filter(item => {
+    return GUEST.includes(item);
+  });
+  new Valine({
+    el: '#comments',
+    verify: false,
+    notify: false,
+    appId: 'MIQC4jJTknc0hjNXDAiIuQ21-9Nh9j0Va',
+    appKey: 'vaiXpSQLLMglwYsVLOBLzck4',
+    placeholder: "Just go go",
+    avatar: 'mm',
+    meta: guest,
+    pageSize: '10' || 10,
+    visitor: true,
+    lang: 'zh-cn' || 'zh-cn',
+    path: location.pathname,
+    recordIP: false,
+    serverURLs: ''
+  });
+}, window.Valine);
+</script>
+
+</body>
+</html>

@@ -1,0 +1,858 @@
+<!DOCTYPE html>
+
+
+
+
+
+<html lang="zh-CN">
+<head>
+  <meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1, maximum-scale=2">
+<meta name="theme-color" content="#222">
+<meta name="generator" content="Hexo 3.9.0">
+  <link rel="apple-touch-icon" sizes="180x180" href="/images/apple-touch-icon-next.png?v=7.4.1">
+  <link rel="icon" type="image/png" sizes="32x32" href="/images/favicon-32x32-next.png?v=7.4.1">
+  <link rel="icon" type="image/png" sizes="16x16" href="/images/favicon-16x16-next.png?v=7.4.1">
+  <link rel="mask-icon" href="/images/logo.svg?v=7.4.1" color="#222">
+
+<link rel="stylesheet" href="/css/main.css?v=7.4.1">
+
+
+<link rel="stylesheet" href="/lib/font-awesome/css/font-awesome.min.css?v=4.7.0">
+
+
+<script id="hexo-configurations">
+  var NexT = window.NexT || {};
+  var CONFIG = {
+    root: '/',
+    scheme: 'Mist',
+    version: '7.4.1',
+    exturl: false,
+    sidebar: {"position":"right","display":"hide","offset":12,"onmobile":false},
+    copycode: {"enable":false,"show_result":false,"style":null},
+    back2top: {"enable":true,"sidebar":false,"scrollpercent":false},
+    bookmark: {"enable":false,"color":"#222","save":"auto"},
+    fancybox: false,
+    mediumzoom: false,
+    lazyload: false,
+    pangu: false,
+    algolia: {
+      appID: '',
+      apiKey: '',
+      indexName: '',
+      hits: {"per_page":10},
+      labels: {"input_placeholder":"Search for Posts","hits_empty":"We didn't find any results for the search: ${query}","hits_stats":"${hits} results found in ${time} ms"}
+    },
+    localsearch: {"enable":false,"trigger":"auto","top_n_per_article":1,"unescape":false,"preload":false},
+    path: '',
+    motion: {"enable":true,"async":false,"transition":{"post_block":"fadeIn","post_header":"slideDownIn","post_body":"slideDownIn","coll_header":"slideLeftIn","sidebar":"slideUpIn"}},
+    translation: {
+      copy_button: '复制',
+      copy_success: '复制成功',
+      copy_failure: '复制失败'
+    },
+    sidebarPadding: 40
+  };
+</script>
+
+  <meta name="description" content="安装配置 GOROOT：GO 语言的安装路径  GOPATH：若干工作区目录的路径。是我们自己定义的工作空间  1、可以把 GOPATH 简单理解成 Go 语言的工作目录，它的值是一个目录的路径，也可以是多个目录路径，每个目录都代表 Go 语言的一个工作区（workspace）。 2、利于这些工作区，去放置 Go 语言的源码文件（source file），以及安装（install）后的归档文件（a">
+<meta property="og:type" content="article">
+<meta property="og:title" content="go基本知识">
+<meta property="og:url" content="http://yoursite.com/2020/11/12/go/go基本知识/index.html">
+<meta property="og:site_name" content="纪光的博客">
+<meta property="og:description" content="安装配置 GOROOT：GO 语言的安装路径  GOPATH：若干工作区目录的路径。是我们自己定义的工作空间  1、可以把 GOPATH 简单理解成 Go 语言的工作目录，它的值是一个目录的路径，也可以是多个目录路径，每个目录都代表 Go 语言的一个工作区（workspace）。 2、利于这些工作区，去放置 Go 语言的源码文件（source file），以及安装（install）后的归档文件（a">
+<meta property="og:locale" content="zh-CN">
+<meta property="og:updated_time" content="2021-06-20T04:19:35.147Z">
+<meta name="twitter:card" content="summary">
+<meta name="twitter:title" content="go基本知识">
+<meta name="twitter:description" content="安装配置 GOROOT：GO 语言的安装路径  GOPATH：若干工作区目录的路径。是我们自己定义的工作空间  1、可以把 GOPATH 简单理解成 Go 语言的工作目录，它的值是一个目录的路径，也可以是多个目录路径，每个目录都代表 Go 语言的一个工作区（workspace）。 2、利于这些工作区，去放置 Go 语言的源码文件（source file），以及安装（install）后的归档文件（a">
+  <link rel="canonical" href="http://yoursite.com/2020/11/12/go/go基本知识/">
+
+
+<script id="page-configurations">
+  // https://hexo.io/docs/variables.html
+  CONFIG.page = {
+    sidebar: "",
+    isHome: false,
+    isPost: true,
+    isPage: false,
+    isArchive: false
+  };
+</script>
+
+  <title>go基本知识 | 纪光的博客</title>
+  
+
+
+  <script>
+    var _hmt = _hmt || [];
+    (function() {
+      var hm = document.createElement("script");
+      hm.src = "https://hm.baidu.com/hm.js?bca403b673d79e83a47dc62fea1dd605";
+      var s = document.getElementsByTagName("script")[0];
+      s.parentNode.insertBefore(hm, s);
+    })();
+  </script>
+
+
+
+
+
+
+  <noscript>
+  <style>
+  .use-motion .brand,
+  .use-motion .menu-item,
+  .sidebar-inner,
+  .use-motion .post-block,
+  .use-motion .pagination,
+  .use-motion .comments,
+  .use-motion .post-header,
+  .use-motion .post-body,
+  .use-motion .collection-header { opacity: initial; }
+
+  .use-motion .site-title,
+  .use-motion .site-subtitle {
+    opacity: initial;
+    top: initial;
+  }
+
+  .use-motion .logo-line-before i { left: initial; }
+  .use-motion .logo-line-after i { right: initial; }
+  </style>
+</noscript>
+
+</head>
+
+<body itemscope itemtype="http://schema.org/WebPage">
+  <div class="container use-motion">
+    <div class="headband"></div>
+
+    <header class="header" itemscope itemtype="http://schema.org/WPHeader">
+      <div class="header-inner"><div class="site-brand-container">
+  <div class="site-meta">
+
+    <div>
+      <a href="/" class="brand" rel="start">
+        <span class="logo-line-before"><i></i></span>
+        <span class="site-title">纪光的博客</span>
+        <span class="logo-line-after"><i></i></span>
+      </a>
+    </div>
+  </div>
+
+  <div class="site-nav-toggle">
+    <div class="toggle" aria-label="切换导航栏">
+      <span class="toggle-line toggle-line-first"></span>
+      <span class="toggle-line toggle-line-middle"></span>
+      <span class="toggle-line toggle-line-last"></span>
+    </div>
+  </div>
+</div>
+
+
+<nav class="site-nav">
+  
+  <ul id="menu" class="menu">
+      
+      
+        
+        
+        <li class="menu-item menu-item-home">
+      
+    
+
+    <a href="/" rel="section"><i class="fa fa-fw fa-home"></i>首页</a>
+
+  </li>
+      
+    
+      
+      
+        
+        
+        <li class="menu-item menu-item-categories">
+      
+    
+
+    <a href="/categories/" rel="section"><i class="fa fa-fw fa-th"></i>分类</a>
+
+  </li>
+      
+    
+      
+      
+        
+        
+        <li class="menu-item menu-item-tags">
+      
+    
+
+    <a href="/tags/" rel="section"><i class="fa fa-fw fa-tags"></i>标签</a>
+
+  </li>
+      
+    
+      
+      
+        
+        
+        <li class="menu-item menu-item-archives">
+      
+    
+
+    <a href="/archives/" rel="section"><i class="fa fa-fw fa-archive"></i>归档</a>
+
+  </li>
+      
+    
+      
+      
+        
+        
+        <li class="menu-item menu-item-about">
+      
+    
+
+    <a href="/about/" rel="section"><i class="fa fa-fw fa-user"></i>关于</a>
+
+  </li>
+      
+    
+  </ul>
+
+    
+
+</nav>
+</div>
+    </header>
+
+    
+  <div class="back-to-top">
+    <i class="fa fa-arrow-up"></i>
+    <span>0%</span>
+  </div>
+
+
+    <main class="main">
+      <div class="main-inner">
+        <div class="content-wrap">
+          <div class="content">
+            
+
+  <div class="posts-expand">
+      
+  
+  
+  <article itemscope itemtype="http://schema.org/Article" class="post-block " lang="zh-CN">
+    <link itemprop="mainEntityOfPage" href="http://yoursite.com/2020/11/12/go/go基本知识/">
+
+    <span hidden itemprop="author" itemscope itemtype="http://schema.org/Person">
+      <meta itemprop="name" content="姜纪光">
+      <meta itemprop="description" content="">
+      <meta itemprop="image" content="/images/avatar.gif">
+    </span>
+
+    <span hidden itemprop="publisher" itemscope itemtype="http://schema.org/Organization">
+      <meta itemprop="name" content="纪光的博客">
+    </span>
+      <header class="post-header">
+        <h1 class="post-title" itemprop="name headline">
+          
+            go基本知识
+            
+
+          
+        </h1>
+
+        <div class="post-meta">
+            <span class="post-meta-item">
+              <span class="post-meta-item-icon">
+                <i class="fa fa-calendar-o"></i>
+              </span>
+              <span class="post-meta-item-text">发表于</span>
+
+              
+                
+              
+
+              <time title="创建时间：2020-11-12 16:23:24" itemprop="dateCreated datePublished" datetime="2020-11-12T16:23:24+08:00">2020-11-12</time>
+            </span>
+          
+            
+
+            
+              <span class="post-meta-item">
+                <span class="post-meta-item-icon">
+                  <i class="fa fa-calendar-check-o"></i>
+                </span>
+                <span class="post-meta-item-text">更新于</span>
+                <time title="修改时间：2021-06-20 12:19:35" itemprop="dateModified" datetime="2021-06-20T12:19:35+08:00">2021-06-20</time>
+              </span>
+            
+          
+            <span class="post-meta-item">
+              <span class="post-meta-item-icon">
+                <i class="fa fa-folder-o"></i>
+              </span>
+              <span class="post-meta-item-text">分类于</span>
+              
+                <span itemprop="about" itemscope itemtype="http://schema.org/Thing">
+                  <a href="/categories/go/" itemprop="url" rel="index">
+                    <span itemprop="name">go</span>
+                  </a>
+                </span>
+
+                
+                
+              
+            </span>
+          
+
+          
+            <span id="/2020/11/12/go/go基本知识/" class="post-meta-item leancloud_visitors" data-flag-title="go基本知识" title="阅读次数">
+              <span class="post-meta-item-icon">
+                <i class="fa fa-eye"></i>
+              </span>
+              <span class="post-meta-item-text">阅读次数：</span>
+              <span class="leancloud-visitors-count"></span>
+            </span>
+          
+  
+  
+
+        </div>
+      </header>
+
+    
+    
+    
+    <div class="post-body" itemprop="articleBody">
+
+      
+        <h1 id="安装配置"><a href="#安装配置" class="headerlink" title="安装配置"></a>安装配置</h1><ul>
+<li><p>GOROOT：GO 语言的安装路径</p>
+</li>
+<li><p>GOPATH：若干工作区目录的路径。是我们自己定义的工作空间</p>
+<blockquote>
+<p>1、可以把 GOPATH 简单理解成 Go 语言的工作目录，它的值是一个目录的路径，也可以是多个目录路径，每个目录都代表 Go 语言的一个工作区（workspace）。</p>
+<p>2、利于这些工作区，去放置 Go 语言的源码文件（source file），以及安装（install）后的归档文件（archive file，也就是以“.a”为扩展名的文件）和可执行文件（executable file）</p>
+<p>3、是go1.11版本之前的产物，之后不需要在该该目录下写代码</p>
+</blockquote>
+</li>
+<li><p>GOBIN：GO 程序生成的可执行文件（executable file）的路径。</p>
+</li>
+<li></li>
+</ul>
+<h1 id="源码文件"><a href="#源码文件" class="headerlink" title="源码文件"></a>源码文件</h1><h2 id="命令源码文件"><a href="#命令源码文件" class="headerlink" title="命令源码文件"></a>命令源码文件</h2><ul>
+<li><p>命令源码文件是程序的运行入口，是每个可独立运行的程序必须拥有的。</p>
+</li>
+<li><p>什么是命令源码文件</p>
+<blockquote>
+<p>1、一个源码文件声明属于main包</p>
+<p>2、包含一个无参数声明且无结果声明的main函数</p>
+</blockquote>
+</li>
+</ul>
+<h2 id="库源码文件"><a href="#库源码文件" class="headerlink" title="库源码文件"></a>库源码文件</h2><ul>
+<li>库源码文件是不能被直接运行的源码文件，它仅用于存放程序实体，这些程序实体可以被其他代码使用（只要遵从 Go 语言规范的话）。</li>
+<li></li>
+</ul>
+<h2 id="测试源码文件"><a href="#测试源码文件" class="headerlink" title="测试源码文件"></a>测试源码文件</h2><ul>
+<li>只有测试源码文件的名称对了，测试函数的名称和签名也对了，当运行go test命令的时候，其中的测试代码才有可能被运行</li>
+<li></li>
+</ul>
+<h1 id="package"><a href="#package" class="headerlink" title="package"></a>package</h1><ul>
+<li><p>基本复用模块单元，以首字母大写来表明可被包外代码访问</p>
+</li>
+<li><p>同一目录的package要保持一致</p>
+</li>
+<li><p>注意代码在github上的组织形式以适应go get</p>
+<blockquote>
+<p>直接以代码路径开始，不要有src</p>
+</blockquote>
+</li>
+</ul>
+<h1 id="基本知识"><a href="#基本知识" class="headerlink" title="基本知识"></a>基本知识</h1><ul>
+<li><p>程序依赖管理的go mod命令</p>
+</li>
+<li><p>对于包</p>
+<blockquote>
+<p>1、同一个文件夹下只能有一个包名</p>
+<p>2、包名和文件夹名没有直接关系</p>
+</blockquote>
+</li>
+</ul>
+<ul>
+<li><p>对于<code>标识符</code></p>
+<blockquote>
+<p>1、标识符包含常量、变量、类型、方法名、结构字段等</p>
+<p>2、如果以大写字母开头，则包外可见；以小写字母开头，包外不可见，但是包内可见并且可用</p>
+</blockquote>
+</li>
+<li><p><code>package main</code>包中的文件中必须包含main函数，作为程序开始执行的函数，即程序入口。</p>
+</li>
+<li><p>常量使用const定义</p>
+</li>
+<li><p>数组</p>
+<blockquote>
+<p>数组是具有相同唯一类型的一组已编号且长度固定的数据项序列。</p>
+<p>定义数组需要指定元素类型和个数</p>
+</blockquote>
+</li>
+<li><p>切片（Slice）</p>
+<blockquote>
+<p>切片是对数组的抽象，可以认为是动态数组</p>
+<p>切片定义时不需要指定长度，可以指定初始长度和容量</p>
+<p>append函数可以扩大切片的容量</p>
+</blockquote>
+</li>
+<li><p>结构体</p>
+<blockquote>
+<p>结构体是由一系列具有相同类型或不同类型的数据构成的数据集合。</p>
+<p>定义结构体需要使用type 和 struct语句</p>
+</blockquote>
+</li>
+<li><p>通道</p>
+<blockquote>
+<p>通道是一种数据结构，用于goroutine之间的安全数据通信，同一时刻保证只会有一个goroutine修改数据</p>
+</blockquote>
+</li>
+<li><p>使用组合而不是继承</p>
+<blockquote>
+<p>Go提供了无继承的类型系统，使用组合设计模式</p>
+</blockquote>
+</li>
+<li><p>接口实现机制</p>
+<blockquote>
+<p>Go是对行为建模而不是类型</p>
+<p>不需要显示声明某个类型实现了某个接口，而是由编译器判断</p>
+<p>Go的接口更小，一个接口一般只会描述单一的动作</p>
+</blockquote>
+</li>
+<li><p>分享go</p>
+<blockquote>
+<p><a href="https://play.golang.org/" target="_blank" rel="noopener">https://play.golang.org/</a>  可以运行、分享Go程序</p>
+</blockquote>
+</li>
+<li><p>包</p>
+<blockquote>
+<p>1、go的每个代码文件都必须属于一个包</p>
+<p>2、一个包定义一组编译过的代码，包的名字类似的命名空间，可以用来简介访问包内声明的标识符</p>
+<p>3、所有属于同一文件夹下的代码文件，包名必须相同</p>
+<p>4、默认情况下，Go不允许声明导入某个包却不使用，为了解决这个问题，在导入包的时候在前面加”_”，编译器接受这类导入并且会调用包内所有代码文件的init函数</p>
+</blockquote>
+</li>
+<li><p>Map</p>
+<blockquote>
+<p>两种方式定义Map：</p>
+<p>/* 声明变量，默认 map 是 nil */</p>
+<p>var map_variable map[key_data_type]value_data_type</p>
+<p>/* 使用 make 函数 ，并对map进行了初始化*/<br>map_variable := make(map[key_data_type]value_data_type)</p>
+</blockquote>
+</li>
+<li><p>指针</p>
+<blockquote>
+<p>取地址符是”&amp;”，放到一个变量前就会返回其内存地址</p>
+<p>获取指针指向的值是使用”*”</p>
+<p>一个指针变量指向了一个值的内存地址</p>
+<p>指针在使用前也需要声明：var var_name *var-type</p>
+<p>如：var ip <em>int        /</em> 指向整型<em>/          var fp *float32    /</em> 指向浮点型 */</p>
+</blockquote>
+</li>
+<li><p>函数</p>
+<blockquote>
+<p>1、使用func声明函数，函数名首字母大写表示包外可见</p>
+</blockquote>
+</li>
+<li><p>:=</p>
+<blockquote>
+<p>用于声明一个变量，同时给这个变量赋值</p>
+<p>如果声明初始值为零的变量，应该使用var关键字；否则应该使用”:=”</p>
+</blockquote>
+</li>
+<li><p>range</p>
+<blockquote>
+<p>用于迭代数组、字符串、切片、映射和通道</p>
+</blockquote>
+</li>
+<li><p>闭包</p>
+<blockquote>
+<p>闭包使函数可以直接访问那些没有作为参数传入的变量，不是访问变量副本，而是直接访问这些变量</p>
+</blockquote>
+</li>
+<li><p>defer</p>
+<blockquote>
+<p>使随后的函数在函数返回时才执行，一般用来文件的Close函数。</p>
+<p>即使函数发生异常，也会保证defer安排调用的函数被执行</p>
+</blockquote>
+</li>
+</ul>
+<h1 id="通道-channel"><a href="#通道-channel" class="headerlink" title="通道(channel)"></a>通道(channel)</h1><ul>
+<li>是一种特殊类型</li>
+<li>就像一个队列，先进先出，保证收发数据的顺序</li>
+<li>每一个通道都是一个具体类型的导管，也就是声明channel的时候需要为其指定元素类</li>
+<li>必须使用make初始化才能使用</li>
+<li>通道的操作：发送、接收、关闭，使用的符号： &lt;-</li>
+<li></li>
+</ul>
+<h1 id="包"><a href="#包" class="headerlink" title="包"></a>包</h1><ul>
+<li>设计理念是：使用包来封装不同的语义单元的功能。</li>
+<li>给包命名的惯例是使用包所在目录的名字</li>
+<li>每个包可以包含任意多个init函数，所有这些函数都会在main函数之前执行，用在设置包、初始化变量等</li>
+</ul>
+<h2 id="govendor"><a href="#govendor" class="headerlink" title="govendor"></a>govendor</h2><h1 id="数组"><a href="#数组" class="headerlink" title="数组"></a>数组</h1><ul>
+<li><p>长度固定、元素类型相同、内存连续分配</p>
+</li>
+<li><p>数组声明、初始化</p>
+<figure class="highlight go"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br><span class="line">3</span><br><span class="line">4</span><br></pre></td><td class="code"><pre><span class="line"><span class="comment">//数组声明必须包含 数组长度、元素类型，长度不可变</span></span><br><span class="line"><span class="keyword">var</span> array [<span class="number">5</span>]<span class="keyword">int</span></span><br><span class="line"><span class="comment">//初始化</span></span><br><span class="line">array := [<span class="number">5</span>]<span class="keyword">int</span>&#123;<span class="number">10</span>, <span class="number">20</span>, <span class="number">30</span>, <span class="number">40</span>, <span class="number">50</span>&#125;</span><br></pre></td></tr></table></figure>
+</li>
+<li><p>不要在函数间传递数组，要传递数组指针</p>
+</li>
+</ul>
+<h1 id="切片"><a href="#切片" class="headerlink" title="切片"></a>切片</h1><ul>
+<li><p>切片是围绕动态数组的的概念构建的</p>
+</li>
+<li><p>可以按需自动增长和缩小，切片的底层内存也是在连续块中分配的，能获得索引、迭代和垃圾回收优化的好处</p>
+</li>
+<li><p>切片有三个数据结构</p>
+<blockquote>
+<p>指向底层数组的指针、切片的长度、切片的容量</p>
+</blockquote>
+</li>
+<li><p>创建和初始化</p>
+<figure class="highlight go"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br><span class="line">3</span><br><span class="line">4</span><br><span class="line">5</span><br></pre></td><td class="code"><pre><span class="line">slice := <span class="built_in">make</span>([]<span class="keyword">string</span>, <span class="number">5</span>)</span><br><span class="line"><span class="comment">//初始化后并不能访问所有的数组元素</span></span><br><span class="line">slice := <span class="built_in">make</span>([]<span class="keyword">string</span>, <span class="number">3</span>, <span class="number">5</span>)</span><br><span class="line"></span><br><span class="line">slice := []<span class="keyword">int</span>&#123;<span class="number">10</span>, <span class="number">20</span>, <span class="number">30</span>&#125;</span><br></pre></td></tr></table></figure>
+</li>
+<li><p>迭代切片</p>
+<figure class="highlight go"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br><span class="line">3</span><br></pre></td><td class="code"><pre><span class="line"><span class="keyword">for</span> index, value := <span class="keyword">range</span> slice&#123;</span><br><span class="line">  </span><br><span class="line">&#125;</span><br></pre></td></tr></table></figure>
+</li>
+<li><p>在函数间可以直接传递切片，一个切片需要24字节的内存</p>
+</li>
+</ul>
+<h1 id="映射"><a href="#映射" class="headerlink" title="映射"></a>映射</h1><ul>
+<li>映射是一个集合，是无序的。</li>
+<li>映射通过合理数量的桶来平衡键值对的分布</li>
+</ul>
+<h1 id="类型系统"><a href="#类型系统" class="headerlink" title="类型系统"></a>类型系统</h1><ul>
+<li><p>go是静态类型的编程语言，即编译器需要在编译时知道每个值的类型</p>
+</li>
+<li><p>可以使用两种方式定义类型</p>
+<blockquote>
+<p>1、通过struct定义一个结构类型</p>
+<p>2、基于一个已有的类型，将其作为新类型的类型说明</p>
+</blockquote>
+</li>
+<li><p>函数与方法</p>
+<blockquote>
+<p>1、函数对应操作序列，分为具名和匿名，具名函数一般对应于包级的函数</p>
+<p>2、方法是绑定到一个具体类型的特殊函数，是依托于类型的，必须在编译时静态绑定。类型和指向类型的指针都可以调用方法。</p>
+<p>​    值接收者使用值的副本来调用方法，而指针接收者使用实际值来调用方法</p>
+</blockquote>
+</li>
+<li><p>引用类型</p>
+<blockquote>
+<p>包括：切片、映射、通道、接口和函数类型。</p>
+</blockquote>
+</li>
+<li><p>接口</p>
+<blockquote>
+<p>多态是指代码可以根据类型的具体实现采取不同行为的能力。</p>
+<p>接口是用来定义行为的类型</p>
+</blockquote>
+</li>
+</ul>
+<h1 id="并发"><a href="#并发" class="headerlink" title="并发"></a>并发</h1><ul>
+<li><p>并发同步模型叫做通讯顺序进程（CSP）的范型</p>
+<blockquote>
+<p>CSP是一种消息传递模型，用来在goroutine之间传递消息，而不是对数据加锁来实现同步访问。</p>
+</blockquote>
+</li>
+<li><p>defer</p>
+<blockquote>
+<p>关键字defer会修改函数调用时机，在正在执行的函数返回时才真正调用defer调用的函数</p>
+</blockquote>
+</li>
+</ul>
+<h1 id="gogroutine"><a href="#gogroutine" class="headerlink" title="gogroutine"></a>gogroutine</h1><h2 id="可增长的栈"><a href="#可增长的栈" class="headerlink" title="可增长的栈"></a>可增长的栈</h2><ul>
+<li>OS线程（操作系统线程）一般都有固定的栈内存（通常2MB），而gogroutine的栈在其声明周期开始时只有很小的栈（典型情况为2KB）</li>
+<li>gogroutine的栈不是固定的，可以按需增大和减小，最大限制可以达到1GB，但是极少会用到</li>
+<li>可以在go中一次创建十万个gogroutine</li>
+</ul>
+<h2 id="gogroutine调度"><a href="#gogroutine调度" class="headerlink" title="gogroutine调度"></a>gogroutine调度</h2><ul>
+<li><p>GMP是go运行时的实现，是go自己实现的一套调度系统，区别于操作系统调度OS线程</p>
+<blockquote>
+<p>1、G  就是goroutine，里面除了存放本gogroutine信息外，还有与所在P的绑定信息</p>
+<p>2、M 是GO运行时（runtime）对操作系统内核线程的虚拟，M与内核线程一般是一一映射的关系，一个gogroutine最终要放到M上执行</p>
+<p>3、P 管理一组gogroutine队列，P里面会存储当前gogroutine运行的上下文环境（函数指针、堆栈地址以及地址边界），P会对自己管理gogroutine队列做一些调度（比如把占用CPU时间长的gogroutine暂停、运行后续的gogroutine等），当自己的队列消费完了就会去全局队列里取，全局队列消费完了就会去其它P的队列抢任务</p>
+</blockquote>
+</li>
+<li><p>P与M一般是一一对应的</p>
+<blockquote>
+<p>P管理者着一组G挂载在M上运行，当一个G长久阻塞在一个M上时，runtime会新建一个M，阻塞G所在的P会把其他的G挂载的新建的M上。当旧的G阻塞完成或者任务其已经死掉时回收旧的M</p>
+</blockquote>
+</li>
+<li><p>P的个数通过runtime.GOMAXPROS设定（最大256）</p>
+</li>
+</ul>
+<h1 id="go工具"><a href="#go工具" class="headerlink" title="go工具"></a>go工具</h1><figure class="highlight shell"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br><span class="line">3</span><br><span class="line">4</span><br><span class="line">5</span><br><span class="line">6</span><br><span class="line">7</span><br><span class="line">8</span><br><span class="line">9</span><br><span class="line">10</span><br><span class="line">11</span><br><span class="line">12</span><br><span class="line">13</span><br><span class="line">14</span><br><span class="line">15</span><br></pre></td><td class="code"><pre><span class="line"><span class="meta">$</span> go build hello.o</span><br><span class="line"><span class="meta">$</span> go clean hello.o</span><br><span class="line"><span class="meta">$</span> go run hello.o</span><br><span class="line"></span><br><span class="line"><span class="meta">#</span> 可以捕获一部分常见错误，对签入的代码先执行vet是一个好习惯</span><br><span class="line"><span class="meta">$</span> go vet main.go</span><br><span class="line"></span><br><span class="line"><span class="meta">#</span> go fmt 和 go imports在代码保存是可以格式化代码，具体设置请看参考文档，也可以使用命令</span><br><span class="line"><span class="meta">$</span> go fmt</span><br><span class="line"></span><br><span class="line"><span class="meta">#</span> 从命令行获取 帮助文档</span><br><span class="line"><span class="meta">$</span> go doc fmt</span><br><span class="line"></span><br><span class="line"><span class="meta">#</span> 检测竞争状态</span><br><span class="line"><span class="meta">$</span> go build -race</span><br></pre></td></tr></table></figure>
+
+<h1 id="总结"><a href="#总结" class="headerlink" title="总结"></a>总结</h1><ul>
+<li><p>引用类型：切片、指针、函数、chan</p>
+<blockquote>
+<p>1、如果没有初始化，不会分配内存空间，就是nil</p>
+</blockquote>
+</li>
+<li><p>传值类型：结构体、数组</p>
+<blockquote>
+<p>1、如果没有初始化，会分配内存空间</p>
+</blockquote>
+</li>
+</ul>
+<h1 id="参考文档"><a href="#参考文档" class="headerlink" title="参考文档"></a>参考文档</h1><p><a href="https://github.com/golang-standards/project-layout/blob/master/README_zh.md" target="_blank" rel="noopener">Standard Go Project Layout</a></p>
+<p><a href="https://shockerli.net/post/go-package-manage-tool-govendor/" target="_blank" rel="noopener">Go 包依赖管理工具 —— govendor</a></p>
+<p><a href="https://play.golang.org/" target="_blank" rel="noopener">运行、分享</a></p>
+<p><a href="https://golang.org/pkg/" target="_blank" rel="noopener">Packages</a></p>
+<p><a href="https://blog.csdn.net/fly910905/article/details/104255326" target="_blank" rel="noopener">GoLand：设置gofmt与goimports，保存时自动格式化代码</a></p>
+<p><a href="https://chai2010.cn/advanced-go-programming-book/ch1-basic/ch1-04-func-method-interface.html" target="_blank" rel="noopener">advanced-go-programming-book</a></p>
+
+    </div>
+
+    
+    
+    
+        
+      
+
+      <footer class="post-footer">
+
+        
+
+          <div class="post-nav">
+            <div class="post-nav-next post-nav-item">
+              
+                <a href="/2020/11/12/k8s/k8s-APIServer/" rel="next" title="k8s-APIServer">
+                  <i class="fa fa-chevron-left"></i> k8s-APIServer
+                </a>
+              
+            </div>
+
+            <span class="post-nav-divider"></span>
+
+            <div class="post-nav-prev post-nav-item">
+              
+                <a href="/2020/11/17/k8s/k8s-源码构建/" rel="prev" title="k8s-源码构建">
+                  k8s-源码构建 <i class="fa fa-chevron-right"></i>
+                </a>
+              
+            </div>
+          </div>
+        
+      </footer>
+    
+  </article>
+  
+  
+  
+
+  </div>
+
+
+          </div>
+          
+
+        </div>
+          
+  
+  <div class="toggle sidebar-toggle">
+    <span class="toggle-line toggle-line-first"></span>
+    <span class="toggle-line toggle-line-middle"></span>
+    <span class="toggle-line toggle-line-last"></span>
+  </div>
+
+  <aside class="sidebar">
+    <div class="sidebar-inner">
+        
+        
+        
+        
+      
+
+      <ul class="sidebar-nav motion-element">
+        <li class="sidebar-nav-toc">
+          文章目录
+        </li>
+        <li class="sidebar-nav-overview">
+          站点概览
+        </li>
+      </ul>
+
+      <!--noindex-->
+      <div class="post-toc-wrap sidebar-panel">
+          <div class="post-toc motion-element"><ol class="nav"><li class="nav-item nav-level-1"><a class="nav-link" href="#安装配置"><span class="nav-number">1.</span> <span class="nav-text">安装配置</span></a></li><li class="nav-item nav-level-1"><a class="nav-link" href="#源码文件"><span class="nav-number">2.</span> <span class="nav-text">源码文件</span></a><ol class="nav-child"><li class="nav-item nav-level-2"><a class="nav-link" href="#命令源码文件"><span class="nav-number">2.1.</span> <span class="nav-text">命令源码文件</span></a></li><li class="nav-item nav-level-2"><a class="nav-link" href="#库源码文件"><span class="nav-number">2.2.</span> <span class="nav-text">库源码文件</span></a></li><li class="nav-item nav-level-2"><a class="nav-link" href="#测试源码文件"><span class="nav-number">2.3.</span> <span class="nav-text">测试源码文件</span></a></li></ol></li><li class="nav-item nav-level-1"><a class="nav-link" href="#package"><span class="nav-number">3.</span> <span class="nav-text">package</span></a></li><li class="nav-item nav-level-1"><a class="nav-link" href="#基本知识"><span class="nav-number">4.</span> <span class="nav-text">基本知识</span></a></li><li class="nav-item nav-level-1"><a class="nav-link" href="#通道-channel"><span class="nav-number">5.</span> <span class="nav-text">通道(channel)</span></a></li><li class="nav-item nav-level-1"><a class="nav-link" href="#包"><span class="nav-number">6.</span> <span class="nav-text">包</span></a><ol class="nav-child"><li class="nav-item nav-level-2"><a class="nav-link" href="#govendor"><span class="nav-number">6.1.</span> <span class="nav-text">govendor</span></a></li></ol></li><li class="nav-item nav-level-1"><a class="nav-link" href="#数组"><span class="nav-number">7.</span> <span class="nav-text">数组</span></a></li><li class="nav-item nav-level-1"><a class="nav-link" href="#切片"><span class="nav-number">8.</span> <span class="nav-text">切片</span></a></li><li class="nav-item nav-level-1"><a class="nav-link" href="#映射"><span class="nav-number">9.</span> <span class="nav-text">映射</span></a></li><li class="nav-item nav-level-1"><a class="nav-link" href="#类型系统"><span class="nav-number">10.</span> <span class="nav-text">类型系统</span></a></li><li class="nav-item nav-level-1"><a class="nav-link" href="#并发"><span class="nav-number">11.</span> <span class="nav-text">并发</span></a></li><li class="nav-item nav-level-1"><a class="nav-link" href="#gogroutine"><span class="nav-number">12.</span> <span class="nav-text">gogroutine</span></a><ol class="nav-child"><li class="nav-item nav-level-2"><a class="nav-link" href="#可增长的栈"><span class="nav-number">12.1.</span> <span class="nav-text">可增长的栈</span></a></li><li class="nav-item nav-level-2"><a class="nav-link" href="#gogroutine调度"><span class="nav-number">12.2.</span> <span class="nav-text">gogroutine调度</span></a></li></ol></li><li class="nav-item nav-level-1"><a class="nav-link" href="#go工具"><span class="nav-number">13.</span> <span class="nav-text">go工具</span></a></li><li class="nav-item nav-level-1"><a class="nav-link" href="#总结"><span class="nav-number">14.</span> <span class="nav-text">总结</span></a></li><li class="nav-item nav-level-1"><a class="nav-link" href="#参考文档"><span class="nav-number">15.</span> <span class="nav-text">参考文档</span></a></li></ol></div>
+        
+      </div>
+      <!--/noindex-->
+
+      <div class="site-overview-wrap sidebar-panel">
+        <div class="site-author motion-element" itemprop="author" itemscope itemtype="http://schema.org/Person">
+  <p class="site-author-name" itemprop="name">姜纪光</p>
+  <div class="site-description" itemprop="description"></div>
+</div>
+<div class="site-state-wrap motion-element">
+  <nav class="site-state">
+      <div class="site-state-item site-state-posts">
+        
+          <a href="/archives/">
+        
+          <span class="site-state-item-count">158</span>
+          <span class="site-state-item-name">日志</span>
+        </a>
+      </div>
+    
+      
+      
+      <div class="site-state-item site-state-categories">
+        
+          
+            <a href="/categories/">
+          
+        
+        <span class="site-state-item-count">26</span>
+        <span class="site-state-item-name">分类</span>
+        </a>
+      </div>
+    
+      
+      
+      <div class="site-state-item site-state-tags">
+        
+          
+            <a href="/tags/">
+          
+        
+        <span class="site-state-item-count">14</span>
+        <span class="site-state-item-name">标签</span>
+        </a>
+      </div>
+    
+  </nav>
+</div>
+
+
+
+      </div>
+
+    </div>
+  </aside>
+  <div id="sidebar-dimmer"></div>
+
+
+      </div>
+    </main>
+
+    <footer class="footer">
+      <div class="footer-inner">
+        
+
+<div class="copyright">
+  &copy; 
+  <span itemprop="copyrightYear">2021</span>
+  <span class="with-love">
+    <i class="fa fa-user"></i>
+  </span>
+  <span class="author" itemprop="copyrightHolder">姜纪光</span>
+</div>
+  <div class="powered-by">由 <a href="https://hexo.io" class="theme-link" rel="noopener" target="_blank">Hexo</a> 强力驱动 v3.9.0
+  </div>
+  <span class="post-meta-divider">|</span>
+  <div class="theme-info">
+      
+    主题 – <a href="https://mist.theme-next.org" class="theme-link" rel="noopener" target="_blank">NexT.Mist</a> v7.4.1
+  </div>
+
+        
+
+
+
+
+
+
+
+
+
+
+
+
+        
+      </div>
+    </footer>
+  </div>
+
+  
+  <script src="/lib/anime.min.js?v=3.1.0"></script>
+  <script src="/lib/velocity/velocity.min.js?v=1.2.1"></script>
+  <script src="/lib/velocity/velocity.ui.min.js?v=1.2.1"></script>
+<script src="/js/utils.js?v=7.4.1"></script><script src="/js/motion.js?v=7.4.1"></script>
+<script src="/js/schemes/muse.js?v=7.4.1"></script>
+
+<script src="/js/next-boot.js?v=7.4.1"></script>
+
+
+
+  
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+  
+
+  
+
+  
+
+
+<script>
+NexT.utils.getScript('//unpkg.com/valine/dist/Valine.min.js', () => {
+  var GUEST = ['nick', 'mail', 'link'];
+  var guest = 'nick,mail,link';
+  guest = guest.split(',').filter(item => {
+    return GUEST.includes(item);
+  });
+  new Valine({
+    el: '#comments',
+    verify: false,
+    notify: false,
+    appId: 'MIQC4jJTknc0hjNXDAiIuQ21-9Nh9j0Va',
+    appKey: 'vaiXpSQLLMglwYsVLOBLzck4',
+    placeholder: "Just go go",
+    avatar: 'mm',
+    meta: guest,
+    pageSize: '10' || 10,
+    visitor: true,
+    lang: 'zh-cn' || 'zh-cn',
+    path: location.pathname,
+    recordIP: false,
+    serverURLs: ''
+  });
+}, window.Valine);
+</script>
+
+</body>
+</html>

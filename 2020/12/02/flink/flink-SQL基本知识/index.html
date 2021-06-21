@@ -1,0 +1,743 @@
+<!DOCTYPE html>
+
+
+
+
+
+<html lang="zh-CN">
+<head>
+  <meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1, maximum-scale=2">
+<meta name="theme-color" content="#222">
+<meta name="generator" content="Hexo 3.9.0">
+  <link rel="apple-touch-icon" sizes="180x180" href="/images/apple-touch-icon-next.png?v=7.4.1">
+  <link rel="icon" type="image/png" sizes="32x32" href="/images/favicon-32x32-next.png?v=7.4.1">
+  <link rel="icon" type="image/png" sizes="16x16" href="/images/favicon-16x16-next.png?v=7.4.1">
+  <link rel="mask-icon" href="/images/logo.svg?v=7.4.1" color="#222">
+
+<link rel="stylesheet" href="/css/main.css?v=7.4.1">
+
+
+<link rel="stylesheet" href="/lib/font-awesome/css/font-awesome.min.css?v=4.7.0">
+
+
+<script id="hexo-configurations">
+  var NexT = window.NexT || {};
+  var CONFIG = {
+    root: '/',
+    scheme: 'Mist',
+    version: '7.4.1',
+    exturl: false,
+    sidebar: {"position":"right","display":"hide","offset":12,"onmobile":false},
+    copycode: {"enable":false,"show_result":false,"style":null},
+    back2top: {"enable":true,"sidebar":false,"scrollpercent":false},
+    bookmark: {"enable":false,"color":"#222","save":"auto"},
+    fancybox: false,
+    mediumzoom: false,
+    lazyload: false,
+    pangu: false,
+    algolia: {
+      appID: '',
+      apiKey: '',
+      indexName: '',
+      hits: {"per_page":10},
+      labels: {"input_placeholder":"Search for Posts","hits_empty":"We didn't find any results for the search: ${query}","hits_stats":"${hits} results found in ${time} ms"}
+    },
+    localsearch: {"enable":false,"trigger":"auto","top_n_per_article":1,"unescape":false,"preload":false},
+    path: '',
+    motion: {"enable":true,"async":false,"transition":{"post_block":"fadeIn","post_header":"slideDownIn","post_body":"slideDownIn","coll_header":"slideLeftIn","sidebar":"slideUpIn"}},
+    translation: {
+      copy_button: '复制',
+      copy_success: '复制成功',
+      copy_failure: '复制失败'
+    },
+    sidebarPadding: 40
+  };
+</script>
+
+  <meta name="description" content="概述 本文基于flink1.12版本  Planner 的作用主要是把关系型的操作翻译成可执行的、经过优化的 Flink 任务。  对于生产环境，建议使用在1.11版本之后已经变成默认的Blink Planner。  TableEnvironment 是 Table API 和 SQL 的核心概念。它负责:   在内部的 catalog 中注册 Table   注册外部的 catalog 加载可插">
+<meta property="og:type" content="article">
+<meta property="og:title" content="flink-SQL基本知识">
+<meta property="og:url" content="http://yoursite.com/2020/12/02/flink/flink-SQL基本知识/index.html">
+<meta property="og:site_name" content="纪光的博客">
+<meta property="og:description" content="概述 本文基于flink1.12版本  Planner 的作用主要是把关系型的操作翻译成可执行的、经过优化的 Flink 任务。  对于生产环境，建议使用在1.11版本之后已经变成默认的Blink Planner。  TableEnvironment 是 Table API 和 SQL 的核心概念。它负责:   在内部的 catalog 中注册 Table   注册外部的 catalog 加载可插">
+<meta property="og:locale" content="zh-CN">
+<meta property="og:updated_time" content="2021-06-20T04:19:35.143Z">
+<meta name="twitter:card" content="summary">
+<meta name="twitter:title" content="flink-SQL基本知识">
+<meta name="twitter:description" content="概述 本文基于flink1.12版本  Planner 的作用主要是把关系型的操作翻译成可执行的、经过优化的 Flink 任务。  对于生产环境，建议使用在1.11版本之后已经变成默认的Blink Planner。  TableEnvironment 是 Table API 和 SQL 的核心概念。它负责:   在内部的 catalog 中注册 Table   注册外部的 catalog 加载可插">
+  <link rel="canonical" href="http://yoursite.com/2020/12/02/flink/flink-SQL基本知识/">
+
+
+<script id="page-configurations">
+  // https://hexo.io/docs/variables.html
+  CONFIG.page = {
+    sidebar: "",
+    isHome: false,
+    isPost: true,
+    isPage: false,
+    isArchive: false
+  };
+</script>
+
+  <title>flink-SQL基本知识 | 纪光的博客</title>
+  
+
+
+  <script>
+    var _hmt = _hmt || [];
+    (function() {
+      var hm = document.createElement("script");
+      hm.src = "https://hm.baidu.com/hm.js?bca403b673d79e83a47dc62fea1dd605";
+      var s = document.getElementsByTagName("script")[0];
+      s.parentNode.insertBefore(hm, s);
+    })();
+  </script>
+
+
+
+
+
+
+  <noscript>
+  <style>
+  .use-motion .brand,
+  .use-motion .menu-item,
+  .sidebar-inner,
+  .use-motion .post-block,
+  .use-motion .pagination,
+  .use-motion .comments,
+  .use-motion .post-header,
+  .use-motion .post-body,
+  .use-motion .collection-header { opacity: initial; }
+
+  .use-motion .site-title,
+  .use-motion .site-subtitle {
+    opacity: initial;
+    top: initial;
+  }
+
+  .use-motion .logo-line-before i { left: initial; }
+  .use-motion .logo-line-after i { right: initial; }
+  </style>
+</noscript>
+
+</head>
+
+<body itemscope itemtype="http://schema.org/WebPage">
+  <div class="container use-motion">
+    <div class="headband"></div>
+
+    <header class="header" itemscope itemtype="http://schema.org/WPHeader">
+      <div class="header-inner"><div class="site-brand-container">
+  <div class="site-meta">
+
+    <div>
+      <a href="/" class="brand" rel="start">
+        <span class="logo-line-before"><i></i></span>
+        <span class="site-title">纪光的博客</span>
+        <span class="logo-line-after"><i></i></span>
+      </a>
+    </div>
+  </div>
+
+  <div class="site-nav-toggle">
+    <div class="toggle" aria-label="切换导航栏">
+      <span class="toggle-line toggle-line-first"></span>
+      <span class="toggle-line toggle-line-middle"></span>
+      <span class="toggle-line toggle-line-last"></span>
+    </div>
+  </div>
+</div>
+
+
+<nav class="site-nav">
+  
+  <ul id="menu" class="menu">
+      
+      
+        
+        
+        <li class="menu-item menu-item-home">
+      
+    
+
+    <a href="/" rel="section"><i class="fa fa-fw fa-home"></i>首页</a>
+
+  </li>
+      
+    
+      
+      
+        
+        
+        <li class="menu-item menu-item-categories">
+      
+    
+
+    <a href="/categories/" rel="section"><i class="fa fa-fw fa-th"></i>分类</a>
+
+  </li>
+      
+    
+      
+      
+        
+        
+        <li class="menu-item menu-item-tags">
+      
+    
+
+    <a href="/tags/" rel="section"><i class="fa fa-fw fa-tags"></i>标签</a>
+
+  </li>
+      
+    
+      
+      
+        
+        
+        <li class="menu-item menu-item-archives">
+      
+    
+
+    <a href="/archives/" rel="section"><i class="fa fa-fw fa-archive"></i>归档</a>
+
+  </li>
+      
+    
+      
+      
+        
+        
+        <li class="menu-item menu-item-about">
+      
+    
+
+    <a href="/about/" rel="section"><i class="fa fa-fw fa-user"></i>关于</a>
+
+  </li>
+      
+    
+  </ul>
+
+    
+
+</nav>
+</div>
+    </header>
+
+    
+  <div class="back-to-top">
+    <i class="fa fa-arrow-up"></i>
+    <span>0%</span>
+  </div>
+
+
+    <main class="main">
+      <div class="main-inner">
+        <div class="content-wrap">
+          <div class="content">
+            
+
+  <div class="posts-expand">
+      
+  
+  
+  <article itemscope itemtype="http://schema.org/Article" class="post-block " lang="zh-CN">
+    <link itemprop="mainEntityOfPage" href="http://yoursite.com/2020/12/02/flink/flink-SQL基本知识/">
+
+    <span hidden itemprop="author" itemscope itemtype="http://schema.org/Person">
+      <meta itemprop="name" content="姜纪光">
+      <meta itemprop="description" content="">
+      <meta itemprop="image" content="/images/avatar.gif">
+    </span>
+
+    <span hidden itemprop="publisher" itemscope itemtype="http://schema.org/Organization">
+      <meta itemprop="name" content="纪光的博客">
+    </span>
+      <header class="post-header">
+        <h1 class="post-title" itemprop="name headline">
+          
+            flink-SQL基本知识
+            
+
+          
+        </h1>
+
+        <div class="post-meta">
+            <span class="post-meta-item">
+              <span class="post-meta-item-icon">
+                <i class="fa fa-calendar-o"></i>
+              </span>
+              <span class="post-meta-item-text">发表于</span>
+
+              
+                
+              
+
+              <time title="创建时间：2020-12-02 18:02:43" itemprop="dateCreated datePublished" datetime="2020-12-02T18:02:43+08:00">2020-12-02</time>
+            </span>
+          
+            
+
+            
+              <span class="post-meta-item">
+                <span class="post-meta-item-icon">
+                  <i class="fa fa-calendar-check-o"></i>
+                </span>
+                <span class="post-meta-item-text">更新于</span>
+                <time title="修改时间：2021-06-20 12:19:35" itemprop="dateModified" datetime="2021-06-20T12:19:35+08:00">2021-06-20</time>
+              </span>
+            
+          
+            <span class="post-meta-item">
+              <span class="post-meta-item-icon">
+                <i class="fa fa-folder-o"></i>
+              </span>
+              <span class="post-meta-item-text">分类于</span>
+              
+                <span itemprop="about" itemscope itemtype="http://schema.org/Thing">
+                  <a href="/categories/flink/" itemprop="url" rel="index">
+                    <span itemprop="name">flink</span>
+                  </a>
+                </span>
+
+                
+                
+              
+            </span>
+          
+
+          
+            <span id="/2020/12/02/flink/flink-SQL基本知识/" class="post-meta-item leancloud_visitors" data-flag-title="flink-SQL基本知识" title="阅读次数">
+              <span class="post-meta-item-icon">
+                <i class="fa fa-eye"></i>
+              </span>
+              <span class="post-meta-item-text">阅读次数：</span>
+              <span class="leancloud-visitors-count"></span>
+            </span>
+          
+  
+  
+
+        </div>
+      </header>
+
+    
+    
+    
+    <div class="post-body" itemprop="articleBody">
+
+      
+        <h1 id="概述"><a href="#概述" class="headerlink" title="概述"></a>概述</h1><ul>
+<li><p>本文基于<strong>flink1.12版本</strong></p>
+</li>
+<li><p>Planner 的作用主要是把关系型的操作翻译成可执行的、经过优化的 Flink 任务。</p>
+</li>
+<li><p>对于生产环境，建议使用在1.11版本之后已经变成默认的Blink Planner。</p>
+</li>
+<li><p><code>TableEnvironment</code> 是 Table API 和 SQL 的核心概念。它负责:</p>
+<blockquote>
+<ul>
+<li>在内部的 catalog 中注册 <code>Table</code></li>
+</ul>
+<ul>
+<li>注册外部的 catalog</li>
+<li>加载可插拔模块</li>
+<li>执行 SQL 查询</li>
+<li>注册自定义函数 （scalar、table 或 aggregation）</li>
+<li>将 <code>DataStream</code> 或 <code>DataSet</code> 转换成 <code>Table</code></li>
+<li>持有对 <code>ExecutionEnvironment</code> 或 <code>StreamExecutionEnvironment</code> 的引用</li>
+</ul>
+</blockquote>
+</li>
+<li><p>TableEnvironment持有表的catalogs的映射，表创建时都有标识符（identifier）</p>
+<blockquote>
+<p>标识符由3部分组成：catalog name, database name and object name</p>
+</blockquote>
+</li>
+<li><p>可以分为VIEWS和TABLES</p>
+</li>
+<li><p>表分为临时（Temporary）和永久表（Permanent）</p>
+<blockquote>
+<p>1、临时表是指，生命周期在单个flink session中，存储在内存中，不和catalog或者database绑定，但是可以在一个namespace在中创建，即使相关的database被删除，临时表也不会被drop</p>
+<p>2、永久表是指，在跨session、跨集群中可见，由catalog存储元数据，除非显示drop，否则一直存在</p>
+</blockquote>
+</li>
+<li><p>屏蔽（Shadowing）</p>
+<blockquote>
+<p>拥有一样标识的临时表可以屏蔽永久表，直到临时表被drop</p>
+</blockquote>
+</li>
+<li><p>表总是通过三元标识符注册，包括 catalog 名、数据库名和表名。</p>
+</li>
+</ul>
+<h1 id="动态表-Dynamic-Table"><a href="#动态表-Dynamic-Table" class="headerlink" title="动态表 (Dynamic Table)"></a>动态表 (Dynamic Table)</h1><ul>
+<li><em>动态表</em> 是 Flink 的支持流数据的 Table API 和 SQL 的核心概念</li>
+<li>与表示批处理数据的静态表不同，动态表是随时间变化的。</li>
+<li>查询动态表将生成一个 <em>连续查询</em> 。一个连续查询永远不会终止，会生成一个结果表</li>
+</ul>
+<h2 id="sink"><a href="#sink" class="headerlink" title="sink"></a>sink</h2><ul>
+<li>在batch场景下，sink仅仅能以insert-only方式写有界数据流</li>
+<li>在streaming场景下，sink仅仅能以insert-only方式写无界数据流</li>
+<li>在<strong>cdc（change data capture）</strong>场景下，sink可以以*<em>insert, update, and delete *</em>的方式写有界或无界数据流</li>
+<li></li>
+</ul>
+<h1 id="数据类型"><a href="#数据类型" class="headerlink" title="数据类型"></a>数据类型</h1><ul>
+<li><p>对于基于 JVM 的语言，所有预定义的数据类型都在 <code>org.apache.flink.table.api.DataTypes</code> 里提供</p>
+</li>
+<li><p>org.apache.flink.types.Row</p>
+<blockquote>
+</blockquote>
+</li>
+</ul>
+<h1 id="关键类"><a href="#关键类" class="headerlink" title="关键类"></a>关键类</h1><ul>
+<li><p>org.apache.flink.types.Row</p>
+<blockquote>
+<p>1、Row是Table、SQL和其它API之间的bridge。</p>
+<p>2、Row是长度固定的、有明确字段排序的、可为null的多种类型的复合类型。</p>
+<p>3、Row字段的类型不能自动推断，需要在创建时提供字段类型信息</p>
+<p>4、除了字段之外，还有RowKind用以指明change的类型</p>
+</blockquote>
+</li>
+<li><p>org.apache.flink.table.data.RowData</p>
+<blockquote>
+<p>1、</p>
+</blockquote>
+</li>
+<li><p>org.apache.flink.table.factories.Factory</p>
+<blockquote>
+<p>1、用来创建Talbe &amp; SQL所有类型相关的实例，使用SPI发现</p>
+<p>2、每个实现类都应该一个字符串唯一标识自己</p>
+<p>3、实现该接口的实现类，必须放置于该路径下：META_INF/services/org.apache.flink.table.factories.Factory</p>
+<p>4、每个实现类都有必须和可选的属性值，这些属性值不用于发现，但是会用于产生文档和验证</p>
+</blockquote>
+</li>
+<li><p>org.apache.flink.table.factories.TableFactory</p>
+<blockquote>
+<p>1、用来从基于字符串的属性中创建Table相关的实例，使用SPI发现。</p>
+<p>2、实现该接口的类，必须放置于该路径下：META_INF/services/org.apache.flink.table.factories.TableFactory</p>
+<p>3、框架保证根据属性值仅仅匹配唯一的实现类</p>
+</blockquote>
+</li>
+<li><p>org.apache.flink.table.descriptors.FormatDescriptorValidator</p>
+<blockquote>
+</blockquote>
+</li>
+<li><p>org.apache.flink.api.common.serialization.BulkWriter<t></t></p>
+<blockquote>
+<p>1、是一个编码器，以批量方式对数据进行编码</p>
+<p>2、块编码器大多是压缩格式的（Parquet、ORC），分批编码为列向量块</p>
+<p>3、定义了工厂接口，用于创建编码器</p>
+</blockquote>
+</li>
+<li><p>org.apache.flink.table.connector.format.Format</p>
+<blockquote>
+<p>1、连接器格式的基本接口</p>
+<p>2、根据外部系统的不同，连接器支持不同的读写行数据。</p>
+<p>3、格式可以按照两个维度区分：</p>
+<p>​    格式被用于DynamicTableSource中的上下文</p>
+<p>​    运行时接口，需要DeserializationSchema或者bulk interface</p>
+</blockquote>
+</li>
+<li><p>org.apache.flink.connector.file.src.reader.BulkFormat</p>
+<blockquote>
+<p>1、BulkFormat分批读并且解码数据，例如ORC、Parquet</p>
+<p>2、BulkFormat.Reader负责实际的读操作，可以读取一个checkpoint的数据</p>
+</blockquote>
+</li>
+<li><p>org.apache.flink.table.factories.EncodingFormatFactory<i></i></p>
+<blockquote>
+<p>1、I  table sink时需要的接口</p>
+<p>2、用来为了DynamicTableSink配置EncodingFormat</p>
+</blockquote>
+</li>
+<li><p>org.apache.flink.table.types.AbstractDataType&lt;T extends AbstractDataType<t>&gt;</t></p>
+<blockquote>
+<p>1、描述表生态中值的数据类型的最高抽象</p>
+<p>2、包括两种数据类型：</p>
+<p>​    完全解析的数据类型，用以直接声明输入输出类型，DataType</p>
+<p>​    部分解析的数据类型，需要在catalog或者configuration查找才能解析为DataType，UnresolvedDataType</p>
+</blockquote>
+</li>
+<li><p>org.apache.flink.table.types.DataType</p>
+<blockquote>
+<p>1、有两个作用：</p>
+<p>​    声明一个logical type，是强制性的</p>
+<p>​    giving hints about the physical representation of data to the planner，是可选的</p>
+<p>2、逻辑类型独立于任何物理表示，并且接近SQL标准的“数据类型”术语。</p>
+<p>3、Hints指明了实现的数据格式</p>
+</blockquote>
+</li>
+<li><p>org.apache.flink.table.types.logical.LogicalType</p>
+<blockquote>
+<p>1、描述了值的数据类型</p>
+<p>2、它并不意味着传输或存储的具体物理表示，而是定义了基于JVM的语言和表生态系统之间的界限。</p>
+<p>3、与SQL标准类型类似，必须支持null</p>
+<p>4、</p>
+</blockquote>
+</li>
+</ul>
+<h1 id="函数"><a href="#函数" class="headerlink" title="函数"></a>函数</h1><ul>
+<li><p>有两个划分标准</p>
+<blockquote>
+<p>1、系统（内置）函数和 Catalog 函数</p>
+<p>​    系统函数没有名称空间，只能通过其名称来进行引用</p>
+<p>​    Catalog 函数属于 Catalog 和数据库，因此它们拥有 Catalog 和数据库命名空间</p>
+<p>2、临时函数和持久化函数</p>
+<p>   临时函数始终由用户创建，仅仅在一个session中有效</p>
+<p>   持久化函数可以跨session，是由系统提供或者持久化在 catalog</p>
+</blockquote>
+</li>
+</ul>
+<h1 id="社区"><a href="#社区" class="headerlink" title="社区"></a>社区</h1><ul>
+<li><p>TableSchema：表示catalog table的schema，一个Table对象和操作的schema</p>
+<blockquote>
+<p>1、应该拆分职责</p>
+<p>2、Connectors应该工作在CatalogSchema上</p>
+</blockquote>
+</li>
+</ul>
+<h1 id="参考文档"><a href="#参考文档" class="headerlink" title="参考文档"></a>参考文档</h1>
+    </div>
+
+    
+    
+    
+        
+      
+
+      <footer class="post-footer">
+
+        
+
+          <div class="post-nav">
+            <div class="post-nav-next post-nav-item">
+              
+                <a href="/2020/11/30/calcite/calcite-基本知识/" rel="next" title="calcite-基本知识">
+                  <i class="fa fa-chevron-left"></i> calcite-基本知识
+                </a>
+              
+            </div>
+
+            <span class="post-nav-divider"></span>
+
+            <div class="post-nav-prev post-nav-item">
+              
+                <a href="/2020/12/02/flink/flink-SQL实践/" rel="prev" title="flink-SQL实践">
+                  flink-SQL实践 <i class="fa fa-chevron-right"></i>
+                </a>
+              
+            </div>
+          </div>
+        
+      </footer>
+    
+  </article>
+  
+  
+  
+
+  </div>
+
+
+          </div>
+          
+
+        </div>
+          
+  
+  <div class="toggle sidebar-toggle">
+    <span class="toggle-line toggle-line-first"></span>
+    <span class="toggle-line toggle-line-middle"></span>
+    <span class="toggle-line toggle-line-last"></span>
+  </div>
+
+  <aside class="sidebar">
+    <div class="sidebar-inner">
+        
+        
+        
+        
+      
+
+      <ul class="sidebar-nav motion-element">
+        <li class="sidebar-nav-toc">
+          文章目录
+        </li>
+        <li class="sidebar-nav-overview">
+          站点概览
+        </li>
+      </ul>
+
+      <!--noindex-->
+      <div class="post-toc-wrap sidebar-panel">
+          <div class="post-toc motion-element"><ol class="nav"><li class="nav-item nav-level-1"><a class="nav-link" href="#概述"><span class="nav-number">1.</span> <span class="nav-text">概述</span></a></li><li class="nav-item nav-level-1"><a class="nav-link" href="#动态表-Dynamic-Table"><span class="nav-number">2.</span> <span class="nav-text">动态表 (Dynamic Table)</span></a><ol class="nav-child"><li class="nav-item nav-level-2"><a class="nav-link" href="#sink"><span class="nav-number">2.1.</span> <span class="nav-text">sink</span></a></li></ol></li><li class="nav-item nav-level-1"><a class="nav-link" href="#数据类型"><span class="nav-number">3.</span> <span class="nav-text">数据类型</span></a></li><li class="nav-item nav-level-1"><a class="nav-link" href="#关键类"><span class="nav-number">4.</span> <span class="nav-text">关键类</span></a></li><li class="nav-item nav-level-1"><a class="nav-link" href="#函数"><span class="nav-number">5.</span> <span class="nav-text">函数</span></a></li><li class="nav-item nav-level-1"><a class="nav-link" href="#社区"><span class="nav-number">6.</span> <span class="nav-text">社区</span></a></li><li class="nav-item nav-level-1"><a class="nav-link" href="#参考文档"><span class="nav-number">7.</span> <span class="nav-text">参考文档</span></a></li></ol></div>
+        
+      </div>
+      <!--/noindex-->
+
+      <div class="site-overview-wrap sidebar-panel">
+        <div class="site-author motion-element" itemprop="author" itemscope itemtype="http://schema.org/Person">
+  <p class="site-author-name" itemprop="name">姜纪光</p>
+  <div class="site-description" itemprop="description"></div>
+</div>
+<div class="site-state-wrap motion-element">
+  <nav class="site-state">
+      <div class="site-state-item site-state-posts">
+        
+          <a href="/archives/">
+        
+          <span class="site-state-item-count">158</span>
+          <span class="site-state-item-name">日志</span>
+        </a>
+      </div>
+    
+      
+      
+      <div class="site-state-item site-state-categories">
+        
+          
+            <a href="/categories/">
+          
+        
+        <span class="site-state-item-count">26</span>
+        <span class="site-state-item-name">分类</span>
+        </a>
+      </div>
+    
+      
+      
+      <div class="site-state-item site-state-tags">
+        
+          
+            <a href="/tags/">
+          
+        
+        <span class="site-state-item-count">14</span>
+        <span class="site-state-item-name">标签</span>
+        </a>
+      </div>
+    
+  </nav>
+</div>
+
+
+
+      </div>
+
+    </div>
+  </aside>
+  <div id="sidebar-dimmer"></div>
+
+
+      </div>
+    </main>
+
+    <footer class="footer">
+      <div class="footer-inner">
+        
+
+<div class="copyright">
+  &copy; 
+  <span itemprop="copyrightYear">2021</span>
+  <span class="with-love">
+    <i class="fa fa-user"></i>
+  </span>
+  <span class="author" itemprop="copyrightHolder">姜纪光</span>
+</div>
+  <div class="powered-by">由 <a href="https://hexo.io" class="theme-link" rel="noopener" target="_blank">Hexo</a> 强力驱动 v3.9.0
+  </div>
+  <span class="post-meta-divider">|</span>
+  <div class="theme-info">
+      
+    主题 – <a href="https://mist.theme-next.org" class="theme-link" rel="noopener" target="_blank">NexT.Mist</a> v7.4.1
+  </div>
+
+        
+
+
+
+
+
+
+
+
+
+
+
+
+        
+      </div>
+    </footer>
+  </div>
+
+  
+  <script src="/lib/anime.min.js?v=3.1.0"></script>
+  <script src="/lib/velocity/velocity.min.js?v=1.2.1"></script>
+  <script src="/lib/velocity/velocity.ui.min.js?v=1.2.1"></script>
+<script src="/js/utils.js?v=7.4.1"></script><script src="/js/motion.js?v=7.4.1"></script>
+<script src="/js/schemes/muse.js?v=7.4.1"></script>
+
+<script src="/js/next-boot.js?v=7.4.1"></script>
+
+
+
+  
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+  
+
+  
+
+  
+
+
+<script>
+NexT.utils.getScript('//unpkg.com/valine/dist/Valine.min.js', () => {
+  var GUEST = ['nick', 'mail', 'link'];
+  var guest = 'nick,mail,link';
+  guest = guest.split(',').filter(item => {
+    return GUEST.includes(item);
+  });
+  new Valine({
+    el: '#comments',
+    verify: false,
+    notify: false,
+    appId: 'MIQC4jJTknc0hjNXDAiIuQ21-9Nh9j0Va',
+    appKey: 'vaiXpSQLLMglwYsVLOBLzck4',
+    placeholder: "Just go go",
+    avatar: 'mm',
+    meta: guest,
+    pageSize: '10' || 10,
+    visitor: true,
+    lang: 'zh-cn' || 'zh-cn',
+    path: location.pathname,
+    recordIP: false,
+    serverURLs: ''
+  });
+}, window.Valine);
+</script>
+
+</body>
+</html>

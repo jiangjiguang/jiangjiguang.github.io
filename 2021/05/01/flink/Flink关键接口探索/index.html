@@ -1,0 +1,777 @@
+<!DOCTYPE html>
+
+
+
+
+
+<html lang="zh-CN">
+<head>
+  <meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1, maximum-scale=2">
+<meta name="theme-color" content="#222">
+<meta name="generator" content="Hexo 3.9.0">
+  <link rel="apple-touch-icon" sizes="180x180" href="/images/apple-touch-icon-next.png?v=7.4.1">
+  <link rel="icon" type="image/png" sizes="32x32" href="/images/favicon-32x32-next.png?v=7.4.1">
+  <link rel="icon" type="image/png" sizes="16x16" href="/images/favicon-16x16-next.png?v=7.4.1">
+  <link rel="mask-icon" href="/images/logo.svg?v=7.4.1" color="#222">
+
+<link rel="stylesheet" href="/css/main.css?v=7.4.1">
+
+
+<link rel="stylesheet" href="/lib/font-awesome/css/font-awesome.min.css?v=4.7.0">
+
+
+<script id="hexo-configurations">
+  var NexT = window.NexT || {};
+  var CONFIG = {
+    root: '/',
+    scheme: 'Mist',
+    version: '7.4.1',
+    exturl: false,
+    sidebar: {"position":"right","display":"hide","offset":12,"onmobile":false},
+    copycode: {"enable":false,"show_result":false,"style":null},
+    back2top: {"enable":true,"sidebar":false,"scrollpercent":false},
+    bookmark: {"enable":false,"color":"#222","save":"auto"},
+    fancybox: false,
+    mediumzoom: false,
+    lazyload: false,
+    pangu: false,
+    algolia: {
+      appID: '',
+      apiKey: '',
+      indexName: '',
+      hits: {"per_page":10},
+      labels: {"input_placeholder":"Search for Posts","hits_empty":"We didn't find any results for the search: ${query}","hits_stats":"${hits} results found in ${time} ms"}
+    },
+    localsearch: {"enable":false,"trigger":"auto","top_n_per_article":1,"unescape":false,"preload":false},
+    path: '',
+    motion: {"enable":true,"async":false,"transition":{"post_block":"fadeIn","post_header":"slideDownIn","post_body":"slideDownIn","coll_header":"slideLeftIn","sidebar":"slideUpIn"}},
+    translation: {
+      copy_button: '复制',
+      copy_success: '复制成功',
+      copy_failure: '复制失败'
+    },
+    sidebarPadding: 40
+  };
+</script>
+
+  <meta name="description" content="状态CheckpointedFunction 状态转换函数的核心接口，该函数持有跨数据元素的状态  该接口提供了针对keyed state 和 operator state 的管理的极大便利  该接口包含两个方法：initializeState  snapshotState  initializeState  1、当实现该接口的类被实例化时，调用该方法   snapshotState  1、每当c">
+<meta property="og:type" content="article">
+<meta property="og:title" content="Flink关键接口探索">
+<meta property="og:url" content="http://yoursite.com/2021/05/01/flink/Flink关键接口探索/index.html">
+<meta property="og:site_name" content="纪光的博客">
+<meta property="og:description" content="状态CheckpointedFunction 状态转换函数的核心接口，该函数持有跨数据元素的状态  该接口提供了针对keyed state 和 operator state 的管理的极大便利  该接口包含两个方法：initializeState  snapshotState  initializeState  1、当实现该接口的类被实例化时，调用该方法   snapshotState  1、每当c">
+<meta property="og:locale" content="zh-CN">
+<meta property="og:updated_time" content="2021-06-20T04:19:35.142Z">
+<meta name="twitter:card" content="summary">
+<meta name="twitter:title" content="Flink关键接口探索">
+<meta name="twitter:description" content="状态CheckpointedFunction 状态转换函数的核心接口，该函数持有跨数据元素的状态  该接口提供了针对keyed state 和 operator state 的管理的极大便利  该接口包含两个方法：initializeState  snapshotState  initializeState  1、当实现该接口的类被实例化时，调用该方法   snapshotState  1、每当c">
+  <link rel="canonical" href="http://yoursite.com/2021/05/01/flink/Flink关键接口探索/">
+
+
+<script id="page-configurations">
+  // https://hexo.io/docs/variables.html
+  CONFIG.page = {
+    sidebar: "",
+    isHome: false,
+    isPost: true,
+    isPage: false,
+    isArchive: false
+  };
+</script>
+
+  <title>Flink关键接口探索 | 纪光的博客</title>
+  
+
+
+  <script>
+    var _hmt = _hmt || [];
+    (function() {
+      var hm = document.createElement("script");
+      hm.src = "https://hm.baidu.com/hm.js?bca403b673d79e83a47dc62fea1dd605";
+      var s = document.getElementsByTagName("script")[0];
+      s.parentNode.insertBefore(hm, s);
+    })();
+  </script>
+
+
+
+
+
+
+  <noscript>
+  <style>
+  .use-motion .brand,
+  .use-motion .menu-item,
+  .sidebar-inner,
+  .use-motion .post-block,
+  .use-motion .pagination,
+  .use-motion .comments,
+  .use-motion .post-header,
+  .use-motion .post-body,
+  .use-motion .collection-header { opacity: initial; }
+
+  .use-motion .site-title,
+  .use-motion .site-subtitle {
+    opacity: initial;
+    top: initial;
+  }
+
+  .use-motion .logo-line-before i { left: initial; }
+  .use-motion .logo-line-after i { right: initial; }
+  </style>
+</noscript>
+
+</head>
+
+<body itemscope itemtype="http://schema.org/WebPage">
+  <div class="container use-motion">
+    <div class="headband"></div>
+
+    <header class="header" itemscope itemtype="http://schema.org/WPHeader">
+      <div class="header-inner"><div class="site-brand-container">
+  <div class="site-meta">
+
+    <div>
+      <a href="/" class="brand" rel="start">
+        <span class="logo-line-before"><i></i></span>
+        <span class="site-title">纪光的博客</span>
+        <span class="logo-line-after"><i></i></span>
+      </a>
+    </div>
+  </div>
+
+  <div class="site-nav-toggle">
+    <div class="toggle" aria-label="切换导航栏">
+      <span class="toggle-line toggle-line-first"></span>
+      <span class="toggle-line toggle-line-middle"></span>
+      <span class="toggle-line toggle-line-last"></span>
+    </div>
+  </div>
+</div>
+
+
+<nav class="site-nav">
+  
+  <ul id="menu" class="menu">
+      
+      
+        
+        
+        <li class="menu-item menu-item-home">
+      
+    
+
+    <a href="/" rel="section"><i class="fa fa-fw fa-home"></i>首页</a>
+
+  </li>
+      
+    
+      
+      
+        
+        
+        <li class="menu-item menu-item-categories">
+      
+    
+
+    <a href="/categories/" rel="section"><i class="fa fa-fw fa-th"></i>分类</a>
+
+  </li>
+      
+    
+      
+      
+        
+        
+        <li class="menu-item menu-item-tags">
+      
+    
+
+    <a href="/tags/" rel="section"><i class="fa fa-fw fa-tags"></i>标签</a>
+
+  </li>
+      
+    
+      
+      
+        
+        
+        <li class="menu-item menu-item-archives">
+      
+    
+
+    <a href="/archives/" rel="section"><i class="fa fa-fw fa-archive"></i>归档</a>
+
+  </li>
+      
+    
+      
+      
+        
+        
+        <li class="menu-item menu-item-about">
+      
+    
+
+    <a href="/about/" rel="section"><i class="fa fa-fw fa-user"></i>关于</a>
+
+  </li>
+      
+    
+  </ul>
+
+    
+
+</nav>
+</div>
+    </header>
+
+    
+  <div class="back-to-top">
+    <i class="fa fa-arrow-up"></i>
+    <span>0%</span>
+  </div>
+
+
+    <main class="main">
+      <div class="main-inner">
+        <div class="content-wrap">
+          <div class="content">
+            
+
+  <div class="posts-expand">
+      
+  
+  
+  <article itemscope itemtype="http://schema.org/Article" class="post-block " lang="zh-CN">
+    <link itemprop="mainEntityOfPage" href="http://yoursite.com/2021/05/01/flink/Flink关键接口探索/">
+
+    <span hidden itemprop="author" itemscope itemtype="http://schema.org/Person">
+      <meta itemprop="name" content="姜纪光">
+      <meta itemprop="description" content="">
+      <meta itemprop="image" content="/images/avatar.gif">
+    </span>
+
+    <span hidden itemprop="publisher" itemscope itemtype="http://schema.org/Organization">
+      <meta itemprop="name" content="纪光的博客">
+    </span>
+      <header class="post-header">
+        <h1 class="post-title" itemprop="name headline">
+          
+            Flink关键接口探索
+            
+
+          
+        </h1>
+
+        <div class="post-meta">
+            <span class="post-meta-item">
+              <span class="post-meta-item-icon">
+                <i class="fa fa-calendar-o"></i>
+              </span>
+              <span class="post-meta-item-text">发表于</span>
+
+              
+                
+              
+
+              <time title="创建时间：2021-05-01 17:42:00" itemprop="dateCreated datePublished" datetime="2021-05-01T17:42:00+08:00">2021-05-01</time>
+            </span>
+          
+            
+
+            
+              <span class="post-meta-item">
+                <span class="post-meta-item-icon">
+                  <i class="fa fa-calendar-check-o"></i>
+                </span>
+                <span class="post-meta-item-text">更新于</span>
+                <time title="修改时间：2021-06-20 12:19:35" itemprop="dateModified" datetime="2021-06-20T12:19:35+08:00">2021-06-20</time>
+              </span>
+            
+          
+            <span class="post-meta-item">
+              <span class="post-meta-item-icon">
+                <i class="fa fa-folder-o"></i>
+              </span>
+              <span class="post-meta-item-text">分类于</span>
+              
+                <span itemprop="about" itemscope itemtype="http://schema.org/Thing">
+                  <a href="/categories/flink/" itemprop="url" rel="index">
+                    <span itemprop="name">flink</span>
+                  </a>
+                </span>
+
+                
+                
+              
+            </span>
+          
+
+          
+            <span id="/2021/05/01/flink/Flink关键接口探索/" class="post-meta-item leancloud_visitors" data-flag-title="Flink关键接口探索" title="阅读次数">
+              <span class="post-meta-item-icon">
+                <i class="fa fa-eye"></i>
+              </span>
+              <span class="post-meta-item-text">阅读次数：</span>
+              <span class="leancloud-visitors-count"></span>
+            </span>
+          
+  
+  
+
+        </div>
+      </header>
+
+    
+    
+    
+    <div class="post-body" itemprop="articleBody">
+
+      
+        <h1 id="状态"><a href="#状态" class="headerlink" title="状态"></a>状态</h1><h2 id="CheckpointedFunction"><a href="#CheckpointedFunction" class="headerlink" title="CheckpointedFunction"></a>CheckpointedFunction</h2><ul>
+<li><p>状态转换函数的核心接口，该函数持有跨数据元素的状态</p>
+</li>
+<li><p>该接口提供了针对keyed state 和 operator state 的管理的极大便利</p>
+</li>
+<li><p>该接口包含两个方法：initializeState  snapshotState</p>
+</li>
+<li><p>initializeState</p>
+<blockquote>
+<p>1、当实现该接口的类被实例化时，调用该方法</p>
+</blockquote>
+</li>
+<li><p>snapshotState</p>
+<blockquote>
+<p>1、每当checkpoint 做该函数的状态快照的时候执行</p>
+<p>2、该函数可以作为与外部系统flush/commit/synchronize 的hook</p>
+</blockquote>
+</li>
+<li><p>kafka consumer使用案例</p>
+<blockquote>
+<p>initializeState：用来获取状态中的每个 partition的 offset</p>
+<p>snapshotState：获取每个checkpointId的每个 partition的 offset</p>
+</blockquote>
+</li>
+<li><p>Kafka producer 使用案列</p>
+<blockquote>
+</blockquote>
+</li>
+<li><p>TwoPhaseCommitSinkFunction 使用案例</p>
+<blockquote>
+<p>1、所有实现仅一次语义SinkFunction的建议基类</p>
+<p>2、它通过 CheckpointedFunction 和 CheckpointListener 实现两阶段提交算法</p>
+<p>3、用户应该提供自定义的事务处理</p>
+<p>4、initializeState：</p>
+<p>5、snapshotState：两阶段提交中的预提交</p>
+</blockquote>
+</li>
+<li><p>hudi使用案例</p>
+<blockquote>
+<p>initializeState：从instantState中，获取时间轴上最新已经被处理的时间 issuedInstant</p>
+<p>snapshotState：把issuedInstant 保存到 instantState中</p>
+</blockquote>
+</li>
+</ul>
+<h2 id="CheckpointListener"><a href="#CheckpointListener" class="headerlink" title="CheckpointListener"></a>CheckpointListener</h2><ul>
+<li><p>该接口是被用来与外界进行事务交互，一旦checkpoint完成提交外部事务</p>
+</li>
+<li><p>Checkpoint Subsuming Contract</p>
+<blockquote>
+<p>1、有两组artifacts</p>
+<p>  ready set：下个checkpoint将要被发布的artifacts</p>
+<p>  pending set：当本次checkpoint完成时，发布</p>
+</blockquote>
+</li>
+<li><p>有两个方法：notifyCheckpointComplete 和 notifyCheckpointAborted</p>
+</li>
+<li><p>notifyCheckpointComplete </p>
+<blockquote>
+<p>1、通知listener 给定的checkpointId已经完成并且提交</p>
+<p>2、”通知行为”是”尽力而为”的，这意味着可能有时会跳过，因此要遵循”Checkpoint Subsuming Contract”</p>
+</blockquote>
+</li>
+<li><p>notifyCheckpointAborted</p>
+<blockquote>
+<p>1、当分布式的checkpoint被终止时，该方法被调用</p>
+<p>2、该方法一般不需要实现</p>
+</blockquote>
+</li>
+<li><p>TwoPhaseCommitSinkFunction使用案例</p>
+<blockquote>
+</blockquote>
+</li>
+</ul>
+<h1 id="Source"><a href="#Source" class="headerlink" title="Source"></a>Source</h1><h2 id="SourceFunction"><a href="#SourceFunction" class="headerlink" title="SourceFunction"></a>SourceFunction<t></t></h2><ul>
+<li><p>所有source算子的基接口</p>
+</li>
+<li><p>当source开始发射数据时，run方法是被调用的，run方法可以运行足够长的时间，cancel方法用以结束run方法</p>
+</li>
+<li><p>Timestamps and watermarks</p>
+<blockquote>
+<p>1、source算子可以给数据指定timestamps，并且可以发射watermarks</p>
+<p>2、这在EventTime时才有效，在其它时间类型下，会忽略时间戳和watermarks</p>
+</blockquote>
+</li>
+<li><p>包含两个方法：run 和 cancel</p>
+</li>
+<li><p>run方法</p>
+<blockquote>
+<p>启动source，并且使用SourceContext 发射数据</p>
+</blockquote>
+</li>
+<li><p>cancel方法</p>
+<blockquote>
+<p>一般设置为volatile变量，保证run内部的循环可以结束</p>
+</blockquote>
+</li>
+</ul>
+<h3 id="SourceContext"><a href="#SourceContext" class="headerlink" title="SourceContext"></a>SourceContext<t></t></h3><ul>
+<li><p>SourceContext是SourceFunction的内部接口，用于发射数据和watermarks</p>
+</li>
+<li><p>一共包含六个方法：</p>
+<blockquote>
+<p>1、collect：发射数据，没有timestamp</p>
+<p>2、collectWithTimestamp</p>
+<p>3、emitWatermark</p>
+<p>4、markAsTemporarilyIdle</p>
+<p>5、getCheckpointLock：应该是类级别锁</p>
+<p>6、close：系统关闭context</p>
+</blockquote>
+</li>
+</ul>
+<h1 id="RichFunction"><a href="#RichFunction" class="headerlink" title="RichFunction"></a>RichFunction</h1><ul>
+<li><p>所有rich UDF的基类</p>
+</li>
+<li><p>该类定义了函数的生命周期，并且可以获取运行函数的context</p>
+</li>
+<li><p>该接口包含5个方法</p>
+<blockquote>
+<p>1、open：函数的初始化方法，该方法可以使用任务的参数对象</p>
+<p>2、close：用于清理工作</p>
+<p>3、getRuntimeContext：类的运行时信息</p>
+<p>4、getIterationRuntimeContext：获取特定版本的RuntimeContext，</p>
+<p>5、setRuntimeContext：框架用来设置RuntimeContext</p>
+</blockquote>
+</li>
+</ul>
+<h1 id="算子"><a href="#算子" class="headerlink" title="算子"></a>算子</h1><h2 id="StreamOperator"><a href="#StreamOperator" class="headerlink" title="StreamOperator"></a>StreamOperator</h2><ul>
+<li><p>stream算子的基接口</p>
+</li>
+<li><p>所有的方法保证不被并发调用</p>
+</li>
+<li><p>该接口共包含9个方法</p>
+<blockquote>
+<p>1、open：用于算子的初始化逻辑，在任意元素被处理之前调用</p>
+<p>2、close：当所有元素被添加到算子后调用，用于flush buffer</p>
+<p>3、dispose：在算子的生命周期的最后调用，用于释放资源</p>
+<p>4、prepareSnapshotPreBarrier：当算子应该做snapshot，在发射自己的checkpoint barrier之前调用</p>
+<p>​    不做实际的状态持久化，应用于一些小的事务处理</p>
+<p>5、snapshotState：做该算子的状态snapshot</p>
+<p>6、initializeState：</p>
+<p>7、setKeyContextElement1  setKeyContextElement2 </p>
+<p>8、getMetricGroup</p>
+<p>9、getOperatorID</p>
+</blockquote>
+</li>
+</ul>
+<h2 id="SetupableStreamOperator"><a href="#SetupableStreamOperator" class="headerlink" title="SetupableStreamOperator"></a>SetupableStreamOperator</h2><ul>
+<li><p>用来实现访问 context and the output</p>
+</li>
+<li><p>共包含3个方法：</p>
+<blockquote>
+<p>1、setup</p>
+<p>2、getChainingStrategy</p>
+<p>3、setChainingStrategy</p>
+</blockquote>
+</li>
+</ul>
+<h2 id="CheckpointedStreamOperator"><a href="#CheckpointedStreamOperator" class="headerlink" title="CheckpointedStreamOperator"></a>CheckpointedStreamOperator</h2><ul>
+<li><p>自定义的状态处理hook，其被StreamOperatorStateHandler调用</p>
+</li>
+<li><p>包含两个方法</p>
+<blockquote>
+<p>1、initializeState</p>
+<p>2、snapshotState</p>
+</blockquote>
+</li>
+</ul>
+<h2 id="AbstractStreamOperator"><a href="#AbstractStreamOperator" class="headerlink" title="AbstractStreamOperator"></a>AbstractStreamOperator</h2><ul>
+<li>所有stream operators的基类</li>
+<li></li>
+</ul>
+<h1 id="源数据格式"><a href="#源数据格式" class="headerlink" title="源数据格式"></a>源数据格式</h1><h2 id="InputSplit"><a href="#InputSplit" class="headerlink" title="InputSplit"></a>InputSplit</h2><ul>
+<li><p>InputSplit定义了由InputFormat产生的数据部分</p>
+</li>
+<li><p>该接口由被分配给input formats 的  input splits来实现</p>
+</li>
+<li><p>该接口包含一个方法</p>
+<blockquote>
+<p>1、getSplitNumber：返回此输入拆分的编号。</p>
+</blockquote>
+</li>
+</ul>
+<h2 id="InputSplitSource"><a href="#InputSplitSource" class="headerlink" title="InputSplitSource"></a>InputSplitSource</h2><ul>
+<li><p>用于创建InputSplit</p>
+</li>
+<li><p>包含两个方法</p>
+<blockquote>
+<p>1、T[] createInputSplits(int minNumSplits)</p>
+<p>2、InputSplitAssigner getInputSplitAssigner(T[] inputSplits)：Assigner决定了input format的并行度实例读取哪个input split</p>
+</blockquote>
+</li>
+</ul>
+<h2 id="InputSplitAssigner"><a href="#InputSplitAssigner" class="headerlink" title="InputSplitAssigner"></a>InputSplitAssigner</h2><h2 id="InputFormat"><a href="#InputFormat" class="headerlink" title="InputFormat"></a>InputFormat</h2><ul>
+<li><p>产生记录的数据源的基本接口</p>
+</li>
+<li><p>基本功能如下</p>
+<blockquote>
+<p>1、它描述了如何将输入 拆分为可以并行处理的拆分</p>
+<p>2、它描述了如何从输入拆分中读取记录</p>
+<p>3、它描述了如何从输入中收集基本统计信息</p>
+</blockquote>
+</li>
+</ul>
+
+    </div>
+
+    
+    
+    
+        
+      
+
+      <footer class="post-footer">
+
+        
+
+          <div class="post-nav">
+            <div class="post-nav-next post-nav-item">
+              
+                <a href="/2021/04/21/java/秒杀系统设计/" rel="next" title="秒杀系统设计">
+                  <i class="fa fa-chevron-left"></i> 秒杀系统设计
+                </a>
+              
+            </div>
+
+            <span class="post-nav-divider"></span>
+
+            <div class="post-nav-prev post-nav-item">
+              
+                <a href="/2021/05/07/flink/Flink运行时架构/" rel="prev" title="Flink运行时架构">
+                  Flink运行时架构 <i class="fa fa-chevron-right"></i>
+                </a>
+              
+            </div>
+          </div>
+        
+      </footer>
+    
+  </article>
+  
+  
+  
+
+  </div>
+
+
+          </div>
+          
+
+        </div>
+          
+  
+  <div class="toggle sidebar-toggle">
+    <span class="toggle-line toggle-line-first"></span>
+    <span class="toggle-line toggle-line-middle"></span>
+    <span class="toggle-line toggle-line-last"></span>
+  </div>
+
+  <aside class="sidebar">
+    <div class="sidebar-inner">
+        
+        
+        
+        
+      
+
+      <ul class="sidebar-nav motion-element">
+        <li class="sidebar-nav-toc">
+          文章目录
+        </li>
+        <li class="sidebar-nav-overview">
+          站点概览
+        </li>
+      </ul>
+
+      <!--noindex-->
+      <div class="post-toc-wrap sidebar-panel">
+          <div class="post-toc motion-element"><ol class="nav"><li class="nav-item nav-level-1"><a class="nav-link" href="#状态"><span class="nav-number">1.</span> <span class="nav-text">状态</span></a><ol class="nav-child"><li class="nav-item nav-level-2"><a class="nav-link" href="#CheckpointedFunction"><span class="nav-number">1.1.</span> <span class="nav-text">CheckpointedFunction</span></a></li><li class="nav-item nav-level-2"><a class="nav-link" href="#CheckpointListener"><span class="nav-number">1.2.</span> <span class="nav-text">CheckpointListener</span></a></li></ol></li><li class="nav-item nav-level-1"><a class="nav-link" href="#Source"><span class="nav-number">2.</span> <span class="nav-text">Source</span></a><ol class="nav-child"><li class="nav-item nav-level-2"><a class="nav-link" href="#SourceFunction"><span class="nav-number">2.1.</span> <span class="nav-text">SourceFunction</span></a><ol class="nav-child"><li class="nav-item nav-level-3"><a class="nav-link" href="#SourceContext"><span class="nav-number">2.1.1.</span> <span class="nav-text">SourceContext</span></a></li></ol></li></ol></li><li class="nav-item nav-level-1"><a class="nav-link" href="#RichFunction"><span class="nav-number">3.</span> <span class="nav-text">RichFunction</span></a></li><li class="nav-item nav-level-1"><a class="nav-link" href="#算子"><span class="nav-number">4.</span> <span class="nav-text">算子</span></a><ol class="nav-child"><li class="nav-item nav-level-2"><a class="nav-link" href="#StreamOperator"><span class="nav-number">4.1.</span> <span class="nav-text">StreamOperator</span></a></li><li class="nav-item nav-level-2"><a class="nav-link" href="#SetupableStreamOperator"><span class="nav-number">4.2.</span> <span class="nav-text">SetupableStreamOperator</span></a></li><li class="nav-item nav-level-2"><a class="nav-link" href="#CheckpointedStreamOperator"><span class="nav-number">4.3.</span> <span class="nav-text">CheckpointedStreamOperator</span></a></li><li class="nav-item nav-level-2"><a class="nav-link" href="#AbstractStreamOperator"><span class="nav-number">4.4.</span> <span class="nav-text">AbstractStreamOperator</span></a></li></ol></li><li class="nav-item nav-level-1"><a class="nav-link" href="#源数据格式"><span class="nav-number">5.</span> <span class="nav-text">源数据格式</span></a><ol class="nav-child"><li class="nav-item nav-level-2"><a class="nav-link" href="#InputSplit"><span class="nav-number">5.1.</span> <span class="nav-text">InputSplit</span></a></li><li class="nav-item nav-level-2"><a class="nav-link" href="#InputSplitSource"><span class="nav-number">5.2.</span> <span class="nav-text">InputSplitSource</span></a></li><li class="nav-item nav-level-2"><a class="nav-link" href="#InputSplitAssigner"><span class="nav-number">5.3.</span> <span class="nav-text">InputSplitAssigner</span></a></li><li class="nav-item nav-level-2"><a class="nav-link" href="#InputFormat"><span class="nav-number">5.4.</span> <span class="nav-text">InputFormat</span></a></li></ol></li></ol></div>
+        
+      </div>
+      <!--/noindex-->
+
+      <div class="site-overview-wrap sidebar-panel">
+        <div class="site-author motion-element" itemprop="author" itemscope itemtype="http://schema.org/Person">
+  <p class="site-author-name" itemprop="name">姜纪光</p>
+  <div class="site-description" itemprop="description"></div>
+</div>
+<div class="site-state-wrap motion-element">
+  <nav class="site-state">
+      <div class="site-state-item site-state-posts">
+        
+          <a href="/archives/">
+        
+          <span class="site-state-item-count">158</span>
+          <span class="site-state-item-name">日志</span>
+        </a>
+      </div>
+    
+      
+      
+      <div class="site-state-item site-state-categories">
+        
+          
+            <a href="/categories/">
+          
+        
+        <span class="site-state-item-count">26</span>
+        <span class="site-state-item-name">分类</span>
+        </a>
+      </div>
+    
+      
+      
+      <div class="site-state-item site-state-tags">
+        
+          
+            <a href="/tags/">
+          
+        
+        <span class="site-state-item-count">14</span>
+        <span class="site-state-item-name">标签</span>
+        </a>
+      </div>
+    
+  </nav>
+</div>
+
+
+
+      </div>
+
+    </div>
+  </aside>
+  <div id="sidebar-dimmer"></div>
+
+
+      </div>
+    </main>
+
+    <footer class="footer">
+      <div class="footer-inner">
+        
+
+<div class="copyright">
+  &copy; 
+  <span itemprop="copyrightYear">2021</span>
+  <span class="with-love">
+    <i class="fa fa-user"></i>
+  </span>
+  <span class="author" itemprop="copyrightHolder">姜纪光</span>
+</div>
+  <div class="powered-by">由 <a href="https://hexo.io" class="theme-link" rel="noopener" target="_blank">Hexo</a> 强力驱动 v3.9.0
+  </div>
+  <span class="post-meta-divider">|</span>
+  <div class="theme-info">
+      
+    主题 – <a href="https://mist.theme-next.org" class="theme-link" rel="noopener" target="_blank">NexT.Mist</a> v7.4.1
+  </div>
+
+        
+
+
+
+
+
+
+
+
+
+
+
+
+        
+      </div>
+    </footer>
+  </div>
+
+  
+  <script src="/lib/anime.min.js?v=3.1.0"></script>
+  <script src="/lib/velocity/velocity.min.js?v=1.2.1"></script>
+  <script src="/lib/velocity/velocity.ui.min.js?v=1.2.1"></script>
+<script src="/js/utils.js?v=7.4.1"></script><script src="/js/motion.js?v=7.4.1"></script>
+<script src="/js/schemes/muse.js?v=7.4.1"></script>
+
+<script src="/js/next-boot.js?v=7.4.1"></script>
+
+
+
+  
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+  
+
+  
+
+  
+
+
+<script>
+NexT.utils.getScript('//unpkg.com/valine/dist/Valine.min.js', () => {
+  var GUEST = ['nick', 'mail', 'link'];
+  var guest = 'nick,mail,link';
+  guest = guest.split(',').filter(item => {
+    return GUEST.includes(item);
+  });
+  new Valine({
+    el: '#comments',
+    verify: false,
+    notify: false,
+    appId: 'MIQC4jJTknc0hjNXDAiIuQ21-9Nh9j0Va',
+    appKey: 'vaiXpSQLLMglwYsVLOBLzck4',
+    placeholder: "Just go go",
+    avatar: 'mm',
+    meta: guest,
+    pageSize: '10' || 10,
+    visitor: true,
+    lang: 'zh-cn' || 'zh-cn',
+    path: location.pathname,
+    recordIP: false,
+    serverURLs: ''
+  });
+}, window.Valine);
+</script>
+
+</body>
+</html>

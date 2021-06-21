@@ -1,0 +1,702 @@
+<!DOCTYPE html>
+
+
+
+
+
+<html lang="zh-CN">
+<head>
+  <meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1, maximum-scale=2">
+<meta name="theme-color" content="#222">
+<meta name="generator" content="Hexo 3.9.0">
+  <link rel="apple-touch-icon" sizes="180x180" href="/images/apple-touch-icon-next.png?v=7.4.1">
+  <link rel="icon" type="image/png" sizes="32x32" href="/images/favicon-32x32-next.png?v=7.4.1">
+  <link rel="icon" type="image/png" sizes="16x16" href="/images/favicon-16x16-next.png?v=7.4.1">
+  <link rel="mask-icon" href="/images/logo.svg?v=7.4.1" color="#222">
+
+<link rel="stylesheet" href="/css/main.css?v=7.4.1">
+
+
+<link rel="stylesheet" href="/lib/font-awesome/css/font-awesome.min.css?v=4.7.0">
+
+
+<script id="hexo-configurations">
+  var NexT = window.NexT || {};
+  var CONFIG = {
+    root: '/',
+    scheme: 'Mist',
+    version: '7.4.1',
+    exturl: false,
+    sidebar: {"position":"right","display":"hide","offset":12,"onmobile":false},
+    copycode: {"enable":false,"show_result":false,"style":null},
+    back2top: {"enable":true,"sidebar":false,"scrollpercent":false},
+    bookmark: {"enable":false,"color":"#222","save":"auto"},
+    fancybox: false,
+    mediumzoom: false,
+    lazyload: false,
+    pangu: false,
+    algolia: {
+      appID: '',
+      apiKey: '',
+      indexName: '',
+      hits: {"per_page":10},
+      labels: {"input_placeholder":"Search for Posts","hits_empty":"We didn't find any results for the search: ${query}","hits_stats":"${hits} results found in ${time} ms"}
+    },
+    localsearch: {"enable":false,"trigger":"auto","top_n_per_article":1,"unescape":false,"preload":false},
+    path: '',
+    motion: {"enable":true,"async":false,"transition":{"post_block":"fadeIn","post_header":"slideDownIn","post_body":"slideDownIn","coll_header":"slideLeftIn","sidebar":"slideUpIn"}},
+    translation: {
+      copy_button: '复制',
+      copy_success: '复制成功',
+      copy_failure: '复制失败'
+    },
+    sidebarPadding: 40
+  };
+</script>
+
+  <meta name="description" content="原理介绍实用工具async-profiler 这是一个用于Java的低开销的采样探测器，没有Safepoint bias问题  适用于HotSpot JVM，收集stack traces and to track memory allocations  可以跟踪以下事件  1、CPU cycles(CPU周期) 2、硬件和软件性能计数器，例如高速缓存未命中，分支未命中，页面错误，上下文切换等。 3">
+<meta name="keywords" content="CPU">
+<meta property="og:type" content="article">
+<meta property="og:title" content="CPU探究">
+<meta property="og:url" content="http://yoursite.com/2020/09/22/linux/CPU探究/index.html">
+<meta property="og:site_name" content="纪光的博客">
+<meta property="og:description" content="原理介绍实用工具async-profiler 这是一个用于Java的低开销的采样探测器，没有Safepoint bias问题  适用于HotSpot JVM，收集stack traces and to track memory allocations  可以跟踪以下事件  1、CPU cycles(CPU周期) 2、硬件和软件性能计数器，例如高速缓存未命中，分支未命中，页面错误，上下文切换等。 3">
+<meta property="og:locale" content="zh-CN">
+<meta property="og:updated_time" content="2021-06-20T04:19:35.161Z">
+<meta name="twitter:card" content="summary">
+<meta name="twitter:title" content="CPU探究">
+<meta name="twitter:description" content="原理介绍实用工具async-profiler 这是一个用于Java的低开销的采样探测器，没有Safepoint bias问题  适用于HotSpot JVM，收集stack traces and to track memory allocations  可以跟踪以下事件  1、CPU cycles(CPU周期) 2、硬件和软件性能计数器，例如高速缓存未命中，分支未命中，页面错误，上下文切换等。 3">
+  <link rel="canonical" href="http://yoursite.com/2020/09/22/linux/CPU探究/">
+
+
+<script id="page-configurations">
+  // https://hexo.io/docs/variables.html
+  CONFIG.page = {
+    sidebar: "",
+    isHome: false,
+    isPost: true,
+    isPage: false,
+    isArchive: false
+  };
+</script>
+
+  <title>CPU探究 | 纪光的博客</title>
+  
+
+
+  <script>
+    var _hmt = _hmt || [];
+    (function() {
+      var hm = document.createElement("script");
+      hm.src = "https://hm.baidu.com/hm.js?bca403b673d79e83a47dc62fea1dd605";
+      var s = document.getElementsByTagName("script")[0];
+      s.parentNode.insertBefore(hm, s);
+    })();
+  </script>
+
+
+
+
+
+
+  <noscript>
+  <style>
+  .use-motion .brand,
+  .use-motion .menu-item,
+  .sidebar-inner,
+  .use-motion .post-block,
+  .use-motion .pagination,
+  .use-motion .comments,
+  .use-motion .post-header,
+  .use-motion .post-body,
+  .use-motion .collection-header { opacity: initial; }
+
+  .use-motion .site-title,
+  .use-motion .site-subtitle {
+    opacity: initial;
+    top: initial;
+  }
+
+  .use-motion .logo-line-before i { left: initial; }
+  .use-motion .logo-line-after i { right: initial; }
+  </style>
+</noscript>
+
+</head>
+
+<body itemscope itemtype="http://schema.org/WebPage">
+  <div class="container use-motion">
+    <div class="headband"></div>
+
+    <header class="header" itemscope itemtype="http://schema.org/WPHeader">
+      <div class="header-inner"><div class="site-brand-container">
+  <div class="site-meta">
+
+    <div>
+      <a href="/" class="brand" rel="start">
+        <span class="logo-line-before"><i></i></span>
+        <span class="site-title">纪光的博客</span>
+        <span class="logo-line-after"><i></i></span>
+      </a>
+    </div>
+  </div>
+
+  <div class="site-nav-toggle">
+    <div class="toggle" aria-label="切换导航栏">
+      <span class="toggle-line toggle-line-first"></span>
+      <span class="toggle-line toggle-line-middle"></span>
+      <span class="toggle-line toggle-line-last"></span>
+    </div>
+  </div>
+</div>
+
+
+<nav class="site-nav">
+  
+  <ul id="menu" class="menu">
+      
+      
+        
+        
+        <li class="menu-item menu-item-home">
+      
+    
+
+    <a href="/" rel="section"><i class="fa fa-fw fa-home"></i>首页</a>
+
+  </li>
+      
+    
+      
+      
+        
+        
+        <li class="menu-item menu-item-categories">
+      
+    
+
+    <a href="/categories/" rel="section"><i class="fa fa-fw fa-th"></i>分类</a>
+
+  </li>
+      
+    
+      
+      
+        
+        
+        <li class="menu-item menu-item-tags">
+      
+    
+
+    <a href="/tags/" rel="section"><i class="fa fa-fw fa-tags"></i>标签</a>
+
+  </li>
+      
+    
+      
+      
+        
+        
+        <li class="menu-item menu-item-archives">
+      
+    
+
+    <a href="/archives/" rel="section"><i class="fa fa-fw fa-archive"></i>归档</a>
+
+  </li>
+      
+    
+      
+      
+        
+        
+        <li class="menu-item menu-item-about">
+      
+    
+
+    <a href="/about/" rel="section"><i class="fa fa-fw fa-user"></i>关于</a>
+
+  </li>
+      
+    
+  </ul>
+
+    
+
+</nav>
+</div>
+    </header>
+
+    
+  <div class="back-to-top">
+    <i class="fa fa-arrow-up"></i>
+    <span>0%</span>
+  </div>
+
+
+    <main class="main">
+      <div class="main-inner">
+        <div class="content-wrap">
+          <div class="content">
+            
+
+  <div class="posts-expand">
+      
+  
+  
+  <article itemscope itemtype="http://schema.org/Article" class="post-block " lang="zh-CN">
+    <link itemprop="mainEntityOfPage" href="http://yoursite.com/2020/09/22/linux/CPU探究/">
+
+    <span hidden itemprop="author" itemscope itemtype="http://schema.org/Person">
+      <meta itemprop="name" content="姜纪光">
+      <meta itemprop="description" content="">
+      <meta itemprop="image" content="/images/avatar.gif">
+    </span>
+
+    <span hidden itemprop="publisher" itemscope itemtype="http://schema.org/Organization">
+      <meta itemprop="name" content="纪光的博客">
+    </span>
+      <header class="post-header">
+        <h1 class="post-title" itemprop="name headline">
+          
+            CPU探究
+            
+
+          
+        </h1>
+
+        <div class="post-meta">
+            <span class="post-meta-item">
+              <span class="post-meta-item-icon">
+                <i class="fa fa-calendar-o"></i>
+              </span>
+              <span class="post-meta-item-text">发表于</span>
+
+              
+                
+              
+
+              <time title="创建时间：2020-09-22 09:46:22" itemprop="dateCreated datePublished" datetime="2020-09-22T09:46:22+08:00">2020-09-22</time>
+            </span>
+          
+            
+
+            
+              <span class="post-meta-item">
+                <span class="post-meta-item-icon">
+                  <i class="fa fa-calendar-check-o"></i>
+                </span>
+                <span class="post-meta-item-text">更新于</span>
+                <time title="修改时间：2021-06-20 12:19:35" itemprop="dateModified" datetime="2021-06-20T12:19:35+08:00">2021-06-20</time>
+              </span>
+            
+          
+            <span class="post-meta-item">
+              <span class="post-meta-item-icon">
+                <i class="fa fa-folder-o"></i>
+              </span>
+              <span class="post-meta-item-text">分类于</span>
+              
+                <span itemprop="about" itemscope itemtype="http://schema.org/Thing">
+                  <a href="/categories/linux/" itemprop="url" rel="index">
+                    <span itemprop="name">linux</span>
+                  </a>
+                </span>
+
+                
+                
+              
+            </span>
+          
+
+          
+            <span id="/2020/09/22/linux/CPU探究/" class="post-meta-item leancloud_visitors" data-flag-title="CPU探究" title="阅读次数">
+              <span class="post-meta-item-icon">
+                <i class="fa fa-eye"></i>
+              </span>
+              <span class="post-meta-item-text">阅读次数：</span>
+              <span class="leancloud-visitors-count"></span>
+            </span>
+          
+  
+  
+
+        </div>
+      </header>
+
+    
+    
+    
+    <div class="post-body" itemprop="articleBody">
+
+      
+        <h1 id="原理介绍"><a href="#原理介绍" class="headerlink" title="原理介绍"></a>原理介绍</h1><h1 id="实用工具"><a href="#实用工具" class="headerlink" title="实用工具"></a>实用工具</h1><h2 id="async-profiler"><a href="#async-profiler" class="headerlink" title="async-profiler"></a>async-profiler</h2><ul>
+<li><p>这是一个用于Java的低开销的采样探测器，没有<strong>Safepoint bias</strong>问题</p>
+</li>
+<li><p>适用于HotSpot JVM，收集<strong>stack traces and to track memory allocations</strong></p>
+</li>
+<li><p>可以跟踪以下事件</p>
+<blockquote>
+<p>1、CPU cycles(CPU周期)</p>
+<p>2、硬件和软件性能计数器，例如高速缓存未命中，分支未命中，页面错误，上下文切换等。</p>
+<p>3、Java堆分配</p>
+<p>4、<strong>Contented lock attempts</strong>，包括Java对象监视器和ReentrantLocks</p>
+</blockquote>
+</li>
+</ul>
+<h3 id="CPU-profiling"><a href="#CPU-profiling" class="headerlink" title="CPU profiling"></a>CPU profiling</h3><ul>
+<li><p>在这种模式下，profiler收集<strong>stack trace samples</strong></p>
+<blockquote>
+<p>包含了 <strong>Java</strong> methods, <strong>native</strong> calls, <strong>JVM</strong> code and <strong>kernel</strong> functions.</p>
+</blockquote>
+</li>
+<li><p>通常的方法是接收perf_events生成的调用堆栈，并将其与AsyncGetCallTrace生成的调用堆栈进行匹配</p>
+</li>
+<li><p>与直接将perf_events与将地址转换为Java方法名称的Java代理一起使用相比，此方法具有以下优点：</p>
+<blockquote>
+<p>1、不需要<strong>-XX:+PreserveFramePointer</strong> 参数，可以用在JDK 8u60 之前的版本</p>
+<p>2、不需要<strong>-XX:+PreserveFramePointer</strong> 参数，提高了性能</p>
+<p>3、不需要生成将Java代码地址映射到方法名称的映射文件。</p>
+<p>4、Works with interpreter frames.</p>
+<p>5、不需要写出perf.data文件以在用户空间脚本中进行进一步处理。</p>
+</blockquote>
+</li>
+</ul>
+<h3 id="ALLOCATION-profiling"><a href="#ALLOCATION-profiling" class="headerlink" title="ALLOCATION profiling"></a>ALLOCATION profiling</h3><ul>
+<li><p>除了可以进行CPU消耗检测，还可以收集分配了最大堆内存的调用站点</p>
+<blockquote>
+<p>async-profiler不使用侵入性技术，例如字节码检测工具或昂贵的DTrace探针，这些技术会对性能产生重大影响。它也不会影响转义分析或防止JIT优化（如分配消除）。 仅测量实际堆分配。</p>
+</blockquote>
+</li>
+<li><p>profiler具有TLAB驱动的采样功能。 它依赖于HotSpot特定的回调来接收两种通知：</p>
+<blockquote>
+<p>1、在新创建的TLAB中分配对象时（火焰图中的浅绿色帧）；</p>
+<p>2、当在TLAB之外的慢路径上分配对象时（棕色框架）。</p>
+<p>这意味着不计算每个分配，而仅计算每N kB的分配，其中N是TLAB的平均大小。</p>
+<p>这使得堆采样成本低并且适合于生产。 另一方面，所收集的数据可能不完整，尽管在实践中通常会反映出最主要的分配来源。</p>
+</blockquote>
+</li>
+<li><p>可以使用-i选项来调整采样间隔。</p>
+<blockquote>
+<p>例如，-i 500k将平均分配500 KB的分配空间后进行一次采样。 但是，小于TLAB大小的间隔不会生效。</p>
+<p>与使用类似方法的Java Mission Control不同，async-profiler不需要Java Flight Recorder或任何其他JDK商业功能。 它完全基于开源技术，并且可以与OpenJDK一起使用。</p>
+</blockquote>
+</li>
+<li><p>支持的最低JDK版本是7u40，其中会出现TLAB回调。</p>
+</li>
+</ul>
+<h4 id="Installing-Debug-Symbols"><a href="#Installing-Debug-Symbols" class="headerlink" title="Installing Debug Symbols"></a>Installing Debug Symbols</h4><ul>
+<li>分配分析器需要HotSpot调试符号。 Oracle JDK已经将它们嵌入libjvm.so中，但是在OpenJDK构建中，它们通常以单独的软件包提供。</li>
+</ul>
+<h3 id="Wall-clock-profiling"><a href="#Wall-clock-profiling" class="headerlink" title="Wall-clock profiling"></a>Wall-clock profiling</h3><ul>
+<li><p>-e wall选项告诉async-profiler在每个给定的时间段内平均采样所有线程，而不管线程状态如何：正在运行，正在睡眠或已阻塞。 例如，在分析应用程序启动时间时这可能会有所帮助。</p>
+</li>
+<li><p>Wall-clock Profiler在每个线程模式下最有用：-t</p>
+<blockquote>
+<p>Example: <code>./profiler.sh -e wall -t -i 5ms -f result.svg 8983</code></p>
+</blockquote>
+</li>
+</ul>
+<h3 id="Java-method-profiling"><a href="#Java-method-profiling" class="headerlink" title="Java method profiling"></a>Java method profiling</h3><ul>
+<li>-e ClassName.methodName选项用于检测给定的Java方法，以便使用堆栈跟踪记录该方法的所有调用。</li>
+<li>Only non-native Java methods are supported. To profile a native method, use hardware breakpoint event instead, e.g. <code>-e Java_java_lang_Throwable_fillInStackTrace</code></li>
+</ul>
+<h3 id="Building"><a href="#Building" class="headerlink" title="Building"></a>Building</h3><h3 id="Basic-Usage"><a href="#Basic-Usage" class="headerlink" title="Basic Usage"></a>Basic Usage</h3><ul>
+<li><p>start</p>
+<blockquote>
+<p>starts profiling in semi-automatic mode, i.e. profiler will run until <code>stop</code> command is explicitly called.</p>
+</blockquote>
+</li>
+<li><p>resume</p>
+<blockquote>
+<p>starts or resumes earlier profiling session that has been stopped. All the collected data remains valid. The profiling options are not preserved between sessions, and should be specified again.</p>
+</blockquote>
+</li>
+<li><p>stop</p>
+<blockquote>
+<p>stops profiling and prints the report</p>
+</blockquote>
+</li>
+<li><p>check</p>
+<blockquote>
+<p>check if the specified profiling event is available</p>
+</blockquote>
+</li>
+<li><p>status</p>
+<blockquote>
+<p>prints profiling status: whether profiler is active and for how long</p>
+</blockquote>
+</li>
+<li><p>list</p>
+<blockquote>
+<p>show the list of available profiling events. This option still requires PID, since supported events may differ depending on JVM version</p>
+</blockquote>
+</li>
+<li><p>-d N</p>
+<blockquote>
+<p>the profiling duration, in seconds. If no <code>start</code>, <code>resume</code>, <code>stop</code> or <code>status</code> option is given, the profiler will run for the specified period of time and then automatically stop</p>
+<p>./profiler.sh -d 30 8983</p>
+</blockquote>
+</li>
+<li><p>-e event</p>
+<blockquote>
+<p>the profiling event: <code>cpu</code>, <code>alloc</code>, <code>lock</code>, <code>cache-misses</code> etc. Use <code>list</code> to see the complete list of available events</p>
+</blockquote>
+</li>
+<li><p>​</p>
+</li>
+</ul>
+<h1 id="参考文档"><a href="#参考文档" class="headerlink" title="参考文档"></a>参考文档</h1><p><a href="https://tech.meituan.com/2019/10/10/jvm-cpu-profiler.html" target="_blank" rel="noopener">JVM CPU Profiler技术原理及源码深度解析</a></p>
+<p><a href="https://github.com/jvm-profiling-tools/async-profiler" target="_blank" rel="noopener">async-profiler</a></p>
+
+    </div>
+
+    
+    
+    
+        
+      
+
+      <footer class="post-footer">
+          
+            
+          
+          <div class="post-tags">
+            
+              <a href="/tags/CPU/" rel="tag"># CPU</a>
+            
+          </div>
+        
+
+        
+
+          <div class="post-nav">
+            <div class="post-nav-next post-nav-item">
+              
+                <a href="/2020/09/09/linux/工具实践-ps/" rel="next" title="工具实践-ps">
+                  <i class="fa fa-chevron-left"></i> 工具实践-ps
+                </a>
+              
+            </div>
+
+            <span class="post-nav-divider"></span>
+
+            <div class="post-nav-prev post-nav-item">
+              
+                <a href="/2020/09/24/flink/实时任务CPU负载高的排查过程/" rel="prev" title="实时任务CPU负载高的排查过程">
+                  实时任务CPU负载高的排查过程 <i class="fa fa-chevron-right"></i>
+                </a>
+              
+            </div>
+          </div>
+        
+      </footer>
+    
+  </article>
+  
+  
+  
+
+  </div>
+
+
+          </div>
+          
+
+        </div>
+          
+  
+  <div class="toggle sidebar-toggle">
+    <span class="toggle-line toggle-line-first"></span>
+    <span class="toggle-line toggle-line-middle"></span>
+    <span class="toggle-line toggle-line-last"></span>
+  </div>
+
+  <aside class="sidebar">
+    <div class="sidebar-inner">
+        
+        
+        
+        
+      
+
+      <ul class="sidebar-nav motion-element">
+        <li class="sidebar-nav-toc">
+          文章目录
+        </li>
+        <li class="sidebar-nav-overview">
+          站点概览
+        </li>
+      </ul>
+
+      <!--noindex-->
+      <div class="post-toc-wrap sidebar-panel">
+          <div class="post-toc motion-element"><ol class="nav"><li class="nav-item nav-level-1"><a class="nav-link" href="#原理介绍"><span class="nav-number">1.</span> <span class="nav-text">原理介绍</span></a></li><li class="nav-item nav-level-1"><a class="nav-link" href="#实用工具"><span class="nav-number">2.</span> <span class="nav-text">实用工具</span></a><ol class="nav-child"><li class="nav-item nav-level-2"><a class="nav-link" href="#async-profiler"><span class="nav-number">2.1.</span> <span class="nav-text">async-profiler</span></a><ol class="nav-child"><li class="nav-item nav-level-3"><a class="nav-link" href="#CPU-profiling"><span class="nav-number">2.1.1.</span> <span class="nav-text">CPU profiling</span></a></li><li class="nav-item nav-level-3"><a class="nav-link" href="#ALLOCATION-profiling"><span class="nav-number">2.1.2.</span> <span class="nav-text">ALLOCATION profiling</span></a><ol class="nav-child"><li class="nav-item nav-level-4"><a class="nav-link" href="#Installing-Debug-Symbols"><span class="nav-number">2.1.2.1.</span> <span class="nav-text">Installing Debug Symbols</span></a></li></ol></li><li class="nav-item nav-level-3"><a class="nav-link" href="#Wall-clock-profiling"><span class="nav-number">2.1.3.</span> <span class="nav-text">Wall-clock profiling</span></a></li><li class="nav-item nav-level-3"><a class="nav-link" href="#Java-method-profiling"><span class="nav-number">2.1.4.</span> <span class="nav-text">Java method profiling</span></a></li><li class="nav-item nav-level-3"><a class="nav-link" href="#Building"><span class="nav-number">2.1.5.</span> <span class="nav-text">Building</span></a></li><li class="nav-item nav-level-3"><a class="nav-link" href="#Basic-Usage"><span class="nav-number">2.1.6.</span> <span class="nav-text">Basic Usage</span></a></li></ol></li></ol></li><li class="nav-item nav-level-1"><a class="nav-link" href="#参考文档"><span class="nav-number">3.</span> <span class="nav-text">参考文档</span></a></li></ol></div>
+        
+      </div>
+      <!--/noindex-->
+
+      <div class="site-overview-wrap sidebar-panel">
+        <div class="site-author motion-element" itemprop="author" itemscope itemtype="http://schema.org/Person">
+  <p class="site-author-name" itemprop="name">姜纪光</p>
+  <div class="site-description" itemprop="description"></div>
+</div>
+<div class="site-state-wrap motion-element">
+  <nav class="site-state">
+      <div class="site-state-item site-state-posts">
+        
+          <a href="/archives/">
+        
+          <span class="site-state-item-count">158</span>
+          <span class="site-state-item-name">日志</span>
+        </a>
+      </div>
+    
+      
+      
+      <div class="site-state-item site-state-categories">
+        
+          
+            <a href="/categories/">
+          
+        
+        <span class="site-state-item-count">26</span>
+        <span class="site-state-item-name">分类</span>
+        </a>
+      </div>
+    
+      
+      
+      <div class="site-state-item site-state-tags">
+        
+          
+            <a href="/tags/">
+          
+        
+        <span class="site-state-item-count">14</span>
+        <span class="site-state-item-name">标签</span>
+        </a>
+      </div>
+    
+  </nav>
+</div>
+
+
+
+      </div>
+
+    </div>
+  </aside>
+  <div id="sidebar-dimmer"></div>
+
+
+      </div>
+    </main>
+
+    <footer class="footer">
+      <div class="footer-inner">
+        
+
+<div class="copyright">
+  &copy; 
+  <span itemprop="copyrightYear">2021</span>
+  <span class="with-love">
+    <i class="fa fa-user"></i>
+  </span>
+  <span class="author" itemprop="copyrightHolder">姜纪光</span>
+</div>
+  <div class="powered-by">由 <a href="https://hexo.io" class="theme-link" rel="noopener" target="_blank">Hexo</a> 强力驱动 v3.9.0
+  </div>
+  <span class="post-meta-divider">|</span>
+  <div class="theme-info">
+      
+    主题 – <a href="https://mist.theme-next.org" class="theme-link" rel="noopener" target="_blank">NexT.Mist</a> v7.4.1
+  </div>
+
+        
+
+
+
+
+
+
+
+
+
+
+
+
+        
+      </div>
+    </footer>
+  </div>
+
+  
+  <script src="/lib/anime.min.js?v=3.1.0"></script>
+  <script src="/lib/velocity/velocity.min.js?v=1.2.1"></script>
+  <script src="/lib/velocity/velocity.ui.min.js?v=1.2.1"></script>
+<script src="/js/utils.js?v=7.4.1"></script><script src="/js/motion.js?v=7.4.1"></script>
+<script src="/js/schemes/muse.js?v=7.4.1"></script>
+
+<script src="/js/next-boot.js?v=7.4.1"></script>
+
+
+
+  
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+  
+
+  
+
+  
+
+
+<script>
+NexT.utils.getScript('//unpkg.com/valine/dist/Valine.min.js', () => {
+  var GUEST = ['nick', 'mail', 'link'];
+  var guest = 'nick,mail,link';
+  guest = guest.split(',').filter(item => {
+    return GUEST.includes(item);
+  });
+  new Valine({
+    el: '#comments',
+    verify: false,
+    notify: false,
+    appId: 'MIQC4jJTknc0hjNXDAiIuQ21-9Nh9j0Va',
+    appKey: 'vaiXpSQLLMglwYsVLOBLzck4',
+    placeholder: "Just go go",
+    avatar: 'mm',
+    meta: guest,
+    pageSize: '10' || 10,
+    visitor: true,
+    lang: 'zh-cn' || 'zh-cn',
+    path: location.pathname,
+    recordIP: false,
+    serverURLs: ''
+  });
+}, window.Valine);
+</script>
+
+</body>
+</html>

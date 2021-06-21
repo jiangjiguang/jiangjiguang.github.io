@@ -1,0 +1,776 @@
+<!DOCTYPE html>
+
+
+
+
+
+<html lang="zh-CN">
+<head>
+  <meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1, maximum-scale=2">
+<meta name="theme-color" content="#222">
+<meta name="generator" content="Hexo 3.9.0">
+  <link rel="apple-touch-icon" sizes="180x180" href="/images/apple-touch-icon-next.png?v=7.4.1">
+  <link rel="icon" type="image/png" sizes="32x32" href="/images/favicon-32x32-next.png?v=7.4.1">
+  <link rel="icon" type="image/png" sizes="16x16" href="/images/favicon-16x16-next.png?v=7.4.1">
+  <link rel="mask-icon" href="/images/logo.svg?v=7.4.1" color="#222">
+
+<link rel="stylesheet" href="/css/main.css?v=7.4.1">
+
+
+<link rel="stylesheet" href="/lib/font-awesome/css/font-awesome.min.css?v=4.7.0">
+
+
+<script id="hexo-configurations">
+  var NexT = window.NexT || {};
+  var CONFIG = {
+    root: '/',
+    scheme: 'Mist',
+    version: '7.4.1',
+    exturl: false,
+    sidebar: {"position":"right","display":"hide","offset":12,"onmobile":false},
+    copycode: {"enable":false,"show_result":false,"style":null},
+    back2top: {"enable":true,"sidebar":false,"scrollpercent":false},
+    bookmark: {"enable":false,"color":"#222","save":"auto"},
+    fancybox: false,
+    mediumzoom: false,
+    lazyload: false,
+    pangu: false,
+    algolia: {
+      appID: '',
+      apiKey: '',
+      indexName: '',
+      hits: {"per_page":10},
+      labels: {"input_placeholder":"Search for Posts","hits_empty":"We didn't find any results for the search: ${query}","hits_stats":"${hits} results found in ${time} ms"}
+    },
+    localsearch: {"enable":false,"trigger":"auto","top_n_per_article":1,"unescape":false,"preload":false},
+    path: '',
+    motion: {"enable":true,"async":false,"transition":{"post_block":"fadeIn","post_header":"slideDownIn","post_body":"slideDownIn","coll_header":"slideLeftIn","sidebar":"slideUpIn"}},
+    translation: {
+      copy_button: '复制',
+      copy_success: '复制成功',
+      copy_failure: '复制失败'
+    },
+    sidebarPadding: 40
+  };
+</script>
+
+  <meta name="description" content="简介 分布式计算引擎在调优方面有四个主要关注方向，分别是CPU、内存、网络开销和I/O，其具体调优目标如下：  1、提高CPU利用率 2、避免OOM 3、降低网络开销 4、减少I/O操作    调优参数executor spark.executor.cores  作用：单个executor内任务的并发数，这些任务共享executor内存，因此不宜设置过大，容易造成oom 默认值1，建议值2   s">
+<meta property="og:type" content="article">
+<meta property="og:title" content="SparkSQL调优">
+<meta property="og:url" content="http://yoursite.com/2021/04/14/spark/SparkSQL调优/index.html">
+<meta property="og:site_name" content="纪光的博客">
+<meta property="og:description" content="简介 分布式计算引擎在调优方面有四个主要关注方向，分别是CPU、内存、网络开销和I/O，其具体调优目标如下：  1、提高CPU利用率 2、避免OOM 3、降低网络开销 4、减少I/O操作    调优参数executor spark.executor.cores  作用：单个executor内任务的并发数，这些任务共享executor内存，因此不宜设置过大，容易造成oom 默认值1，建议值2   s">
+<meta property="og:locale" content="zh-CN">
+<meta property="og:updated_time" content="2021-06-20T04:19:35.167Z">
+<meta name="twitter:card" content="summary">
+<meta name="twitter:title" content="SparkSQL调优">
+<meta name="twitter:description" content="简介 分布式计算引擎在调优方面有四个主要关注方向，分别是CPU、内存、网络开销和I/O，其具体调优目标如下：  1、提高CPU利用率 2、避免OOM 3、降低网络开销 4、减少I/O操作    调优参数executor spark.executor.cores  作用：单个executor内任务的并发数，这些任务共享executor内存，因此不宜设置过大，容易造成oom 默认值1，建议值2   s">
+  <link rel="canonical" href="http://yoursite.com/2021/04/14/spark/SparkSQL调优/">
+
+
+<script id="page-configurations">
+  // https://hexo.io/docs/variables.html
+  CONFIG.page = {
+    sidebar: "",
+    isHome: false,
+    isPost: true,
+    isPage: false,
+    isArchive: false
+  };
+</script>
+
+  <title>SparkSQL调优 | 纪光的博客</title>
+  
+
+
+  <script>
+    var _hmt = _hmt || [];
+    (function() {
+      var hm = document.createElement("script");
+      hm.src = "https://hm.baidu.com/hm.js?bca403b673d79e83a47dc62fea1dd605";
+      var s = document.getElementsByTagName("script")[0];
+      s.parentNode.insertBefore(hm, s);
+    })();
+  </script>
+
+
+
+
+
+
+  <noscript>
+  <style>
+  .use-motion .brand,
+  .use-motion .menu-item,
+  .sidebar-inner,
+  .use-motion .post-block,
+  .use-motion .pagination,
+  .use-motion .comments,
+  .use-motion .post-header,
+  .use-motion .post-body,
+  .use-motion .collection-header { opacity: initial; }
+
+  .use-motion .site-title,
+  .use-motion .site-subtitle {
+    opacity: initial;
+    top: initial;
+  }
+
+  .use-motion .logo-line-before i { left: initial; }
+  .use-motion .logo-line-after i { right: initial; }
+  </style>
+</noscript>
+
+</head>
+
+<body itemscope itemtype="http://schema.org/WebPage">
+  <div class="container use-motion">
+    <div class="headband"></div>
+
+    <header class="header" itemscope itemtype="http://schema.org/WPHeader">
+      <div class="header-inner"><div class="site-brand-container">
+  <div class="site-meta">
+
+    <div>
+      <a href="/" class="brand" rel="start">
+        <span class="logo-line-before"><i></i></span>
+        <span class="site-title">纪光的博客</span>
+        <span class="logo-line-after"><i></i></span>
+      </a>
+    </div>
+  </div>
+
+  <div class="site-nav-toggle">
+    <div class="toggle" aria-label="切换导航栏">
+      <span class="toggle-line toggle-line-first"></span>
+      <span class="toggle-line toggle-line-middle"></span>
+      <span class="toggle-line toggle-line-last"></span>
+    </div>
+  </div>
+</div>
+
+
+<nav class="site-nav">
+  
+  <ul id="menu" class="menu">
+      
+      
+        
+        
+        <li class="menu-item menu-item-home">
+      
+    
+
+    <a href="/" rel="section"><i class="fa fa-fw fa-home"></i>首页</a>
+
+  </li>
+      
+    
+      
+      
+        
+        
+        <li class="menu-item menu-item-categories">
+      
+    
+
+    <a href="/categories/" rel="section"><i class="fa fa-fw fa-th"></i>分类</a>
+
+  </li>
+      
+    
+      
+      
+        
+        
+        <li class="menu-item menu-item-tags">
+      
+    
+
+    <a href="/tags/" rel="section"><i class="fa fa-fw fa-tags"></i>标签</a>
+
+  </li>
+      
+    
+      
+      
+        
+        
+        <li class="menu-item menu-item-archives">
+      
+    
+
+    <a href="/archives/" rel="section"><i class="fa fa-fw fa-archive"></i>归档</a>
+
+  </li>
+      
+    
+      
+      
+        
+        
+        <li class="menu-item menu-item-about">
+      
+    
+
+    <a href="/about/" rel="section"><i class="fa fa-fw fa-user"></i>关于</a>
+
+  </li>
+      
+    
+  </ul>
+
+    
+
+</nav>
+</div>
+    </header>
+
+    
+  <div class="back-to-top">
+    <i class="fa fa-arrow-up"></i>
+    <span>0%</span>
+  </div>
+
+
+    <main class="main">
+      <div class="main-inner">
+        <div class="content-wrap">
+          <div class="content">
+            
+
+  <div class="posts-expand">
+      
+  
+  
+  <article itemscope itemtype="http://schema.org/Article" class="post-block " lang="zh-CN">
+    <link itemprop="mainEntityOfPage" href="http://yoursite.com/2021/04/14/spark/SparkSQL调优/">
+
+    <span hidden itemprop="author" itemscope itemtype="http://schema.org/Person">
+      <meta itemprop="name" content="姜纪光">
+      <meta itemprop="description" content="">
+      <meta itemprop="image" content="/images/avatar.gif">
+    </span>
+
+    <span hidden itemprop="publisher" itemscope itemtype="http://schema.org/Organization">
+      <meta itemprop="name" content="纪光的博客">
+    </span>
+      <header class="post-header">
+        <h1 class="post-title" itemprop="name headline">
+          
+            SparkSQL调优
+            
+
+          
+        </h1>
+
+        <div class="post-meta">
+            <span class="post-meta-item">
+              <span class="post-meta-item-icon">
+                <i class="fa fa-calendar-o"></i>
+              </span>
+              <span class="post-meta-item-text">发表于</span>
+
+              
+                
+              
+
+              <time title="创建时间：2021-04-14 17:14:25" itemprop="dateCreated datePublished" datetime="2021-04-14T17:14:25+08:00">2021-04-14</time>
+            </span>
+          
+            
+
+            
+              <span class="post-meta-item">
+                <span class="post-meta-item-icon">
+                  <i class="fa fa-calendar-check-o"></i>
+                </span>
+                <span class="post-meta-item-text">更新于</span>
+                <time title="修改时间：2021-06-20 12:19:35" itemprop="dateModified" datetime="2021-06-20T12:19:35+08:00">2021-06-20</time>
+              </span>
+            
+          
+            <span class="post-meta-item">
+              <span class="post-meta-item-icon">
+                <i class="fa fa-folder-o"></i>
+              </span>
+              <span class="post-meta-item-text">分类于</span>
+              
+                <span itemprop="about" itemscope itemtype="http://schema.org/Thing">
+                  <a href="/categories/spark/" itemprop="url" rel="index">
+                    <span itemprop="name">spark</span>
+                  </a>
+                </span>
+
+                
+                
+              
+            </span>
+          
+
+          
+            <span id="/2021/04/14/spark/SparkSQL调优/" class="post-meta-item leancloud_visitors" data-flag-title="SparkSQL调优" title="阅读次数">
+              <span class="post-meta-item-icon">
+                <i class="fa fa-eye"></i>
+              </span>
+              <span class="post-meta-item-text">阅读次数：</span>
+              <span class="leancloud-visitors-count"></span>
+            </span>
+          
+  
+  
+
+        </div>
+      </header>
+
+    
+    
+    
+    <div class="post-body" itemprop="articleBody">
+
+      
+        <h1 id="简介"><a href="#简介" class="headerlink" title="简介"></a>简介</h1><ul>
+<li><p>分布式计算引擎在调优方面有四个主要关注方向，分别是CPU、内存、网络开销和I/O，其具体调优目标如下：</p>
+<blockquote>
+<p>1、提高CPU利用率</p>
+<p>2、避免OOM</p>
+<p>3、降低网络开销</p>
+<p>4、减少I/O操作</p>
+</blockquote>
+</li>
+</ul>
+<h1 id="调优参数"><a href="#调优参数" class="headerlink" title="调优参数"></a>调优参数</h1><h2 id="executor"><a href="#executor" class="headerlink" title="executor"></a>executor</h2><ul>
+<li><p>spark.executor.cores</p>
+<blockquote>
+<p>作用：单个executor内任务的并发数，这些任务共享executor内存，因此不宜设置过大，容易造成oom</p>
+<p>默认值1，建议值2</p>
+</blockquote>
+</li>
+<li><p>spark.executor.memory</p>
+<blockquote>
+<p>作用：各个 executor 使用的堆内内存，不可超过单机的最大可使用内存。</p>
+<p>默认值2g，建议值12g</p>
+</blockquote>
+</li>
+<li><p>spark.yarn.executor.memoryOverhead</p>
+<blockquote>
+<p>单位MB，默认值3072</p>
+<p>作用：包括JVM overhead，sort、shuffle以及Netty的堆外内存等。</p>
+<p>限制： spark.executor.memory + spark.yarn.executor.memoryOverhead &lt;= 16G</p>
+</blockquote>
+</li>
+</ul>
+<h2 id="driver"><a href="#driver" class="headerlink" title="driver"></a>driver</h2><ul>
+<li><p>spark.driver.memory</p>
+<blockquote>
+<p>driver的堆内内存，默认2g，建议12g</p>
+</blockquote>
+</li>
+<li><p>spark.yarn.driver.memoryOverhead</p>
+<blockquote>
+<p>driver的堆外内存，默认3072，建议3072</p>
+</blockquote>
+</li>
+</ul>
+<h2 id="动态分区"><a href="#动态分区" class="headerlink" title="动态分区"></a>动态分区</h2><ul>
+<li><p>hive.exec.dynamic.partition</p>
+<blockquote>
+<p>支持动态分区，默认值false，建议值true</p>
+</blockquote>
+</li>
+<li><p>hive.exec.dynamic.partition.mode</p>
+<blockquote>
+<p>当有一个分区是静态分区时：strict 其他设置为：nonstrict</p>
+</blockquote>
+</li>
+<li><p>hive.exec.max.dynamic.partitions</p>
+<blockquote>
+<p>允许的分区总数，建议值100000</p>
+</blockquote>
+</li>
+<li><p>hive.exec.max.dynamic.partitions.pernode</p>
+<blockquote>
+<p>每个执行节点允许的最大分区数，应该是executor节点</p>
+<p>默认值100，建议值100000</p>
+</blockquote>
+</li>
+<li><p>hive.exec.max.created.files</p>
+<blockquote>
+<p>所有map和reduce任务可以产生的hdfs文件的和</p>
+<p>默认值100000，建议值150000</p>
+</blockquote>
+</li>
+<li><p>hive.error.on.empty.partition</p>
+<blockquote>
+<p>当有空分区生成时，是否抛出异常，默认值false</p>
+</blockquote>
+</li>
+</ul>
+<h2 id="join"><a href="#join" class="headerlink" title="join"></a>join</h2><ul>
+<li><p>spark.sql.autoBroadcastJoinThreshold</p>
+<blockquote>
+<p>1、当大表JOIN小表时，如果小表足够小，可以将大表分片，分别用小表和每个大表的分片进行JOIN，最后汇总，能够大大提升作业性能。</p>
+<p>2、如果小表的大小小于该值，则会将小表广播到所有executor中，使JOIN快速完成。如果该值设置太大，则会导致executor内存压力过大，容易出现OOM。</p>
+<p>默认值25M，建议值100M</p>
+</blockquote>
+</li>
+<li><p>hive.auto.convert.join</p>
+<blockquote>
+<p>自动将 Reduce 端的 Common Join 转化为 Map Join，从而加快大表关联小表的 Join 速度</p>
+</blockquote>
+</li>
+</ul>
+<h2 id="orc"><a href="#orc" class="headerlink" title="orc"></a>orc</h2><ul>
+<li><p>spark.sql.orc.filterPushdown</p>
+<blockquote>
+<p>当为true时，开启filter的下推功能</p>
+<p>默认值false，建议值true</p>
+</blockquote>
+</li>
+<li><p>hive.exec.orc.split.strategy</p>
+<blockquote>
+<p>ETL：会切分文件,多个stripe组成一个split</p>
+<p>BI：按文件进行切分</p>
+<p>HYBRID：平均文件大小大于hadoop最大split值使用 ETL,否则BI</p>
+</blockquote>
+</li>
+<li><p>spark.sql.orc.splits.include.file.footer</p>
+<blockquote>
+<p>官网建议true</p>
+</blockquote>
+</li>
+<li><p>spark.sql.orc.cache.stripe.details.size</p>
+<blockquote>
+<p>建议值10000</p>
+</blockquote>
+</li>
+<li><p>spark.sql.hive.metastorePartitionPruning</p>
+<blockquote>
+<p>当为true时，一些谓词将被下推到hive的metastore，以便于不匹配的分区能够及早清除。仅仅作用于hive表不能被转换成ilesource relations</p>
+</blockquote>
+</li>
+<li><p>spark.hadoop.mapreduce.input.fileinputformat.split.maxsize</p>
+<blockquote>
+<p>读ORC时，设置一个split的最大值，超出后会进行文件切分</p>
+<p>建议值128M</p>
+</blockquote>
+</li>
+<li><p>spark.hadoop.mapreduce.input.fileinputformat.split.minsize</p>
+<blockquote>
+<p>读ORC时，设置小文件合并的阈值</p>
+<p>建议值64M</p>
+</blockquote>
+</li>
+</ul>
+<h2 id="内存管理"><a href="#内存管理" class="headerlink" title="内存管理"></a>内存管理</h2><ul>
+<li><p>spark.memory.fraction</p>
+<blockquote>
+<p>统一内存（storage+execution）所占比例      统一内存=（jvm内存-预留内存 ）* 统一内存所占比例</p>
+<p>保留内存，防止产生oom，默认为300M</p>
+<p>其它内存，用于执行用户的代码的内存        其它内存 = （jvm内存-预留内存 ）- 统一内存</p>
+<p>建议值0.6</p>
+</blockquote>
+</li>
+<li><p>spark.storage.storageFraction</p>
+<blockquote>
+<p>storage内存所占比例，用于缓存数据   storage内存= 统一内存 * storage内存所占比例</p>
+<p>execution执行内存，用于缓存在执行shuffle过程中产生的中间数据和直接输出的部分缓存数据</p>
+<p>execution内存=统一内存 - storage内存</p>
+<p>执行内存的空间被对方占用后，可让对方将占用的部分转存到硬盘，然后”归还”借用的空间</p>
+<p>存储内存的空间被对方占用后，无法让对方”归还”</p>
+</blockquote>
+</li>
+<li><p>数据缓存方式</p>
+<blockquote>
+<p>MEMORY_ONLY 仅仅放在内存中，如果内存放不下就要清除</p>
+<p>MEMORY_AND_DISK 优先内存，内存放不下就写到磁盘</p>
+<p>MEMORY_ONLY_SER 以序列化方式存放到内存</p>
+<p>MEMORY_AND_DISK_SER 以序列化方式存放到内存和磁盘</p>
+<p>垃圾回收的代价和堆里的对象数据相关，而不是和数据的字节数相关。</p>
+<p>序列化的方式会把大量对象序列化为一个巨大的缓存区对象，如果缓存的数据量比较大或者有gc时间过长</p>
+<p>可以使用序列化的方式。</p>
+</blockquote>
+</li>
+</ul>
+<h2 id="动态资源分配"><a href="#动态资源分配" class="headerlink" title="动态资源分配"></a>动态资源分配</h2><ul>
+<li><p>spark.dynamicAllocation.enabled</p>
+<blockquote>
+<p>开启动态资源分配，默认值true，建议值true</p>
+</blockquote>
+</li>
+<li><p>spark.dynamicAllocation.maxExecutors</p>
+<blockquote>
+<p>每个application可以同时拥有的最大Executor数量，建议值1000</p>
+</blockquote>
+</li>
+<li><p>spark.dynamicAllocation.minExecutors</p>
+<blockquote>
+<p>每个application可以同时拥有的最小Executor数量，建议值3</p>
+</blockquote>
+</li>
+</ul>
+<h2 id="shuffle"><a href="#shuffle" class="headerlink" title="shuffle"></a>shuffle</h2><ul>
+<li><p>spark.sql.shuffle.partitions</p>
+<blockquote>
+<p>该参数代表了shuffle read task的并行度</p>
+<p>该参数应该和spark.dynamicAllocation.maxExecutors、spark.executor.cores配合使用应该为上面两个参数的整数倍</p>
+</blockquote>
+</li>
+<li></li>
+<li><p>spark.shuffle.file.buffer</p>
+<blockquote>
+<p>该参数用于设置shuffle write task的BufferedOutputStream的buffer缓冲大小。将数据写到磁盘文件之前，会先写入buffer缓冲中，待缓冲写满之后，才会溢写到磁盘。</p>
+<p>默认值32k  建议值64k</p>
+</blockquote>
+</li>
+<li><p>spark.reducer.maxSizeInFlight</p>
+<blockquote>
+<p>该参数用于设置shuffle read task的buffer缓冲大小，而这个buffer缓冲决定了每次能够拉取多少数据。</p>
+<p>改值太大容易导致reduce oom</p>
+<p>默认值48m  建议值96m</p>
+</blockquote>
+</li>
+</ul>
+
+    </div>
+
+    
+    
+    
+        
+      
+
+      <footer class="post-footer">
+
+        
+
+          <div class="post-nav">
+            <div class="post-nav-next post-nav-item">
+              
+                <a href="/2021/04/14/spark/Spark基本知识/" rel="next" title="Spark基本知识">
+                  <i class="fa fa-chevron-left"></i> Spark基本知识
+                </a>
+              
+            </div>
+
+            <span class="post-nav-divider"></span>
+
+            <div class="post-nav-prev post-nav-item">
+              
+                <a href="/2021/04/15/spark/Spark内存模型/" rel="prev" title="Spark内存模型">
+                  Spark内存模型 <i class="fa fa-chevron-right"></i>
+                </a>
+              
+            </div>
+          </div>
+        
+      </footer>
+    
+  </article>
+  
+  
+  
+
+  </div>
+
+
+          </div>
+          
+
+        </div>
+          
+  
+  <div class="toggle sidebar-toggle">
+    <span class="toggle-line toggle-line-first"></span>
+    <span class="toggle-line toggle-line-middle"></span>
+    <span class="toggle-line toggle-line-last"></span>
+  </div>
+
+  <aside class="sidebar">
+    <div class="sidebar-inner">
+        
+        
+        
+        
+      
+
+      <ul class="sidebar-nav motion-element">
+        <li class="sidebar-nav-toc">
+          文章目录
+        </li>
+        <li class="sidebar-nav-overview">
+          站点概览
+        </li>
+      </ul>
+
+      <!--noindex-->
+      <div class="post-toc-wrap sidebar-panel">
+          <div class="post-toc motion-element"><ol class="nav"><li class="nav-item nav-level-1"><a class="nav-link" href="#简介"><span class="nav-number">1.</span> <span class="nav-text">简介</span></a></li><li class="nav-item nav-level-1"><a class="nav-link" href="#调优参数"><span class="nav-number">2.</span> <span class="nav-text">调优参数</span></a><ol class="nav-child"><li class="nav-item nav-level-2"><a class="nav-link" href="#executor"><span class="nav-number">2.1.</span> <span class="nav-text">executor</span></a></li><li class="nav-item nav-level-2"><a class="nav-link" href="#driver"><span class="nav-number">2.2.</span> <span class="nav-text">driver</span></a></li><li class="nav-item nav-level-2"><a class="nav-link" href="#动态分区"><span class="nav-number">2.3.</span> <span class="nav-text">动态分区</span></a></li><li class="nav-item nav-level-2"><a class="nav-link" href="#join"><span class="nav-number">2.4.</span> <span class="nav-text">join</span></a></li><li class="nav-item nav-level-2"><a class="nav-link" href="#orc"><span class="nav-number">2.5.</span> <span class="nav-text">orc</span></a></li><li class="nav-item nav-level-2"><a class="nav-link" href="#内存管理"><span class="nav-number">2.6.</span> <span class="nav-text">内存管理</span></a></li><li class="nav-item nav-level-2"><a class="nav-link" href="#动态资源分配"><span class="nav-number">2.7.</span> <span class="nav-text">动态资源分配</span></a></li><li class="nav-item nav-level-2"><a class="nav-link" href="#shuffle"><span class="nav-number">2.8.</span> <span class="nav-text">shuffle</span></a></li></ol></li></ol></div>
+        
+      </div>
+      <!--/noindex-->
+
+      <div class="site-overview-wrap sidebar-panel">
+        <div class="site-author motion-element" itemprop="author" itemscope itemtype="http://schema.org/Person">
+  <p class="site-author-name" itemprop="name">姜纪光</p>
+  <div class="site-description" itemprop="description"></div>
+</div>
+<div class="site-state-wrap motion-element">
+  <nav class="site-state">
+      <div class="site-state-item site-state-posts">
+        
+          <a href="/archives/">
+        
+          <span class="site-state-item-count">158</span>
+          <span class="site-state-item-name">日志</span>
+        </a>
+      </div>
+    
+      
+      
+      <div class="site-state-item site-state-categories">
+        
+          
+            <a href="/categories/">
+          
+        
+        <span class="site-state-item-count">26</span>
+        <span class="site-state-item-name">分类</span>
+        </a>
+      </div>
+    
+      
+      
+      <div class="site-state-item site-state-tags">
+        
+          
+            <a href="/tags/">
+          
+        
+        <span class="site-state-item-count">14</span>
+        <span class="site-state-item-name">标签</span>
+        </a>
+      </div>
+    
+  </nav>
+</div>
+
+
+
+      </div>
+
+    </div>
+  </aside>
+  <div id="sidebar-dimmer"></div>
+
+
+      </div>
+    </main>
+
+    <footer class="footer">
+      <div class="footer-inner">
+        
+
+<div class="copyright">
+  &copy; 
+  <span itemprop="copyrightYear">2021</span>
+  <span class="with-love">
+    <i class="fa fa-user"></i>
+  </span>
+  <span class="author" itemprop="copyrightHolder">姜纪光</span>
+</div>
+  <div class="powered-by">由 <a href="https://hexo.io" class="theme-link" rel="noopener" target="_blank">Hexo</a> 强力驱动 v3.9.0
+  </div>
+  <span class="post-meta-divider">|</span>
+  <div class="theme-info">
+      
+    主题 – <a href="https://mist.theme-next.org" class="theme-link" rel="noopener" target="_blank">NexT.Mist</a> v7.4.1
+  </div>
+
+        
+
+
+
+
+
+
+
+
+
+
+
+
+        
+      </div>
+    </footer>
+  </div>
+
+  
+  <script src="/lib/anime.min.js?v=3.1.0"></script>
+  <script src="/lib/velocity/velocity.min.js?v=1.2.1"></script>
+  <script src="/lib/velocity/velocity.ui.min.js?v=1.2.1"></script>
+<script src="/js/utils.js?v=7.4.1"></script><script src="/js/motion.js?v=7.4.1"></script>
+<script src="/js/schemes/muse.js?v=7.4.1"></script>
+
+<script src="/js/next-boot.js?v=7.4.1"></script>
+
+
+
+  
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+  
+
+  
+
+  
+
+
+<script>
+NexT.utils.getScript('//unpkg.com/valine/dist/Valine.min.js', () => {
+  var GUEST = ['nick', 'mail', 'link'];
+  var guest = 'nick,mail,link';
+  guest = guest.split(',').filter(item => {
+    return GUEST.includes(item);
+  });
+  new Valine({
+    el: '#comments',
+    verify: false,
+    notify: false,
+    appId: 'MIQC4jJTknc0hjNXDAiIuQ21-9Nh9j0Va',
+    appKey: 'vaiXpSQLLMglwYsVLOBLzck4',
+    placeholder: "Just go go",
+    avatar: 'mm',
+    meta: guest,
+    pageSize: '10' || 10,
+    visitor: true,
+    lang: 'zh-cn' || 'zh-cn',
+    path: location.pathname,
+    recordIP: false,
+    serverURLs: ''
+  });
+}, window.Valine);
+</script>
+
+</body>
+</html>

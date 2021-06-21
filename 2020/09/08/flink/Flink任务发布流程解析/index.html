@@ -1,0 +1,911 @@
+<!DOCTYPE html>
+
+
+
+
+
+<html lang="zh-CN">
+<head>
+  <meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1, maximum-scale=2">
+<meta name="theme-color" content="#222">
+<meta name="generator" content="Hexo 3.9.0">
+  <link rel="apple-touch-icon" sizes="180x180" href="/images/apple-touch-icon-next.png?v=7.4.1">
+  <link rel="icon" type="image/png" sizes="32x32" href="/images/favicon-32x32-next.png?v=7.4.1">
+  <link rel="icon" type="image/png" sizes="16x16" href="/images/favicon-16x16-next.png?v=7.4.1">
+  <link rel="mask-icon" href="/images/logo.svg?v=7.4.1" color="#222">
+
+<link rel="stylesheet" href="/css/main.css?v=7.4.1">
+
+
+<link rel="stylesheet" href="/lib/font-awesome/css/font-awesome.min.css?v=4.7.0">
+
+
+<script id="hexo-configurations">
+  var NexT = window.NexT || {};
+  var CONFIG = {
+    root: '/',
+    scheme: 'Mist',
+    version: '7.4.1',
+    exturl: false,
+    sidebar: {"position":"right","display":"hide","offset":12,"onmobile":false},
+    copycode: {"enable":false,"show_result":false,"style":null},
+    back2top: {"enable":true,"sidebar":false,"scrollpercent":false},
+    bookmark: {"enable":false,"color":"#222","save":"auto"},
+    fancybox: false,
+    mediumzoom: false,
+    lazyload: false,
+    pangu: false,
+    algolia: {
+      appID: '',
+      apiKey: '',
+      indexName: '',
+      hits: {"per_page":10},
+      labels: {"input_placeholder":"Search for Posts","hits_empty":"We didn't find any results for the search: ${query}","hits_stats":"${hits} results found in ${time} ms"}
+    },
+    localsearch: {"enable":false,"trigger":"auto","top_n_per_article":1,"unescape":false,"preload":false},
+    path: '',
+    motion: {"enable":true,"async":false,"transition":{"post_block":"fadeIn","post_header":"slideDownIn","post_body":"slideDownIn","coll_header":"slideLeftIn","sidebar":"slideUpIn"}},
+    translation: {
+      copy_button: '复制',
+      copy_success: '复制成功',
+      copy_failure: '复制失败'
+    },
+    sidebarPadding: 40
+  };
+</script>
+
+  <meta name="description" content="提交流程图说明：本文基于flink1.10.1版本，且只介绍 yarn per-job StreamNode 主要属性 1234567891011121314151617181920212223242526private final int id;private int parallelism;private int maxParallelism;private ResourceSpec minR">
+<meta name="keywords" content="flink源码">
+<meta property="og:type" content="article">
+<meta property="og:title" content="Flink任务发布流程解析">
+<meta property="og:url" content="http://yoursite.com/2020/09/08/flink/Flink任务发布流程解析/index.html">
+<meta property="og:site_name" content="纪光的博客">
+<meta property="og:description" content="提交流程图说明：本文基于flink1.10.1版本，且只介绍 yarn per-job StreamNode 主要属性 1234567891011121314151617181920212223242526private final int id;private int parallelism;private int maxParallelism;private ResourceSpec minR">
+<meta property="og:locale" content="zh-CN">
+<meta property="og:updated_time" content="2021-06-20T04:19:35.141Z">
+<meta name="twitter:card" content="summary">
+<meta name="twitter:title" content="Flink任务发布流程解析">
+<meta name="twitter:description" content="提交流程图说明：本文基于flink1.10.1版本，且只介绍 yarn per-job StreamNode 主要属性 1234567891011121314151617181920212223242526private final int id;private int parallelism;private int maxParallelism;private ResourceSpec minR">
+  <link rel="canonical" href="http://yoursite.com/2020/09/08/flink/Flink任务发布流程解析/">
+
+
+<script id="page-configurations">
+  // https://hexo.io/docs/variables.html
+  CONFIG.page = {
+    sidebar: "",
+    isHome: false,
+    isPost: true,
+    isPage: false,
+    isArchive: false
+  };
+</script>
+
+  <title>Flink任务发布流程解析 | 纪光的博客</title>
+  
+
+
+  <script>
+    var _hmt = _hmt || [];
+    (function() {
+      var hm = document.createElement("script");
+      hm.src = "https://hm.baidu.com/hm.js?bca403b673d79e83a47dc62fea1dd605";
+      var s = document.getElementsByTagName("script")[0];
+      s.parentNode.insertBefore(hm, s);
+    })();
+  </script>
+
+
+
+
+
+
+  <noscript>
+  <style>
+  .use-motion .brand,
+  .use-motion .menu-item,
+  .sidebar-inner,
+  .use-motion .post-block,
+  .use-motion .pagination,
+  .use-motion .comments,
+  .use-motion .post-header,
+  .use-motion .post-body,
+  .use-motion .collection-header { opacity: initial; }
+
+  .use-motion .site-title,
+  .use-motion .site-subtitle {
+    opacity: initial;
+    top: initial;
+  }
+
+  .use-motion .logo-line-before i { left: initial; }
+  .use-motion .logo-line-after i { right: initial; }
+  </style>
+</noscript>
+
+</head>
+
+<body itemscope itemtype="http://schema.org/WebPage">
+  <div class="container use-motion">
+    <div class="headband"></div>
+
+    <header class="header" itemscope itemtype="http://schema.org/WPHeader">
+      <div class="header-inner"><div class="site-brand-container">
+  <div class="site-meta">
+
+    <div>
+      <a href="/" class="brand" rel="start">
+        <span class="logo-line-before"><i></i></span>
+        <span class="site-title">纪光的博客</span>
+        <span class="logo-line-after"><i></i></span>
+      </a>
+    </div>
+  </div>
+
+  <div class="site-nav-toggle">
+    <div class="toggle" aria-label="切换导航栏">
+      <span class="toggle-line toggle-line-first"></span>
+      <span class="toggle-line toggle-line-middle"></span>
+      <span class="toggle-line toggle-line-last"></span>
+    </div>
+  </div>
+</div>
+
+
+<nav class="site-nav">
+  
+  <ul id="menu" class="menu">
+      
+      
+        
+        
+        <li class="menu-item menu-item-home">
+      
+    
+
+    <a href="/" rel="section"><i class="fa fa-fw fa-home"></i>首页</a>
+
+  </li>
+      
+    
+      
+      
+        
+        
+        <li class="menu-item menu-item-categories">
+      
+    
+
+    <a href="/categories/" rel="section"><i class="fa fa-fw fa-th"></i>分类</a>
+
+  </li>
+      
+    
+      
+      
+        
+        
+        <li class="menu-item menu-item-tags">
+      
+    
+
+    <a href="/tags/" rel="section"><i class="fa fa-fw fa-tags"></i>标签</a>
+
+  </li>
+      
+    
+      
+      
+        
+        
+        <li class="menu-item menu-item-archives">
+      
+    
+
+    <a href="/archives/" rel="section"><i class="fa fa-fw fa-archive"></i>归档</a>
+
+  </li>
+      
+    
+      
+      
+        
+        
+        <li class="menu-item menu-item-about">
+      
+    
+
+    <a href="/about/" rel="section"><i class="fa fa-fw fa-user"></i>关于</a>
+
+  </li>
+      
+    
+  </ul>
+
+    
+
+</nav>
+</div>
+    </header>
+
+    
+  <div class="back-to-top">
+    <i class="fa fa-arrow-up"></i>
+    <span>0%</span>
+  </div>
+
+
+    <main class="main">
+      <div class="main-inner">
+        <div class="content-wrap">
+          <div class="content">
+            
+
+  <div class="posts-expand">
+      
+  
+  
+  <article itemscope itemtype="http://schema.org/Article" class="post-block " lang="zh-CN">
+    <link itemprop="mainEntityOfPage" href="http://yoursite.com/2020/09/08/flink/Flink任务发布流程解析/">
+
+    <span hidden itemprop="author" itemscope itemtype="http://schema.org/Person">
+      <meta itemprop="name" content="姜纪光">
+      <meta itemprop="description" content="">
+      <meta itemprop="image" content="/images/avatar.gif">
+    </span>
+
+    <span hidden itemprop="publisher" itemscope itemtype="http://schema.org/Organization">
+      <meta itemprop="name" content="纪光的博客">
+    </span>
+      <header class="post-header">
+        <h1 class="post-title" itemprop="name headline">
+          
+            Flink任务发布流程解析
+            
+
+          
+        </h1>
+
+        <div class="post-meta">
+            <span class="post-meta-item">
+              <span class="post-meta-item-icon">
+                <i class="fa fa-calendar-o"></i>
+              </span>
+              <span class="post-meta-item-text">发表于</span>
+
+              
+                
+              
+
+              <time title="创建时间：2020-09-08 13:56:27" itemprop="dateCreated datePublished" datetime="2020-09-08T13:56:27+08:00">2020-09-08</time>
+            </span>
+          
+            
+
+            
+              <span class="post-meta-item">
+                <span class="post-meta-item-icon">
+                  <i class="fa fa-calendar-check-o"></i>
+                </span>
+                <span class="post-meta-item-text">更新于</span>
+                <time title="修改时间：2021-06-20 12:19:35" itemprop="dateModified" datetime="2021-06-20T12:19:35+08:00">2021-06-20</time>
+              </span>
+            
+          
+            <span class="post-meta-item">
+              <span class="post-meta-item-icon">
+                <i class="fa fa-folder-o"></i>
+              </span>
+              <span class="post-meta-item-text">分类于</span>
+              
+                <span itemprop="about" itemscope itemtype="http://schema.org/Thing">
+                  <a href="/categories/flink/" itemprop="url" rel="index">
+                    <span itemprop="name">flink</span>
+                  </a>
+                </span>
+
+                
+                
+              
+            </span>
+          
+
+          
+            <span id="/2020/09/08/flink/Flink任务发布流程解析/" class="post-meta-item leancloud_visitors" data-flag-title="Flink任务发布流程解析" title="阅读次数">
+              <span class="post-meta-item-icon">
+                <i class="fa fa-eye"></i>
+              </span>
+              <span class="post-meta-item-text">阅读次数：</span>
+              <span class="leancloud-visitors-count"></span>
+            </span>
+          
+  
+  
+
+        </div>
+      </header>
+
+    
+    
+    
+    <div class="post-body" itemprop="articleBody">
+
+      
+        <h1 id="提交流程图"><a href="#提交流程图" class="headerlink" title="提交流程图"></a>提交流程图</h1><p><strong>说明：本文基于flink1.10.1版本，且只介绍 yarn per-job</strong></p>
+<h2 id="StreamNode"><a href="#StreamNode" class="headerlink" title="StreamNode"></a>StreamNode</h2><ul>
+<li><p>主要属性</p>
+<figure class="highlight java"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br><span class="line">3</span><br><span class="line">4</span><br><span class="line">5</span><br><span class="line">6</span><br><span class="line">7</span><br><span class="line">8</span><br><span class="line">9</span><br><span class="line">10</span><br><span class="line">11</span><br><span class="line">12</span><br><span class="line">13</span><br><span class="line">14</span><br><span class="line">15</span><br><span class="line">16</span><br><span class="line">17</span><br><span class="line">18</span><br><span class="line">19</span><br><span class="line">20</span><br><span class="line">21</span><br><span class="line">22</span><br><span class="line">23</span><br><span class="line">24</span><br><span class="line">25</span><br><span class="line">26</span><br></pre></td><td class="code"><pre><span class="line"><span class="keyword">private</span> <span class="keyword">final</span> <span class="keyword">int</span> id;</span><br><span class="line"><span class="keyword">private</span> <span class="keyword">int</span> parallelism;</span><br><span class="line"><span class="keyword">private</span> <span class="keyword">int</span> maxParallelism;</span><br><span class="line"><span class="keyword">private</span> ResourceSpec minResources = ResourceSpec.DEFAULT;</span><br><span class="line"><span class="keyword">private</span> ResourceSpec preferredResources = ResourceSpec.DEFAULT;</span><br><span class="line"><span class="keyword">private</span> <span class="keyword">int</span> managedMemoryWeight = Transformation.DEFAULT_MANAGED_MEMORY_WEIGHT;</span><br><span class="line"><span class="keyword">private</span> <span class="keyword">long</span> bufferTimeout;</span><br><span class="line"><span class="keyword">private</span> <span class="keyword">final</span> String operatorName;</span><br><span class="line"><span class="keyword">private</span> <span class="meta">@Nullable</span> String slotSharingGroup;</span><br><span class="line"><span class="keyword">private</span> <span class="meta">@Nullable</span> String coLocationGroup;</span><br><span class="line"><span class="keyword">private</span> KeySelector&lt;?, ?&gt; statePartitioner1;</span><br><span class="line"><span class="keyword">private</span> KeySelector&lt;?, ?&gt; statePartitioner2;</span><br><span class="line"><span class="keyword">private</span> TypeSerializer&lt;?&gt; stateKeySerializer;</span><br><span class="line"><span class="keyword">private</span> <span class="keyword">transient</span> StreamOperatorFactory&lt;?&gt; operatorFactory;</span><br><span class="line"><span class="keyword">private</span> List&lt;OutputSelector&lt;?&gt;&gt; outputSelectors;</span><br><span class="line"><span class="keyword">private</span> TypeSerializer&lt;?&gt; typeSerializerIn1;</span><br><span class="line"><span class="keyword">private</span> TypeSerializer&lt;?&gt; typeSerializerIn2;</span><br><span class="line"><span class="keyword">private</span> TypeSerializer&lt;?&gt; typeSerializerOut;</span><br><span class="line"><span class="keyword">private</span> List&lt;StreamEdge&gt; inEdges</span><br><span class="line"><span class="comment">//</span></span><br><span class="line"><span class="keyword">private</span> List&lt;StreamEdge&gt; outEdges</span><br><span class="line"><span class="keyword">private</span> <span class="keyword">final</span> Class&lt;? extends AbstractInvokable&gt; jobVertexClass;</span><br><span class="line"><span class="keyword">private</span> InputFormat&lt;?, ?&gt; inputFormat;</span><br><span class="line"><span class="keyword">private</span> OutputFormat&lt;?&gt; outputFormat;</span><br><span class="line"><span class="keyword">private</span> String transformationUID;</span><br><span class="line"><span class="keyword">private</span> String userHash;</span><br></pre></td></tr></table></figure>
+
+<p>​</p>
+</li>
+</ul>
+<h2 id="StreamEdge"><a href="#StreamEdge" class="headerlink" title="StreamEdge"></a>StreamEdge</h2><ul>
+<li><p>用于连接两个StreamNode</p>
+<blockquote>
+<p>//由于链接/优化，这样的一条边不一定会转换为两个JobVertex的连接</p>
+</blockquote>
+</li>
+<li><p>主要属性</p>
+<figure class="highlight java"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br><span class="line">3</span><br><span class="line">4</span><br><span class="line">5</span><br><span class="line">6</span><br><span class="line">7</span><br><span class="line">8</span><br><span class="line">9</span><br><span class="line">10</span><br><span class="line">11</span><br><span class="line">12</span><br><span class="line">13</span><br><span class="line">14</span><br><span class="line">15</span><br><span class="line">16</span><br></pre></td><td class="code"><pre><span class="line"><span class="keyword">private</span> <span class="keyword">final</span> String edgeId;</span><br><span class="line"><span class="keyword">private</span> <span class="keyword">final</span> <span class="keyword">int</span> sourceId;</span><br><span class="line"><span class="keyword">private</span> <span class="keyword">final</span> <span class="keyword">int</span> targetId;</span><br><span class="line"><span class="comment">//The type number of the input for co-tasks.</span></span><br><span class="line"><span class="keyword">private</span> <span class="keyword">final</span> <span class="keyword">int</span> typeNumber;</span><br><span class="line"><span class="comment">//A list of output names that the target vertex listens to (if there is output selection).</span></span><br><span class="line"><span class="keyword">private</span> <span class="keyword">final</span> List&lt;String&gt; selectedNames;</span><br><span class="line"><span class="comment">//The side-output tag (if any) of this &#123;@link StreamEdge&#125;.</span></span><br><span class="line"><span class="keyword">private</span> <span class="keyword">final</span> OutputTag outputTag;</span><br><span class="line"><span class="comment">//The &#123;@link StreamPartitioner&#125; on this &#123;@link StreamEdge&#125;.</span></span><br><span class="line"><span class="keyword">private</span> StreamPartitioner&lt;?&gt; outputPartitioner;</span><br><span class="line"><span class="comment">//The name of the operator in the source vertex.</span></span><br><span class="line"><span class="keyword">private</span> <span class="keyword">final</span> String sourceOperatorName;</span><br><span class="line"><span class="comment">//The name of the operator in the target vertex.</span></span><br><span class="line"><span class="keyword">private</span> <span class="keyword">final</span> String targetOperatorName;</span><br><span class="line"><span class="keyword">private</span> <span class="keyword">final</span> ShuffleMode shuffleMode;</span><br></pre></td></tr></table></figure>
+
+</li>
+</ul>
+<h2 id="JobVertex"><a href="#JobVertex" class="headerlink" title="JobVertex"></a>JobVertex</h2><ul>
+<li><p>基本属性</p>
+<figure class="highlight java"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br><span class="line">3</span><br><span class="line">4</span><br><span class="line">5</span><br><span class="line">6</span><br><span class="line">7</span><br><span class="line">8</span><br><span class="line">9</span><br><span class="line">10</span><br><span class="line">11</span><br><span class="line">12</span><br><span class="line">13</span><br><span class="line">14</span><br><span class="line">15</span><br><span class="line">16</span><br><span class="line">17</span><br><span class="line">18</span><br><span class="line">19</span><br><span class="line">20</span><br><span class="line">21</span><br><span class="line">22</span><br><span class="line">23</span><br><span class="line">24</span><br><span class="line">25</span><br><span class="line">26</span><br></pre></td><td class="code"><pre><span class="line"><span class="keyword">private</span> <span class="keyword">final</span> JobVertexID id;</span><br><span class="line"><span class="keyword">private</span> <span class="keyword">final</span> ArrayList&lt;JobVertexID&gt; idAlternatives</span><br><span class="line"><span class="keyword">private</span> <span class="keyword">final</span> ArrayList&lt;OperatorID&gt; operatorIDs</span><br><span class="line"><span class="keyword">private</span> <span class="keyword">final</span> ArrayList&lt;OperatorID&gt; operatorIdsAlternatives</span><br><span class="line"><span class="comment">//产生的数据集列表，每个writer一个</span></span><br><span class="line"><span class="keyword">private</span> <span class="keyword">final</span> ArrayList&lt;IntermediateDataSet&gt; results</span><br><span class="line"><span class="comment">//传入的边的列表，每个Reader一个</span></span><br><span class="line"><span class="keyword">private</span> <span class="keyword">final</span> ArrayList&lt;JobEdge&gt; inputs</span><br><span class="line"><span class="comment">//运行时subtasks的数量</span></span><br><span class="line"><span class="keyword">private</span> <span class="keyword">int</span> parallelism</span><br><span class="line"><span class="keyword">private</span> <span class="keyword">int</span> maxParallelism</span><br><span class="line"><span class="keyword">private</span> ResourceSpec minResources = ResourceSpec.DEFAULT</span><br><span class="line"><span class="keyword">private</span> ResourceSpec preferredResources = ResourceSpec.DEFAULT</span><br><span class="line"><span class="comment">//运行时，传递给task的自定义配置</span></span><br><span class="line"><span class="keyword">private</span> Configuration configuration</span><br><span class="line"><span class="comment">//The class of the invokable</span></span><br><span class="line"><span class="keyword">private</span> String invokableClassName;</span><br><span class="line"><span class="keyword">private</span> <span class="keyword">boolean</span> isStoppable = <span class="keyword">false</span>;</span><br><span class="line"><span class="keyword">private</span> InputSplitSource&lt;?&gt; inputSplitSource;</span><br><span class="line"><span class="comment">//vertex的名称</span></span><br><span class="line"><span class="keyword">private</span> String name;</span><br><span class="line"><span class="comment">//一个共享组，允许来自不同作业顶点的子任务在一个插槽中同时运行，软限制</span></span><br><span class="line"><span class="keyword">private</span> SlotSharingGroup slotSharingGroup;</span><br><span class="line"><span class="comment">//规定了JobVertex的sub task必须一一对应，在同一个slot中执行</span></span><br><span class="line"><span class="keyword">private</span> CoLocationGroup coLocationGroup;</span><br><span class="line"><span class="keyword">private</span> String operatorName;</span><br></pre></td></tr></table></figure>
+
+<p>​</p>
+</li>
+</ul>
+<h1 id="StreamGraph转JobGraph"><a href="#StreamGraph转JobGraph" class="headerlink" title="StreamGraph转JobGraph"></a>StreamGraph转JobGraph</h1><h2 id="JobGraph介绍"><a href="#JobGraph介绍" class="headerlink" title="JobGraph介绍"></a>JobGraph介绍</h2><ul>
+<li><p>JobGraph是流StreamGraph和批OptimizedPlan的统一</p>
+</li>
+<li><p>JobGraph的核心对象：<strong>JobVertex、JobEdge、InternmediateDataSet</strong></p>
+</li>
+<li><p>JobVertex</p>
+<blockquote>
+<p>JobVertex包含一个或多个算子，是符合条件的多个StreamNode融合在一起的</p>
+<p>输入是JobEdge</p>
+<p>输出是InternmediateDataSet</p>
+</blockquote>
+</li>
+<li><p>JobEdge</p>
+<blockquote>
+<p>JobEdge是连接InternmediateDataSet和JobVertex的边，是一个数据流转通道</p>
+</blockquote>
+</li>
+<li><p>InternmediateDataSet</p>
+<blockquote>
+<p>是一种逻辑结构，是中间数据集，表示JobVertex的输出</p>
+<p>InternmediateDataSet的个数与该JobVertex对应的StreamNode的出边数量相同</p>
+</blockquote>
+</li>
+</ul>
+<h2 id="转换过程"><a href="#转换过程" class="headerlink" title="转换过程"></a>转换过程</h2><ul>
+<li><p>入口方法</p>
+<figure class="highlight java"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br><span class="line">3</span><br><span class="line">4</span><br></pre></td><td class="code"><pre><span class="line"><span class="comment">//java类</span></span><br><span class="line">org.apache.flink.client.deployment.executors</span><br><span class="line"></span><br><span class="line"><span class="keyword">final</span> JobGraph jobGraph = ExecutorUtils.getJobGraph(pipeline, configuration);</span><br></pre></td></tr></table></figure>
+</li>
+<li><p>为每个StreamNode节点生成确定性哈希</p>
+<figure class="highlight java"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br><span class="line">3</span><br><span class="line">4</span><br><span class="line">5</span><br><span class="line">6</span><br><span class="line">7</span><br><span class="line">8</span><br><span class="line">9</span><br><span class="line">10</span><br><span class="line">11</span><br><span class="line">12</span><br><span class="line">13</span><br><span class="line">14</span><br><span class="line">15</span><br><span class="line">16</span><br><span class="line">17</span><br><span class="line">18</span><br><span class="line">19</span><br><span class="line">20</span><br><span class="line">21</span><br><span class="line">22</span><br><span class="line">23</span><br><span class="line">24</span><br><span class="line">25</span><br><span class="line">26</span><br><span class="line">27</span><br><span class="line">28</span><br><span class="line">29</span><br><span class="line">30</span><br><span class="line">31</span><br><span class="line">32</span><br><span class="line">33</span><br></pre></td><td class="code"><pre><span class="line"><span class="comment">// Generate deterministic hashes for the nodes in order to identify them across</span></span><br><span class="line"><span class="comment">// submission iff they didn't change.</span></span><br><span class="line">Map&lt;Integer, <span class="keyword">byte</span>[]&gt; hashes = defaultStreamGraphHasher.traverseStreamGraphAndGenerateHashes(streamGraph);</span><br><span class="line"><span class="comment">//生成的哈希值作为JobVertexID</span></span><br><span class="line"></span><br><span class="line"><span class="comment">//首先根据source生成hash，然后再生成source下游节点的hash，最终生成全部节点的hash</span></span><br><span class="line">StreamNode currentNode;</span><br><span class="line"><span class="keyword">while</span> ((currentNode = remaining.poll()) != <span class="keyword">null</span>) &#123;</span><br><span class="line"><span class="keyword">if</span> (generateNodeHash(currentNode, hashFunction, hashes,   streamGraph.isChainingEnabled(), streamGraph)) &#123;</span><br><span class="line">	<span class="keyword">for</span> (StreamEdge outEdge : currentNode.getOutEdges()) &#123;</span><br><span class="line">		StreamNode child = streamGraph.getTargetVertex(outEdge);</span><br><span class="line">  		<span class="keyword">if</span> (!visited.contains(child.getId())) &#123;</span><br><span class="line">			remaining.add(child);</span><br><span class="line">			visited.add(child.getId());</span><br><span class="line">		&#125;</span><br><span class="line">	&#125;</span><br><span class="line">&#125; <span class="keyword">else</span> &#123;</span><br><span class="line">	visited.remove(currentNode.getId());</span><br><span class="line">	&#125;</span><br><span class="line">&#125;</span><br><span class="line"></span><br><span class="line"><span class="comment">//若算子设置了uid</span></span><br><span class="line">  hasher.putString(node.getTransformationUID(), Charset.forName(<span class="string">"UTF-8"</span>));</span><br><span class="line">  <span class="keyword">return</span> hasher.hash().asBytes();</span><br><span class="line"><span class="comment">//若算子没有设置uid</span></span><br><span class="line">  <span class="comment">//首先确认该StreamNode的所有上游的StreamNode已经生成过hash</span></span><br><span class="line">  <span class="comment">//生成的hash取决于StreamGraph中节点的顺序和上游算子的hash值</span></span><br><span class="line">  <span class="keyword">for</span> (StreamEdge inEdge : node.getInEdges()) &#123;</span><br><span class="line">    <span class="keyword">byte</span>[] otherHash = hashes.get(inEdge.getSourceId());</span><br><span class="line">	<span class="keyword">for</span> (<span class="keyword">int</span> j = <span class="number">0</span>; j &lt; hash.length; j++) &#123;</span><br><span class="line">		hash[j] = (<span class="keyword">byte</span>) (hash[j] * <span class="number">37</span> ^ otherHash[j]);</span><br><span class="line">	&#125;</span><br><span class="line">  &#125;</span><br></pre></td></tr></table></figure>
+</li>
+<li><p>setChaining</p>
+<figure class="highlight java"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br><span class="line">3</span><br><span class="line">4</span><br><span class="line">5</span><br><span class="line">6</span><br><span class="line">7</span><br><span class="line">8</span><br><span class="line">9</span><br><span class="line">10</span><br><span class="line">11</span><br><span class="line">12</span><br><span class="line">13</span><br><span class="line">14</span><br><span class="line">15</span><br><span class="line">16</span><br><span class="line">17</span><br><span class="line">18</span><br><span class="line">19</span><br><span class="line">20</span><br><span class="line">21</span><br><span class="line">22</span><br><span class="line">23</span><br><span class="line">24</span><br><span class="line">25</span><br><span class="line">26</span><br><span class="line">27</span><br><span class="line">28</span><br><span class="line">29</span><br><span class="line">30</span><br><span class="line">31</span><br><span class="line">32</span><br><span class="line">33</span><br><span class="line">34</span><br><span class="line">35</span><br><span class="line">36</span><br><span class="line">37</span><br><span class="line">38</span><br><span class="line">39</span><br><span class="line">40</span><br><span class="line">41</span><br><span class="line">42</span><br><span class="line">43</span><br><span class="line">44</span><br><span class="line">45</span><br><span class="line">46</span><br><span class="line">47</span><br><span class="line">48</span><br><span class="line">49</span><br><span class="line">50</span><br><span class="line">51</span><br></pre></td><td class="code"><pre><span class="line"><span class="comment">//可以看到是先从souce开始chain</span></span><br><span class="line"><span class="function"><span class="keyword">private</span> <span class="keyword">void</span> <span class="title">setChaining</span><span class="params">(Map&lt;Integer, <span class="keyword">byte</span>[]&gt; hashes, List&lt;Map&lt;Integer, <span class="keyword">byte</span>[]&gt;&gt; legacyHashes, Map&lt;Integer, List&lt;Tuple2&lt;<span class="keyword">byte</span>[], <span class="keyword">byte</span>[]&gt;&gt;&gt; chainedOperatorHashes)</span> </span>&#123;</span><br><span class="line">	<span class="keyword">for</span> (Integer sourceNodeId : streamGraph.getSourceIDs()) &#123;</span><br><span class="line">		createChain(sourceNodeId, sourceNodeId, hashes, legacyHashes, <span class="number">0</span>, chainedOperatorHashes);</span><br><span class="line">	&#125;</span><br><span class="line">&#125;</span><br><span class="line"></span><br><span class="line"><span class="comment">//从source开始，获取可以链接在一起的StreamEdge，这里可以当做是递归，获取到该source的chain</span></span><br><span class="line"><span class="keyword">for</span> (StreamEdge chainable : chainableOutputs) &#123;</span><br><span class="line">	transitiveOutEdges.addAll(</span><br><span class="line">	createChain(startNodeId, chainable.getTargetId(), hashes, legacyHashes, chainIndex + <span class="number">1</span>, chainedOperatorHashes));</span><br><span class="line">&#125;</span><br><span class="line"></span><br><span class="line"><span class="comment">//可以chain在一起的逻辑代码</span></span><br><span class="line">	<span class="function"><span class="keyword">public</span> <span class="keyword">static</span> <span class="keyword">boolean</span> <span class="title">isChainable</span><span class="params">(StreamEdge edge, StreamGraph streamGraph)</span> </span>&#123;</span><br><span class="line">		StreamNode upStreamVertex = streamGraph.getSourceVertex(edge);</span><br><span class="line">		StreamNode downStreamVertex = streamGraph.getTargetVertex(edge);</span><br><span class="line"></span><br><span class="line">		StreamOperatorFactory&lt;?&gt; headOperator = upStreamVertex.getOperatorFactory();</span><br><span class="line">		StreamOperatorFactory&lt;?&gt; outOperator = downStreamVertex.getOperatorFactory();</span><br><span class="line"></span><br><span class="line">		<span class="keyword">return</span> downStreamVertex.getInEdges().size() == <span class="number">1</span></span><br><span class="line">				&amp;&amp; outOperator != <span class="keyword">null</span></span><br><span class="line">				&amp;&amp; headOperator != <span class="keyword">null</span></span><br><span class="line">				&amp;&amp; upStreamVertex.isSameSlotSharingGroup(downStreamVertex)</span><br><span class="line">				&amp;&amp; outOperator.getChainingStrategy() == ChainingStrategy.ALWAYS</span><br><span class="line">				&amp;&amp; (headOperator.getChainingStrategy() == ChainingStrategy.HEAD ||</span><br><span class="line">					headOperator.getChainingStrategy() == ChainingStrategy.ALWAYS)</span><br><span class="line">				&amp;&amp; (edge.getPartitioner() <span class="keyword">instanceof</span> ForwardPartitioner)</span><br><span class="line">				&amp;&amp; edge.getShuffleMode() != ShuffleMode.BATCH</span><br><span class="line">				&amp;&amp; upStreamVertex.getParallelism() == downStreamVertex.getParallelism()</span><br><span class="line">				&amp;&amp; streamGraph.isChainingEnabled();</span><br><span class="line">	&#125;</span><br><span class="line"></span><br><span class="line"><span class="comment">//每个StreamNode chain的name为</span></span><br><span class="line">&#123;<span class="number">1</span>=Source: name_source -&gt; Map -&gt; Sink: name_kafka, <span class="number">2</span>=Map -&gt; Sink: name_kafka, <span class="number">3</span>=Sink: name_kafka&#125;</span><br><span class="line"><span class="comment">//由此可见，每个StreamNode都会得出一个chain的名称，是可以chain在一起的operatorName的组合</span></span><br><span class="line"></span><br><span class="line"><span class="comment">//接下来是计算资源，基本逻辑是所有chain在一起的StreamNode的资源相加，但是由于默认资源是UNKNOWN，</span></span><br><span class="line"><span class="comment">//UNKNOWN类型的资源都是null，因此会得出UNKNOWN，目前没有看到意义</span></span><br><span class="line">chainedMinResources.put(currentNodeId, createChainedMinResources(currentNodeId, chainableOutputs));</span><br><span class="line">chainedPreferredResources.put(currentNodeId, createChainedPreferredResources(currentNodeId, chainableOutputs));</span><br><span class="line"></span><br><span class="line"><span class="keyword">private</span> ResourceSpec minResources = ResourceSpec.DEFAULT;</span><br><span class="line"><span class="keyword">public</span> <span class="keyword">static</span> <span class="keyword">final</span> ResourceSpec DEFAULT = UNKNOWN;</span><br><span class="line">	<span class="function"><span class="keyword">private</span> <span class="title">ResourceSpec</span><span class="params">()</span> </span>&#123;</span><br><span class="line">		<span class="keyword">this</span>.cpuCores = <span class="keyword">null</span>;</span><br><span class="line">		<span class="keyword">this</span>.taskHeapMemory = <span class="keyword">null</span>;</span><br><span class="line">		<span class="keyword">this</span>.taskOffHeapMemory = <span class="keyword">null</span>;</span><br><span class="line">		<span class="keyword">this</span>.managedMemory = <span class="keyword">null</span>;</span><br><span class="line">	&#125;</span><br></pre></td></tr></table></figure>
+
+<p>​</p>
+</li>
+</ul>
+<h1 id="deployInternal"><a href="#deployInternal" class="headerlink" title="deployInternal"></a>deployInternal</h1><ul>
+<li><p>入口方法</p>
+<figure class="highlight plain"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br><span class="line">3</span><br><span class="line">4</span><br><span class="line">5</span><br><span class="line">6</span><br><span class="line">7</span><br><span class="line">8</span><br><span class="line">9</span><br></pre></td><td class="code"><pre><span class="line">//java类</span><br><span class="line">org.apache.flink.yarn.YarnClusterDescriptor</span><br><span class="line">//java方法</span><br><span class="line">private ClusterClientProvider&lt;ApplicationId&gt; deployInternal(</span><br><span class="line">            ClusterSpecification clusterSpecification,</span><br><span class="line">            String applicationName,</span><br><span class="line">            String yarnClusterEntrypoint,</span><br><span class="line">            @Nullable JobGraph jobGraph,</span><br><span class="line">            boolean detached) throws Exception</span><br></pre></td></tr></table></figure>
+</li>
+<li><p>isReadyForDeployment</p>
+<figure class="highlight plain"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br><span class="line">3</span><br></pre></td><td class="code"><pre><span class="line">检查flinkJarPath是否存在</span><br><span class="line">检查flinkConfiguration是否存在</span><br><span class="line">检查JM和TM的slot个数是否大于机器可用vcore</span><br></pre></td></tr></table></figure>
+</li>
+<li><p>checkYarnQueues</p>
+<figure class="highlight plain"><table><tr><td class="gutter"><pre><span class="line">1</span><br></pre></td><td class="code"><pre><span class="line">检查YARN 队列是否存在</span><br></pre></td></tr></table></figure>
+</li>
+<li><p>创建Yarn Application</p>
+<figure class="highlight plain"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br></pre></td><td class="code"><pre><span class="line">获取yarn集群的CPU和内存资源</span><br><span class="line">检查yarn集群的资源是否能够满足任务的需求</span><br></pre></td></tr></table></figure>
+
+<p>​</p>
+</li>
+</ul>
+<h1 id="启动JobMaster"><a href="#启动JobMaster" class="headerlink" title="启动JobMaster"></a>启动JobMaster</h1><ul>
+<li><p>入口方法</p>
+<figure class="highlight plain"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br><span class="line">3</span><br><span class="line">4</span><br><span class="line">5</span><br><span class="line">6</span><br><span class="line">7</span><br><span class="line">8</span><br><span class="line">9</span><br><span class="line">10</span><br><span class="line">11</span><br><span class="line">12</span><br><span class="line">13</span><br><span class="line">14</span><br><span class="line">15</span><br><span class="line">16</span><br><span class="line">17</span><br><span class="line">18</span><br><span class="line">19</span><br><span class="line">20</span><br><span class="line">21</span><br><span class="line">22</span><br><span class="line">23</span><br><span class="line">24</span><br><span class="line">25</span><br><span class="line">26</span><br><span class="line">27</span><br><span class="line">28</span><br><span class="line">29</span><br><span class="line">30</span><br><span class="line">31</span><br><span class="line">32</span><br></pre></td><td class="code"><pre><span class="line">//java类</span><br><span class="line">org.apache.flink.yarn.YarnClusterDescriptor</span><br><span class="line">//java 方法</span><br><span class="line">private ApplicationReport startAppMaster(</span><br><span class="line">            Configuration configuration,</span><br><span class="line">            String applicationName,</span><br><span class="line">            String yarnClusterEntrypoint,</span><br><span class="line">            JobGraph jobGraph,</span><br><span class="line">            YarnClient yarnClient,</span><br><span class="line">            YarnClientApplication yarnApplication,</span><br><span class="line">            ClusterSpecification clusterSpecification) throws Exception &#123;</span><br><span class="line">  org.apache.flink.core.fs.FileSystem.initialize(</span><br><span class="line">                configuration,</span><br><span class="line">                PluginUtils.createPluginManagerFromRootFolder(configuration));</span><br><span class="line">  </span><br><span class="line">  //设置高可用</span><br><span class="line">  if (HighAvailabilityMode.isHighAvailabilityModeActivated(configuration)) &#123;</span><br><span class="line">            // activate re-execution of failed applications</span><br><span class="line">            appContext.setMaxAppAttempts(</span><br><span class="line">                    configuration.getInteger(</span><br><span class="line">                            YarnConfigOptions.APPLICATION_ATTEMPTS.key(),</span><br><span class="line">                            YarnConfiguration.DEFAULT_RM_AM_MAX_ATTEMPTS));</span><br><span class="line"></span><br><span class="line">            activateHighAvailabilitySupport(appContext);</span><br><span class="line">        &#125; else &#123;</span><br><span class="line">            // set number of application retries to 1 in the default case</span><br><span class="line">            appContext.setMaxAppAttempts(</span><br><span class="line">                    configuration.getInteger(</span><br><span class="line">                            YarnConfigOptions.APPLICATION_ATTEMPTS.key(),</span><br><span class="line">                            1));</span><br><span class="line">        &#125;</span><br><span class="line">&#125;</span><br></pre></td></tr></table></figure>
+</li>
+<li><p>初始化共享文件系统</p>
+<figure class="highlight plain"><table><tr><td class="gutter"><pre><span class="line">1</span><br></pre></td><td class="code"><pre><span class="line">//插件根目录：&#123;flink部署路径&#125;/plugins</span><br></pre></td></tr></table></figure>
+</li>
+<li><p>获取应用的jar文件</p>
+<figure class="highlight plain"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br></pre></td><td class="code"><pre><span class="line">//从jobGraph获取任务的jar包</span><br><span class="line">jobGraph.getUserJars()</span><br></pre></td></tr></table></figure>
+</li>
+<li><p>从本地复制文件到HDFS</p>
+<figure class="highlight plain"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br><span class="line">3</span><br><span class="line">4</span><br><span class="line">5</span><br><span class="line">6</span><br><span class="line">7</span><br><span class="line">8</span><br><span class="line">9</span><br><span class="line">10</span><br><span class="line">11</span><br></pre></td><td class="code"><pre><span class="line">//上传到HDFS的文件包括，</span><br><span class="line">//上传地址：hdfs://rt2/user/qttods/.flink/application_1597847003686_1649</span><br><span class="line">//qttods为hadoop提交用户</span><br><span class="line">//上传文件包括：lib目录全部文件 + plugins目录全部文件 + log配置 + 任务jar包</span><br><span class="line">conf/log4j.properties</span><br><span class="line">lib/*</span><br><span class="line">/tmp/application_1597847003686_1649-flink-conf.yaml203382511937819807.tmp</span><br><span class="line">/tmp/application_1597847003686_16496774392247977738481.tmp</span><br><span class="line">任务jar包路径</span><br><span class="line"></span><br><span class="line">//最后把HDFS文件路径写到jobGraph的userArtifacts属性</span><br></pre></td></tr></table></figure>
+</li>
+<li><p>获取MasterContainer配置</p>
+<figure class="highlight plain"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br></pre></td><td class="code"><pre><span class="line"># amContainer实际的堆内存=配置 - 600MB</span><br><span class="line">$JAVA_HOME/bin/java -Xms1448m -Xmx1448m -server -XX:+UseConcMarkSweepGC -XX:+UseCMSInitiatingOccupancyOnly -XX:CMSInitiatingOccupancyFraction=75 -XX:ParallelGCThreads=4 -XX:+AlwaysPreTouch -XX:NewRatio=1 -DjobName=jjg-test-1.10kafka-consumer -Dlog.file=&quot;/jobmanager.log&quot; -Dlog4j.configuration=file:log4j.properties org.apache.flink.yarn.entrypoint.YarnJobClusterEntrypoint 1&gt; /jobmanager.out 2&gt; /jobmanager.err</span><br></pre></td></tr></table></figure>
+</li>
+<li><p>设置MasterContainer的env</p>
+<figure class="highlight plain"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br><span class="line">3</span><br><span class="line">4</span><br><span class="line">5</span><br><span class="line">6</span><br><span class="line">7</span><br><span class="line">8</span><br><span class="line">9</span><br><span class="line">10</span><br><span class="line">11</span><br><span class="line">12</span><br><span class="line">13</span><br><span class="line">14</span><br><span class="line">15</span><br><span class="line">16</span><br><span class="line">17</span><br><span class="line">18</span><br><span class="line">19</span><br><span class="line">20</span><br><span class="line">21</span><br><span class="line">22</span><br><span class="line">23</span><br><span class="line">24</span><br></pre></td><td class="code"><pre><span class="line">&#123;</span><br><span class="line">    _APP_ID=application_1597847003686_1688,</span><br><span class="line">    _FLINK_YARN_FILES=hdfs: //rt2/user/qttods/.flink/application_1597847003686_1688,</span><br><span class="line">    HADOOP_USER_NAME=qttods,</span><br><span class="line">    _ZOOKEEPER_NAMESPACE=application_1597847003686_1688,</span><br><span class="line">    _FLINK_JAR_PATH=hdfs: //rt2/user/qttods/.flink/application_1597847003686_1688/flink-dist_2.11-1.10.1.jar,</span><br><span class="line">    _FLINK_CLASSPATH=: f449f5d4408548b89470470418ced176-1600328175015533266107575692596.jar: lib/aliyun-log-log4j-appender-0.1.13-shade.jar: lib/flink-avro-1.10.1.jar: lib/flink-csv-1.10.1.jar: lib/flink-json-1.10.1.jar: lib/flink-shaded-hadoop-2-uber-2.7.5-10.0.jar: lib/flink-table-blink_2.11-1.10.1.jar: lib/flink-table_2.11-1.10.1.jar: lib/log4j-1.2.17.jar: lib/slf4j-log4j12-1.7.15.jar: flink-dist_2.11-1.10.1.jar: flink-conf.yaml: job.graph: ,</span><br><span class="line">    _CLIENT_SHIP_FILES=log4j.properties=hdfs: //rt2/user/qttods/.flink/application_1597847003686_1688/log4j.properties,</span><br><span class="line">    lib/slf4j-log4j12-1.7.15.jar=hdfs: //rt2/user/qttods/.flink/application_1597847003686_1688/lib/slf4j-log4j12-1.7.15.jar,</span><br><span class="line">    lib/flink-shaded-hadoop-2-uber-2.7.5-10.0.jar=hdfs: //rt2/user/qttods/.flink/application_1597847003686_1688/lib/flink-shaded-hadoop-2-uber-2.7.5-10.0.jar,</span><br><span class="line">    lib/log4j-1.2.17.jar=hdfs: //rt2/user/qttods/.flink/application_1597847003686_1688/lib/log4j-1.2.17.jar,</span><br><span class="line">    lib/flink-table_2.11-1.10.1.jar=hdfs: //rt2/user/qttods/.flink/application_1597847003686_1688/lib/flink-table_2.11-1.10.1.jar,</span><br><span class="line">    lib/flink-avro-1.10.1.jar=hdfs: //rt2/user/qttods/.flink/application_1597847003686_1688/lib/flink-avro-1.10.1.jar,</span><br><span class="line">    lib/flink-csv-1.10.1.jar=hdfs: //rt2/user/qttods/.flink/application_1597847003686_1688/lib/flink-csv-1.10.1.jar,</span><br><span class="line">    lib/aliyun-log-log4j-appender-0.1.13-shade.jar=hdfs: //rt2/user/qttods/.flink/application_1597847003686_1688/lib/aliyun-log-log4j-appender-0.1.13-shade.jar,</span><br><span class="line">    lib/flink-json-1.10.1.jar=hdfs: //rt2/user/qttods/.flink/application_1597847003686_1688/lib/flink-json-1.10.1.jar,</span><br><span class="line">    lib/flink-table-blink_2.11-1.10.1.jar=hdfs: //rt2/user/qttods/.flink/application_1597847003686_1688/lib/flink-table-blink_2.11-1.10.1.jar,</span><br><span class="line">    plugins/README.txt=hdfs: //rt2/user/qttods/.flink/application_1597847003686_1688/plugins/README.txt,</span><br><span class="line">    f449f5d4408548b89470470418ced176-1600328175015533266107575692596.jar=hdfs: //rt2/user/qttods/.flink/application_1597847003686_1688/f449f5d4408548b89470470418ced176-1600328175015533266107575692596.jar,</span><br><span class="line">    flink-conf.yaml=hdfs: //rt2/user/qttods/.flink/application_1597847003686_1688/application_1597847003686_1688-flink-conf.yaml3364080218736489439.tmp,</span><br><span class="line">    ,</span><br><span class="line">    _CLIENT_HOME_DIR=hdfs: //rt2/user/qttods,</span><br><span class="line">    CLASSPATH=: f449f5d4408548b89470470418ced176-1600328175015533266107575692596.jar: lib/aliyun-log-log4j-appender-0.1.13-shade.jar: lib/flink-avro-1.10.1.jar: lib/flink-csv-1.10.1.jar: lib/flink-json-1.10.1.jar: lib/flink-shaded-hadoop-2-uber-2.7.5-10.0.jar: lib/flink-table-blink_2.11-1.10.1.jar: lib/flink-table_2.11-1.10.1.jar: lib/log4j-1.2.17.jar: lib/slf4j-log4j12-1.7.15.jar: flink-dist_2.11-1.10.1.jar: flink-conf.yaml: job.graph: : $HADOOP_CONF_DIR: $HADOOP_COMMON_HOME/share/hadoop/common/*: $HADOOP_COMMON_HOME/share/hadoop/common/lib/*: $HADOOP_HDFS_HOME/share/hadoop/hdfs/*: $HADOOP_HDFS_HOME/share/hadoop/hdfs/lib/*: $HADOOP_YARN_HOME/share/hadoop/yarn/*: $HADOOP_YARN_HOME/share/hadoop/yarn/lib/*: /opt/apps/extra-jars/*: $HADOOP_HOME/share/hadoop/tools/lib/*</span><br><span class="line">&#125;</span><br></pre></td></tr></table></figure>
+</li>
+<li><p>setApplicationNodeLabel(appContext);</p>
+</li>
+<li><p>setApplicationTags(appContext);</p>
+</li>
+<li><p>任务发布失败时添加<strong>ShutdownHook</strong></p>
+</li>
+<li><p>发布master</p>
+<figure class="highlight plain"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br></pre></td><td class="code"><pre><span class="line">yarnClient.submitApplication(appContext);</span><br><span class="line">采用while(true)发布，知道发布成功/失败/异常等</span><br></pre></td></tr></table></figure>
+</li>
+<li><p>发布成功后移除钩子</p>
+</li>
+</ul>
+<h1 id="发布入口类解析"><a href="#发布入口类解析" class="headerlink" title="发布入口类解析"></a>发布入口类解析</h1><ul>
+<li>入口类：org.apache.flink.client.cli.CliFrontend</li>
+</ul>
+<ul>
+<li><p>用于执行程序的简单命令行前端的实现。</p>
+</li>
+<li><p>main函数解析</p>
+<figure class="highlight plain"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br><span class="line">3</span><br><span class="line">4</span><br><span class="line">5</span><br></pre></td><td class="code"><pre><span class="line">#提交命令</span><br><span class="line"> /data/flink/test/jjg-test/flink-1.10.1/bin/flink run -d -m yarn-cluster -p 5 -yjm 2048 -ytm 8192 -ys 5 -yqu root.data.stream -ynm jjg-test-1.10kafka-consumer_jiangjiguang -yD taskmanager.memory.network.fraction=&quot;0.2&quot; -yD taskmanager.memory.managed.fraction=&quot;0.3&quot; -yD taskmanager.memory.framework.off-heap.size=&quot;500 mb&quot; -yD metrics.reporter.prom.labels=&quot;libra_job_name=jjg-test-1.10kafka-consumer;libra_job_owner=jiangjiguang@qutoutiao.net,yanggang@qutoutiao.net&quot; -yD env.java.opts=&quot;-server -XX:+UseConcMarkSweepGC -XX:+UseCMSInitiatingOccupancyOnly -XX:CMSInitiatingOccupancyFraction=75 -XX:ParallelGCThreads=4 -XX:+AlwaysPreTouch -XX:NewRatio=1 -DjobName=jjg-test-1.10kafka-consumer&quot; -c net.qutoutiao.libra.flink110.app.KafkaConsumerDemo /tmp/915622fbb5e7457a9d4149c039e893cb-15995463001176478074492659573282.jar --key1 v1 --key2 v2 --key3 v3 --job.name jjg-test-1.10kafka-consumer</span><br><span class="line"></span><br><span class="line">#main参数</span><br><span class="line">[run, -d, -m, yarn-cluster, -p, 5, -yjm, 2048, -ytm, 8192, -ys, 5, -yqu, root.data.stream, -ynm, jjg-test-1.10kafka-consumer_jiangjiguang, -yD, taskmanager.memory.network.fraction=0.2, -yD, taskmanager.memory.managed.fraction=0.3, -yD, taskmanager.memory.framework.off-heap.size=500 mb, -yD, metrics.reporter.prom.labels=libra_job_name=jjg-test-1.10kafka-consumer;libra_job_owner=jiangjiguang@qutoutiao.net,yanggang@qutoutiao.net, -yD, env.java.opts=-server -XX:+UseConcMarkSweepGC -XX:+UseCMSInitiatingOccupancyOnly -XX:CMSInitiatingOccupancyFraction=75 -XX:ParallelGCThreads=4 -XX:+AlwaysPreTouch -XX:NewRatio=1 -DjobName=jjg-test-1.10kafka-consumer, -c, net.qutoutiao.libra.flink110.app.KafkaConsumerDemo, /tmp/915622fbb5e7457a9d4149c039e893cb-15995463001176478074492659573282.jar, --key1, v1, --key2, v2, --key3, v3, --job.name, jjg-test-1.10kafka-consumer]</span><br></pre></td></tr></table></figure>
+</li>
+<li><p>可见main参数就是 提交命令</p>
+</li>
+<li><p>获取flink源码 版本和提交信息</p>
+<blockquote>
+<p>即flink任务 dashboard中的 右上角信息</p>
+</blockquote>
+</li>
+<li><p>获取FLINK_CONF_DIR 配置文件，得到全局配置</p>
+</li>
+</ul>
+<h1 id="生成StreamGraph"><a href="#生成StreamGraph" class="headerlink" title="生成StreamGraph"></a>生成StreamGraph</h1><h2 id="Transformation"><a href="#Transformation" class="headerlink" title="Transformation"></a>Transformation</h2><ul>
+<li><p>一共有11种Transformation</p>
+<blockquote>
+<p>1、PartitionTransformation：不是PhysicalTransformation，仅仅作用是上游operation如何连接下游operations</p>
+<p>2、SourceTransformation：是PhysicalTransformation，不会转变任何数据，但是是拓扑的root</p>
+<p>3、OneInputTransformation：是PhysicalTransformation</p>
+<p>4、TwoInputTransformation：是PhysicalTransformation</p>
+<p>5、SinkTransformation：是PhysicalTransformation</p>
+<p>6、UnionTransformation：不是PhysicalTransformation，多个Transformation的联合，仅仅作用是上游operation如何连接下游operations</p>
+<p>7、SplitTransformation：不是PhysicalTransformation，是将一个DataStream转化为多个DataStream，仅仅作用是上游operation如何连接下游operations</p>
+<p>8、SelectTransformation：不是PhysicalTransformation，选择上游的某种元素，然后转换成另一个DataStream</p>
+<p>9、FeedbackTransformation</p>
+<p>10、CoFeedbackTransformation</p>
+<p>11、SideOutputTransformation：不是PhysicalTransformation</p>
+</blockquote>
+</li>
+</ul>
+<ul>
+<li><p>重要属性</p>
+<blockquote>
+<p>1、每个Transformation都有个managedMemoryWeight的属性，也会设置到StreamGraph</p>
+<p>2、每个Transformation都有个input属性，input也是Transformation，是该Transformation的上游</p>
+<p>3、所有的Transformation是按照sink的在外层，上游是其input的规则链在一起</p>
+</blockquote>
+</li>
+<li><p>Transformation就是创建DataStream的一个operation</p>
+</li>
+<li><p>Transformation分为：PhysicalTransformation和非PhysicalTransformation</p>
+</li>
+<li><p>addOperator方法的参数就是Transformation</p>
+<blockquote>
+<p>创建operators必须调用此方法</p>
+</blockquote>
+</li>
+</ul>
+<h1 id="StreamGraph生成JobGraph"><a href="#StreamGraph生成JobGraph" class="headerlink" title="StreamGraph生成JobGraph"></a>StreamGraph生成JobGraph</h1><ul>
+<li><p>生成之前configuration的主要信息</p>
+<blockquote>
+<p>jobmanager.heap.size=2048m</p>
+<p>taskmanager.memory.process.size=8gb,</p>
+</blockquote>
+</li>
+<li><p>为StreamGraph的每个StreamNode产生hash值</p>
+<blockquote>
+<p>如果StreamNode设置了uid那么久根据uid生成hash</p>
+<p>如果没有设置uid，就会根据拓扑结构，入边、出边等生成hash值</p>
+</blockquote>
+</li>
+<li><p>setChaining</p>
+<blockquote>
+<p>从StreamNode是source的节点开始设置</p>
+<p>生成的结果是List<streamedge></streamedge></p>
+</blockquote>
+</li>
+<li><p>setPhysicalEdges</p>
+</li>
+<li><p>setSlotSharing</p>
+</li>
+<li><p>setCoLocation</p>
+</li>
+<li><p>setManagedMemoryFraction</p>
+</li>
+<li><p>​</p>
+</li>
+</ul>
+<h1 id="deployJobCluster"><a href="#deployJobCluster" class="headerlink" title="deployJobCluster"></a>deployJobCluster</h1><h1 id="参考文档"><a href="#参考文档" class="headerlink" title="参考文档"></a>参考文档</h1><p><a href="https://blog.csdn.net/lmalds/article/details/70174778" target="_blank" rel="noopener">Flink源码–CLI提交Job</a></p>
+<h1 id="deployInternal-1"><a href="#deployInternal-1" class="headerlink" title="deployInternal"></a>deployInternal</h1><ul>
+<li><p>入口方法</p>
+<figure class="highlight java"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br><span class="line">3</span><br><span class="line">4</span><br><span class="line">5</span><br><span class="line">6</span><br><span class="line">7</span><br><span class="line">8</span><br><span class="line">9</span><br></pre></td><td class="code"><pre><span class="line"><span class="comment">//java类</span></span><br><span class="line">org.apache.flink.yarn.YarnClusterDescriptor</span><br><span class="line"><span class="comment">//java方法</span></span><br><span class="line"><span class="function"><span class="keyword">private</span> ClusterClientProvider&lt;ApplicationId&gt; <span class="title">deployInternal</span><span class="params">(</span></span></span><br><span class="line"><span class="function"><span class="params">			ClusterSpecification clusterSpecification,</span></span></span><br><span class="line"><span class="function"><span class="params">			String applicationName,</span></span></span><br><span class="line"><span class="function"><span class="params">			String yarnClusterEntrypoint,</span></span></span><br><span class="line"><span class="function"><span class="params">			@Nullable JobGraph jobGraph,</span></span></span><br><span class="line"><span class="function"><span class="params">			<span class="keyword">boolean</span> detached)</span> <span class="keyword">throws</span> Exception</span></span><br></pre></td></tr></table></figure>
+</li>
+<li><p>isReadyForDeployment</p>
+<figure class="highlight plain"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br><span class="line">3</span><br></pre></td><td class="code"><pre><span class="line">检查flinkJarPath是否存在</span><br><span class="line">检查flinkConfiguration是否存在</span><br><span class="line">检查JM和TM的slot个数是否大于机器可用vcore</span><br></pre></td></tr></table></figure>
+</li>
+<li><p>checkYarnQueues</p>
+<figure class="highlight plain"><table><tr><td class="gutter"><pre><span class="line">1</span><br></pre></td><td class="code"><pre><span class="line">检查YARN 队列是否存在</span><br></pre></td></tr></table></figure>
+</li>
+<li><p>创建Yarn Application</p>
+<figure class="highlight plain"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br></pre></td><td class="code"><pre><span class="line">获取yarn集群的CPU和内存资源</span><br><span class="line">检查yarn集群的资源是否能够满足任务的需求</span><br></pre></td></tr></table></figure>
+
+<p>​</p>
+</li>
+</ul>
+<h1 id="启动JobMaster-1"><a href="#启动JobMaster-1" class="headerlink" title="启动JobMaster"></a>启动JobMaster</h1><ul>
+<li><p>入口方法</p>
+<figure class="highlight java"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br><span class="line">3</span><br><span class="line">4</span><br><span class="line">5</span><br><span class="line">6</span><br><span class="line">7</span><br><span class="line">8</span><br><span class="line">9</span><br><span class="line">10</span><br><span class="line">11</span><br><span class="line">12</span><br><span class="line">13</span><br><span class="line">14</span><br><span class="line">15</span><br><span class="line">16</span><br><span class="line">17</span><br><span class="line">18</span><br><span class="line">19</span><br><span class="line">20</span><br><span class="line">21</span><br><span class="line">22</span><br><span class="line">23</span><br><span class="line">24</span><br><span class="line">25</span><br><span class="line">26</span><br><span class="line">27</span><br><span class="line">28</span><br><span class="line">29</span><br><span class="line">30</span><br><span class="line">31</span><br><span class="line">32</span><br></pre></td><td class="code"><pre><span class="line"><span class="comment">//java类</span></span><br><span class="line">org.apache.flink.yarn.YarnClusterDescriptor</span><br><span class="line"><span class="comment">//java 方法</span></span><br><span class="line"><span class="function"><span class="keyword">private</span> ApplicationReport <span class="title">startAppMaster</span><span class="params">(</span></span></span><br><span class="line"><span class="function"><span class="params">			Configuration configuration,</span></span></span><br><span class="line"><span class="function"><span class="params">			String applicationName,</span></span></span><br><span class="line"><span class="function"><span class="params">			String yarnClusterEntrypoint,</span></span></span><br><span class="line"><span class="function"><span class="params">			JobGraph jobGraph,</span></span></span><br><span class="line"><span class="function"><span class="params">			YarnClient yarnClient,</span></span></span><br><span class="line"><span class="function"><span class="params">			YarnClientApplication yarnApplication,</span></span></span><br><span class="line"><span class="function"><span class="params">			ClusterSpecification clusterSpecification)</span> <span class="keyword">throws</span> Exception </span>&#123;</span><br><span class="line">  org.apache.flink.core.fs.FileSystem.initialize(</span><br><span class="line">				configuration,</span><br><span class="line">				PluginUtils.createPluginManagerFromRootFolder(configuration));</span><br><span class="line">  </span><br><span class="line">  <span class="comment">//设置高可用</span></span><br><span class="line">  <span class="keyword">if</span> (HighAvailabilityMode.isHighAvailabilityModeActivated(configuration)) &#123;</span><br><span class="line">			<span class="comment">// activate re-execution of failed applications</span></span><br><span class="line">			appContext.setMaxAppAttempts(</span><br><span class="line">					configuration.getInteger(</span><br><span class="line">							YarnConfigOptions.APPLICATION_ATTEMPTS.key(),</span><br><span class="line">							YarnConfiguration.DEFAULT_RM_AM_MAX_ATTEMPTS));</span><br><span class="line"></span><br><span class="line">			activateHighAvailabilitySupport(appContext);</span><br><span class="line">		&#125; <span class="keyword">else</span> &#123;</span><br><span class="line">			<span class="comment">// set number of application retries to 1 in the default case</span></span><br><span class="line">			appContext.setMaxAppAttempts(</span><br><span class="line">					configuration.getInteger(</span><br><span class="line">							YarnConfigOptions.APPLICATION_ATTEMPTS.key(),</span><br><span class="line">							<span class="number">1</span>));</span><br><span class="line">		&#125;</span><br><span class="line">&#125;</span><br></pre></td></tr></table></figure>
+</li>
+<li><p>初始化共享文件系统</p>
+<figure class="highlight java"><table><tr><td class="gutter"><pre><span class="line">1</span><br></pre></td><td class="code"><pre><span class="line"><span class="comment">//插件根目录：&#123;flink部署路径&#125;/plugins</span></span><br></pre></td></tr></table></figure>
+</li>
+<li><p>获取应用的jar文件</p>
+<figure class="highlight java"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br></pre></td><td class="code"><pre><span class="line"><span class="comment">//从jobGraph获取任务的jar包</span></span><br><span class="line">jobGraph.getUserJars()</span><br></pre></td></tr></table></figure>
+</li>
+<li><p>从本地复制文件到HDFS</p>
+<figure class="highlight java"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br><span class="line">3</span><br><span class="line">4</span><br><span class="line">5</span><br><span class="line">6</span><br><span class="line">7</span><br><span class="line">8</span><br><span class="line">9</span><br><span class="line">10</span><br><span class="line">11</span><br></pre></td><td class="code"><pre><span class="line"><span class="comment">//上传到HDFS的文件包括，</span></span><br><span class="line"><span class="comment">//上传地址：hdfs://rt2/user/qttods/.flink/application_1597847003686_1649</span></span><br><span class="line"><span class="comment">//qttods为hadoop提交用户</span></span><br><span class="line"><span class="comment">//上传文件包括：lib目录全部文件 + plugins目录全部文件 + log配置 + 任务jar包</span></span><br><span class="line">conf/log4j.properties</span><br><span class="line">lib<span class="comment">/*</span></span><br><span class="line"><span class="comment">/tmp/application_1597847003686_1649-flink-conf.yaml203382511937819807.tmp</span></span><br><span class="line"><span class="comment">/tmp/application_1597847003686_16496774392247977738481.tmp</span></span><br><span class="line"><span class="comment">任务jar包路径</span></span><br><span class="line"><span class="comment"></span></span><br><span class="line"><span class="comment">//最后把HDFS文件路径写到jobGraph的userArtifacts属性</span></span><br></pre></td></tr></table></figure>
+</li>
+<li><p>获取MasterContainer配置</p>
+<figure class="highlight shell"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br></pre></td><td class="code"><pre><span class="line"><span class="meta">#</span> amContainer实际的堆内存=配置 - 600MB</span><br><span class="line"><span class="meta">$</span>JAVA_HOME/bin/java -Xms1448m -Xmx1448m -server -XX:+UseConcMarkSweepGC -XX:+UseCMSInitiatingOccupancyOnly -XX:CMSInitiatingOccupancyFraction=75 -XX:ParallelGCThreads=4 -XX:+AlwaysPreTouch -XX:NewRatio=1 -DjobName=jjg-test-1.10kafka-consumer -Dlog.file="/jobmanager.log" -Dlog4j.configuration=file:log4j.properties org.apache.flink.yarn.entrypoint.YarnJobClusterEntrypoint 1&gt; /jobmanager.out 2&gt; /jobmanager.err</span><br></pre></td></tr></table></figure>
+</li>
+<li><p>设置MasterContainer的env</p>
+<figure class="highlight shell"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br><span class="line">3</span><br><span class="line">4</span><br><span class="line">5</span><br><span class="line">6</span><br><span class="line">7</span><br><span class="line">8</span><br><span class="line">9</span><br><span class="line">10</span><br><span class="line">11</span><br><span class="line">12</span><br><span class="line">13</span><br><span class="line">14</span><br><span class="line">15</span><br><span class="line">16</span><br><span class="line">17</span><br><span class="line">18</span><br><span class="line">19</span><br><span class="line">20</span><br><span class="line">21</span><br><span class="line">22</span><br><span class="line">23</span><br><span class="line">24</span><br></pre></td><td class="code"><pre><span class="line">&#123;</span><br><span class="line">    _APP_ID=application_1597847003686_1688,</span><br><span class="line">    _FLINK_YARN_FILES=hdfs: //rt2/user/qttods/.flink/application_1597847003686_1688,</span><br><span class="line">    HADOOP_USER_NAME=qttods,</span><br><span class="line">    _ZOOKEEPER_NAMESPACE=application_1597847003686_1688,</span><br><span class="line">    _FLINK_JAR_PATH=hdfs: //rt2/user/qttods/.flink/application_1597847003686_1688/flink-dist_2.11-1.10.1.jar,</span><br><span class="line">    _FLINK_CLASSPATH=: f449f5d4408548b89470470418ced176-1600328175015533266107575692596.jar: lib/aliyun-log-log4j-appender-0.1.13-shade.jar: lib/flink-avro-1.10.1.jar: lib/flink-csv-1.10.1.jar: lib/flink-json-1.10.1.jar: lib/flink-shaded-hadoop-2-uber-2.7.5-10.0.jar: lib/flink-table-blink_2.11-1.10.1.jar: lib/flink-table_2.11-1.10.1.jar: lib/log4j-1.2.17.jar: lib/slf4j-log4j12-1.7.15.jar: flink-dist_2.11-1.10.1.jar: flink-conf.yaml: job.graph: ,</span><br><span class="line">    _CLIENT_SHIP_FILES=log4j.properties=hdfs: //rt2/user/qttods/.flink/application_1597847003686_1688/log4j.properties,</span><br><span class="line">    lib/slf4j-log4j12-1.7.15.jar=hdfs: //rt2/user/qttods/.flink/application_1597847003686_1688/lib/slf4j-log4j12-1.7.15.jar,</span><br><span class="line">    lib/flink-shaded-hadoop-2-uber-2.7.5-10.0.jar=hdfs: //rt2/user/qttods/.flink/application_1597847003686_1688/lib/flink-shaded-hadoop-2-uber-2.7.5-10.0.jar,</span><br><span class="line">    lib/log4j-1.2.17.jar=hdfs: //rt2/user/qttods/.flink/application_1597847003686_1688/lib/log4j-1.2.17.jar,</span><br><span class="line">    lib/flink-table_2.11-1.10.1.jar=hdfs: //rt2/user/qttods/.flink/application_1597847003686_1688/lib/flink-table_2.11-1.10.1.jar,</span><br><span class="line">    lib/flink-avro-1.10.1.jar=hdfs: //rt2/user/qttods/.flink/application_1597847003686_1688/lib/flink-avro-1.10.1.jar,</span><br><span class="line">    lib/flink-csv-1.10.1.jar=hdfs: //rt2/user/qttods/.flink/application_1597847003686_1688/lib/flink-csv-1.10.1.jar,</span><br><span class="line">    lib/aliyun-log-log4j-appender-0.1.13-shade.jar=hdfs: //rt2/user/qttods/.flink/application_1597847003686_1688/lib/aliyun-log-log4j-appender-0.1.13-shade.jar,</span><br><span class="line">    lib/flink-json-1.10.1.jar=hdfs: //rt2/user/qttods/.flink/application_1597847003686_1688/lib/flink-json-1.10.1.jar,</span><br><span class="line">    lib/flink-table-blink_2.11-1.10.1.jar=hdfs: //rt2/user/qttods/.flink/application_1597847003686_1688/lib/flink-table-blink_2.11-1.10.1.jar,</span><br><span class="line">    plugins/README.txt=hdfs: //rt2/user/qttods/.flink/application_1597847003686_1688/plugins/README.txt,</span><br><span class="line">    f449f5d4408548b89470470418ced176-1600328175015533266107575692596.jar=hdfs: //rt2/user/qttods/.flink/application_1597847003686_1688/f449f5d4408548b89470470418ced176-1600328175015533266107575692596.jar,</span><br><span class="line">    flink-conf.yaml=hdfs: //rt2/user/qttods/.flink/application_1597847003686_1688/application_1597847003686_1688-flink-conf.yaml3364080218736489439.tmp,</span><br><span class="line">    ,</span><br><span class="line">    _CLIENT_HOME_DIR=hdfs: //rt2/user/qttods,</span><br><span class="line">    CLASSPATH=: f449f5d4408548b89470470418ced176-1600328175015533266107575692596.jar: lib/aliyun-log-log4j-appender-0.1.13-shade.jar: lib/flink-avro-1.10.1.jar: lib/flink-csv-1.10.1.jar: lib/flink-json-1.10.1.jar: lib/flink-shaded-hadoop-2-uber-2.7.5-10.0.jar: lib/flink-table-blink_2.11-1.10.1.jar: lib/flink-table_2.11-1.10.1.jar: lib/log4j-1.2.17.jar: lib/slf4j-log4j12-1.7.15.jar: flink-dist_2.11-1.10.1.jar: flink-conf.yaml: job.graph: : $HADOOP_CONF_DIR: $HADOOP_COMMON_HOME/share/hadoop/common/*: $HADOOP_COMMON_HOME/share/hadoop/common/lib/*: $HADOOP_HDFS_HOME/share/hadoop/hdfs/*: $HADOOP_HDFS_HOME/share/hadoop/hdfs/lib/*: $HADOOP_YARN_HOME/share/hadoop/yarn/*: $HADOOP_YARN_HOME/share/hadoop/yarn/lib/*: /opt/apps/extra-jars/*: $HADOOP_HOME/share/hadoop/tools/lib/*</span><br><span class="line">&#125;</span><br></pre></td></tr></table></figure>
+</li>
+<li><p>setApplicationNodeLabel(appContext);</p>
+</li>
+<li><p>setApplicationTags(appContext);</p>
+</li>
+<li><p>任务发布失败时添加<strong>ShutdownHook</strong></p>
+</li>
+<li><p>发布master</p>
+<figure class="highlight java"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br></pre></td><td class="code"><pre><span class="line">yarnClient.submitApplication(appContext);</span><br><span class="line">采用<span class="keyword">while</span>(<span class="keyword">true</span>)发布，知道发布成功/失败/异常等</span><br></pre></td></tr></table></figure>
+</li>
+<li><p>发布成功后移除钩子</p>
+</li>
+</ul>
+<h1 id="发布入口类解析-1"><a href="#发布入口类解析-1" class="headerlink" title="发布入口类解析"></a>发布入口类解析</h1><ul>
+<li>入口类：org.apache.flink.client.cli.CliFrontend</li>
+</ul>
+<ul>
+<li><p>用于执行程序的简单命令行前端的实现。</p>
+</li>
+<li><p>main函数解析</p>
+<figure class="highlight shell"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br><span class="line">3</span><br><span class="line">4</span><br><span class="line">5</span><br></pre></td><td class="code"><pre><span class="line"><span class="meta">#</span>提交命令</span><br><span class="line"> /data/flink/test/jjg-test/flink-1.10.1/bin/flink run -d -m yarn-cluster -p 5 -yjm 2048 -ytm 8192 -ys 5 -yqu root.data.stream -ynm jjg-test-1.10kafka-consumer_jiangjiguang -yD taskmanager.memory.network.fraction="0.2" -yD taskmanager.memory.managed.fraction="0.3" -yD taskmanager.memory.framework.off-heap.size="500 mb" -yD metrics.reporter.prom.labels="libra_job_name=jjg-test-1.10kafka-consumer;libra_job_owner=jiangjiguang@qutoutiao.net,yanggang@qutoutiao.net" -yD env.java.opts="-server -XX:+UseConcMarkSweepGC -XX:+UseCMSInitiatingOccupancyOnly -XX:CMSInitiatingOccupancyFraction=75 -XX:ParallelGCThreads=4 -XX:+AlwaysPreTouch -XX:NewRatio=1 -DjobName=jjg-test-1.10kafka-consumer" -c net.qutoutiao.libra.flink110.app.KafkaConsumerDemo /tmp/915622fbb5e7457a9d4149c039e893cb-15995463001176478074492659573282.jar --key1 v1 --key2 v2 --key3 v3 --job.name jjg-test-1.10kafka-consumer</span><br><span class="line"></span><br><span class="line"><span class="meta">#</span>main参数</span><br><span class="line">[run, -d, -m, yarn-cluster, -p, 5, -yjm, 2048, -ytm, 8192, -ys, 5, -yqu, root.data.stream, -ynm, jjg-test-1.10kafka-consumer_jiangjiguang, -yD, taskmanager.memory.network.fraction=0.2, -yD, taskmanager.memory.managed.fraction=0.3, -yD, taskmanager.memory.framework.off-heap.size=500 mb, -yD, metrics.reporter.prom.labels=libra_job_name=jjg-test-1.10kafka-consumer;libra_job_owner=jiangjiguang@qutoutiao.net,yanggang@qutoutiao.net, -yD, env.java.opts=-server -XX:+UseConcMarkSweepGC -XX:+UseCMSInitiatingOccupancyOnly -XX:CMSInitiatingOccupancyFraction=75 -XX:ParallelGCThreads=4 -XX:+AlwaysPreTouch -XX:NewRatio=1 -DjobName=jjg-test-1.10kafka-consumer, -c, net.qutoutiao.libra.flink110.app.KafkaConsumerDemo, /tmp/915622fbb5e7457a9d4149c039e893cb-15995463001176478074492659573282.jar, --key1, v1, --key2, v2, --key3, v3, --job.name, jjg-test-1.10kafka-consumer]</span><br></pre></td></tr></table></figure>
+</li>
+<li><p>可见main参数就是 提交命令</p>
+</li>
+<li><p>获取flink源码 版本和提交信息</p>
+<blockquote>
+<p>即flink任务 dashboard中的 右上角信息</p>
+</blockquote>
+</li>
+<li><p>获取FLINK_CONF_DIR 配置文件，得到全局配置</p>
+</li>
+</ul>
+<h1 id="生成StreamGraph-1"><a href="#生成StreamGraph-1" class="headerlink" title="生成StreamGraph"></a>生成StreamGraph</h1><h2 id="Transformation-1"><a href="#Transformation-1" class="headerlink" title="Transformation"></a>Transformation</h2><ul>
+<li><p>一共有11种Transformation</p>
+<blockquote>
+<p>1、PartitionTransformation：不是PhysicalTransformation，仅仅作用是上游operation如何连接下游operations</p>
+<p>2、SourceTransformation：是PhysicalTransformation，不会转变任何数据，但是是拓扑的root</p>
+<p>3、OneInputTransformation：是PhysicalTransformation</p>
+<p>4、TwoInputTransformation：是PhysicalTransformation</p>
+<p>5、SinkTransformation：是PhysicalTransformation</p>
+<p>6、UnionTransformation：不是PhysicalTransformation，多个Transformation的联合，仅仅作用是上游operation如何连接下游operations</p>
+<p>7、SplitTransformation：不是PhysicalTransformation，是将一个DataStream转化为多个DataStream，仅仅作用是上游operation如何连接下游operations</p>
+<p>8、SelectTransformation：不是PhysicalTransformation，选择上游的某种元素，然后转换成另一个DataStream</p>
+<p>9、FeedbackTransformation</p>
+<p>10、CoFeedbackTransformation</p>
+<p>11、SideOutputTransformation：不是PhysicalTransformation</p>
+</blockquote>
+</li>
+</ul>
+<ul>
+<li><p>重要属性</p>
+<blockquote>
+<p>1、每个Transformation都有个managedMemoryWeight的属性，也会设置到StreamGraph</p>
+<p>2、每个Transformation都有个input属性，input也是Transformation，是该Transformation的上游</p>
+<p>3、所有的Transformation是按照sink的在外层，上游是其input的规则链在一起</p>
+</blockquote>
+</li>
+<li><p>Transformation就是创建DataStream的一个operation</p>
+</li>
+<li><p>Transformation分为：PhysicalTransformation和非PhysicalTransformation</p>
+</li>
+<li><p>addOperator方法的参数就是Transformation</p>
+<blockquote>
+<p>创建operators必须调用此方法</p>
+</blockquote>
+</li>
+</ul>
+<h1 id="StreamGraph生成JobGraph-1"><a href="#StreamGraph生成JobGraph-1" class="headerlink" title="StreamGraph生成JobGraph"></a>StreamGraph生成JobGraph</h1><ul>
+<li><p>生成之前configuration的主要信息</p>
+<blockquote>
+<p>jobmanager.heap.size=2048m</p>
+<p>taskmanager.memory.process.size=8gb,</p>
+</blockquote>
+</li>
+<li><p>为StreamGraph的每个StreamNode产生hash值</p>
+<blockquote>
+<p>如果StreamNode设置了uid那么久根据uid生成hash</p>
+<p>如果没有设置uid，就会根据拓扑结构，入边、出边等生成hash值</p>
+</blockquote>
+</li>
+<li><p>setChaining</p>
+<blockquote>
+<p>从StreamNode是source的节点开始设置</p>
+<p>生成的结果是List<streamedge></streamedge></p>
+</blockquote>
+</li>
+<li><p>setPhysicalEdges</p>
+</li>
+<li><p>setSlotSharing</p>
+</li>
+<li><p>setCoLocation</p>
+</li>
+<li><p>setManagedMemoryFraction</p>
+</li>
+<li><p>​</p>
+</li>
+</ul>
+<h1 id="deployJobCluster-1"><a href="#deployJobCluster-1" class="headerlink" title="deployJobCluster"></a>deployJobCluster</h1><h1 id="参考文档-1"><a href="#参考文档-1" class="headerlink" title="参考文档"></a>参考文档</h1><p><a href="https://blog.csdn.net/lmalds/article/details/70174778" target="_blank" rel="noopener">Flink源码–CLI提交Job</a></p>
+
+    </div>
+
+    
+    
+    
+        
+      
+
+      <footer class="post-footer">
+          
+            
+          
+          <div class="post-tags">
+            
+              <a href="/tags/flink源码/" rel="tag"># flink源码</a>
+            
+          </div>
+        
+
+        
+
+          <div class="post-nav">
+            <div class="post-nav-next post-nav-item">
+              
+                <a href="/2020/09/08/linux/内存探究/" rel="next" title="内存探究">
+                  <i class="fa fa-chevron-left"></i> 内存探究
+                </a>
+              
+            </div>
+
+            <span class="post-nav-divider"></span>
+
+            <div class="post-nav-prev post-nav-item">
+              
+                <a href="/2020/09/08/flink/Flink任务进程/" rel="prev" title="Flink任务进程">
+                  Flink任务进程 <i class="fa fa-chevron-right"></i>
+                </a>
+              
+            </div>
+          </div>
+        
+      </footer>
+    
+  </article>
+  
+  
+  
+
+  </div>
+
+
+          </div>
+          
+
+        </div>
+          
+  
+  <div class="toggle sidebar-toggle">
+    <span class="toggle-line toggle-line-first"></span>
+    <span class="toggle-line toggle-line-middle"></span>
+    <span class="toggle-line toggle-line-last"></span>
+  </div>
+
+  <aside class="sidebar">
+    <div class="sidebar-inner">
+        
+        
+        
+        
+      
+
+      <ul class="sidebar-nav motion-element">
+        <li class="sidebar-nav-toc">
+          文章目录
+        </li>
+        <li class="sidebar-nav-overview">
+          站点概览
+        </li>
+      </ul>
+
+      <!--noindex-->
+      <div class="post-toc-wrap sidebar-panel">
+          <div class="post-toc motion-element"><ol class="nav"><li class="nav-item nav-level-1"><a class="nav-link" href="#提交流程图"><span class="nav-number">1.</span> <span class="nav-text">提交流程图</span></a><ol class="nav-child"><li class="nav-item nav-level-2"><a class="nav-link" href="#StreamNode"><span class="nav-number">1.1.</span> <span class="nav-text">StreamNode</span></a></li><li class="nav-item nav-level-2"><a class="nav-link" href="#StreamEdge"><span class="nav-number">1.2.</span> <span class="nav-text">StreamEdge</span></a></li><li class="nav-item nav-level-2"><a class="nav-link" href="#JobVertex"><span class="nav-number">1.3.</span> <span class="nav-text">JobVertex</span></a></li></ol></li><li class="nav-item nav-level-1"><a class="nav-link" href="#StreamGraph转JobGraph"><span class="nav-number">2.</span> <span class="nav-text">StreamGraph转JobGraph</span></a><ol class="nav-child"><li class="nav-item nav-level-2"><a class="nav-link" href="#JobGraph介绍"><span class="nav-number">2.1.</span> <span class="nav-text">JobGraph介绍</span></a></li><li class="nav-item nav-level-2"><a class="nav-link" href="#转换过程"><span class="nav-number">2.2.</span> <span class="nav-text">转换过程</span></a></li></ol></li><li class="nav-item nav-level-1"><a class="nav-link" href="#deployInternal"><span class="nav-number">3.</span> <span class="nav-text">deployInternal</span></a></li><li class="nav-item nav-level-1"><a class="nav-link" href="#启动JobMaster"><span class="nav-number">4.</span> <span class="nav-text">启动JobMaster</span></a></li><li class="nav-item nav-level-1"><a class="nav-link" href="#发布入口类解析"><span class="nav-number">5.</span> <span class="nav-text">发布入口类解析</span></a></li><li class="nav-item nav-level-1"><a class="nav-link" href="#生成StreamGraph"><span class="nav-number">6.</span> <span class="nav-text">生成StreamGraph</span></a><ol class="nav-child"><li class="nav-item nav-level-2"><a class="nav-link" href="#Transformation"><span class="nav-number">6.1.</span> <span class="nav-text">Transformation</span></a></li></ol></li><li class="nav-item nav-level-1"><a class="nav-link" href="#StreamGraph生成JobGraph"><span class="nav-number">7.</span> <span class="nav-text">StreamGraph生成JobGraph</span></a></li><li class="nav-item nav-level-1"><a class="nav-link" href="#deployJobCluster"><span class="nav-number">8.</span> <span class="nav-text">deployJobCluster</span></a></li><li class="nav-item nav-level-1"><a class="nav-link" href="#参考文档"><span class="nav-number">9.</span> <span class="nav-text">参考文档</span></a></li><li class="nav-item nav-level-1"><a class="nav-link" href="#deployInternal-1"><span class="nav-number">10.</span> <span class="nav-text">deployInternal</span></a></li><li class="nav-item nav-level-1"><a class="nav-link" href="#启动JobMaster-1"><span class="nav-number">11.</span> <span class="nav-text">启动JobMaster</span></a></li><li class="nav-item nav-level-1"><a class="nav-link" href="#发布入口类解析-1"><span class="nav-number">12.</span> <span class="nav-text">发布入口类解析</span></a></li><li class="nav-item nav-level-1"><a class="nav-link" href="#生成StreamGraph-1"><span class="nav-number">13.</span> <span class="nav-text">生成StreamGraph</span></a><ol class="nav-child"><li class="nav-item nav-level-2"><a class="nav-link" href="#Transformation-1"><span class="nav-number">13.1.</span> <span class="nav-text">Transformation</span></a></li></ol></li><li class="nav-item nav-level-1"><a class="nav-link" href="#StreamGraph生成JobGraph-1"><span class="nav-number">14.</span> <span class="nav-text">StreamGraph生成JobGraph</span></a></li><li class="nav-item nav-level-1"><a class="nav-link" href="#deployJobCluster-1"><span class="nav-number">15.</span> <span class="nav-text">deployJobCluster</span></a></li><li class="nav-item nav-level-1"><a class="nav-link" href="#参考文档-1"><span class="nav-number">16.</span> <span class="nav-text">参考文档</span></a></li></ol></div>
+        
+      </div>
+      <!--/noindex-->
+
+      <div class="site-overview-wrap sidebar-panel">
+        <div class="site-author motion-element" itemprop="author" itemscope itemtype="http://schema.org/Person">
+  <p class="site-author-name" itemprop="name">姜纪光</p>
+  <div class="site-description" itemprop="description"></div>
+</div>
+<div class="site-state-wrap motion-element">
+  <nav class="site-state">
+      <div class="site-state-item site-state-posts">
+        
+          <a href="/archives/">
+        
+          <span class="site-state-item-count">158</span>
+          <span class="site-state-item-name">日志</span>
+        </a>
+      </div>
+    
+      
+      
+      <div class="site-state-item site-state-categories">
+        
+          
+            <a href="/categories/">
+          
+        
+        <span class="site-state-item-count">26</span>
+        <span class="site-state-item-name">分类</span>
+        </a>
+      </div>
+    
+      
+      
+      <div class="site-state-item site-state-tags">
+        
+          
+            <a href="/tags/">
+          
+        
+        <span class="site-state-item-count">14</span>
+        <span class="site-state-item-name">标签</span>
+        </a>
+      </div>
+    
+  </nav>
+</div>
+
+
+
+      </div>
+
+    </div>
+  </aside>
+  <div id="sidebar-dimmer"></div>
+
+
+      </div>
+    </main>
+
+    <footer class="footer">
+      <div class="footer-inner">
+        
+
+<div class="copyright">
+  &copy; 
+  <span itemprop="copyrightYear">2021</span>
+  <span class="with-love">
+    <i class="fa fa-user"></i>
+  </span>
+  <span class="author" itemprop="copyrightHolder">姜纪光</span>
+</div>
+  <div class="powered-by">由 <a href="https://hexo.io" class="theme-link" rel="noopener" target="_blank">Hexo</a> 强力驱动 v3.9.0
+  </div>
+  <span class="post-meta-divider">|</span>
+  <div class="theme-info">
+      
+    主题 – <a href="https://mist.theme-next.org" class="theme-link" rel="noopener" target="_blank">NexT.Mist</a> v7.4.1
+  </div>
+
+        
+
+
+
+
+
+
+
+
+
+
+
+
+        
+      </div>
+    </footer>
+  </div>
+
+  
+  <script src="/lib/anime.min.js?v=3.1.0"></script>
+  <script src="/lib/velocity/velocity.min.js?v=1.2.1"></script>
+  <script src="/lib/velocity/velocity.ui.min.js?v=1.2.1"></script>
+<script src="/js/utils.js?v=7.4.1"></script><script src="/js/motion.js?v=7.4.1"></script>
+<script src="/js/schemes/muse.js?v=7.4.1"></script>
+
+<script src="/js/next-boot.js?v=7.4.1"></script>
+
+
+
+  
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+  
+
+  
+
+  
+
+
+<script>
+NexT.utils.getScript('//unpkg.com/valine/dist/Valine.min.js', () => {
+  var GUEST = ['nick', 'mail', 'link'];
+  var guest = 'nick,mail,link';
+  guest = guest.split(',').filter(item => {
+    return GUEST.includes(item);
+  });
+  new Valine({
+    el: '#comments',
+    verify: false,
+    notify: false,
+    appId: 'MIQC4jJTknc0hjNXDAiIuQ21-9Nh9j0Va',
+    appKey: 'vaiXpSQLLMglwYsVLOBLzck4',
+    placeholder: "Just go go",
+    avatar: 'mm',
+    meta: guest,
+    pageSize: '10' || 10,
+    visitor: true,
+    lang: 'zh-cn' || 'zh-cn',
+    path: location.pathname,
+    recordIP: false,
+    serverURLs: ''
+  });
+}, window.Valine);
+</script>
+
+</body>
+</html>

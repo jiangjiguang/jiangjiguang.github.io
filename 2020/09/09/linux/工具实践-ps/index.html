@@ -1,0 +1,631 @@
+<!DOCTYPE html>
+
+
+
+
+
+<html lang="zh-CN">
+<head>
+  <meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1, maximum-scale=2">
+<meta name="theme-color" content="#222">
+<meta name="generator" content="Hexo 3.9.0">
+  <link rel="apple-touch-icon" sizes="180x180" href="/images/apple-touch-icon-next.png?v=7.4.1">
+  <link rel="icon" type="image/png" sizes="32x32" href="/images/favicon-32x32-next.png?v=7.4.1">
+  <link rel="icon" type="image/png" sizes="16x16" href="/images/favicon-16x16-next.png?v=7.4.1">
+  <link rel="mask-icon" href="/images/logo.svg?v=7.4.1" color="#222">
+
+<link rel="stylesheet" href="/css/main.css?v=7.4.1">
+
+
+<link rel="stylesheet" href="/lib/font-awesome/css/font-awesome.min.css?v=4.7.0">
+
+
+<script id="hexo-configurations">
+  var NexT = window.NexT || {};
+  var CONFIG = {
+    root: '/',
+    scheme: 'Mist',
+    version: '7.4.1',
+    exturl: false,
+    sidebar: {"position":"right","display":"hide","offset":12,"onmobile":false},
+    copycode: {"enable":false,"show_result":false,"style":null},
+    back2top: {"enable":true,"sidebar":false,"scrollpercent":false},
+    bookmark: {"enable":false,"color":"#222","save":"auto"},
+    fancybox: false,
+    mediumzoom: false,
+    lazyload: false,
+    pangu: false,
+    algolia: {
+      appID: '',
+      apiKey: '',
+      indexName: '',
+      hits: {"per_page":10},
+      labels: {"input_placeholder":"Search for Posts","hits_empty":"We didn't find any results for the search: ${query}","hits_stats":"${hits} results found in ${time} ms"}
+    },
+    localsearch: {"enable":false,"trigger":"auto","top_n_per_article":1,"unescape":false,"preload":false},
+    path: '',
+    motion: {"enable":true,"async":false,"transition":{"post_block":"fadeIn","post_header":"slideDownIn","post_body":"slideDownIn","coll_header":"slideLeftIn","sidebar":"slideUpIn"}},
+    translation: {
+      copy_button: '复制',
+      copy_success: '复制成功',
+      copy_failure: '复制失败'
+    },
+    sidebarPadding: 40
+  };
+</script>
+
+  <meta name="description" content="说明 进程状态命令ps可以列出包括内存使用统计信息在内的所有进程细节  帮助命令 12$ man ps$ ps --help all    实用命令 输出所有数据项 1$ ps L			#第一列是-o 选项的参数，第二列的大写字母是命令输出的结果集标题栏名称  自定义输出选项 12$ ps -o sid,pgid	#自定义输出选项$ ps -O 			#添加默认输出选项  字段修饰选项 12#w选">
+<meta name="keywords" content="实用工具">
+<meta property="og:type" content="article">
+<meta property="og:title" content="工具实践-ps">
+<meta property="og:url" content="http://yoursite.com/2020/09/09/linux/工具实践-ps/index.html">
+<meta property="og:site_name" content="纪光的博客">
+<meta property="og:description" content="说明 进程状态命令ps可以列出包括内存使用统计信息在内的所有进程细节  帮助命令 12$ man ps$ ps --help all    实用命令 输出所有数据项 1$ ps L			#第一列是-o 选项的参数，第二列的大写字母是命令输出的结果集标题栏名称  自定义输出选项 12$ ps -o sid,pgid	#自定义输出选项$ ps -O 			#添加默认输出选项  字段修饰选项 12#w选">
+<meta property="og:locale" content="zh-CN">
+<meta property="og:updated_time" content="2021-06-20T04:19:35.163Z">
+<meta name="twitter:card" content="summary">
+<meta name="twitter:title" content="工具实践-ps">
+<meta name="twitter:description" content="说明 进程状态命令ps可以列出包括内存使用统计信息在内的所有进程细节  帮助命令 12$ man ps$ ps --help all    实用命令 输出所有数据项 1$ ps L			#第一列是-o 选项的参数，第二列的大写字母是命令输出的结果集标题栏名称  自定义输出选项 12$ ps -o sid,pgid	#自定义输出选项$ ps -O 			#添加默认输出选项  字段修饰选项 12#w选">
+  <link rel="canonical" href="http://yoursite.com/2020/09/09/linux/工具实践-ps/">
+
+
+<script id="page-configurations">
+  // https://hexo.io/docs/variables.html
+  CONFIG.page = {
+    sidebar: "",
+    isHome: false,
+    isPost: true,
+    isPage: false,
+    isArchive: false
+  };
+</script>
+
+  <title>工具实践-ps | 纪光的博客</title>
+  
+
+
+  <script>
+    var _hmt = _hmt || [];
+    (function() {
+      var hm = document.createElement("script");
+      hm.src = "https://hm.baidu.com/hm.js?bca403b673d79e83a47dc62fea1dd605";
+      var s = document.getElementsByTagName("script")[0];
+      s.parentNode.insertBefore(hm, s);
+    })();
+  </script>
+
+
+
+
+
+
+  <noscript>
+  <style>
+  .use-motion .brand,
+  .use-motion .menu-item,
+  .sidebar-inner,
+  .use-motion .post-block,
+  .use-motion .pagination,
+  .use-motion .comments,
+  .use-motion .post-header,
+  .use-motion .post-body,
+  .use-motion .collection-header { opacity: initial; }
+
+  .use-motion .site-title,
+  .use-motion .site-subtitle {
+    opacity: initial;
+    top: initial;
+  }
+
+  .use-motion .logo-line-before i { left: initial; }
+  .use-motion .logo-line-after i { right: initial; }
+  </style>
+</noscript>
+
+</head>
+
+<body itemscope itemtype="http://schema.org/WebPage">
+  <div class="container use-motion">
+    <div class="headband"></div>
+
+    <header class="header" itemscope itemtype="http://schema.org/WPHeader">
+      <div class="header-inner"><div class="site-brand-container">
+  <div class="site-meta">
+
+    <div>
+      <a href="/" class="brand" rel="start">
+        <span class="logo-line-before"><i></i></span>
+        <span class="site-title">纪光的博客</span>
+        <span class="logo-line-after"><i></i></span>
+      </a>
+    </div>
+  </div>
+
+  <div class="site-nav-toggle">
+    <div class="toggle" aria-label="切换导航栏">
+      <span class="toggle-line toggle-line-first"></span>
+      <span class="toggle-line toggle-line-middle"></span>
+      <span class="toggle-line toggle-line-last"></span>
+    </div>
+  </div>
+</div>
+
+
+<nav class="site-nav">
+  
+  <ul id="menu" class="menu">
+      
+      
+        
+        
+        <li class="menu-item menu-item-home">
+      
+    
+
+    <a href="/" rel="section"><i class="fa fa-fw fa-home"></i>首页</a>
+
+  </li>
+      
+    
+      
+      
+        
+        
+        <li class="menu-item menu-item-categories">
+      
+    
+
+    <a href="/categories/" rel="section"><i class="fa fa-fw fa-th"></i>分类</a>
+
+  </li>
+      
+    
+      
+      
+        
+        
+        <li class="menu-item menu-item-tags">
+      
+    
+
+    <a href="/tags/" rel="section"><i class="fa fa-fw fa-tags"></i>标签</a>
+
+  </li>
+      
+    
+      
+      
+        
+        
+        <li class="menu-item menu-item-archives">
+      
+    
+
+    <a href="/archives/" rel="section"><i class="fa fa-fw fa-archive"></i>归档</a>
+
+  </li>
+      
+    
+      
+      
+        
+        
+        <li class="menu-item menu-item-about">
+      
+    
+
+    <a href="/about/" rel="section"><i class="fa fa-fw fa-user"></i>关于</a>
+
+  </li>
+      
+    
+  </ul>
+
+    
+
+</nav>
+</div>
+    </header>
+
+    
+  <div class="back-to-top">
+    <i class="fa fa-arrow-up"></i>
+    <span>0%</span>
+  </div>
+
+
+    <main class="main">
+      <div class="main-inner">
+        <div class="content-wrap">
+          <div class="content">
+            
+
+  <div class="posts-expand">
+      
+  
+  
+  <article itemscope itemtype="http://schema.org/Article" class="post-block " lang="zh-CN">
+    <link itemprop="mainEntityOfPage" href="http://yoursite.com/2020/09/09/linux/工具实践-ps/">
+
+    <span hidden itemprop="author" itemscope itemtype="http://schema.org/Person">
+      <meta itemprop="name" content="姜纪光">
+      <meta itemprop="description" content="">
+      <meta itemprop="image" content="/images/avatar.gif">
+    </span>
+
+    <span hidden itemprop="publisher" itemscope itemtype="http://schema.org/Organization">
+      <meta itemprop="name" content="纪光的博客">
+    </span>
+      <header class="post-header">
+        <h1 class="post-title" itemprop="name headline">
+          
+            工具实践-ps
+            
+
+          
+        </h1>
+
+        <div class="post-meta">
+            <span class="post-meta-item">
+              <span class="post-meta-item-icon">
+                <i class="fa fa-calendar-o"></i>
+              </span>
+              <span class="post-meta-item-text">发表于</span>
+
+              
+                
+              
+
+              <time title="创建时间：2020-09-09 17:45:11" itemprop="dateCreated datePublished" datetime="2020-09-09T17:45:11+08:00">2020-09-09</time>
+            </span>
+          
+            
+
+            
+              <span class="post-meta-item">
+                <span class="post-meta-item-icon">
+                  <i class="fa fa-calendar-check-o"></i>
+                </span>
+                <span class="post-meta-item-text">更新于</span>
+                <time title="修改时间：2021-06-20 12:19:35" itemprop="dateModified" datetime="2021-06-20T12:19:35+08:00">2021-06-20</time>
+              </span>
+            
+          
+            <span class="post-meta-item">
+              <span class="post-meta-item-icon">
+                <i class="fa fa-folder-o"></i>
+              </span>
+              <span class="post-meta-item-text">分类于</span>
+              
+                <span itemprop="about" itemscope itemtype="http://schema.org/Thing">
+                  <a href="/categories/linux/" itemprop="url" rel="index">
+                    <span itemprop="name">linux</span>
+                  </a>
+                </span>
+
+                
+                
+              
+            </span>
+          
+
+          
+            <span id="/2020/09/09/linux/工具实践-ps/" class="post-meta-item leancloud_visitors" data-flag-title="工具实践-ps" title="阅读次数">
+              <span class="post-meta-item-icon">
+                <i class="fa fa-eye"></i>
+              </span>
+              <span class="post-meta-item-text">阅读次数：</span>
+              <span class="leancloud-visitors-count"></span>
+            </span>
+          
+  
+  
+
+        </div>
+      </header>
+
+    
+    
+    
+    <div class="post-body" itemprop="articleBody">
+
+      
+        <h1 id="说明"><a href="#说明" class="headerlink" title="说明"></a>说明</h1><ul>
+<li><p>进程状态命令<strong>ps</strong>可以列出包括内存使用统计信息在内的所有进程细节</p>
+</li>
+<li><p>帮助命令</p>
+<figure class="highlight shell"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br></pre></td><td class="code"><pre><span class="line"><span class="meta">$</span> man ps</span><br><span class="line"><span class="meta">$</span> ps --help all</span><br></pre></td></tr></table></figure>
+
+</li>
+</ul>
+<h1 id="实用命令"><a href="#实用命令" class="headerlink" title="实用命令"></a>实用命令</h1><ul>
+<li><p>输出所有数据项</p>
+<figure class="highlight shell"><table><tr><td class="gutter"><pre><span class="line">1</span><br></pre></td><td class="code"><pre><span class="line"><span class="meta">$</span> ps L			#第一列是-o 选项的参数，第二列的大写字母是命令输出的结果集标题栏名称</span><br></pre></td></tr></table></figure>
+</li>
+<li><p>自定义输出选项</p>
+<figure class="highlight shell"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br></pre></td><td class="code"><pre><span class="line"><span class="meta">$</span> ps -o sid,pgid	#自定义输出选项</span><br><span class="line"><span class="meta">$</span> ps -O 			#添加默认输出选项</span><br></pre></td></tr></table></figure>
+</li>
+<li><p>字段修饰选项</p>
+<figure class="highlight shell"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br></pre></td><td class="code"><pre><span class="line"><span class="meta">#</span>w选项会拓宽屏幕，显示完整的进程命令信息</span><br><span class="line"><span class="meta">$</span> ps -e u wwww</span><br></pre></td></tr></table></figure>
+
+</li>
+</ul>
+<h1 id="常用字段"><a href="#常用字段" class="headerlink" title="常用字段"></a>常用字段</h1><ul>
+<li><p>进程ID类字段</p>
+<figure class="highlight shell"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br><span class="line">3</span><br><span class="line">4</span><br><span class="line">5</span><br><span class="line">6</span><br><span class="line">7</span><br></pre></td><td class="code"><pre><span class="line">pid:	进程ID</span><br><span class="line">ppid:	父进程ID</span><br><span class="line">pgid:	进程组ID</span><br><span class="line">tid: 	进程的线程ID</span><br><span class="line">nlwp:	当前线程组中线程的个数</span><br><span class="line">sid:	会话ID</span><br><span class="line">tpgid:	进程连接到的tty(终端)所在的前台进程组的ID</span><br></pre></td></tr></table></figure>
+</li>
+<li><p>CPU时间和使用率字段</p>
+<figure class="highlight shell"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br><span class="line">3</span><br><span class="line">4</span><br></pre></td><td class="code"><pre><span class="line"><span class="meta">#</span> 记录了进程所消耗的CPU时间片和CPU使用率信息</span><br><span class="line"><span class="meta">$</span> ps -e -o bsdtime,cputime,pcpu,cp,c</span><br><span class="line">cp:	单位是千分比，不能超过999</span><br><span class="line">c:	是百分比，不能超过99</span><br></pre></td></tr></table></figure>
+</li>
+<li><p>进程内存相关字段</p>
+<figure class="highlight shell"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br><span class="line">3</span><br><span class="line">4</span><br><span class="line">5</span><br><span class="line">6</span><br><span class="line">7</span><br><span class="line">8</span><br><span class="line">9</span><br><span class="line">10</span><br><span class="line">11</span><br></pre></td><td class="code"><pre><span class="line"><span class="meta">$</span> ps -e -o drs,vsz,size,sz,rss,trs,pmem,minflt,majflt k -rss</span><br><span class="line"></span><br><span class="line">vsz(virtual memory size):	表示进程所申请的虚拟地址空间的内存大小，单位KB。在64位系统中，每个进程都有128TB大小的堆内存虚拟地址空间的内存空间大小。vsz值并不反映进程占用的真正物理内存大小。</span><br><span class="line">rss(resident set size):	表示进程真正占用了的物理内存大小，单位KB</span><br><span class="line">pmem:	表示进程占用的物理内存大小(rss)占本机总物理内存大小百分比</span><br><span class="line">trs(text resident set size):	表示用于可执行代码的物理内存大小，约等于进程的程序尺寸大小</span><br><span class="line">drs(data resident set size):	表示可执行代码之外的内存大小，实际基本等于vsz减去trs的值</span><br><span class="line">size:	表示如果进程交换到磁盘所需的交换空间大小</span><br><span class="line">sz:		表示进程在物理页面中的核心镜像的大小</span><br><span class="line">minflt:	表示此进程中发生的次缺页异常的数量</span><br><span class="line">majflt:	表示此进程中发生的主缺页异常的数量</span><br></pre></td></tr></table></figure>
+
+<p>​</p>
+</li>
+<li><p>命令名字段</p>
+<figure class="highlight shell"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br><span class="line">3</span><br></pre></td><td class="code"><pre><span class="line"><span class="meta">$</span> ps -e -o fname,ucmd,cmd </span><br><span class="line">ucmd:	短命令名字段</span><br><span class="line">cmd:	长命令名字段</span><br></pre></td></tr></table></figure>
+</li>
+<li><p>进程状态字段</p>
+<figure class="highlight shell"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br><span class="line">3</span><br><span class="line">4</span><br><span class="line">5</span><br><span class="line">6</span><br><span class="line">7</span><br><span class="line">8</span><br><span class="line">9</span><br></pre></td><td class="code"><pre><span class="line"><span class="meta">$</span> ps -e -o s,state,stat</span><br><span class="line">字段s和state互为别名，值为单字节进程状态</span><br><span class="line">stat:	多字节进程状态</span><br><span class="line">&lt;:	表示nice值小于0，nice值最小为-20</span><br><span class="line">N: 	表示nice值大于0，nice值最大为19。因此字符'N'表示此进程可能在调度过程中不能获得优势。</span><br><span class="line">L:	表示进程vm_lock值为真，即此进程有内存页被锁在内存中，这些内存页不能通过换页换出</span><br><span class="line">s:	表示进程的tgid(pid)值等于进程的session(sid)值，这说明当前进程是会话的leader</span><br><span class="line">l:	表示进程中的线程数量大于1，这说明当前进程是一个多线程程序</span><br><span class="line">+:	表示进程的pgrp(pgid)值等于进程的tpgid前台进程组ID，这表示当前进程在前台进程组中</span><br></pre></td></tr></table></figure>
+</li>
+<li><p>时钟(系统)时间类字段</p>
+<figure class="highlight shell"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br></pre></td><td class="code"><pre><span class="line"><span class="meta">#</span> 记录了进程开始时间点和运行的时长信息，4个记录进程开始时间点，2个记录进程执行时长信息</span><br><span class="line"><span class="meta">$</span> ps -e -o lstart,start,bsdstart,stime,etimes,etime</span><br></pre></td></tr></table></figure>
+
+<p>​</p>
+</li>
+</ul>
+<h1 id="常用选项"><a href="#常用选项" class="headerlink" title="常用选项"></a>常用选项</h1><figure class="highlight shell"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br><span class="line">3</span><br><span class="line">4</span><br><span class="line">5</span><br><span class="line">6</span><br><span class="line">7</span><br></pre></td><td class="code"><pre><span class="line">-e: 显示所有进程的记录</span><br><span class="line">h:  隐藏输出结果的标题栏信息</span><br><span class="line">k:  对结果排序</span><br><span class="line">-L: 把多线程的进程展开每个线程的细颗粒度</span><br><span class="line">-l: 列出进程的最基本信息</span><br><span class="line">u:	列出cpu使用率、mem使用率、rss内存等字段信息</span><br><span class="line">-o: 自定义输出字段</span><br></pre></td></tr></table></figure>
+
+<h1 id="参考文档"><a href="#参考文档" class="headerlink" title="参考文档"></a>参考文档</h1><p><a href="https://blog.csdn.net/juS3Ve/article/details/89007912" target="_blank" rel="noopener">史上最全Linux ps命令详解</a></p>
+
+    </div>
+
+    
+    
+    
+        
+      
+
+      <footer class="post-footer">
+          
+            
+          
+          <div class="post-tags">
+            
+              <a href="/tags/实用工具/" rel="tag"># 实用工具</a>
+            
+          </div>
+        
+
+        
+
+          <div class="post-nav">
+            <div class="post-nav-next post-nav-item">
+              
+                <a href="/2020/09/09/linux/工具实践-slabtop/" rel="next" title="工具实践-slabtop">
+                  <i class="fa fa-chevron-left"></i> 工具实践-slabtop
+                </a>
+              
+            </div>
+
+            <span class="post-nav-divider"></span>
+
+            <div class="post-nav-prev post-nav-item">
+              
+                <a href="/2020/09/22/linux/CPU探究/" rel="prev" title="CPU探究">
+                  CPU探究 <i class="fa fa-chevron-right"></i>
+                </a>
+              
+            </div>
+          </div>
+        
+      </footer>
+    
+  </article>
+  
+  
+  
+
+  </div>
+
+
+          </div>
+          
+
+        </div>
+          
+  
+  <div class="toggle sidebar-toggle">
+    <span class="toggle-line toggle-line-first"></span>
+    <span class="toggle-line toggle-line-middle"></span>
+    <span class="toggle-line toggle-line-last"></span>
+  </div>
+
+  <aside class="sidebar">
+    <div class="sidebar-inner">
+        
+        
+        
+        
+      
+
+      <ul class="sidebar-nav motion-element">
+        <li class="sidebar-nav-toc">
+          文章目录
+        </li>
+        <li class="sidebar-nav-overview">
+          站点概览
+        </li>
+      </ul>
+
+      <!--noindex-->
+      <div class="post-toc-wrap sidebar-panel">
+          <div class="post-toc motion-element"><ol class="nav"><li class="nav-item nav-level-1"><a class="nav-link" href="#说明"><span class="nav-number">1.</span> <span class="nav-text">说明</span></a></li><li class="nav-item nav-level-1"><a class="nav-link" href="#实用命令"><span class="nav-number">2.</span> <span class="nav-text">实用命令</span></a></li><li class="nav-item nav-level-1"><a class="nav-link" href="#常用字段"><span class="nav-number">3.</span> <span class="nav-text">常用字段</span></a></li><li class="nav-item nav-level-1"><a class="nav-link" href="#常用选项"><span class="nav-number">4.</span> <span class="nav-text">常用选项</span></a></li><li class="nav-item nav-level-1"><a class="nav-link" href="#参考文档"><span class="nav-number">5.</span> <span class="nav-text">参考文档</span></a></li></ol></div>
+        
+      </div>
+      <!--/noindex-->
+
+      <div class="site-overview-wrap sidebar-panel">
+        <div class="site-author motion-element" itemprop="author" itemscope itemtype="http://schema.org/Person">
+  <p class="site-author-name" itemprop="name">姜纪光</p>
+  <div class="site-description" itemprop="description"></div>
+</div>
+<div class="site-state-wrap motion-element">
+  <nav class="site-state">
+      <div class="site-state-item site-state-posts">
+        
+          <a href="/archives/">
+        
+          <span class="site-state-item-count">158</span>
+          <span class="site-state-item-name">日志</span>
+        </a>
+      </div>
+    
+      
+      
+      <div class="site-state-item site-state-categories">
+        
+          
+            <a href="/categories/">
+          
+        
+        <span class="site-state-item-count">26</span>
+        <span class="site-state-item-name">分类</span>
+        </a>
+      </div>
+    
+      
+      
+      <div class="site-state-item site-state-tags">
+        
+          
+            <a href="/tags/">
+          
+        
+        <span class="site-state-item-count">14</span>
+        <span class="site-state-item-name">标签</span>
+        </a>
+      </div>
+    
+  </nav>
+</div>
+
+
+
+      </div>
+
+    </div>
+  </aside>
+  <div id="sidebar-dimmer"></div>
+
+
+      </div>
+    </main>
+
+    <footer class="footer">
+      <div class="footer-inner">
+        
+
+<div class="copyright">
+  &copy; 
+  <span itemprop="copyrightYear">2021</span>
+  <span class="with-love">
+    <i class="fa fa-user"></i>
+  </span>
+  <span class="author" itemprop="copyrightHolder">姜纪光</span>
+</div>
+  <div class="powered-by">由 <a href="https://hexo.io" class="theme-link" rel="noopener" target="_blank">Hexo</a> 强力驱动 v3.9.0
+  </div>
+  <span class="post-meta-divider">|</span>
+  <div class="theme-info">
+      
+    主题 – <a href="https://mist.theme-next.org" class="theme-link" rel="noopener" target="_blank">NexT.Mist</a> v7.4.1
+  </div>
+
+        
+
+
+
+
+
+
+
+
+
+
+
+
+        
+      </div>
+    </footer>
+  </div>
+
+  
+  <script src="/lib/anime.min.js?v=3.1.0"></script>
+  <script src="/lib/velocity/velocity.min.js?v=1.2.1"></script>
+  <script src="/lib/velocity/velocity.ui.min.js?v=1.2.1"></script>
+<script src="/js/utils.js?v=7.4.1"></script><script src="/js/motion.js?v=7.4.1"></script>
+<script src="/js/schemes/muse.js?v=7.4.1"></script>
+
+<script src="/js/next-boot.js?v=7.4.1"></script>
+
+
+
+  
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+  
+
+  
+
+  
+
+
+<script>
+NexT.utils.getScript('//unpkg.com/valine/dist/Valine.min.js', () => {
+  var GUEST = ['nick', 'mail', 'link'];
+  var guest = 'nick,mail,link';
+  guest = guest.split(',').filter(item => {
+    return GUEST.includes(item);
+  });
+  new Valine({
+    el: '#comments',
+    verify: false,
+    notify: false,
+    appId: 'MIQC4jJTknc0hjNXDAiIuQ21-9Nh9j0Va',
+    appKey: 'vaiXpSQLLMglwYsVLOBLzck4',
+    placeholder: "Just go go",
+    avatar: 'mm',
+    meta: guest,
+    pageSize: '10' || 10,
+    visitor: true,
+    lang: 'zh-cn' || 'zh-cn',
+    path: location.pathname,
+    recordIP: false,
+    serverURLs: ''
+  });
+}, window.Valine);
+</script>
+
+</body>
+</html>

@@ -1,0 +1,695 @@
+<!DOCTYPE html>
+
+
+
+
+
+<html lang="zh-CN">
+<head>
+  <meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1, maximum-scale=2">
+<meta name="theme-color" content="#222">
+<meta name="generator" content="Hexo 3.9.0">
+  <link rel="apple-touch-icon" sizes="180x180" href="/images/apple-touch-icon-next.png?v=7.4.1">
+  <link rel="icon" type="image/png" sizes="32x32" href="/images/favicon-32x32-next.png?v=7.4.1">
+  <link rel="icon" type="image/png" sizes="16x16" href="/images/favicon-16x16-next.png?v=7.4.1">
+  <link rel="mask-icon" href="/images/logo.svg?v=7.4.1" color="#222">
+
+<link rel="stylesheet" href="/css/main.css?v=7.4.1">
+
+
+<link rel="stylesheet" href="/lib/font-awesome/css/font-awesome.min.css?v=4.7.0">
+
+
+<script id="hexo-configurations">
+  var NexT = window.NexT || {};
+  var CONFIG = {
+    root: '/',
+    scheme: 'Mist',
+    version: '7.4.1',
+    exturl: false,
+    sidebar: {"position":"right","display":"hide","offset":12,"onmobile":false},
+    copycode: {"enable":false,"show_result":false,"style":null},
+    back2top: {"enable":true,"sidebar":false,"scrollpercent":false},
+    bookmark: {"enable":false,"color":"#222","save":"auto"},
+    fancybox: false,
+    mediumzoom: false,
+    lazyload: false,
+    pangu: false,
+    algolia: {
+      appID: '',
+      apiKey: '',
+      indexName: '',
+      hits: {"per_page":10},
+      labels: {"input_placeholder":"Search for Posts","hits_empty":"We didn't find any results for the search: ${query}","hits_stats":"${hits} results found in ${time} ms"}
+    },
+    localsearch: {"enable":false,"trigger":"auto","top_n_per_article":1,"unescape":false,"preload":false},
+    path: '',
+    motion: {"enable":true,"async":false,"transition":{"post_block":"fadeIn","post_header":"slideDownIn","post_body":"slideDownIn","coll_header":"slideLeftIn","sidebar":"slideUpIn"}},
+    translation: {
+      copy_button: '复制',
+      copy_success: '复制成功',
+      copy_failure: '复制失败'
+    },
+    sidebarPadding: 40
+  };
+</script>
+
+  <meta name="description" content="概述​    Hadoop分布式文件系统实现了一个和POSIX系统类似的文件和目录的权限模型。每个文件和目录有一个所有者（owner）和一个组（group）。文件或目录对其所有者、同组的其他用户以及所有其他用户分别有着不同的权限。对文件而言，当读取这个文件时需要有r权限，当写入或者追加到文件时需要有w权限。对目录而言，当列出目录内容时需要具有r权限，当新建或删除子文件或子目录时需要有w权限，当访问">
+<meta property="og:type" content="article">
+<meta property="og:title" content="HDFS权限控制总结">
+<meta property="og:url" content="http://yoursite.com/2020/07/07/hadoop/HDFS权限控制总结/index.html">
+<meta property="og:site_name" content="纪光的博客">
+<meta property="og:description" content="概述​    Hadoop分布式文件系统实现了一个和POSIX系统类似的文件和目录的权限模型。每个文件和目录有一个所有者（owner）和一个组（group）。文件或目录对其所有者、同组的其他用户以及所有其他用户分别有着不同的权限。对文件而言，当读取这个文件时需要有r权限，当写入或者追加到文件时需要有w权限。对目录而言，当列出目录内容时需要具有r权限，当新建或删除子文件或子目录时需要有w权限，当访问">
+<meta property="og:locale" content="zh-CN">
+<meta property="og:updated_time" content="2021-06-20T04:19:35.149Z">
+<meta name="twitter:card" content="summary">
+<meta name="twitter:title" content="HDFS权限控制总结">
+<meta name="twitter:description" content="概述​    Hadoop分布式文件系统实现了一个和POSIX系统类似的文件和目录的权限模型。每个文件和目录有一个所有者（owner）和一个组（group）。文件或目录对其所有者、同组的其他用户以及所有其他用户分别有着不同的权限。对文件而言，当读取这个文件时需要有r权限，当写入或者追加到文件时需要有w权限。对目录而言，当列出目录内容时需要具有r权限，当新建或删除子文件或子目录时需要有w权限，当访问">
+  <link rel="canonical" href="http://yoursite.com/2020/07/07/hadoop/HDFS权限控制总结/">
+
+
+<script id="page-configurations">
+  // https://hexo.io/docs/variables.html
+  CONFIG.page = {
+    sidebar: "",
+    isHome: false,
+    isPost: true,
+    isPage: false,
+    isArchive: false
+  };
+</script>
+
+  <title>HDFS权限控制总结 | 纪光的博客</title>
+  
+
+
+  <script>
+    var _hmt = _hmt || [];
+    (function() {
+      var hm = document.createElement("script");
+      hm.src = "https://hm.baidu.com/hm.js?bca403b673d79e83a47dc62fea1dd605";
+      var s = document.getElementsByTagName("script")[0];
+      s.parentNode.insertBefore(hm, s);
+    })();
+  </script>
+
+
+
+
+
+
+  <noscript>
+  <style>
+  .use-motion .brand,
+  .use-motion .menu-item,
+  .sidebar-inner,
+  .use-motion .post-block,
+  .use-motion .pagination,
+  .use-motion .comments,
+  .use-motion .post-header,
+  .use-motion .post-body,
+  .use-motion .collection-header { opacity: initial; }
+
+  .use-motion .site-title,
+  .use-motion .site-subtitle {
+    opacity: initial;
+    top: initial;
+  }
+
+  .use-motion .logo-line-before i { left: initial; }
+  .use-motion .logo-line-after i { right: initial; }
+  </style>
+</noscript>
+
+</head>
+
+<body itemscope itemtype="http://schema.org/WebPage">
+  <div class="container use-motion">
+    <div class="headband"></div>
+
+    <header class="header" itemscope itemtype="http://schema.org/WPHeader">
+      <div class="header-inner"><div class="site-brand-container">
+  <div class="site-meta">
+
+    <div>
+      <a href="/" class="brand" rel="start">
+        <span class="logo-line-before"><i></i></span>
+        <span class="site-title">纪光的博客</span>
+        <span class="logo-line-after"><i></i></span>
+      </a>
+    </div>
+  </div>
+
+  <div class="site-nav-toggle">
+    <div class="toggle" aria-label="切换导航栏">
+      <span class="toggle-line toggle-line-first"></span>
+      <span class="toggle-line toggle-line-middle"></span>
+      <span class="toggle-line toggle-line-last"></span>
+    </div>
+  </div>
+</div>
+
+
+<nav class="site-nav">
+  
+  <ul id="menu" class="menu">
+      
+      
+        
+        
+        <li class="menu-item menu-item-home">
+      
+    
+
+    <a href="/" rel="section"><i class="fa fa-fw fa-home"></i>首页</a>
+
+  </li>
+      
+    
+      
+      
+        
+        
+        <li class="menu-item menu-item-categories">
+      
+    
+
+    <a href="/categories/" rel="section"><i class="fa fa-fw fa-th"></i>分类</a>
+
+  </li>
+      
+    
+      
+      
+        
+        
+        <li class="menu-item menu-item-tags">
+      
+    
+
+    <a href="/tags/" rel="section"><i class="fa fa-fw fa-tags"></i>标签</a>
+
+  </li>
+      
+    
+      
+      
+        
+        
+        <li class="menu-item menu-item-archives">
+      
+    
+
+    <a href="/archives/" rel="section"><i class="fa fa-fw fa-archive"></i>归档</a>
+
+  </li>
+      
+    
+      
+      
+        
+        
+        <li class="menu-item menu-item-about">
+      
+    
+
+    <a href="/about/" rel="section"><i class="fa fa-fw fa-user"></i>关于</a>
+
+  </li>
+      
+    
+  </ul>
+
+    
+
+</nav>
+</div>
+    </header>
+
+    
+  <div class="back-to-top">
+    <i class="fa fa-arrow-up"></i>
+    <span>0%</span>
+  </div>
+
+
+    <main class="main">
+      <div class="main-inner">
+        <div class="content-wrap">
+          <div class="content">
+            
+
+  <div class="posts-expand">
+      
+  
+  
+  <article itemscope itemtype="http://schema.org/Article" class="post-block " lang="zh-CN">
+    <link itemprop="mainEntityOfPage" href="http://yoursite.com/2020/07/07/hadoop/HDFS权限控制总结/">
+
+    <span hidden itemprop="author" itemscope itemtype="http://schema.org/Person">
+      <meta itemprop="name" content="姜纪光">
+      <meta itemprop="description" content="">
+      <meta itemprop="image" content="/images/avatar.gif">
+    </span>
+
+    <span hidden itemprop="publisher" itemscope itemtype="http://schema.org/Organization">
+      <meta itemprop="name" content="纪光的博客">
+    </span>
+      <header class="post-header">
+        <h1 class="post-title" itemprop="name headline">
+          
+            HDFS权限控制总结
+            
+
+          
+        </h1>
+
+        <div class="post-meta">
+            <span class="post-meta-item">
+              <span class="post-meta-item-icon">
+                <i class="fa fa-calendar-o"></i>
+              </span>
+              <span class="post-meta-item-text">发表于</span>
+
+              
+                
+              
+
+              <time title="创建时间：2020-07-07 14:04:27" itemprop="dateCreated datePublished" datetime="2020-07-07T14:04:27+08:00">2020-07-07</time>
+            </span>
+          
+            
+
+            
+              <span class="post-meta-item">
+                <span class="post-meta-item-icon">
+                  <i class="fa fa-calendar-check-o"></i>
+                </span>
+                <span class="post-meta-item-text">更新于</span>
+                <time title="修改时间：2021-06-20 12:19:35" itemprop="dateModified" datetime="2021-06-20T12:19:35+08:00">2021-06-20</time>
+              </span>
+            
+          
+            <span class="post-meta-item">
+              <span class="post-meta-item-icon">
+                <i class="fa fa-folder-o"></i>
+              </span>
+              <span class="post-meta-item-text">分类于</span>
+              
+                <span itemprop="about" itemscope itemtype="http://schema.org/Thing">
+                  <a href="/categories/hadoop/" itemprop="url" rel="index">
+                    <span itemprop="name">hadoop</span>
+                  </a>
+                </span>
+
+                
+                
+              
+            </span>
+          
+
+          
+            <span id="/2020/07/07/hadoop/HDFS权限控制总结/" class="post-meta-item leancloud_visitors" data-flag-title="HDFS权限控制总结" title="阅读次数">
+              <span class="post-meta-item-icon">
+                <i class="fa fa-eye"></i>
+              </span>
+              <span class="post-meta-item-text">阅读次数：</span>
+              <span class="leancloud-visitors-count"></span>
+            </span>
+          
+  
+  
+
+        </div>
+      </header>
+
+    
+    
+    
+    <div class="post-body" itemprop="articleBody">
+
+      
+        <h1 id="概述"><a href="#概述" class="headerlink" title="概述"></a>概述</h1><p>​    Hadoop分布式文件系统实现了一个和POSIX系统类似的文件和目录的权限模型。每个文件和目录有一个所有者（owner）和一个组（group）。文件或目录对其所有者、同组的其他用户以及所有其他用户分别有着不同的权限。对文件而言，当读取这个文件时需要有<em>r</em>权限，当写入或者追加到文件时需要有w权限。对目录而言，当列出目录内容时需要具有r权限，当新建或删除子文件或子目录时需要有<em>w</em>权限，当访问目录的子节点时需要有x权限。</p>
+<p>​    不同于POSIX模型，HDFS权限模型中的文件没有sticky，setuid、setgid位，因为这里没有可执行文件的概念。为了简单起见，这里也没有目录的sticky，setuid或setgid位。Sticky bit 可以设置在目录上，用来防止除了超级用户、目录所有者、文件所有者以外的任何人删除或者移动目录文件。Sticky bit 对文件无效。总的来说，文件或目录的权限就是它的模式（mode）。</p>
+<p>​    HDFS采用了Unix表示和显示模式的习惯，包括使用八进制数来表示权限。当新建一个文件或目录，它的所有者即客户进程的用户，它的所属组是父目录的组（BSD的规定）。</p>
+<p>​    HDFS还提供对POSIX ACL（访问控制列表）的可选支持，以针对特定命名用户或命名组的更细粒度的规则来扩展文件权限。 本文档后面将详细讨论ACL。</p>
+<p>​    每个访问HDFS的用户进程的标识分为两个部分，分别是用户名和组名列表。每次用户进程访问一个文件或目录foo，HDFS都要对其进行权限检查：</p>
+<ul>
+<li>如果用户即foo的所有者，则检查所有者的访问权限；</li>
+<li>如果foo关联的组在组名列表中出现，则检查组用户的访问权限；</li>
+<li>否则检查foo其他用户的访问权限。</li>
+</ul>
+<p>如果权限检查失败，则客户的操作会失败。</p>
+<h1 id="用户身份（User-Identity）"><a href="#用户身份（User-Identity）" class="headerlink" title="用户身份（User Identity）"></a>用户身份（User Identity）</h1><p>​    从Hadoop 0.22开始，Hadoop支持两种不同的操作模式来确定用户的身份，该模式由hadoop.security.authentication属性指定：</p>
+<ul>
+<li><p>simple</p>
+<blockquote>
+<p>在这种操作模式下，客户端进程的身份由主机操作系统确定。 在类似Unix的系统上，用户名等效于“ whoami”。</p>
+</blockquote>
+</li>
+<li><p>kerberos</p>
+<blockquote>
+<p>在Kerberized操作中，客户端进程的身份由其Kerberos凭据确定。</p>
+<p>例如，在以Kerberized环境中，用户可以使用kinit实用程序来获取Kerberos票证授予票证（TGT），并使用klist来确定其当前主体。 将Kerberos主体映射到HDFS用户名时，除主组件外的所有组件都将放弃。 例如，principal todd/foobar@CORP.COMPANY.COM将充当HDFS上的简单用户名todd。</p>
+<p>无论操作模式如何，用户标识机制都是HDFS本身固有的。 HDFS中没有用于创建用户身份，建立组或处理用户凭据的规定。</p>
+</blockquote>
+</li>
+</ul>
+<h1 id="Group-Mapping"><a href="#Group-Mapping" class="headerlink" title="Group Mapping"></a>Group Mapping</h1><p>​    一旦username被确定之后，组将由hadoop.security.group.mapping属性配置的组映射服务确定。</p>
+<p> 默认实现org.apache.hadoop.security.JniBasedUnixGroupsMappingWithFallback将确定Java本机接口（JNI）是否可用。 如果JNI可用，则实现将使用hadoop中的API来解析用户的组列表。 如果JNI不可用，则使用外壳程序实现org.apache.hadoop.security.ShellBasedUnixGroupsMapping。 此实现用bash -c groups命令（对于Linux / Unix环境）或net group命令（对于Windows环境）来解决，以为用户解析组列表。</p>
+<p>​    可通过org.apache.hadoop.security.LdapGroupsMapping获得直接连接到LDAP服务器以解析组列表的替代实现。 但是，仅当必需的组仅驻留在LDAP中并且不在Unix服务器上实现时，才应使用此提供程序。 Javadocs中提供了有关配置组映射服务的更多信息。</p>
+<p>​    对于HDFS，用户到组的映射是在NameNode上执行的。 因此，NameNode的主机系统配置确定了用户的组映射。请注意，HDFS将用户或文件或目录组存储为字符串。 没有用户和组标识号的转换，这是Unix中的常规方法。</p>
+<h1 id="超级用户（The-Super-User）"><a href="#超级用户（The-Super-User）" class="headerlink" title="超级用户（The Super-User）"></a>超级用户（The Super-User）</h1><p>​    超级用户是与名称节点进程本身具有相同标识的用户。如果您启动了名称节点，那么您就是超级用户。 超级用户可以执行任何操作，因为权限检查永远不会失败。谁是超级用户并没有持久的观念。 当名称节点启动时，进程标识确定谁是当前的超级用户。 HDFS超级用户不必是名称节点主机的超级用户，也不必所有群集都具有相同的超级用户。 另外，在个人工作站上运行HDFS的实验人员可以方便地成为该安装的超级用户，而无需进行任何配置。</p>
+<p>  管理员可以使用配置参数来识别专有组。 如果设置，则该组的成员也是超级用户，必须在nn中添加该用户。</p>
+<h1 id="ACL（访问控制列表）"><a href="#ACL（访问控制列表）" class="headerlink" title="ACL（访问控制列表）"></a>ACL（访问控制列表）</h1><p>ACL提供了一种方法，可以为特定的命名用户或命名组设置不同的权限，而不仅仅是文件的所有者和文件的组。</p>
+<p>默认情况下，禁用对ACL的支持，并且NameNode禁止创建ACL。 要启用对ACL的支持，请在NameNode配置中将dfs.namenode.acls.enabled设置为true。</p>
+<p>​    ACL由一组ACL条目组成。 每个ACL条目都为一个特定的用户或组命名，并授予或拒绝对该特定用户或组的读取，写入和执行权限。 例如：</p>
+<blockquote>
+<figure class="highlight shell"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br><span class="line">3</span><br><span class="line">4</span><br><span class="line">5</span><br><span class="line">6</span><br><span class="line">7</span><br><span class="line">8</span><br><span class="line">9</span><br><span class="line">10</span><br></pre></td><td class="code"><pre><span class="line"><span class="meta">&gt;</span> $ hdfs dfs -getfacl hdfs://rt1/user/cpc</span><br><span class="line"><span class="meta">&gt;</span> # file: hdfs://rt1/user/cpc   //文件名</span><br><span class="line"><span class="meta">&gt;</span> # owner: cpc                  //文件所属者</span><br><span class="line"><span class="meta">&gt;</span> # group: hadoop               //文件所属组</span><br><span class="line"><span class="meta">&gt;</span> user::rwx                     //文件所属者权限</span><br><span class="line"><span class="meta">&gt;</span> user:cpc:rwx                  //cpc用户的权限</span><br><span class="line"><span class="meta">&gt;</span> group::rwx                    //同组用户权限</span><br><span class="line"><span class="meta">&gt;</span> mask::rwx                     //mask权限</span><br><span class="line"><span class="meta">&gt;</span> other::r-x                    //其它者权限</span><br><span class="line"><span class="meta">&gt;</span></span><br></pre></td></tr></table></figure>
+</blockquote>
+<p>​    值得一提的是mask权限：</p>
+<blockquote>
+<p>有效权限(mask) 即用户或组所设置的权限必须要存在于mask的权限设置范围内才会生效</p>
+</blockquote>
+<p>只有目录可以具有默认的ACL。 创建新文件或子目录后，它将自动将其父级的默认ACL复制到其自己的访问ACL中。 新的子目录还将其复制到其自己的默认ACL。 这样，当创建新的子目录时，将通过文件系统树的任意深层次向下复制默认ACL。</p>
+<p>​    对于默认的umask 022，对于新目录为755，对于新文件为644。</p>
+<p>​    考虑具有ACL的文件时，权限检查算法更改为：</p>
+<ul>
+<li>如果用户名与文件的所有者匹配，则将测试所有者权限</li>
+<li>否则，如果用户名与命名的用户条目之一中的名称匹配，则将测试这些许可权，并通过掩码许可权进行过滤；否则，将对这些许可权进行测试。</li>
+<li>否则，如果文件组与组列表中的任何成员匹配，并且如果由掩码过滤的这些权限授予访问权限，则使用这些权限；否则，将使用这些权限。</li>
+<li>否则，如果存在与组列表成员匹配的命名组条目，并且如果这些权限由掩码授予访问权限过滤，则将使用这些权限；否则，将使用这些权限。</li>
+<li>否则，如果文件组或任何命名的组条目与组列表的成员相匹配，但是任何这些权限均未授予访问权限，则访问被拒绝；</li>
+<li>否则，将测试文件的其他权限。</li>
+</ul>
+<p>​    最佳实践是依靠传统的权限位来实现大多数权限要求，并定义较少数量的ACL以通过一些例外规则来扩展权限位。 与仅具有权限位的文件相比，带有ACL的文件会在NameNode中的内存中产生额外的开销。</p>
+<h2 id="ACLs-Shell-Commands"><a href="#ACLs-Shell-Commands" class="headerlink" title="ACLs Shell Commands"></a>ACLs Shell Commands</h2><ul>
+<li><p>getfacl</p>
+<blockquote>
+<p>显示文件和目录的访问控制列表（ACL）。 如果目录具有默认ACL，则getfacl还将显示默认ACL。</p>
+<p>hdfs dfs -getfacl [-R] <path></path></p>
+<p>-R: 以递归方式列出所有文件和目录的ACL。</p>
+<p>​</p>
+</blockquote>
+</li>
+<li><p>setfacl   设置文件和目录的访问控制列表（ACL）</p>
+<blockquote>
+<p>hdfs dfs -setfacl -R|[–set <acl_spec> <path>]</path></acl_spec></p>
+<p>-b: 删除基本ACL条目以外的所有条目。保留用户，组和其他条目以与权限位兼容。<br>-k: 删除默认ACL。default<br>-R: 以递归方式将操作应用于所有文件和目录。常用。<br>-m: 修改ACL。新条目将添加到ACL，并保留现有条目。常用。<br>-x: 删除指定的ACL条目。保留其他ACL条目。常用。<br>–set: 完全替换ACL，丢弃所有现有条目。 acl_spec必须包含用户，组和其他条目，以便与权限位兼容。<br>acl_spec: 逗号分隔的ACL条目列表。<br>path: 要修改的文件或目录。</p>
+<p>示例：</p>
+<p>hdfs dfs -setfacl -m user:hadoop:rw- /file<br>hdfs dfs -setfacl -x user:hadoop /file<br>hdfs dfs -setfacl -b /file<br>hdfs dfs -setfacl -k /dir<br>hdfs dfs -setfacl –set user::rw-,user:hadoop:rw-,group::r–,other::r– /file<br>hdfs dfs -setfacl -R -m user:hadoop:r-x /dir<br>hdfs dfs -setfacl -m default:user:hadoop:r-x /dir</p>
+</blockquote>
+</li>
+<li><p>hdfs dfs -ls path</p>
+<blockquote>
+<p>ls的输出将在带有ACL的任何文件或目录的权限字符串后附加一个’+’字符。</p>
+</blockquote>
+</li>
+</ul>
+<h1 id="配置参数"><a href="#配置参数" class="headerlink" title="配置参数"></a>配置参数</h1><p>​    均在hdfs-site.xml中配置</p>
+<ul>
+<li><p>dfs.permissions.enabled = true</p>
+<blockquote>
+<p>true开启权限系统，false关闭权限检查，但是其它所有行为保持不变。</p>
+<p>从一个参数值切换到另一个参数值不会更改模式，所有者或文件或目录组。 </p>
+<p>无论权限是打开还是关闭，chmod，chgrp，chown和setfacl都会始终检查权限。 </p>
+<p>这些功能仅在权限上下文中有用，因此不存在向后兼容性问题。 此外，这允许管理员在打开常规权限检查之前可靠地设置所有者和权限。</p>
+</blockquote>
+</li>
+<li><p>dfs.web.ugi = webuser,webgroup</p>
+<blockquote>
+<p>Web服务器要使用的用户名。 将此设置为超级用户的名称将允许任何Web客户端查看所有内容。 将其更改为其他方式未使用的身份，可使Web客户端仅查看使用“其他”权限可见的内容。 可以将其他组添加到以逗号分隔的列表中。</p>
+<p>一般不需要配置</p>
+</blockquote>
+</li>
+<li><p>dfs.permissions.superusergroup = supergroup</p>
+<blockquote>
+<p>设置超级用户组，超级用户组的所有用户都具有超级权限</p>
+</blockquote>
+</li>
+<li><p>fs.permissions.umask-mode = 022</p>
+<blockquote>
+<p>创建文件和目录时使用的umask</p>
+</blockquote>
+</li>
+<li><p>dfs.cluster.administrators = ACL-for-admins</p>
+<blockquote>
+<p>指定为ACL的群集的管理员。 这控制了谁可以访问HDFS中的默认servlet等。</p>
+</blockquote>
+</li>
+<li><p>dfs.namenode.acls.enabled = true</p>
+<blockquote>
+<p>设置为true以启用对HDFS ACL（访问控制列表）的支持。 默认情况下，禁用ACL。 禁用ACL时，NameNode拒绝所有设置ACL的尝试。</p>
+</blockquote>
+</li>
+</ul>
+<h1 id="用户代理"><a href="#用户代理" class="headerlink" title="用户代理"></a>用户代理</h1><p>​    作用是让超级用户superuser模拟一个普通用户来执行任务。比如用户stream通过yarn提交一个任务到集群上，如果不设置用户代理，那么就会以启动yarn进程的用户来提交任务,这样任务就显示为yarn，无法判断是哪个用户提交了任务。当开始proxy功能后，会以yarn模拟stream来提交任务，任务的提交者是yarn，但显示为stream。</p>
+<p>   以用户stream使用代理用户yarn提交作业为例，当用户stream提交作业时，yarn会接管该作业，负责作业资源的申请及监管。但其中若遇到读取HDFS文件时，要判断是否有使用该文件的权限，此时使用的用户是stream，作业运行完后，作业列表中显示该作业的用户也是stream。当然，除此之外，剩下的工作都由yarn负责，以体现“代理”的作用。</p>
+<h1 id="参考文档"><a href="#参考文档" class="headerlink" title="参考文档"></a>参考文档</h1><p><a href="https://hadoop.apache.org/docs/r2.6.0/hadoop-project-dist/hadoop-hdfs/HdfsPermissionsGuide.html" target="_blank" rel="noopener">HDFS Permissions Guide</a></p>
+<p><a href="https://www.cnblogs.com/zwCHAN/p/4686054.html" target="_blank" rel="noopener">hadoop用户和权限</a></p>
+<p><a href="https://www.maiyewang.com/archives/17122" target="_blank" rel="noopener">hadoop的用户代理机制</a></p>
+<p><a href="https://cloud.tencent.com/developer/article/1404750" target="_blank" rel="noopener">HDFS ACL权限设置</a></p>
+<p><a href="https://blog.51cto.com/guodong810/1176427" target="_blank" rel="noopener">linux ACL权限规划</a></p>
+
+    </div>
+
+    
+    
+    
+        
+      
+
+      <footer class="post-footer">
+
+        
+
+          <div class="post-nav">
+            <div class="post-nav-next post-nav-item">
+              
+                <a href="/2020/07/06/hadoop/HDFS-Federation/" rel="next" title="HDFS Federation">
+                  <i class="fa fa-chevron-left"></i> HDFS Federation
+                </a>
+              
+            </div>
+
+            <span class="post-nav-divider"></span>
+
+            <div class="post-nav-prev post-nav-item">
+              
+                <a href="/2020/07/10/flink/flink问题排查-Connection-unexpectedly-closed-by-remote-task-manager/" rel="prev" title="flink问题排查-Connection unexpectedly closed by remote task manager">
+                  flink问题排查-Connection unexpectedly closed by remote task manager <i class="fa fa-chevron-right"></i>
+                </a>
+              
+            </div>
+          </div>
+        
+      </footer>
+    
+  </article>
+  
+  
+  
+
+  </div>
+
+
+          </div>
+          
+
+        </div>
+          
+  
+  <div class="toggle sidebar-toggle">
+    <span class="toggle-line toggle-line-first"></span>
+    <span class="toggle-line toggle-line-middle"></span>
+    <span class="toggle-line toggle-line-last"></span>
+  </div>
+
+  <aside class="sidebar">
+    <div class="sidebar-inner">
+        
+        
+        
+        
+      
+
+      <ul class="sidebar-nav motion-element">
+        <li class="sidebar-nav-toc">
+          文章目录
+        </li>
+        <li class="sidebar-nav-overview">
+          站点概览
+        </li>
+      </ul>
+
+      <!--noindex-->
+      <div class="post-toc-wrap sidebar-panel">
+          <div class="post-toc motion-element"><ol class="nav"><li class="nav-item nav-level-1"><a class="nav-link" href="#概述"><span class="nav-number">1.</span> <span class="nav-text">概述</span></a></li><li class="nav-item nav-level-1"><a class="nav-link" href="#用户身份（User-Identity）"><span class="nav-number">2.</span> <span class="nav-text">用户身份（User Identity）</span></a></li><li class="nav-item nav-level-1"><a class="nav-link" href="#Group-Mapping"><span class="nav-number">3.</span> <span class="nav-text">Group Mapping</span></a></li><li class="nav-item nav-level-1"><a class="nav-link" href="#超级用户（The-Super-User）"><span class="nav-number">4.</span> <span class="nav-text">超级用户（The Super-User）</span></a></li><li class="nav-item nav-level-1"><a class="nav-link" href="#ACL（访问控制列表）"><span class="nav-number">5.</span> <span class="nav-text">ACL（访问控制列表）</span></a><ol class="nav-child"><li class="nav-item nav-level-2"><a class="nav-link" href="#ACLs-Shell-Commands"><span class="nav-number">5.1.</span> <span class="nav-text">ACLs Shell Commands</span></a></li></ol></li><li class="nav-item nav-level-1"><a class="nav-link" href="#配置参数"><span class="nav-number">6.</span> <span class="nav-text">配置参数</span></a></li><li class="nav-item nav-level-1"><a class="nav-link" href="#用户代理"><span class="nav-number">7.</span> <span class="nav-text">用户代理</span></a></li><li class="nav-item nav-level-1"><a class="nav-link" href="#参考文档"><span class="nav-number">8.</span> <span class="nav-text">参考文档</span></a></li></ol></div>
+        
+      </div>
+      <!--/noindex-->
+
+      <div class="site-overview-wrap sidebar-panel">
+        <div class="site-author motion-element" itemprop="author" itemscope itemtype="http://schema.org/Person">
+  <p class="site-author-name" itemprop="name">姜纪光</p>
+  <div class="site-description" itemprop="description"></div>
+</div>
+<div class="site-state-wrap motion-element">
+  <nav class="site-state">
+      <div class="site-state-item site-state-posts">
+        
+          <a href="/archives/">
+        
+          <span class="site-state-item-count">158</span>
+          <span class="site-state-item-name">日志</span>
+        </a>
+      </div>
+    
+      
+      
+      <div class="site-state-item site-state-categories">
+        
+          
+            <a href="/categories/">
+          
+        
+        <span class="site-state-item-count">26</span>
+        <span class="site-state-item-name">分类</span>
+        </a>
+      </div>
+    
+      
+      
+      <div class="site-state-item site-state-tags">
+        
+          
+            <a href="/tags/">
+          
+        
+        <span class="site-state-item-count">14</span>
+        <span class="site-state-item-name">标签</span>
+        </a>
+      </div>
+    
+  </nav>
+</div>
+
+
+
+      </div>
+
+    </div>
+  </aside>
+  <div id="sidebar-dimmer"></div>
+
+
+      </div>
+    </main>
+
+    <footer class="footer">
+      <div class="footer-inner">
+        
+
+<div class="copyright">
+  &copy; 
+  <span itemprop="copyrightYear">2021</span>
+  <span class="with-love">
+    <i class="fa fa-user"></i>
+  </span>
+  <span class="author" itemprop="copyrightHolder">姜纪光</span>
+</div>
+  <div class="powered-by">由 <a href="https://hexo.io" class="theme-link" rel="noopener" target="_blank">Hexo</a> 强力驱动 v3.9.0
+  </div>
+  <span class="post-meta-divider">|</span>
+  <div class="theme-info">
+      
+    主题 – <a href="https://mist.theme-next.org" class="theme-link" rel="noopener" target="_blank">NexT.Mist</a> v7.4.1
+  </div>
+
+        
+
+
+
+
+
+
+
+
+
+
+
+
+        
+      </div>
+    </footer>
+  </div>
+
+  
+  <script src="/lib/anime.min.js?v=3.1.0"></script>
+  <script src="/lib/velocity/velocity.min.js?v=1.2.1"></script>
+  <script src="/lib/velocity/velocity.ui.min.js?v=1.2.1"></script>
+<script src="/js/utils.js?v=7.4.1"></script><script src="/js/motion.js?v=7.4.1"></script>
+<script src="/js/schemes/muse.js?v=7.4.1"></script>
+
+<script src="/js/next-boot.js?v=7.4.1"></script>
+
+
+
+  
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+  
+
+  
+
+  
+
+
+<script>
+NexT.utils.getScript('//unpkg.com/valine/dist/Valine.min.js', () => {
+  var GUEST = ['nick', 'mail', 'link'];
+  var guest = 'nick,mail,link';
+  guest = guest.split(',').filter(item => {
+    return GUEST.includes(item);
+  });
+  new Valine({
+    el: '#comments',
+    verify: false,
+    notify: false,
+    appId: 'MIQC4jJTknc0hjNXDAiIuQ21-9Nh9j0Va',
+    appKey: 'vaiXpSQLLMglwYsVLOBLzck4',
+    placeholder: "Just go go",
+    avatar: 'mm',
+    meta: guest,
+    pageSize: '10' || 10,
+    visitor: true,
+    lang: 'zh-cn' || 'zh-cn',
+    path: location.pathname,
+    recordIP: false,
+    serverURLs: ''
+  });
+}, window.Valine);
+</script>
+
+</body>
+</html>

@@ -1,0 +1,758 @@
+<!DOCTYPE html>
+
+
+
+
+
+<html lang="zh-CN">
+<head>
+  <meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1, maximum-scale=2">
+<meta name="theme-color" content="#222">
+<meta name="generator" content="Hexo 3.9.0">
+  <link rel="apple-touch-icon" sizes="180x180" href="/images/apple-touch-icon-next.png?v=7.4.1">
+  <link rel="icon" type="image/png" sizes="32x32" href="/images/favicon-32x32-next.png?v=7.4.1">
+  <link rel="icon" type="image/png" sizes="16x16" href="/images/favicon-16x16-next.png?v=7.4.1">
+  <link rel="mask-icon" href="/images/logo.svg?v=7.4.1" color="#222">
+
+<link rel="stylesheet" href="/css/main.css?v=7.4.1">
+
+
+<link rel="stylesheet" href="/lib/font-awesome/css/font-awesome.min.css?v=4.7.0">
+
+
+<script id="hexo-configurations">
+  var NexT = window.NexT || {};
+  var CONFIG = {
+    root: '/',
+    scheme: 'Mist',
+    version: '7.4.1',
+    exturl: false,
+    sidebar: {"position":"right","display":"hide","offset":12,"onmobile":false},
+    copycode: {"enable":false,"show_result":false,"style":null},
+    back2top: {"enable":true,"sidebar":false,"scrollpercent":false},
+    bookmark: {"enable":false,"color":"#222","save":"auto"},
+    fancybox: false,
+    mediumzoom: false,
+    lazyload: false,
+    pangu: false,
+    algolia: {
+      appID: '',
+      apiKey: '',
+      indexName: '',
+      hits: {"per_page":10},
+      labels: {"input_placeholder":"Search for Posts","hits_empty":"We didn't find any results for the search: ${query}","hits_stats":"${hits} results found in ${time} ms"}
+    },
+    localsearch: {"enable":false,"trigger":"auto","top_n_per_article":1,"unescape":false,"preload":false},
+    path: '',
+    motion: {"enable":true,"async":false,"transition":{"post_block":"fadeIn","post_header":"slideDownIn","post_body":"slideDownIn","coll_header":"slideLeftIn","sidebar":"slideUpIn"}},
+    translation: {
+      copy_button: '复制',
+      copy_success: '复制成功',
+      copy_failure: '复制失败'
+    },
+    sidebarPadding: 40
+  };
+</script>
+
+  <meta name="description" content="生命周期概述​    按照JVM规范，一个Java文件从被加载到被卸载共分为5个阶段：  加载  1.加载就是将Java类的字节码文件加载到机器内存中，并在内存中构建出Java类的原型-类模板对象。 2.类模板对象就是Java类在JVM内存中的一个快照，JVM将从字节码文件中解析出常量池、类字段、类方法等信息存储到类模板中 3.类模板在JDK被存储在metaSpace区 4.JVM会对字节码文件格">
+<meta property="og:type" content="article">
+<meta property="og:title" content="类生命周期">
+<meta property="og:url" content="http://yoursite.com/2020/08/05/java/类生命周期/index.html">
+<meta property="og:site_name" content="纪光的博客">
+<meta property="og:description" content="生命周期概述​    按照JVM规范，一个Java文件从被加载到被卸载共分为5个阶段：  加载  1.加载就是将Java类的字节码文件加载到机器内存中，并在内存中构建出Java类的原型-类模板对象。 2.类模板对象就是Java类在JVM内存中的一个快照，JVM将从字节码文件中解析出常量池、类字段、类方法等信息存储到类模板中 3.类模板在JDK被存储在metaSpace区 4.JVM会对字节码文件格">
+<meta property="og:locale" content="zh-CN">
+<meta property="og:updated_time" content="2021-06-20T04:19:35.155Z">
+<meta name="twitter:card" content="summary">
+<meta name="twitter:title" content="类生命周期">
+<meta name="twitter:description" content="生命周期概述​    按照JVM规范，一个Java文件从被加载到被卸载共分为5个阶段：  加载  1.加载就是将Java类的字节码文件加载到机器内存中，并在内存中构建出Java类的原型-类模板对象。 2.类模板对象就是Java类在JVM内存中的一个快照，JVM将从字节码文件中解析出常量池、类字段、类方法等信息存储到类模板中 3.类模板在JDK被存储在metaSpace区 4.JVM会对字节码文件格">
+  <link rel="canonical" href="http://yoursite.com/2020/08/05/java/类生命周期/">
+
+
+<script id="page-configurations">
+  // https://hexo.io/docs/variables.html
+  CONFIG.page = {
+    sidebar: "",
+    isHome: false,
+    isPost: true,
+    isPage: false,
+    isArchive: false
+  };
+</script>
+
+  <title>类生命周期 | 纪光的博客</title>
+  
+
+
+  <script>
+    var _hmt = _hmt || [];
+    (function() {
+      var hm = document.createElement("script");
+      hm.src = "https://hm.baidu.com/hm.js?bca403b673d79e83a47dc62fea1dd605";
+      var s = document.getElementsByTagName("script")[0];
+      s.parentNode.insertBefore(hm, s);
+    })();
+  </script>
+
+
+
+
+
+
+  <noscript>
+  <style>
+  .use-motion .brand,
+  .use-motion .menu-item,
+  .sidebar-inner,
+  .use-motion .post-block,
+  .use-motion .pagination,
+  .use-motion .comments,
+  .use-motion .post-header,
+  .use-motion .post-body,
+  .use-motion .collection-header { opacity: initial; }
+
+  .use-motion .site-title,
+  .use-motion .site-subtitle {
+    opacity: initial;
+    top: initial;
+  }
+
+  .use-motion .logo-line-before i { left: initial; }
+  .use-motion .logo-line-after i { right: initial; }
+  </style>
+</noscript>
+
+</head>
+
+<body itemscope itemtype="http://schema.org/WebPage">
+  <div class="container use-motion">
+    <div class="headband"></div>
+
+    <header class="header" itemscope itemtype="http://schema.org/WPHeader">
+      <div class="header-inner"><div class="site-brand-container">
+  <div class="site-meta">
+
+    <div>
+      <a href="/" class="brand" rel="start">
+        <span class="logo-line-before"><i></i></span>
+        <span class="site-title">纪光的博客</span>
+        <span class="logo-line-after"><i></i></span>
+      </a>
+    </div>
+  </div>
+
+  <div class="site-nav-toggle">
+    <div class="toggle" aria-label="切换导航栏">
+      <span class="toggle-line toggle-line-first"></span>
+      <span class="toggle-line toggle-line-middle"></span>
+      <span class="toggle-line toggle-line-last"></span>
+    </div>
+  </div>
+</div>
+
+
+<nav class="site-nav">
+  
+  <ul id="menu" class="menu">
+      
+      
+        
+        
+        <li class="menu-item menu-item-home">
+      
+    
+
+    <a href="/" rel="section"><i class="fa fa-fw fa-home"></i>首页</a>
+
+  </li>
+      
+    
+      
+      
+        
+        
+        <li class="menu-item menu-item-categories">
+      
+    
+
+    <a href="/categories/" rel="section"><i class="fa fa-fw fa-th"></i>分类</a>
+
+  </li>
+      
+    
+      
+      
+        
+        
+        <li class="menu-item menu-item-tags">
+      
+    
+
+    <a href="/tags/" rel="section"><i class="fa fa-fw fa-tags"></i>标签</a>
+
+  </li>
+      
+    
+      
+      
+        
+        
+        <li class="menu-item menu-item-archives">
+      
+    
+
+    <a href="/archives/" rel="section"><i class="fa fa-fw fa-archive"></i>归档</a>
+
+  </li>
+      
+    
+      
+      
+        
+        
+        <li class="menu-item menu-item-about">
+      
+    
+
+    <a href="/about/" rel="section"><i class="fa fa-fw fa-user"></i>关于</a>
+
+  </li>
+      
+    
+  </ul>
+
+    
+
+</nav>
+</div>
+    </header>
+
+    
+  <div class="back-to-top">
+    <i class="fa fa-arrow-up"></i>
+    <span>0%</span>
+  </div>
+
+
+    <main class="main">
+      <div class="main-inner">
+        <div class="content-wrap">
+          <div class="content">
+            
+
+  <div class="posts-expand">
+      
+  
+  
+  <article itemscope itemtype="http://schema.org/Article" class="post-block " lang="zh-CN">
+    <link itemprop="mainEntityOfPage" href="http://yoursite.com/2020/08/05/java/类生命周期/">
+
+    <span hidden itemprop="author" itemscope itemtype="http://schema.org/Person">
+      <meta itemprop="name" content="姜纪光">
+      <meta itemprop="description" content="">
+      <meta itemprop="image" content="/images/avatar.gif">
+    </span>
+
+    <span hidden itemprop="publisher" itemscope itemtype="http://schema.org/Organization">
+      <meta itemprop="name" content="纪光的博客">
+    </span>
+      <header class="post-header">
+        <h1 class="post-title" itemprop="name headline">
+          
+            类生命周期
+            
+
+          
+        </h1>
+
+        <div class="post-meta">
+            <span class="post-meta-item">
+              <span class="post-meta-item-icon">
+                <i class="fa fa-calendar-o"></i>
+              </span>
+              <span class="post-meta-item-text">发表于</span>
+
+              
+                
+              
+
+              <time title="创建时间：2020-08-05 11:42:36" itemprop="dateCreated datePublished" datetime="2020-08-05T11:42:36+08:00">2020-08-05</time>
+            </span>
+          
+            
+
+            
+              <span class="post-meta-item">
+                <span class="post-meta-item-icon">
+                  <i class="fa fa-calendar-check-o"></i>
+                </span>
+                <span class="post-meta-item-text">更新于</span>
+                <time title="修改时间：2021-06-20 12:19:35" itemprop="dateModified" datetime="2021-06-20T12:19:35+08:00">2021-06-20</time>
+              </span>
+            
+          
+            <span class="post-meta-item">
+              <span class="post-meta-item-icon">
+                <i class="fa fa-folder-o"></i>
+              </span>
+              <span class="post-meta-item-text">分类于</span>
+              
+                <span itemprop="about" itemscope itemtype="http://schema.org/Thing">
+                  <a href="/categories/java/" itemprop="url" rel="index">
+                    <span itemprop="name">java</span>
+                  </a>
+                </span>
+
+                
+                
+              
+            </span>
+          
+
+          
+            <span id="/2020/08/05/java/类生命周期/" class="post-meta-item leancloud_visitors" data-flag-title="类生命周期" title="阅读次数">
+              <span class="post-meta-item-icon">
+                <i class="fa fa-eye"></i>
+              </span>
+              <span class="post-meta-item-text">阅读次数：</span>
+              <span class="leancloud-visitors-count"></span>
+            </span>
+          
+  
+  
+
+        </div>
+      </header>
+
+    
+    
+    
+    <div class="post-body" itemprop="articleBody">
+
+      
+        <h1 id="生命周期概述"><a href="#生命周期概述" class="headerlink" title="生命周期概述"></a>生命周期概述</h1><p>​    按照JVM规范，一个Java文件从被加载到被卸载共分为5个阶段：</p>
+<ul>
+<li><p>加载</p>
+<blockquote>
+<p>1.加载就是将Java类的字节码文件加载到机器内存中，并在内存中构建出Java类的原型-类模板对象。</p>
+<p>2.类模板对象就是Java类在JVM内存中的一个快照，JVM将从字节码文件中解析出常量池、类字段、类方法等信息存储到类模板中</p>
+<p>3.类模板在JDK被存储在metaSpace区</p>
+<p>4.JVM会对字节码文件格式进行验证</p>
+</blockquote>
+</li>
+<li><p>链接（验证+准备+解析）</p>
+<blockquote>
+<p>1.链接的主要作用是将字节码指令中对常量池中索引引用转换为直接引用。</p>
+<p>2.验证是指由字节码信息触发进行反向验证：</p>
+<p>   验证字节码文件中的类名是否能够找到对应的类模板</p>
+</blockquote>
+</li>
+<li><p>初始化</p>
+<blockquote>
+<p>并非是对类进行实例化，而是执行类的<code>&lt;client&gt;</code>方法，该方法仅能由Java编辑器生成并由JVM调用。</p>
+<p>当Java类中包含由<code>static</code>修饰的静态字段或者代码块时，编译后的便会在字节码文件中包含一个<code>&lt;client&gt;</code>方法</p>
+</blockquote>
+</li>
+<li><p>使用</p>
+</li>
+<li><p>卸载</p>
+</li>
+</ul>
+<h1 id="类加载"><a href="#类加载" class="headerlink" title="类加载"></a>类加载</h1><blockquote>
+<p>1.类加载的目标就是在JVM方法区创建一个与Java类结构对等的instanceKcass的实例对象。</p>
+<p>2.mirror镜像类也是一个instanceKcass的实例对象</p>
+<p>3.java.lang.Class是为了被程序调用，instanceKcass是为了被JVM内部访问</p>
+<p>4.反射工具类都是基于java.lang.Class这个内部镜像实现的</p>
+<p>5.类加载的主要流程：</p>
+<p>​    a.读取魔术与版本号</p>
+<p>​    b.解析常量池</p>
+<p>​    c.解析字段信息</p>
+<p>​    d.解析方法</p>
+<p>​    e.创建与Java类对等的内部对象instanceKlass</p>
+<p>​    f.创建Java镜像类，create_mirror()</p>
+</blockquote>
+<h2 id="Java主类加载机制"><a href="#Java主类加载机制" class="headerlink" title="Java主类加载机制"></a>Java主类加载机制</h2><blockquote>
+<p>1.包含main()主函数的类就是Java主类，由JVM自动触发加载。</p>
+<p>2.JVM执行完自身的若干初始化逻辑之后，第一个加载的便是Java主类。</p>
+<p>3.Java主类的类加载器模式是系统加载器。</p>
+</blockquote>
+<h2 id="类加载器的加载机制"><a href="#类加载器的加载机制" class="headerlink" title="类加载器的加载机制"></a>类加载器的加载机制</h2><blockquote>
+<p>1.通过继承java.lang.ClassLoader可以自定义类加载器，自定义类加载器的loadClass()方法仅仅完成了声明周期的加载阶段</p>
+<p>2.通过反射java.lang.Class.forName(String)完成的类加载，包含了声明周期的<code>加载、验证、准备、解析和初始化</code>阶段</p>
+<p>3.import仅仅是个语法糖，没有关联任何运行时行为，更不会导致类加载</p>
+<p>4.使用new指令加载类时，如果一个类尚未被加载或者链接，那么会进入慢分配流程</p>
+</blockquote>
+<h2 id="类加载器"><a href="#类加载器" class="headerlink" title="类加载器"></a>类加载器</h2><blockquote>
+<p>1.Java体系中定义了3种类加载器：</p>
+<p>​    Bootstrap ClassLoader(引导类加载器，BCL)：加载指定的JDK核心类库，无法由Java应用程序直接引用。负责加载：</p>
+<p>​        a.%JAVA_HOME%/jre/lib目录</p>
+<p>​        b.-Xbootclasspath参数指定的目录</p>
+<p>​        c.系统属性sun.boot.class.path指定的目录中的特定名称的jar包</p>
+<p>​    Extension ClassLoader(扩展类加载器，ECL)：加载扩展类，扩展JVM的类库。负责加载：</p>
+<p>​        a.%JAVA_HOME%/jre/lib/ext目录</p>
+<p>​        b.系统属性java.ext.dirs所指定的目录中的所有类库</p>
+<p>​    System ClassLoader(系统类加载器，SCL)：加载Java应用程序类库，加载类库的路径由系统环境变量ClassPath、-cp或系统属性java.class.path指定</p>
+</blockquote>
+<h3 id="引导类加载器"><a href="#引导类加载器" class="headerlink" title="引导类加载器"></a>引导类加载器</h3><blockquote>
+<p>1.使用C++实现，所有字段和函数都使用static修饰，因此该加载器不需要实例化</p>
+<p>2.Java类编写的加载器无法继承引导类加载器</p>
+<p>3.没有父加载器</p>
+</blockquote>
+<h3 id="扩展类加载器"><a href="#扩展类加载器" class="headerlink" title="扩展类加载器"></a>扩展类加载器</h3><blockquote>
+<p>1.所有Java体系的类加载器都是继承自java.lang.ClassLoader</p>
+<p>2.类名是ExtClassLoader</p>
+<p>3.扩展类加载器的父加载器是null，并不是引导类加载器</p>
+</blockquote>
+<h3 id="系统类加载器"><a href="#系统类加载器" class="headerlink" title="系统类加载器"></a>系统类加载器</h3><blockquote>
+<p>1.系统类加载器的父加载器是扩展类加载器</p>
+</blockquote>
+<h3 id="双亲委派"><a href="#双亲委派" class="headerlink" title="双亲委派"></a>双亲委派</h3><blockquote>
+<p>1.引导类加载器、扩展类加载器和系统类加载器之间没有直接的继承关系</p>
+<p>2.Java体系的扩展类加载器、系统类加载器和用户自定义类加载器都继承自java.lang.ClassLoader</p>
+<p>3.委托加载关系是通过java.lang.ClassLoader.parent实现</p>
+<p>4.双亲委派机制在java.lang.ClassLoader.loadClass(String,boolean)接口中实现：</p>
+<p>​    a.先在当前加载器的缓存中查找有无目标类，如果有，直接返回</p>
+<p>​    b.判断当前加载器的父加载器是否为空，如果不为空，则调用parent.loadClass(name,false)接口</p>
+<p>​    c.如果当前加载器的父类加载器为空，则调用findBoostraopClassOrNull(name)接口，让引导类加载器进行加载</p>
+<p>​    d.如果上述未加载成功，则调用findClass(name)接口进行加载</p>
+<p>5.双亲委派机制从本质上规定了类加载的顺序：</p>
+<p>​    a.引导类加载器先加载</p>
+<p>​    b.若加载不到由扩展类加载</p>
+<p>​    c.若还是加载不到，才会由系统类或自定义类加载器加载</p>
+<p>6.如果自定义类加载器重写loadClass方法，会不会破坏双亲委派机制？答案是不会的</p>
+<p>​    会判断所要加载的目标类全限定名是否以<code>java</code>开始，如果是，则抛出异常</p>
+<p>​    因此所有的自定义类加载器只能重写java.lang.ClassLoader.findClass接口</p>
+</blockquote>
+<h1 id="类初始化"><a href="#类初始化" class="headerlink" title="类初始化"></a>类初始化</h1><blockquote>
+<p>1.并非是对类进行实例化，而是执行类的<code>&lt;client&gt;</code>方法，该方法仅能由Java编辑器生成并由JVM调用。</p>
+<p>2.当Java类中包含由<code>static</code>修饰的静态字段或者代码块时，编译后的便会在字节码文件中包含一个<code>&lt;client&gt;</code>方法。</p>
+<p>3.每个类都有一个类加载器，并且不同的加载器加载的同一个类无法相互转换。</p>
+</blockquote>
+<h1 id="类使用"><a href="#类使用" class="headerlink" title="类使用"></a>类使用</h1><h2 id="类实例分配"><a href="#类实例分配" class="headerlink" title="类实例分配"></a>类实例分配</h2><blockquote>
+<p>1.实例化类的方式：java.lang.Class.newInstance()、new</p>
+<p>​    在new的实现过程中，对内存分配、线程并发控制、垃圾回收等优化。</p>
+<p>2.类实例化过程：</p>
+<p>​    a.若Java类尚未被解析，则直接进入慢分配，不会使用快速分配策略</p>
+<p>​    b.快速分配，如果没有开启栈分配或不符合条件则会进行TLAB分配</p>
+<p>​    c.快速分配，如果TLAB分配失败，则尝试eden区分配</p>
+<p>​    d.如果eden区分配失败，则会进入慢分配流程</p>
+<p>​    e.如果对象满足了直接进入老年代的条件，那就直接分配在老年代</p>
+<p>​    f.快速分配，对于热点代码，如果开启逃逸分析，JVM则会执行栈上分配或标量替换等优化方案</p>
+</blockquote>
+<h2 id="逃逸分析"><a href="#逃逸分析" class="headerlink" title="逃逸分析"></a>逃逸分析</h2><ul>
+<li><p>通过对象作用范围的分析，为其他优化手段提供分析数据</p>
+</li>
+<li><p>逃逸分析包括：</p>
+<blockquote>
+<p>1、全局变量赋值逃逸</p>
+<p>2、方法返回值逃逸</p>
+<p>3、实例引用逃逸</p>
+<p>4、线程逃逸：赋值给类变量或可以在其它线程中访问的实例变量</p>
+</blockquote>
+</li>
+<li><p>开启逃逸分析</p>
+<blockquote>
+<p>-XX:+DoEscapeAnalysis</p>
+</blockquote>
+</li>
+<li><p>总结</p>
+<blockquote>
+<p>逃逸是指在方法内部被创建的对象不仅在方法内部而且还在方法外部被其它变量引用。坏处是，方法执行完毕之后，在方法内创建的对象无法被GC回收。</p>
+<p>​    如果确定不会逃逸，那么就能对方法内创建的对象进行多种优化，包含内存分配和线程同步</p>
+<p>​    逃逸分析是在运行时进行的，原因是动态生产字节码、调用本地函数、反射、方法拦截等致使不能在编译期间的静态化设施。</p>
+<p>​    逃逸分析是很耗费内存和CPU资源的，因此JVM不能对所有方法的变量进行逃逸分析，只有JVM触发即时编译（JIT）时才会进行逃逸分析。</p>
+<p>​    即时编译（JIT）是一种在运行时将字节码翻译为机器码，从而改善字节码编译语言性能的技术，即时编译基于逃逸分析的优化策略主要是标量替换和栈上分配，都不会在堆上分配实例化对象。</p>
+<p>​    可以通过<code>jmap -histo</code>命令观察开启/关闭逃逸分析的实例总数</p>
+</blockquote>
+</li>
+</ul>
+<h3 id="标量替换"><a href="#标量替换" class="headerlink" title="标量替换"></a>标量替换</h3><ul>
+<li><p>标量是指不可分割的量，基本数据类型和引用都是标量</p>
+</li>
+<li><p>不会发生逃逸，且不是标量时，JVM不会创建该对象，而会将该对象成员变量分解若干个被这个方法使用的成员变量所代替。这些代替的成员变量在栈帧或寄存器上分配空间。</p>
+</li>
+<li><p>开启标量替换</p>
+<blockquote>
+<p>-XX:+EliminateAllocations：开启标量替换</p>
+<p>-XX:+PrintEliminateAllocations：查看标量替换情况</p>
+</blockquote>
+</li>
+</ul>
+<h3 id="栈上分配"><a href="#栈上分配" class="headerlink" title="栈上分配"></a>栈上分配</h3><ul>
+<li>如果一个类没有发生逃逸，则实例对象直接分配在方法栈上。在栈上分配的对象实例，会随着方法执行结束，方法栈空间的被回收而回收，从而不需要GC来回收</li>
+<li>栈空间是有限的，因此不能分配字段多的大Java对象</li>
+<li>栈上分配依赖于逃逸分析和标量替换</li>
+</ul>
+<h3 id="同步消除"><a href="#同步消除" class="headerlink" title="同步消除"></a>同步消除</h3><ul>
+<li><p>如果对象没有出现线程逃逸，那么对象的读写就不会存在资源的竞争，那么就可以清除对象的同步锁</p>
+</li>
+<li><p>开启同步消除</p>
+<blockquote>
+<p>-XX:+EliminateLocks</p>
+</blockquote>
+</li>
+</ul>
+<h2 id="TLAB-Thead-Local-Allocation-Buffer"><a href="#TLAB-Thead-Local-Allocation-Buffer" class="headerlink" title="TLAB(Thead Local Allocation Buffer)"></a>TLAB(Thead Local Allocation Buffer)</h2><ul>
+<li><p>即线程本地分配缓存区，是一个线程专用的内存分配区域，线程私有的，位于eden区。</p>
+</li>
+<li><p>各个线程在各自的TLAB申请空间，无需加锁，是一中“空间换时间”的策略。</p>
+</li>
+<li><p>堆是全局的，每个线程都可以在堆上申请空间，而后必须在线程间进行同步，当多线程在堆上申请内存时，势必出现竞争、同步、阻塞等。</p>
+</li>
+<li><p>开启TLAB</p>
+<blockquote>
+<p>-XX:-UseTLAB</p>
+</blockquote>
+</li>
+</ul>
+<h1 id="Java对象分配"><a href="#Java对象分配" class="headerlink" title="Java对象分配"></a>Java对象分配</h1><ul>
+<li><p>分配优先级</p>
+<blockquote>
+<p>栈上分配 -&gt; TLAB分配 -&gt; 直接进入老年代 -&gt; eden区分配</p>
+</blockquote>
+</li>
+</ul>
+<h1 id="参考文档"><a href="#参考文档" class="headerlink" title="参考文档"></a>参考文档</h1><p><a href>揭秘Java虚拟机JVM设计原理与实现</a></p>
+<p><a href="https://www.jianshu.com/p/580f17760f6e" target="_blank" rel="noopener">JAVA逃逸分析、栈上分配、标量替换、同步消除</a></p>
+
+    </div>
+
+    
+    
+    
+        
+      
+
+      <footer class="post-footer">
+
+        
+
+          <div class="post-nav">
+            <div class="post-nav-next post-nav-item">
+              
+                <a href="/2020/08/05/java/正则的那些点/" rel="next" title="正则的那些点">
+                  <i class="fa fa-chevron-left"></i> 正则的那些点
+                </a>
+              
+            </div>
+
+            <span class="post-nav-divider"></span>
+
+            <div class="post-nav-prev post-nav-item">
+              
+                <a href="/2020/08/06/flink/Flink从checkpoint恢复失败-EOFException/" rel="prev" title="Flink从checkpoint恢复失败-EOFException">
+                  Flink从checkpoint恢复失败-EOFException <i class="fa fa-chevron-right"></i>
+                </a>
+              
+            </div>
+          </div>
+        
+      </footer>
+    
+  </article>
+  
+  
+  
+
+  </div>
+
+
+          </div>
+          
+
+        </div>
+          
+  
+  <div class="toggle sidebar-toggle">
+    <span class="toggle-line toggle-line-first"></span>
+    <span class="toggle-line toggle-line-middle"></span>
+    <span class="toggle-line toggle-line-last"></span>
+  </div>
+
+  <aside class="sidebar">
+    <div class="sidebar-inner">
+        
+        
+        
+        
+      
+
+      <ul class="sidebar-nav motion-element">
+        <li class="sidebar-nav-toc">
+          文章目录
+        </li>
+        <li class="sidebar-nav-overview">
+          站点概览
+        </li>
+      </ul>
+
+      <!--noindex-->
+      <div class="post-toc-wrap sidebar-panel">
+          <div class="post-toc motion-element"><ol class="nav"><li class="nav-item nav-level-1"><a class="nav-link" href="#生命周期概述"><span class="nav-number">1.</span> <span class="nav-text">生命周期概述</span></a></li><li class="nav-item nav-level-1"><a class="nav-link" href="#类加载"><span class="nav-number">2.</span> <span class="nav-text">类加载</span></a><ol class="nav-child"><li class="nav-item nav-level-2"><a class="nav-link" href="#Java主类加载机制"><span class="nav-number">2.1.</span> <span class="nav-text">Java主类加载机制</span></a></li><li class="nav-item nav-level-2"><a class="nav-link" href="#类加载器的加载机制"><span class="nav-number">2.2.</span> <span class="nav-text">类加载器的加载机制</span></a></li><li class="nav-item nav-level-2"><a class="nav-link" href="#类加载器"><span class="nav-number">2.3.</span> <span class="nav-text">类加载器</span></a><ol class="nav-child"><li class="nav-item nav-level-3"><a class="nav-link" href="#引导类加载器"><span class="nav-number">2.3.1.</span> <span class="nav-text">引导类加载器</span></a></li><li class="nav-item nav-level-3"><a class="nav-link" href="#扩展类加载器"><span class="nav-number">2.3.2.</span> <span class="nav-text">扩展类加载器</span></a></li><li class="nav-item nav-level-3"><a class="nav-link" href="#系统类加载器"><span class="nav-number">2.3.3.</span> <span class="nav-text">系统类加载器</span></a></li><li class="nav-item nav-level-3"><a class="nav-link" href="#双亲委派"><span class="nav-number">2.3.4.</span> <span class="nav-text">双亲委派</span></a></li></ol></li></ol></li><li class="nav-item nav-level-1"><a class="nav-link" href="#类初始化"><span class="nav-number">3.</span> <span class="nav-text">类初始化</span></a></li><li class="nav-item nav-level-1"><a class="nav-link" href="#类使用"><span class="nav-number">4.</span> <span class="nav-text">类使用</span></a><ol class="nav-child"><li class="nav-item nav-level-2"><a class="nav-link" href="#类实例分配"><span class="nav-number">4.1.</span> <span class="nav-text">类实例分配</span></a></li><li class="nav-item nav-level-2"><a class="nav-link" href="#逃逸分析"><span class="nav-number">4.2.</span> <span class="nav-text">逃逸分析</span></a><ol class="nav-child"><li class="nav-item nav-level-3"><a class="nav-link" href="#标量替换"><span class="nav-number">4.2.1.</span> <span class="nav-text">标量替换</span></a></li><li class="nav-item nav-level-3"><a class="nav-link" href="#栈上分配"><span class="nav-number">4.2.2.</span> <span class="nav-text">栈上分配</span></a></li><li class="nav-item nav-level-3"><a class="nav-link" href="#同步消除"><span class="nav-number">4.2.3.</span> <span class="nav-text">同步消除</span></a></li></ol></li><li class="nav-item nav-level-2"><a class="nav-link" href="#TLAB-Thead-Local-Allocation-Buffer"><span class="nav-number">4.3.</span> <span class="nav-text">TLAB(Thead Local Allocation Buffer)</span></a></li></ol></li><li class="nav-item nav-level-1"><a class="nav-link" href="#Java对象分配"><span class="nav-number">5.</span> <span class="nav-text">Java对象分配</span></a></li><li class="nav-item nav-level-1"><a class="nav-link" href="#参考文档"><span class="nav-number">6.</span> <span class="nav-text">参考文档</span></a></li></ol></div>
+        
+      </div>
+      <!--/noindex-->
+
+      <div class="site-overview-wrap sidebar-panel">
+        <div class="site-author motion-element" itemprop="author" itemscope itemtype="http://schema.org/Person">
+  <p class="site-author-name" itemprop="name">姜纪光</p>
+  <div class="site-description" itemprop="description"></div>
+</div>
+<div class="site-state-wrap motion-element">
+  <nav class="site-state">
+      <div class="site-state-item site-state-posts">
+        
+          <a href="/archives/">
+        
+          <span class="site-state-item-count">158</span>
+          <span class="site-state-item-name">日志</span>
+        </a>
+      </div>
+    
+      
+      
+      <div class="site-state-item site-state-categories">
+        
+          
+            <a href="/categories/">
+          
+        
+        <span class="site-state-item-count">26</span>
+        <span class="site-state-item-name">分类</span>
+        </a>
+      </div>
+    
+      
+      
+      <div class="site-state-item site-state-tags">
+        
+          
+            <a href="/tags/">
+          
+        
+        <span class="site-state-item-count">14</span>
+        <span class="site-state-item-name">标签</span>
+        </a>
+      </div>
+    
+  </nav>
+</div>
+
+
+
+      </div>
+
+    </div>
+  </aside>
+  <div id="sidebar-dimmer"></div>
+
+
+      </div>
+    </main>
+
+    <footer class="footer">
+      <div class="footer-inner">
+        
+
+<div class="copyright">
+  &copy; 
+  <span itemprop="copyrightYear">2021</span>
+  <span class="with-love">
+    <i class="fa fa-user"></i>
+  </span>
+  <span class="author" itemprop="copyrightHolder">姜纪光</span>
+</div>
+  <div class="powered-by">由 <a href="https://hexo.io" class="theme-link" rel="noopener" target="_blank">Hexo</a> 强力驱动 v3.9.0
+  </div>
+  <span class="post-meta-divider">|</span>
+  <div class="theme-info">
+      
+    主题 – <a href="https://mist.theme-next.org" class="theme-link" rel="noopener" target="_blank">NexT.Mist</a> v7.4.1
+  </div>
+
+        
+
+
+
+
+
+
+
+
+
+
+
+
+        
+      </div>
+    </footer>
+  </div>
+
+  
+  <script src="/lib/anime.min.js?v=3.1.0"></script>
+  <script src="/lib/velocity/velocity.min.js?v=1.2.1"></script>
+  <script src="/lib/velocity/velocity.ui.min.js?v=1.2.1"></script>
+<script src="/js/utils.js?v=7.4.1"></script><script src="/js/motion.js?v=7.4.1"></script>
+<script src="/js/schemes/muse.js?v=7.4.1"></script>
+
+<script src="/js/next-boot.js?v=7.4.1"></script>
+
+
+
+  
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+  
+
+  
+
+  
+
+
+<script>
+NexT.utils.getScript('//unpkg.com/valine/dist/Valine.min.js', () => {
+  var GUEST = ['nick', 'mail', 'link'];
+  var guest = 'nick,mail,link';
+  guest = guest.split(',').filter(item => {
+    return GUEST.includes(item);
+  });
+  new Valine({
+    el: '#comments',
+    verify: false,
+    notify: false,
+    appId: 'MIQC4jJTknc0hjNXDAiIuQ21-9Nh9j0Va',
+    appKey: 'vaiXpSQLLMglwYsVLOBLzck4',
+    placeholder: "Just go go",
+    avatar: 'mm',
+    meta: guest,
+    pageSize: '10' || 10,
+    visitor: true,
+    lang: 'zh-cn' || 'zh-cn',
+    path: location.pathname,
+    recordIP: false,
+    serverURLs: ''
+  });
+}, window.Valine);
+</script>
+
+</body>
+</html>

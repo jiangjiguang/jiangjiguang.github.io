@@ -1,0 +1,883 @@
+<!DOCTYPE html>
+
+
+
+
+
+<html lang="zh-CN">
+<head>
+  <meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1, maximum-scale=2">
+<meta name="theme-color" content="#222">
+<meta name="generator" content="Hexo 3.9.0">
+  <link rel="apple-touch-icon" sizes="180x180" href="/images/apple-touch-icon-next.png?v=7.4.1">
+  <link rel="icon" type="image/png" sizes="32x32" href="/images/favicon-32x32-next.png?v=7.4.1">
+  <link rel="icon" type="image/png" sizes="16x16" href="/images/favicon-16x16-next.png?v=7.4.1">
+  <link rel="mask-icon" href="/images/logo.svg?v=7.4.1" color="#222">
+
+<link rel="stylesheet" href="/css/main.css?v=7.4.1">
+
+
+<link rel="stylesheet" href="/lib/font-awesome/css/font-awesome.min.css?v=4.7.0">
+
+
+<script id="hexo-configurations">
+  var NexT = window.NexT || {};
+  var CONFIG = {
+    root: '/',
+    scheme: 'Mist',
+    version: '7.4.1',
+    exturl: false,
+    sidebar: {"position":"right","display":"hide","offset":12,"onmobile":false},
+    copycode: {"enable":false,"show_result":false,"style":null},
+    back2top: {"enable":true,"sidebar":false,"scrollpercent":false},
+    bookmark: {"enable":false,"color":"#222","save":"auto"},
+    fancybox: false,
+    mediumzoom: false,
+    lazyload: false,
+    pangu: false,
+    algolia: {
+      appID: '',
+      apiKey: '',
+      indexName: '',
+      hits: {"per_page":10},
+      labels: {"input_placeholder":"Search for Posts","hits_empty":"We didn't find any results for the search: ${query}","hits_stats":"${hits} results found in ${time} ms"}
+    },
+    localsearch: {"enable":false,"trigger":"auto","top_n_per_article":1,"unescape":false,"preload":false},
+    path: '',
+    motion: {"enable":true,"async":false,"transition":{"post_block":"fadeIn","post_header":"slideDownIn","post_body":"slideDownIn","coll_header":"slideLeftIn","sidebar":"slideUpIn"}},
+    translation: {
+      copy_button: '复制',
+      copy_success: '复制成功',
+      copy_failure: '复制失败'
+    },
+    sidebarPadding: 40
+  };
+</script>
+
+  <meta name="description" content="云原生基本概念​    云原生是一种构建和运行应用程序的方法，是一套技术体系和方法论。 ​    云原生（CloudNative）是一个组合词，Cloud+Native。Cloud表示应用程序位于云中，而不是传统的数据中心；Native表示应用程序从设计之初即考虑到云的环境，原生为云而设计，在云上以最佳姿势运行，充分利用和发挥云平台的弹性+分布式优势。    Pivotal最新官网对云原生概括为4">
+<meta property="og:type" content="article">
+<meta property="og:title" content="k8s基础知识">
+<meta property="og:url" content="http://yoursite.com/2020/10/26/k8s/k8s-基础知识/index.html">
+<meta property="og:site_name" content="纪光的博客">
+<meta property="og:description" content="云原生基本概念​    云原生是一种构建和运行应用程序的方法，是一套技术体系和方法论。 ​    云原生（CloudNative）是一个组合词，Cloud+Native。Cloud表示应用程序位于云中，而不是传统的数据中心；Native表示应用程序从设计之初即考虑到云的环境，原生为云而设计，在云上以最佳姿势运行，充分利用和发挥云平台的弹性+分布式优势。    Pivotal最新官网对云原生概括为4">
+<meta property="og:locale" content="zh-CN">
+<meta property="og:updated_time" content="2021-06-20T04:19:35.157Z">
+<meta name="twitter:card" content="summary">
+<meta name="twitter:title" content="k8s基础知识">
+<meta name="twitter:description" content="云原生基本概念​    云原生是一种构建和运行应用程序的方法，是一套技术体系和方法论。 ​    云原生（CloudNative）是一个组合词，Cloud+Native。Cloud表示应用程序位于云中，而不是传统的数据中心；Native表示应用程序从设计之初即考虑到云的环境，原生为云而设计，在云上以最佳姿势运行，充分利用和发挥云平台的弹性+分布式优势。    Pivotal最新官网对云原生概括为4">
+  <link rel="canonical" href="http://yoursite.com/2020/10/26/k8s/k8s-基础知识/">
+
+
+<script id="page-configurations">
+  // https://hexo.io/docs/variables.html
+  CONFIG.page = {
+    sidebar: "",
+    isHome: false,
+    isPost: true,
+    isPage: false,
+    isArchive: false
+  };
+</script>
+
+  <title>k8s基础知识 | 纪光的博客</title>
+  
+
+
+  <script>
+    var _hmt = _hmt || [];
+    (function() {
+      var hm = document.createElement("script");
+      hm.src = "https://hm.baidu.com/hm.js?bca403b673d79e83a47dc62fea1dd605";
+      var s = document.getElementsByTagName("script")[0];
+      s.parentNode.insertBefore(hm, s);
+    })();
+  </script>
+
+
+
+
+
+
+  <noscript>
+  <style>
+  .use-motion .brand,
+  .use-motion .menu-item,
+  .sidebar-inner,
+  .use-motion .post-block,
+  .use-motion .pagination,
+  .use-motion .comments,
+  .use-motion .post-header,
+  .use-motion .post-body,
+  .use-motion .collection-header { opacity: initial; }
+
+  .use-motion .site-title,
+  .use-motion .site-subtitle {
+    opacity: initial;
+    top: initial;
+  }
+
+  .use-motion .logo-line-before i { left: initial; }
+  .use-motion .logo-line-after i { right: initial; }
+  </style>
+</noscript>
+
+</head>
+
+<body itemscope itemtype="http://schema.org/WebPage">
+  <div class="container use-motion">
+    <div class="headband"></div>
+
+    <header class="header" itemscope itemtype="http://schema.org/WPHeader">
+      <div class="header-inner"><div class="site-brand-container">
+  <div class="site-meta">
+
+    <div>
+      <a href="/" class="brand" rel="start">
+        <span class="logo-line-before"><i></i></span>
+        <span class="site-title">纪光的博客</span>
+        <span class="logo-line-after"><i></i></span>
+      </a>
+    </div>
+  </div>
+
+  <div class="site-nav-toggle">
+    <div class="toggle" aria-label="切换导航栏">
+      <span class="toggle-line toggle-line-first"></span>
+      <span class="toggle-line toggle-line-middle"></span>
+      <span class="toggle-line toggle-line-last"></span>
+    </div>
+  </div>
+</div>
+
+
+<nav class="site-nav">
+  
+  <ul id="menu" class="menu">
+      
+      
+        
+        
+        <li class="menu-item menu-item-home">
+      
+    
+
+    <a href="/" rel="section"><i class="fa fa-fw fa-home"></i>首页</a>
+
+  </li>
+      
+    
+      
+      
+        
+        
+        <li class="menu-item menu-item-categories">
+      
+    
+
+    <a href="/categories/" rel="section"><i class="fa fa-fw fa-th"></i>分类</a>
+
+  </li>
+      
+    
+      
+      
+        
+        
+        <li class="menu-item menu-item-tags">
+      
+    
+
+    <a href="/tags/" rel="section"><i class="fa fa-fw fa-tags"></i>标签</a>
+
+  </li>
+      
+    
+      
+      
+        
+        
+        <li class="menu-item menu-item-archives">
+      
+    
+
+    <a href="/archives/" rel="section"><i class="fa fa-fw fa-archive"></i>归档</a>
+
+  </li>
+      
+    
+      
+      
+        
+        
+        <li class="menu-item menu-item-about">
+      
+    
+
+    <a href="/about/" rel="section"><i class="fa fa-fw fa-user"></i>关于</a>
+
+  </li>
+      
+    
+  </ul>
+
+    
+
+</nav>
+</div>
+    </header>
+
+    
+  <div class="back-to-top">
+    <i class="fa fa-arrow-up"></i>
+    <span>0%</span>
+  </div>
+
+
+    <main class="main">
+      <div class="main-inner">
+        <div class="content-wrap">
+          <div class="content">
+            
+
+  <div class="posts-expand">
+      
+  
+  
+  <article itemscope itemtype="http://schema.org/Article" class="post-block " lang="zh-CN">
+    <link itemprop="mainEntityOfPage" href="http://yoursite.com/2020/10/26/k8s/k8s-基础知识/">
+
+    <span hidden itemprop="author" itemscope itemtype="http://schema.org/Person">
+      <meta itemprop="name" content="姜纪光">
+      <meta itemprop="description" content="">
+      <meta itemprop="image" content="/images/avatar.gif">
+    </span>
+
+    <span hidden itemprop="publisher" itemscope itemtype="http://schema.org/Organization">
+      <meta itemprop="name" content="纪光的博客">
+    </span>
+      <header class="post-header">
+        <h1 class="post-title" itemprop="name headline">
+          
+            k8s基础知识
+            
+
+          
+        </h1>
+
+        <div class="post-meta">
+            <span class="post-meta-item">
+              <span class="post-meta-item-icon">
+                <i class="fa fa-calendar-o"></i>
+              </span>
+              <span class="post-meta-item-text">发表于</span>
+
+              
+                
+              
+
+              <time title="创建时间：2020-10-26 10:41:15" itemprop="dateCreated datePublished" datetime="2020-10-26T10:41:15+08:00">2020-10-26</time>
+            </span>
+          
+            
+
+            
+              <span class="post-meta-item">
+                <span class="post-meta-item-icon">
+                  <i class="fa fa-calendar-check-o"></i>
+                </span>
+                <span class="post-meta-item-text">更新于</span>
+                <time title="修改时间：2021-06-20 12:19:35" itemprop="dateModified" datetime="2021-06-20T12:19:35+08:00">2021-06-20</time>
+              </span>
+            
+          
+            <span class="post-meta-item">
+              <span class="post-meta-item-icon">
+                <i class="fa fa-folder-o"></i>
+              </span>
+              <span class="post-meta-item-text">分类于</span>
+              
+                <span itemprop="about" itemscope itemtype="http://schema.org/Thing">
+                  <a href="/categories/k8s/" itemprop="url" rel="index">
+                    <span itemprop="name">k8s</span>
+                  </a>
+                </span>
+
+                
+                
+              
+            </span>
+          
+
+          
+            <span id="/2020/10/26/k8s/k8s-基础知识/" class="post-meta-item leancloud_visitors" data-flag-title="k8s基础知识" title="阅读次数">
+              <span class="post-meta-item-icon">
+                <i class="fa fa-eye"></i>
+              </span>
+              <span class="post-meta-item-text">阅读次数：</span>
+              <span class="leancloud-visitors-count"></span>
+            </span>
+          
+  
+  
+
+        </div>
+      </header>
+
+    
+    
+    
+    <div class="post-body" itemprop="articleBody">
+
+      
+        <h1 id="云原生"><a href="#云原生" class="headerlink" title="云原生"></a>云原生</h1><h2 id="基本概念"><a href="#基本概念" class="headerlink" title="基本概念"></a>基本概念</h2><p>​    云原生是一种<strong>构建和运行应用程序的方法</strong>，是一套技术体系和方法论。</p>
+<p>​    云原生（CloudNative）是一个组合词，Cloud+Native。Cloud表示应用程序位于云中，而不是传统的数据中心；Native表示应用程序从设计之初即考虑到云的环境，原生为云而设计，<strong>在云上以最佳姿势运行</strong>，充分利用和发挥云平台的弹性+分布式优势。</p>
+<p>   Pivotal最新官网对云原生概括为4个要点：<strong>DevOps+持续交付+微服务+容器</strong>。</p>
+<ul>
+<li><p>DevOps</p>
+<blockquote>
+<p>1、自动化发布管道、CI工具</p>
+<p>2、快速部署到生产环境</p>
+<p>3、开发、运维协同合作</p>
+</blockquote>
+</li>
+<li><p>持续交付</p>
+<blockquote>
+<p>频繁发布、快速交付、快速反馈、降低发布风险</p>
+</blockquote>
+</li>
+<li><p>微服务</p>
+<blockquote>
+<p>1、应用间通过Restful api通信</p>
+<p>2、可以被独立的部署、更新、scala、重启</p>
+</blockquote>
+</li>
+<li><p>容器</p>
+<blockquote>
+<p>微服务的最佳载体</p>
+</blockquote>
+</li>
+</ul>
+<p>​    云原生计算基金会（CNCF）定义云原生为：<strong>容器化封装+自动化管理+面向微服务+服务网格(Service Mesh)+ 声明式API</strong>。</p>
+<p>​    <strong>总而言之，符合云原生架构的应用程序应该是：采用开源堆栈（K8S+Docker）进行容器化，基于微服务架构提高灵活性和可维护性，借助敏捷方法、DevOps支持持续迭代和运维自动化，利用云平台设施实现弹性伸缩、动态调度、优化资源利用率。</strong></p>
+<h2 id="如何云原生"><a href="#如何云原生" class="headerlink" title="如何云原生"></a>如何云原生</h2><p>​    云计算是云原生的基础。</p>
+<p>​    随着虚拟化技术的成熟和分布式框架的普及，在容器技术、可持续交付、编排系统等开源社区的推动下，以及微服务等开发理念的带动下，<strong>应用上云已经是不可逆转的趋势</strong>。</p>
+<p>​    云计算的3层划分，即基础设施即服务(IaaS)、平台即服务(PaaS)、软件即服务(SaaS)为云原生提供了技术基础和方向指引，<strong>真正的云化不仅仅是基础设施和平台的变化，应用也需要做出改变</strong>，摈弃传统的土方法，在架构设计、开发方式、部署维护等各个阶段和方面都基于云的特点，重新设计，从而建设全新的云化的应用，即云原生应用。</p>
+<h1 id="k8s架构组件"><a href="#k8s架构组件" class="headerlink" title="k8s架构组件"></a>k8s架构组件</h1><p>​    k8s集群由Master node 和 Work node组成。</p>
+<h2 id="Master-node组件"><a href="#Master-node组件" class="headerlink" title="Master node组件"></a>Master node组件</h2><ul>
+<li><p>api server</p>
+<blockquote>
+<p>集群统一入口，以restful 方式，交给etcd存储。</p>
+</blockquote>
+</li>
+<li><p>scheduler</p>
+<blockquote>
+<p>节点调度，选择node节点应用部署</p>
+</blockquote>
+</li>
+<li><p>controller-manager</p>
+<blockquote>
+<p>处理集群中常规后台任务，一个资源对应一个控制器</p>
+</blockquote>
+</li>
+<li><p>etcd</p>
+<blockquote>
+<p>存储系统，用于保存集群相关的数据</p>
+</blockquote>
+</li>
+</ul>
+<h2 id="Worker-node组件"><a href="#Worker-node组件" class="headerlink" title="Worker node组件"></a>Worker node组件</h2><ul>
+<li><p>kubelet</p>
+<blockquote>
+<p>master派到work节点的代表，管理本机容器。</p>
+</blockquote>
+</li>
+<li><p>kube-proxy</p>
+<blockquote>
+<p>提供网络代理，负载均衡等操作。</p>
+</blockquote>
+</li>
+</ul>
+<h1 id="k8s核心概念"><a href="#k8s核心概念" class="headerlink" title="k8s核心概念"></a>k8s核心概念</h1><h2 id="资源对象"><a href="#资源对象" class="headerlink" title="资源对象"></a>资源对象</h2><ul>
+<li>包括：RC、Deployment、HPA、Service</li>
+</ul>
+<h2 id="Master节点"><a href="#Master节点" class="headerlink" title="Master节点"></a>Master节点</h2><ul>
+<li><p>负责整个集群的管理和控制，基本上集群的所有控制命令都发给它，其负责具体的执行过程。</p>
+</li>
+<li><p>Master通常会占据一个独立的服务，高可用下建议3台。</p>
+</li>
+<li><p>在Master上运行着以下关键进程：</p>
+<blockquote>
+<p>1、api-server：提供了rest接口的关键服务进程，是k8s里所有资源的增删改查等操作的唯一入口，也是集群控制的入口进程。</p>
+<p>2、controller-manager：k8s所有资源对象的自动化控制中心。</p>
+<p>3、scheduler：负责资源调度（Pod调度）的进程。</p>
+<p>4、etcd：保存集群的所有资源对象的数据。</p>
+</blockquote>
+</li>
+</ul>
+<h2 id="Node"><a href="#Node" class="headerlink" title="Node"></a>Node</h2><ul>
+<li><p>除了Master，k8s集群中其它机器称为Node。</p>
+</li>
+<li><p>是集群的工作负载（Docker 容器）节点，当Node宕机时，其上的工作负载被Master自动转移到其它节点上。</p>
+</li>
+<li><p>在Node节点上运行着以下关键进程</p>
+<blockquote>
+<p>1、kubelet：负责Pod对应的容器的创建、启停等，并且与Master紧密协作实现集群管理。</p>
+<p>2、kube-proxy：实现k8s Service的通信与负载均衡机制的重要组件。</p>
+<p>3、Docker引擎：负责本机的容器创建和管理。</p>
+</blockquote>
+</li>
+</ul>
+<ul>
+<li><p>在Node节点已经运行了上述进程后，可以动态的添加到集群中</p>
+<blockquote>
+<p>​    kubelet会向Master注册自己，同时定时向Master会报自身的信息。</p>
+</blockquote>
+</li>
+</ul>
+<h2 id="Pod"><a href="#Pod" class="headerlink" title="Pod"></a>Pod</h2><ul>
+<li><p>每个Pod都有一个被称为“根容器”的Pause容器，Pause容器对应的镜像属于k8s集群的一部分。</p>
+<blockquote>
+<p>1、Pause容器是业务无关且不容易死亡，以它的状态代表整个容器组的状态</p>
+<p>2、Pod里的多个业务容器共享Pause容器的IP和挂载的Volume。</p>
+</blockquote>
+</li>
+</ul>
+<ul>
+<li><p>每个Pod都被分配一个IP</p>
+<blockquote>
+<p>k8s里任意两个Pod可以直接通讯，这通过采用虚拟二层网络技术来实现的。</p>
+</blockquote>
+</li>
+<li><p>Pod有两种类型</p>
+<blockquote>
+<p>1、静态Pod：没有被存储在etcd里，而是被存放在某个具体的Node上的一个具体文件中，只有在此Node上启动、运行。</p>
+<p>2、普通Pod：一旦被创建就会被存储到etcd里面，随后被Master调度到具体的Node上，被该Node上的kubelet进程实例化成一组相关的Docker容器。</p>
+</blockquote>
+</li>
+<li><p>Endpoint代表此Pod里的一个服务进程的对外通讯地址。</p>
+<blockquote>
+<p>  Pod的IP加上容器端口（containerPort）组成一个Endpoint。</p>
+</blockquote>
+</li>
+</ul>
+<ul>
+<li><p>Pod Volume 对应Docker Volume</p>
+<blockquote>
+<p>  Pod Volume被定义在Pod上，然后被各个容器挂载到自己的文件系统中。</p>
+</blockquote>
+</li>
+<li><p>Event</p>
+<blockquote>
+<p>1、是一个事件的记录，包括事件的最早产生时间、最后重现时间、重复次数、发起者、类型、以及导致此事件的原因。</p>
+<p>2、通常关联到具体的资源对象上，是排查故障的重要参数信息。<code>kubectl describe pod xxxx</code></p>
+</blockquote>
+</li>
+<li><p>Pod的管理对象处理RC Deployment，还有ReplicaSet、DaemonSet、Stateful Set、Job等。</p>
+</li>
+</ul>
+<h2 id="Label"><a href="#Label" class="headerlink" title="Label"></a>Label</h2><ul>
+<li><p>一个Label是一个key=value的键值对，key和value都是用户自己指定</p>
+</li>
+<li><p>Label可以被附加到各种资源对象上，一个资源对象可以定义任意数量的Label，</p>
+</li>
+<li><p>Label通常在资源对象定义时确定，也可以在对象创建后动态添加和删除。</p>
+</li>
+<li><p>通过给资源对象附加上Label实现多维的资源分组管理功能。</p>
+</li>
+<li><p>通过Label Selectot查询和筛选资源对象</p>
+<blockquote>
+<p>有两种Selector表达式形式：基于等式的和基于集合的。</p>
+</blockquote>
+</li>
+</ul>
+<ul>
+<li><p>Label和Label Selector共同构成了k8s系统中核心的应用模型，使得被管理对象能够被精细地分组管理，同时实现了集群的高可用性</p>
+<blockquote>
+<p>1、kube-controller进程通过在资源对象RC上定义的Label Selector来筛选要监控的Pod副本数量</p>
+<p>2、kube-proxy进程通过Service的Label Selector来选择对应的Pod，自动建立每个Service到对应Pod的请求转发路由表，从而实现Service的智能负载均衡机制。</p>
+<p>3、通过对某些Node定义特定的Label，并且在Pod定义文件中使用NodeSelector这种标签调度策略，kube-schedule进程可以实现Pod定向调度的特性。</p>
+</blockquote>
+</li>
+</ul>
+<h2 id="Replication-Controller（RC）"><a href="#Replication-Controller（RC）" class="headerlink" title="Replication Controller（RC）"></a>Replication Controller（RC）</h2><ul>
+<li><p>是一个老版本概念</p>
+</li>
+<li><p>定义了一个期望的场景，即声明某种Pod的副本数量在任意时刻都符合某个预期值。分为几个部分：</p>
+<blockquote>
+<p>1、Pod期待的副本数量</p>
+<p>2、用于筛选目标Pod的Label Selector</p>
+<p>3、当Pod的副本数量小于预期数量时，用于创建新Pod的Pod模板</p>
+</blockquote>
+</li>
+</ul>
+<ul>
+<li><p>当一个RC提交到k8s集群后，Master上的Controller Manager就会得到通知，定义检查系统中当前存活的目标Pod与RC中期望的一致。</p>
+</li>
+<li><p>在运行时可以动态修改RC的副本数量，来实现Pod的动态缩放</p>
+<figure class="highlight shell"><table><tr><td class="gutter"><pre><span class="line">1</span><br></pre></td><td class="code"><pre><span class="line"><span class="meta">$</span> kubectl scala rc redis-slave --replica=3</span><br></pre></td></tr></table></figure>
+</li>
+<li><p>删除RC并不会影响通过该RC创建好的Pod，要删除所有Pod可以设置replicas为0</p>
+</li>
+</ul>
+<h2 id="Replica-Set（下一代RC）"><a href="#Replica-Set（下一代RC）" class="headerlink" title="Replica Set（下一代RC）"></a>Replica Set（下一代RC）</h2><ul>
+<li><p>基本与Replication Controller相同</p>
+</li>
+<li><p>Replica Set和deployment逐步替代了之前RC的作用</p>
+</li>
+<li><p>很少单独使用，主要被deployment这个更高层的资源对象使用</p>
+<blockquote>
+<p>从而形成一套Pod创建、删除、更新的编排机制</p>
+</blockquote>
+</li>
+</ul>
+<h2 id="Deployment"><a href="#Deployment" class="headerlink" title="Deployment"></a>Deployment</h2><ul>
+<li><p>是1.2版本后引入的新概念</p>
+</li>
+<li><p>用于更好地解决Pod的编排问题，内部使用Replica Set来实现目的</p>
+</li>
+<li><p>deployment相对于上一代RC的最大升级是随时知道当前pod的部署进度</p>
+<blockquote>
+<p>Pod创建、调度、绑定节点以及在目标node上启动对应的容器。</p>
+</blockquote>
+</li>
+<li><p>典型应用场景</p>
+<blockquote>
+<p>1、创建一个Deployment对象来生成对应的Relica Set对象并完成Pod副本的创建</p>
+</blockquote>
+</li>
+</ul>
+<ul>
+<li><p>实用命令</p>
+<figure class="highlight shell"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br><span class="line">3</span><br><span class="line">4</span><br><span class="line">5</span><br><span class="line">6</span><br></pre></td><td class="code"><pre><span class="line"><span class="meta">$</span> kubectl create -f xxx.yaml</span><br><span class="line"><span class="meta">$</span> kubectl get deployments</span><br><span class="line"><span class="meta">$</span> kubectl get rs</span><br><span class="line"><span class="meta">#</span> Pod的命名以Deployment对应的Replica Set的名称为前缀</span><br><span class="line"><span class="meta">$</span> kubectl get pods</span><br><span class="line"><span class="meta">$</span> kubectl describe deployments</span><br></pre></td></tr></table></figure>
+
+</li>
+</ul>
+<h2 id="Horizontal-Pod-Autoscaler（HPA）"><a href="#Horizontal-Pod-Autoscaler（HPA）" class="headerlink" title="Horizontal Pod Autoscaler（HPA）"></a>Horizontal Pod Autoscaler（HPA）</h2><h2 id="Statefule-Set"><a href="#Statefule-Set" class="headerlink" title="Statefule Set"></a>Statefule Set</h2><h2 id="Service"><a href="#Service" class="headerlink" title="Service"></a>Service</h2><ul>
+<li><p>每个Service其实就是微服务架构中的一个微服务。</p>
+</li>
+<li><p>Service定义了一个服务的访问入口地址，前端应用通过这个地址访问其背后的一组Pod副本组成的集群实例。</p>
+<blockquote>
+<p>Service与其后端的Pod副本集群之前是通过Label Selector实现对接的。</p>
+</blockquote>
+</li>
+</ul>
+<ul>
+<li><p>每个Service没有共用一个负载均衡器的IP地址，而是被分配了一个全局唯一的虚拟IP地址，称为Cluster IP</p>
+<blockquote>
+<p>1、每个服务就变成了具体唯一IP地址的通讯节点，服务调用就变成了TCP网络通讯问题</p>
+<p>2、每个node上的kube-proxy就是一个负载均衡器，负责把对Service的请求转发到后端某个Pod实例上</p>
+<p>3、在Service的整个生命周期内，它的ClusterIp不会发生改变</p>
+<p>4、服务发现：用Service的Name与Service的ClusterIP做一个DNS域名映射</p>
+</blockquote>
+</li>
+<li><p>端口总结</p>
+<blockquote>
+<p>1、targetPort是Pod中容器保留的端口，默认与port相同。</p>
+<p>2、port是Service暴露在ClusterIp上的端口，提供给集群内部客户访问Service的入口</p>
+<p>3、nodePort暴露在Node上，是提供给集群外部客户访问service的入口。</p>
+</blockquote>
+</li>
+<li><p>服务发现机制</p>
+<blockquote>
+<p>k8s通过Add-On增值包引入DNS系统，把服务名作为DNS域名，这样就可以使用服务名建立通讯连接</p>
+</blockquote>
+</li>
+<li><p>外部系统访问Service</p>
+<blockquote>
+<p>1、k8s里的3中IP：</p>
+<p>  Node IP：Node节点的物理网卡的IP地址，是真实存在的物理网络。</p>
+<p>  Pod IP：Pod的IP地址，是根据Docker引擎网桥IP地址段进行分配的，是一个虚拟的二层网络，用来k8s的Pod直接通讯。</p>
+<p>  Cluster IP：Service的IP地址，是一种虚拟IP。仅仅作用于Service对象，由k8s管理和分配（Cluster IP地址池），无法被ping，因为没有一个实体网络对象来相应。</p>
+</blockquote>
+</li>
+<li><p>NodePort实现方式</p>
+<blockquote>
+<p>在集群的每个Node上都为需要外部访问的Service开启一个对应的TCP监听端口，外部系统只要用任意一个Node的IP地址+具体的NodePort端口就可以访问此服务</p>
+</blockquote>
+</li>
+</ul>
+<h2 id="Job"><a href="#Job" class="headerlink" title="Job"></a>Job</h2><h2 id="Volume"><a href="#Volume" class="headerlink" title="Volume"></a>Volume</h2><ul>
+<li><p>存储卷是Pod中能够被多个容器访问的共享目录</p>
+<blockquote>
+<p>1、k8s中的Volume被定义在Pod上，然后被一个Pod里的多个容器挂载到具体的文件目录下</p>
+<p>2、k8s中的Volume与Pod的声明周期相同，但与容器的声明周期相关。</p>
+</blockquote>
+</li>
+<li><p>Volume类型</p>
+<blockquote>
+<p>1、emptyDir：是Pod分配到Node时创建的，初始内容为空，无需指定宿主机上对应的目录文件，因为k8s会自动分配一个目录。</p>
+<p>2、hostPath：</p>
+</blockquote>
+</li>
+</ul>
+<h2 id="Persistent-Volume（PV）"><a href="#Persistent-Volume（PV）" class="headerlink" title="Persistent Volume（PV）"></a>Persistent Volume（PV）</h2><ul>
+<li><p>PV可以理解为k8s集群中的某个网络存储对应的一块存储。</p>
+</li>
+<li><p>nfs的安装</p>
+<figure class="highlight shell"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br><span class="line">3</span><br><span class="line">4</span><br><span class="line">5</span><br><span class="line">6</span><br><span class="line">7</span><br><span class="line">8</span><br></pre></td><td class="code"><pre><span class="line"><span class="meta">#</span> 分别在nfs服务器和node节点上安装</span><br><span class="line"><span class="meta">$</span> yum -y install nfs-utils</span><br><span class="line"><span class="meta">#</span> 设置挂载路径</span><br><span class="line"><span class="meta">$</span> cat /etc/exports</span><br><span class="line"><span class="meta">#</span> /data/nfs *(rw,no_root_squash)</span><br><span class="line"></span><br><span class="line"><span class="meta">#</span> 在nfs服务器启动</span><br><span class="line"><span class="meta">$</span> systemctl start nfs</span><br></pre></td></tr></table></figure>
+</li>
+<li><p>与Volume的区别</p>
+<blockquote>
+<p>1、PV只能是网络存储，不属于任何Node，但可以在每个Node上访问</p>
+<p>2、PV并不是被定义在Pod上的，而是独立于Pod之外定义的</p>
+</blockquote>
+</li>
+<li><p>PV和PVC根据容量和匹配模式  进行 匹配，和name等属性无关。</p>
+</li>
+</ul>
+<h2 id="Namespace"><a href="#Namespace" class="headerlink" title="Namespace"></a>Namespace</h2><ul>
+<li>给每个租户创建一个namespace实现多租户的资源隔离</li>
+<li>结合k8s的资源配额管理，限定不同租户占用的资源</li>
+</ul>
+<h2 id="Annotation"><a href="#Annotation" class="headerlink" title="Annotation"></a>Annotation</h2><h2 id="ConfigMap"><a href="#ConfigMap" class="headerlink" title="ConfigMap"></a>ConfigMap</h2><ul>
+<li>k8s提供了一个内建机制，将存储在etcd中的ConfigMap通过Volume映射的方式变成目标Pod内的配置文件</li>
+<li>当ConfigMap的数据被修改，则映射到Pod的“配置文件”也会随之自动更新。</li>
+</ul>
+<h1 id="实用命令"><a href="#实用命令" class="headerlink" title="实用命令"></a>实用命令</h1><figure class="highlight shell"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br><span class="line">3</span><br><span class="line">4</span><br><span class="line">5</span><br><span class="line">6</span><br><span class="line">7</span><br><span class="line">8</span><br><span class="line">9</span><br><span class="line">10</span><br><span class="line">11</span><br><span class="line">12</span><br><span class="line">13</span><br><span class="line">14</span><br></pre></td><td class="code"><pre><span class="line"><span class="meta">#</span> 查看节点</span><br><span class="line"><span class="meta">$</span> kubectl get nodes</span><br><span class="line"><span class="meta">#</span> 查看节点详情</span><br><span class="line"><span class="meta">$</span> kubectl describe node &lt;node_name&gt;</span><br><span class="line"><span class="meta">$</span> kubectl get endpoints</span><br><span class="line"><span class="meta">$</span> kubectt get svc service-name -o yaml</span><br><span class="line"><span class="meta">#</span> 查看端口被监听</span><br><span class="line"><span class="meta">$</span> netstat -tlp | grep 8080</span><br><span class="line"><span class="meta">#</span> 查看namespace</span><br><span class="line"><span class="meta">$</span> kubectl get ns</span><br><span class="line"><span class="meta">#</span> 创建命名空间</span><br><span class="line"><span class="meta">$</span> kubectl create ns role-dev</span><br><span class="line"><span class="meta">#</span> 查看特定命名空间的pod</span><br><span class="line"><span class="meta">$</span> kubectl get pods -n role-dev</span><br></pre></td></tr></table></figure>
+
+<h1 id="参考文档"><a href="#参考文档" class="headerlink" title="参考文档"></a>参考文档</h1><p><a href="https://juejin.im/post/6844904197859590151" target="_blank" rel="noopener">什么是云原生？这回终于有人讲明白了</a></p>
+<p><a href="https://www.zhihu.com/question/65502802" target="_blank" rel="noopener">什么是微服务架构</a></p>
+<p><a href="https://blog.csdn.net/qq_36357820/article/details/78488077" target="_blank" rel="noopener">NFS /etc/exports参数解释</a></p>
+
+    </div>
+
+    
+    
+    
+        
+      
+
+      <footer class="post-footer">
+
+        
+
+          <div class="post-nav">
+            <div class="post-nav-next post-nav-item">
+              
+                <a href="/2020/10/21/kafka/kafka客户端/" rel="next" title="kafka客户端">
+                  <i class="fa fa-chevron-left"></i> kafka客户端
+                </a>
+              
+            </div>
+
+            <span class="post-nav-divider"></span>
+
+            <div class="post-nav-prev post-nav-item">
+              
+                <a href="/2020/10/27/docker/docker基本知识/" rel="prev" title="docker基本知识">
+                  docker基本知识 <i class="fa fa-chevron-right"></i>
+                </a>
+              
+            </div>
+          </div>
+        
+      </footer>
+    
+  </article>
+  
+  
+  
+
+  </div>
+
+
+          </div>
+          
+
+        </div>
+          
+  
+  <div class="toggle sidebar-toggle">
+    <span class="toggle-line toggle-line-first"></span>
+    <span class="toggle-line toggle-line-middle"></span>
+    <span class="toggle-line toggle-line-last"></span>
+  </div>
+
+  <aside class="sidebar">
+    <div class="sidebar-inner">
+        
+        
+        
+        
+      
+
+      <ul class="sidebar-nav motion-element">
+        <li class="sidebar-nav-toc">
+          文章目录
+        </li>
+        <li class="sidebar-nav-overview">
+          站点概览
+        </li>
+      </ul>
+
+      <!--noindex-->
+      <div class="post-toc-wrap sidebar-panel">
+          <div class="post-toc motion-element"><ol class="nav"><li class="nav-item nav-level-1"><a class="nav-link" href="#云原生"><span class="nav-number">1.</span> <span class="nav-text">云原生</span></a><ol class="nav-child"><li class="nav-item nav-level-2"><a class="nav-link" href="#基本概念"><span class="nav-number">1.1.</span> <span class="nav-text">基本概念</span></a></li><li class="nav-item nav-level-2"><a class="nav-link" href="#如何云原生"><span class="nav-number">1.2.</span> <span class="nav-text">如何云原生</span></a></li></ol></li><li class="nav-item nav-level-1"><a class="nav-link" href="#k8s架构组件"><span class="nav-number">2.</span> <span class="nav-text">k8s架构组件</span></a><ol class="nav-child"><li class="nav-item nav-level-2"><a class="nav-link" href="#Master-node组件"><span class="nav-number">2.1.</span> <span class="nav-text">Master node组件</span></a></li><li class="nav-item nav-level-2"><a class="nav-link" href="#Worker-node组件"><span class="nav-number">2.2.</span> <span class="nav-text">Worker node组件</span></a></li></ol></li><li class="nav-item nav-level-1"><a class="nav-link" href="#k8s核心概念"><span class="nav-number">3.</span> <span class="nav-text">k8s核心概念</span></a><ol class="nav-child"><li class="nav-item nav-level-2"><a class="nav-link" href="#资源对象"><span class="nav-number">3.1.</span> <span class="nav-text">资源对象</span></a></li><li class="nav-item nav-level-2"><a class="nav-link" href="#Master节点"><span class="nav-number">3.2.</span> <span class="nav-text">Master节点</span></a></li><li class="nav-item nav-level-2"><a class="nav-link" href="#Node"><span class="nav-number">3.3.</span> <span class="nav-text">Node</span></a></li><li class="nav-item nav-level-2"><a class="nav-link" href="#Pod"><span class="nav-number">3.4.</span> <span class="nav-text">Pod</span></a></li><li class="nav-item nav-level-2"><a class="nav-link" href="#Label"><span class="nav-number">3.5.</span> <span class="nav-text">Label</span></a></li><li class="nav-item nav-level-2"><a class="nav-link" href="#Replication-Controller（RC）"><span class="nav-number">3.6.</span> <span class="nav-text">Replication Controller（RC）</span></a></li><li class="nav-item nav-level-2"><a class="nav-link" href="#Replica-Set（下一代RC）"><span class="nav-number">3.7.</span> <span class="nav-text">Replica Set（下一代RC）</span></a></li><li class="nav-item nav-level-2"><a class="nav-link" href="#Deployment"><span class="nav-number">3.8.</span> <span class="nav-text">Deployment</span></a></li><li class="nav-item nav-level-2"><a class="nav-link" href="#Horizontal-Pod-Autoscaler（HPA）"><span class="nav-number">3.9.</span> <span class="nav-text">Horizontal Pod Autoscaler（HPA）</span></a></li><li class="nav-item nav-level-2"><a class="nav-link" href="#Statefule-Set"><span class="nav-number">3.10.</span> <span class="nav-text">Statefule Set</span></a></li><li class="nav-item nav-level-2"><a class="nav-link" href="#Service"><span class="nav-number">3.11.</span> <span class="nav-text">Service</span></a></li><li class="nav-item nav-level-2"><a class="nav-link" href="#Job"><span class="nav-number">3.12.</span> <span class="nav-text">Job</span></a></li><li class="nav-item nav-level-2"><a class="nav-link" href="#Volume"><span class="nav-number">3.13.</span> <span class="nav-text">Volume</span></a></li><li class="nav-item nav-level-2"><a class="nav-link" href="#Persistent-Volume（PV）"><span class="nav-number">3.14.</span> <span class="nav-text">Persistent Volume（PV）</span></a></li><li class="nav-item nav-level-2"><a class="nav-link" href="#Namespace"><span class="nav-number">3.15.</span> <span class="nav-text">Namespace</span></a></li><li class="nav-item nav-level-2"><a class="nav-link" href="#Annotation"><span class="nav-number">3.16.</span> <span class="nav-text">Annotation</span></a></li><li class="nav-item nav-level-2"><a class="nav-link" href="#ConfigMap"><span class="nav-number">3.17.</span> <span class="nav-text">ConfigMap</span></a></li></ol></li><li class="nav-item nav-level-1"><a class="nav-link" href="#实用命令"><span class="nav-number">4.</span> <span class="nav-text">实用命令</span></a></li><li class="nav-item nav-level-1"><a class="nav-link" href="#参考文档"><span class="nav-number">5.</span> <span class="nav-text">参考文档</span></a></li></ol></div>
+        
+      </div>
+      <!--/noindex-->
+
+      <div class="site-overview-wrap sidebar-panel">
+        <div class="site-author motion-element" itemprop="author" itemscope itemtype="http://schema.org/Person">
+  <p class="site-author-name" itemprop="name">姜纪光</p>
+  <div class="site-description" itemprop="description"></div>
+</div>
+<div class="site-state-wrap motion-element">
+  <nav class="site-state">
+      <div class="site-state-item site-state-posts">
+        
+          <a href="/archives/">
+        
+          <span class="site-state-item-count">158</span>
+          <span class="site-state-item-name">日志</span>
+        </a>
+      </div>
+    
+      
+      
+      <div class="site-state-item site-state-categories">
+        
+          
+            <a href="/categories/">
+          
+        
+        <span class="site-state-item-count">26</span>
+        <span class="site-state-item-name">分类</span>
+        </a>
+      </div>
+    
+      
+      
+      <div class="site-state-item site-state-tags">
+        
+          
+            <a href="/tags/">
+          
+        
+        <span class="site-state-item-count">14</span>
+        <span class="site-state-item-name">标签</span>
+        </a>
+      </div>
+    
+  </nav>
+</div>
+
+
+
+      </div>
+
+    </div>
+  </aside>
+  <div id="sidebar-dimmer"></div>
+
+
+      </div>
+    </main>
+
+    <footer class="footer">
+      <div class="footer-inner">
+        
+
+<div class="copyright">
+  &copy; 
+  <span itemprop="copyrightYear">2021</span>
+  <span class="with-love">
+    <i class="fa fa-user"></i>
+  </span>
+  <span class="author" itemprop="copyrightHolder">姜纪光</span>
+</div>
+  <div class="powered-by">由 <a href="https://hexo.io" class="theme-link" rel="noopener" target="_blank">Hexo</a> 强力驱动 v3.9.0
+  </div>
+  <span class="post-meta-divider">|</span>
+  <div class="theme-info">
+      
+    主题 – <a href="https://mist.theme-next.org" class="theme-link" rel="noopener" target="_blank">NexT.Mist</a> v7.4.1
+  </div>
+
+        
+
+
+
+
+
+
+
+
+
+
+
+
+        
+      </div>
+    </footer>
+  </div>
+
+  
+  <script src="/lib/anime.min.js?v=3.1.0"></script>
+  <script src="/lib/velocity/velocity.min.js?v=1.2.1"></script>
+  <script src="/lib/velocity/velocity.ui.min.js?v=1.2.1"></script>
+<script src="/js/utils.js?v=7.4.1"></script><script src="/js/motion.js?v=7.4.1"></script>
+<script src="/js/schemes/muse.js?v=7.4.1"></script>
+
+<script src="/js/next-boot.js?v=7.4.1"></script>
+
+
+
+  
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+  
+
+  
+
+  
+
+
+<script>
+NexT.utils.getScript('//unpkg.com/valine/dist/Valine.min.js', () => {
+  var GUEST = ['nick', 'mail', 'link'];
+  var guest = 'nick,mail,link';
+  guest = guest.split(',').filter(item => {
+    return GUEST.includes(item);
+  });
+  new Valine({
+    el: '#comments',
+    verify: false,
+    notify: false,
+    appId: 'MIQC4jJTknc0hjNXDAiIuQ21-9Nh9j0Va',
+    appKey: 'vaiXpSQLLMglwYsVLOBLzck4',
+    placeholder: "Just go go",
+    avatar: 'mm',
+    meta: guest,
+    pageSize: '10' || 10,
+    visitor: true,
+    lang: 'zh-cn' || 'zh-cn',
+    path: location.pathname,
+    recordIP: false,
+    serverURLs: ''
+  });
+}, window.Valine);
+</script>
+
+</body>
+</html>

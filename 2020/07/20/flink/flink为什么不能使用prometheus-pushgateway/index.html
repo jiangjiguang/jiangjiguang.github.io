@@ -1,0 +1,707 @@
+<!DOCTYPE html>
+
+
+
+
+
+<html lang="zh-CN">
+<head>
+  <meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1, maximum-scale=2">
+<meta name="theme-color" content="#222">
+<meta name="generator" content="Hexo 3.9.0">
+  <link rel="apple-touch-icon" sizes="180x180" href="/images/apple-touch-icon-next.png?v=7.4.1">
+  <link rel="icon" type="image/png" sizes="32x32" href="/images/favicon-32x32-next.png?v=7.4.1">
+  <link rel="icon" type="image/png" sizes="16x16" href="/images/favicon-16x16-next.png?v=7.4.1">
+  <link rel="mask-icon" href="/images/logo.svg?v=7.4.1" color="#222">
+
+<link rel="stylesheet" href="/css/main.css?v=7.4.1">
+
+
+<link rel="stylesheet" href="/lib/font-awesome/css/font-awesome.min.css?v=4.7.0">
+
+
+<script id="hexo-configurations">
+  var NexT = window.NexT || {};
+  var CONFIG = {
+    root: '/',
+    scheme: 'Mist',
+    version: '7.4.1',
+    exturl: false,
+    sidebar: {"position":"right","display":"hide","offset":12,"onmobile":false},
+    copycode: {"enable":false,"show_result":false,"style":null},
+    back2top: {"enable":true,"sidebar":false,"scrollpercent":false},
+    bookmark: {"enable":false,"color":"#222","save":"auto"},
+    fancybox: false,
+    mediumzoom: false,
+    lazyload: false,
+    pangu: false,
+    algolia: {
+      appID: '',
+      apiKey: '',
+      indexName: '',
+      hits: {"per_page":10},
+      labels: {"input_placeholder":"Search for Posts","hits_empty":"We didn't find any results for the search: ${query}","hits_stats":"${hits} results found in ${time} ms"}
+    },
+    localsearch: {"enable":false,"trigger":"auto","top_n_per_article":1,"unescape":false,"preload":false},
+    path: '',
+    motion: {"enable":true,"async":false,"transition":{"post_block":"fadeIn","post_header":"slideDownIn","post_body":"slideDownIn","coll_header":"slideLeftIn","sidebar":"slideUpIn"}},
+    translation: {
+      copy_button: '复制',
+      copy_success: '复制成功',
+      copy_failure: '复制失败'
+    },
+    sidebarPadding: 40
+  };
+</script>
+
+  <meta name="description" content="简介​    flink可以使用多种Reporter向外部系统暴露指标（metrics），比如JMX、InfluxDB、prometheus等。由于公司运维的监控告警系统采用的是prometheus监控组件，而且公司对这方面技术存储比较多，所以实时计算平台的指标采集当仁不让的采用prometheus监控组件。 ​    但是即使采用prometheus收集任务指标，又有两种方式可供选择，即expo">
+<meta property="og:type" content="article">
+<meta property="og:title" content="flink为什么不能使用prometheus pushgateway">
+<meta property="og:url" content="http://yoursite.com/2020/07/20/flink/flink为什么不能使用prometheus-pushgateway/index.html">
+<meta property="og:site_name" content="纪光的博客">
+<meta property="og:description" content="简介​    flink可以使用多种Reporter向外部系统暴露指标（metrics），比如JMX、InfluxDB、prometheus等。由于公司运维的监控告警系统采用的是prometheus监控组件，而且公司对这方面技术存储比较多，所以实时计算平台的指标采集当仁不让的采用prometheus监控组件。 ​    但是即使采用prometheus收集任务指标，又有两种方式可供选择，即expo">
+<meta property="og:locale" content="zh-CN">
+<meta property="og:updated_time" content="2021-06-20T04:19:35.144Z">
+<meta name="twitter:card" content="summary">
+<meta name="twitter:title" content="flink为什么不能使用prometheus pushgateway">
+<meta name="twitter:description" content="简介​    flink可以使用多种Reporter向外部系统暴露指标（metrics），比如JMX、InfluxDB、prometheus等。由于公司运维的监控告警系统采用的是prometheus监控组件，而且公司对这方面技术存储比较多，所以实时计算平台的指标采集当仁不让的采用prometheus监控组件。 ​    但是即使采用prometheus收集任务指标，又有两种方式可供选择，即expo">
+  <link rel="canonical" href="http://yoursite.com/2020/07/20/flink/flink为什么不能使用prometheus-pushgateway/">
+
+
+<script id="page-configurations">
+  // https://hexo.io/docs/variables.html
+  CONFIG.page = {
+    sidebar: "",
+    isHome: false,
+    isPost: true,
+    isPage: false,
+    isArchive: false
+  };
+</script>
+
+  <title>flink为什么不能使用prometheus pushgateway | 纪光的博客</title>
+  
+
+
+  <script>
+    var _hmt = _hmt || [];
+    (function() {
+      var hm = document.createElement("script");
+      hm.src = "https://hm.baidu.com/hm.js?bca403b673d79e83a47dc62fea1dd605";
+      var s = document.getElementsByTagName("script")[0];
+      s.parentNode.insertBefore(hm, s);
+    })();
+  </script>
+
+
+
+
+
+
+  <noscript>
+  <style>
+  .use-motion .brand,
+  .use-motion .menu-item,
+  .sidebar-inner,
+  .use-motion .post-block,
+  .use-motion .pagination,
+  .use-motion .comments,
+  .use-motion .post-header,
+  .use-motion .post-body,
+  .use-motion .collection-header { opacity: initial; }
+
+  .use-motion .site-title,
+  .use-motion .site-subtitle {
+    opacity: initial;
+    top: initial;
+  }
+
+  .use-motion .logo-line-before i { left: initial; }
+  .use-motion .logo-line-after i { right: initial; }
+  </style>
+</noscript>
+
+</head>
+
+<body itemscope itemtype="http://schema.org/WebPage">
+  <div class="container use-motion">
+    <div class="headband"></div>
+
+    <header class="header" itemscope itemtype="http://schema.org/WPHeader">
+      <div class="header-inner"><div class="site-brand-container">
+  <div class="site-meta">
+
+    <div>
+      <a href="/" class="brand" rel="start">
+        <span class="logo-line-before"><i></i></span>
+        <span class="site-title">纪光的博客</span>
+        <span class="logo-line-after"><i></i></span>
+      </a>
+    </div>
+  </div>
+
+  <div class="site-nav-toggle">
+    <div class="toggle" aria-label="切换导航栏">
+      <span class="toggle-line toggle-line-first"></span>
+      <span class="toggle-line toggle-line-middle"></span>
+      <span class="toggle-line toggle-line-last"></span>
+    </div>
+  </div>
+</div>
+
+
+<nav class="site-nav">
+  
+  <ul id="menu" class="menu">
+      
+      
+        
+        
+        <li class="menu-item menu-item-home">
+      
+    
+
+    <a href="/" rel="section"><i class="fa fa-fw fa-home"></i>首页</a>
+
+  </li>
+      
+    
+      
+      
+        
+        
+        <li class="menu-item menu-item-categories">
+      
+    
+
+    <a href="/categories/" rel="section"><i class="fa fa-fw fa-th"></i>分类</a>
+
+  </li>
+      
+    
+      
+      
+        
+        
+        <li class="menu-item menu-item-tags">
+      
+    
+
+    <a href="/tags/" rel="section"><i class="fa fa-fw fa-tags"></i>标签</a>
+
+  </li>
+      
+    
+      
+      
+        
+        
+        <li class="menu-item menu-item-archives">
+      
+    
+
+    <a href="/archives/" rel="section"><i class="fa fa-fw fa-archive"></i>归档</a>
+
+  </li>
+      
+    
+      
+      
+        
+        
+        <li class="menu-item menu-item-about">
+      
+    
+
+    <a href="/about/" rel="section"><i class="fa fa-fw fa-user"></i>关于</a>
+
+  </li>
+      
+    
+  </ul>
+
+    
+
+</nav>
+</div>
+    </header>
+
+    
+  <div class="back-to-top">
+    <i class="fa fa-arrow-up"></i>
+    <span>0%</span>
+  </div>
+
+
+    <main class="main">
+      <div class="main-inner">
+        <div class="content-wrap">
+          <div class="content">
+            
+
+  <div class="posts-expand">
+      
+  
+  
+  <article itemscope itemtype="http://schema.org/Article" class="post-block " lang="zh-CN">
+    <link itemprop="mainEntityOfPage" href="http://yoursite.com/2020/07/20/flink/flink为什么不能使用prometheus-pushgateway/">
+
+    <span hidden itemprop="author" itemscope itemtype="http://schema.org/Person">
+      <meta itemprop="name" content="姜纪光">
+      <meta itemprop="description" content="">
+      <meta itemprop="image" content="/images/avatar.gif">
+    </span>
+
+    <span hidden itemprop="publisher" itemscope itemtype="http://schema.org/Organization">
+      <meta itemprop="name" content="纪光的博客">
+    </span>
+      <header class="post-header">
+        <h1 class="post-title" itemprop="name headline">
+          
+            flink为什么不能使用prometheus pushgateway
+            
+
+          
+        </h1>
+
+        <div class="post-meta">
+            <span class="post-meta-item">
+              <span class="post-meta-item-icon">
+                <i class="fa fa-calendar-o"></i>
+              </span>
+              <span class="post-meta-item-text">发表于</span>
+
+              
+                
+              
+
+              <time title="创建时间：2020-07-20 09:10:54" itemprop="dateCreated datePublished" datetime="2020-07-20T09:10:54+08:00">2020-07-20</time>
+            </span>
+          
+            
+
+            
+              <span class="post-meta-item">
+                <span class="post-meta-item-icon">
+                  <i class="fa fa-calendar-check-o"></i>
+                </span>
+                <span class="post-meta-item-text">更新于</span>
+                <time title="修改时间：2021-06-20 12:19:35" itemprop="dateModified" datetime="2021-06-20T12:19:35+08:00">2021-06-20</time>
+              </span>
+            
+          
+            <span class="post-meta-item">
+              <span class="post-meta-item-icon">
+                <i class="fa fa-folder-o"></i>
+              </span>
+              <span class="post-meta-item-text">分类于</span>
+              
+                <span itemprop="about" itemscope itemtype="http://schema.org/Thing">
+                  <a href="/categories/flink/" itemprop="url" rel="index">
+                    <span itemprop="name">flink</span>
+                  </a>
+                </span>
+
+                
+                
+              
+            </span>
+          
+
+          
+            <span id="/2020/07/20/flink/flink为什么不能使用prometheus-pushgateway/" class="post-meta-item leancloud_visitors" data-flag-title="flink为什么不能使用prometheus pushgateway" title="阅读次数">
+              <span class="post-meta-item-icon">
+                <i class="fa fa-eye"></i>
+              </span>
+              <span class="post-meta-item-text">阅读次数：</span>
+              <span class="leancloud-visitors-count"></span>
+            </span>
+          
+  
+  
+
+        </div>
+      </header>
+
+    
+    
+    
+    <div class="post-body" itemprop="articleBody">
+
+      
+        <h1 id="简介"><a href="#简介" class="headerlink" title="简介"></a>简介</h1><p>​    flink可以使用多种Reporter向外部系统暴露指标（metrics），比如JMX、InfluxDB、prometheus等。由于公司运维的监控告警系统采用的是prometheus监控组件，而且公司对这方面技术存储比较多，所以实时计算平台的指标采集当仁不让的采用prometheus监控组件。</p>
+<p>​    但是即使采用prometheus收集任务指标，又有两种方式可供选择，即exporter 和 pushgateway。</p>
+<ul>
+<li>flink-conf.yaml中pushgateway配置</li>
+</ul>
+<figure class="highlight yaml"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br><span class="line">3</span><br><span class="line">4</span><br><span class="line">5</span><br><span class="line">6</span><br><span class="line">7</span><br></pre></td><td class="code"><pre><span class="line"><span class="string">metrics.reporter.promgateway.class:</span> <span class="string">org.apache.flink.metrics.prometheus.PrometheusPushGatewayReporter</span></span><br><span class="line"><span class="string">metrics.reporter.promgateway.host:</span> <span class="string">pushgateway-xxxxxxxxxxxxxxx.net</span></span><br><span class="line"><span class="string">metrics.reporter.promgateway.port:</span> <span class="number">9091</span></span><br><span class="line"><span class="string">metrics.reporter.promgateway.jobName:</span> <span class="string">xxxxxxxxxxxxxxx</span></span><br><span class="line"><span class="string">metrics.reporter.promgateway.randomJobNameSuffix:</span> <span class="literal">true</span></span><br><span class="line"><span class="string">metrics.reporter.promgateway.deleteOnShutdown:</span> <span class="literal">true</span></span><br><span class="line"><span class="string">metrics.reporter.promgateway.interval:</span> <span class="number">50</span> <span class="string">SECONDS</span></span><br></pre></td></tr></table></figure>
+
+<ul>
+<li>flink-conf.yaml中exporter配置方式</li>
+</ul>
+<figure class="highlight yaml"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br></pre></td><td class="code"><pre><span class="line"><span class="string">metrics.reporter.prom.class:</span> <span class="string">org.apache.flink.metrics.prometheus.PrometheusReporter</span></span><br><span class="line"><span class="string">metrics.reporter.prom.port:</span> <span class="number">9200</span><span class="bullet">-9299</span></span><br></pre></td></tr></table></figure>
+
+<h1 id="prometheus-pushgateway问题"><a href="#prometheus-pushgateway问题" class="headerlink" title="prometheus pushgateway问题"></a>prometheus pushgateway问题</h1><p>​    在开始搭建实时计算平台时，根据运维的建议和业界的调研最终选择了pushgateway的指标收集方式，刚开始时指标收集和报警都比较良好。但是随着任务数量的增多，任务数达到600的时候，prometheus每次pushgateway采集数据的时间达到70~80秒，而且还伴发着偶发性的超时（超时时间90秒）报警延时大概5分钟。为什么会这样呢？prometheus官网不建议pushgateway作为大量的指标收集方式，实时计算平台当任务数达到600时，其指标数量已经达到22000个。这时pushgateway 进程已经占用了45G内存、CPU负载达到300%。当从pushgateway把所有的指标下载的到本地磁盘后，只占3G左右的磁盘空间，为什么在占用内存会比磁盘大了一个数量级呢？那么随着指标数量的增加，pushgateway的内存是不是线性增加的呢？通过模拟线上指标数据，对pushgateway进行了测试，得出一个结论：pushgateway所占内存会随着指标的数量增加而线性增加。</p>
+<figure class="highlight plain"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br><span class="line">3</span><br><span class="line">4</span><br><span class="line">5</span><br><span class="line">6</span><br><span class="line">7</span><br><span class="line">8</span><br><span class="line">9</span><br><span class="line">10</span><br><span class="line">11</span><br></pre></td><td class="code"><pre><span class="line">pushgateway的问题有两个：</span><br><span class="line">1.内存使用高，申请的内存约45G，实际使用的内存约30G，所有数据拉到本地磁盘占1.6G</span><br><span class="line">2.GPU使用率为300%，瞬时值能达到1200%</span><br><span class="line">其中机器内存为：256G，CPU：32核</span><br><span class="line">结论：通过模拟数据写入pushgateway，观察内存和CPU的变化</span><br><span class="line">1.排除GC造成CPU负载高的原因，GC时间不到1%</span><br><span class="line">2.pushgateway打开400多个文件描述符，是系统打开的，未能确定其影响</span><br><span class="line">3.可以查到prometheus每次拉取约260万个指标，每个指标约占12KB</span><br><span class="line">模拟写入pushgateway时，内存随数据量成线性增长，每条数据约占8KB，</span><br><span class="line">虑到模拟时是写入停止时的内存统计，线上是一直不断写入的，再加上处理内存，认为线上pushgateway内存高是合理的</span><br><span class="line">4.CPU负载高的原因是，不断处理数据聚合，在模拟时也会看到随着写入量的增加，CPU逐渐增高，认为也是合理的</span><br></pre></td></tr></table></figure>
+
+<p>从而得出以下结论：</p>
+<figure class="highlight plain"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br><span class="line">3</span><br><span class="line">4</span><br><span class="line">5</span><br></pre></td><td class="code"><pre><span class="line">1.pushgateway的GC时间占用1%，不是造成CPU负载大的原因</span><br><span class="line">2.pushgateway打开了400个文件描述符，应该是系统打开的，未能明确其影响</span><br><span class="line">3.内存随数据量成线程增长，并且为写入数据大小的5.5倍</span><br><span class="line">4.pushgateway写入的基本逻辑是：pushgateway收到请求后放到队列，然后后台线程进行聚合处理。所以会造成CPU负载过高</span><br><span class="line">5.对比了线上版本（0.9.1）和最新版本（1.2.0），结论基本一致。</span><br></pre></td></tr></table></figure>
+
+<p>解决方案：</p>
+<figure class="highlight plain"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br><span class="line">3</span><br></pre></td><td class="code"><pre><span class="line">1.精简flink指标的写入，包括：指标数据量减少，值为0或者NAN的指标不再写入</span><br><span class="line">2.pushgateway构建多台</span><br><span class="line">3.使用其他存储替代pushgateway，如InfluxDB等</span><br></pre></td></tr></table></figure>
+
+<p>当时想到3个解决方案，但是都被一一排除：</p>
+<ul>
+<li><p>方案一</p>
+<blockquote>
+<p> 精简哪些指标、怎么精简指标、精简之后会造成哪些影响，这些都可能会耗费大量的精力，而且效果不一定明显</p>
+</blockquote>
+</li>
+<li><p>方案二</p>
+<blockquote>
+<p>如何pushgateway使用多台，那么怎么把不同指标达到不同的pushgateway，随着任务数量的增多pushgateway机器不够了还需要继续扩容？当下600个任务已经占用了45G内存，采集时间太长，而且偶发性超时怎么解决</p>
+</blockquote>
+</li>
+<li><p>方案三</p>
+<blockquote>
+<p>如果使用InfluxDB代替，那么开发人力成本、和现有系统的结合，又将是面临的问题</p>
+</blockquote>
+</li>
+</ul>
+<p>值得一提的是：当任务下线时，flink只会删除JobManager的指标，不会删除TaskManager的指标。</p>
+<p>总结起来，当前实时计算平台面临两个问题</p>
+<ul>
+<li>指标如何采集，即寻找pushgateway的替代方案</li>
+<li>报警延时比较高，达到5~6分钟</li>
+</ul>
+<h1 id="解决方案"><a href="#解决方案" class="headerlink" title="解决方案"></a>解决方案</h1><h1 id="指标标签"><a href="#指标标签" class="headerlink" title="指标标签"></a>指标标签</h1><ul>
+<li><p>cloud</p>
+<blockquote>
+<p>固定值</p>
+</blockquote>
+</li>
+<li><p>env</p>
+<blockquote>
+<p>prd 固定值</p>
+</blockquote>
+</li>
+<li><p>host</p>
+<blockquote>
+<p>server 的机器host</p>
+</blockquote>
+</li>
+<li><p>instance</p>
+<blockquote>
+<p>node_exporter所在的主机ip+端口号</p>
+</blockquote>
+</li>
+<li><p>monitor</p>
+<blockquote>
+<p>固定值 通过prometheus的配置文件 external_labels 参数指定</p>
+</blockquote>
+</li>
+<li><p>projectkey0</p>
+<blockquote>
+<p>固定值   应用名称   techcenter-di-flink-yarn</p>
+</blockquote>
+</li>
+<li><p>projectname0</p>
+<blockquote>
+<p>固定值  flink-yarn</p>
+</blockquote>
+</li>
+<li><p>promip</p>
+<blockquote>
+<p>采集指标的具体的prometheus机器</p>
+<p>通过prometheus的配置文件 external_labels 参数指定</p>
+</blockquote>
+</li>
+<li><p>server</p>
+<blockquote>
+<p>container的所在主机名</p>
+</blockquote>
+</li>
+<li><p>service</p>
+<blockquote>
+<p>consul_sd_configs配置的services的值</p>
+<p>用于服务注册和服务发现</p>
+<p>不同机器上的node_exporter可以相同</p>
+</blockquote>
+</li>
+<li><p>job</p>
+<blockquote>
+<p>固定值  通过prometheus的配置文件 scrape_configs 的job_name 参数指定</p>
+</blockquote>
+</li>
+<li><p>job_id</p>
+<blockquote>
+<p>用来标识唯一的个任务实例</p>
+<p>flink系统自动生成</p>
+</blockquote>
+</li>
+<li><p>job_name</p>
+<blockquote>
+<p>flink dashboard中任务的名称  flink系统自动生成</p>
+</blockquote>
+</li>
+<li><p>libra_job_name</p>
+<blockquote>
+<p>任务发布时libra_job_name参数的名称</p>
+</blockquote>
+</li>
+<li><p>libra_job_owner</p>
+<blockquote>
+<p>任务发布时libra_job_owner参数的名称</p>
+</blockquote>
+</li>
+<li><p>tm_id</p>
+<blockquote>
+<p>任务container id</p>
+</blockquote>
+</li>
+</ul>
+<h1 id="参考文档"><a href="#参考文档" class="headerlink" title="参考文档"></a>参考文档</h1><p><a href="https://ci.apache.org/projects/flink/flink-docs-release-1.11/monitoring/metrics.html" target="_blank" rel="noopener">Metrics</a></p>
+<p><a href="https://github.com/prometheus/pushgateway" target="_blank" rel="noopener">pushgateway</a></p>
+
+    </div>
+
+    
+    
+    
+        
+      
+
+      <footer class="post-footer">
+
+        
+
+          <div class="post-nav">
+            <div class="post-nav-next post-nav-item">
+              
+                <a href="/2020/07/15/linux/salt实践-SSH免密码登录/" rel="next" title="salt实践-SSH免密码登录">
+                  <i class="fa fa-chevron-left"></i> salt实践-SSH免密码登录
+                </a>
+              
+            </div>
+
+            <span class="post-nav-divider"></span>
+
+            <div class="post-nav-prev post-nav-item">
+              
+                <a href="/2020/07/20/tools/git实践/" rel="prev" title="git实践">
+                  git实践 <i class="fa fa-chevron-right"></i>
+                </a>
+              
+            </div>
+          </div>
+        
+      </footer>
+    
+  </article>
+  
+  
+  
+
+  </div>
+
+
+          </div>
+          
+
+        </div>
+          
+  
+  <div class="toggle sidebar-toggle">
+    <span class="toggle-line toggle-line-first"></span>
+    <span class="toggle-line toggle-line-middle"></span>
+    <span class="toggle-line toggle-line-last"></span>
+  </div>
+
+  <aside class="sidebar">
+    <div class="sidebar-inner">
+        
+        
+        
+        
+      
+
+      <ul class="sidebar-nav motion-element">
+        <li class="sidebar-nav-toc">
+          文章目录
+        </li>
+        <li class="sidebar-nav-overview">
+          站点概览
+        </li>
+      </ul>
+
+      <!--noindex-->
+      <div class="post-toc-wrap sidebar-panel">
+          <div class="post-toc motion-element"><ol class="nav"><li class="nav-item nav-level-1"><a class="nav-link" href="#简介"><span class="nav-number">1.</span> <span class="nav-text">简介</span></a></li><li class="nav-item nav-level-1"><a class="nav-link" href="#prometheus-pushgateway问题"><span class="nav-number">2.</span> <span class="nav-text">prometheus pushgateway问题</span></a></li><li class="nav-item nav-level-1"><a class="nav-link" href="#解决方案"><span class="nav-number">3.</span> <span class="nav-text">解决方案</span></a></li><li class="nav-item nav-level-1"><a class="nav-link" href="#指标标签"><span class="nav-number">4.</span> <span class="nav-text">指标标签</span></a></li><li class="nav-item nav-level-1"><a class="nav-link" href="#参考文档"><span class="nav-number">5.</span> <span class="nav-text">参考文档</span></a></li></ol></div>
+        
+      </div>
+      <!--/noindex-->
+
+      <div class="site-overview-wrap sidebar-panel">
+        <div class="site-author motion-element" itemprop="author" itemscope itemtype="http://schema.org/Person">
+  <p class="site-author-name" itemprop="name">姜纪光</p>
+  <div class="site-description" itemprop="description"></div>
+</div>
+<div class="site-state-wrap motion-element">
+  <nav class="site-state">
+      <div class="site-state-item site-state-posts">
+        
+          <a href="/archives/">
+        
+          <span class="site-state-item-count">158</span>
+          <span class="site-state-item-name">日志</span>
+        </a>
+      </div>
+    
+      
+      
+      <div class="site-state-item site-state-categories">
+        
+          
+            <a href="/categories/">
+          
+        
+        <span class="site-state-item-count">26</span>
+        <span class="site-state-item-name">分类</span>
+        </a>
+      </div>
+    
+      
+      
+      <div class="site-state-item site-state-tags">
+        
+          
+            <a href="/tags/">
+          
+        
+        <span class="site-state-item-count">14</span>
+        <span class="site-state-item-name">标签</span>
+        </a>
+      </div>
+    
+  </nav>
+</div>
+
+
+
+      </div>
+
+    </div>
+  </aside>
+  <div id="sidebar-dimmer"></div>
+
+
+      </div>
+    </main>
+
+    <footer class="footer">
+      <div class="footer-inner">
+        
+
+<div class="copyright">
+  &copy; 
+  <span itemprop="copyrightYear">2021</span>
+  <span class="with-love">
+    <i class="fa fa-user"></i>
+  </span>
+  <span class="author" itemprop="copyrightHolder">姜纪光</span>
+</div>
+  <div class="powered-by">由 <a href="https://hexo.io" class="theme-link" rel="noopener" target="_blank">Hexo</a> 强力驱动 v3.9.0
+  </div>
+  <span class="post-meta-divider">|</span>
+  <div class="theme-info">
+      
+    主题 – <a href="https://mist.theme-next.org" class="theme-link" rel="noopener" target="_blank">NexT.Mist</a> v7.4.1
+  </div>
+
+        
+
+
+
+
+
+
+
+
+
+
+
+
+        
+      </div>
+    </footer>
+  </div>
+
+  
+  <script src="/lib/anime.min.js?v=3.1.0"></script>
+  <script src="/lib/velocity/velocity.min.js?v=1.2.1"></script>
+  <script src="/lib/velocity/velocity.ui.min.js?v=1.2.1"></script>
+<script src="/js/utils.js?v=7.4.1"></script><script src="/js/motion.js?v=7.4.1"></script>
+<script src="/js/schemes/muse.js?v=7.4.1"></script>
+
+<script src="/js/next-boot.js?v=7.4.1"></script>
+
+
+
+  
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+  
+
+  
+
+  
+
+
+<script>
+NexT.utils.getScript('//unpkg.com/valine/dist/Valine.min.js', () => {
+  var GUEST = ['nick', 'mail', 'link'];
+  var guest = 'nick,mail,link';
+  guest = guest.split(',').filter(item => {
+    return GUEST.includes(item);
+  });
+  new Valine({
+    el: '#comments',
+    verify: false,
+    notify: false,
+    appId: 'MIQC4jJTknc0hjNXDAiIuQ21-9Nh9j0Va',
+    appKey: 'vaiXpSQLLMglwYsVLOBLzck4',
+    placeholder: "Just go go",
+    avatar: 'mm',
+    meta: guest,
+    pageSize: '10' || 10,
+    visitor: true,
+    lang: 'zh-cn' || 'zh-cn',
+    path: location.pathname,
+    recordIP: false,
+    serverURLs: ''
+  });
+}, window.Valine);
+</script>
+
+</body>
+</html>

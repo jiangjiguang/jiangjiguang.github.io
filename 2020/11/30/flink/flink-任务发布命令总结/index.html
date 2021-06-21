@@ -1,0 +1,593 @@
+<!DOCTYPE html>
+
+
+
+
+
+<html lang="zh-CN">
+<head>
+  <meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1, maximum-scale=2">
+<meta name="theme-color" content="#222">
+<meta name="generator" content="Hexo 3.9.0">
+  <link rel="apple-touch-icon" sizes="180x180" href="/images/apple-touch-icon-next.png?v=7.4.1">
+  <link rel="icon" type="image/png" sizes="32x32" href="/images/favicon-32x32-next.png?v=7.4.1">
+  <link rel="icon" type="image/png" sizes="16x16" href="/images/favicon-16x16-next.png?v=7.4.1">
+  <link rel="mask-icon" href="/images/logo.svg?v=7.4.1" color="#222">
+
+<link rel="stylesheet" href="/css/main.css?v=7.4.1">
+
+
+<link rel="stylesheet" href="/lib/font-awesome/css/font-awesome.min.css?v=4.7.0">
+
+
+<script id="hexo-configurations">
+  var NexT = window.NexT || {};
+  var CONFIG = {
+    root: '/',
+    scheme: 'Mist',
+    version: '7.4.1',
+    exturl: false,
+    sidebar: {"position":"right","display":"hide","offset":12,"onmobile":false},
+    copycode: {"enable":false,"show_result":false,"style":null},
+    back2top: {"enable":true,"sidebar":false,"scrollpercent":false},
+    bookmark: {"enable":false,"color":"#222","save":"auto"},
+    fancybox: false,
+    mediumzoom: false,
+    lazyload: false,
+    pangu: false,
+    algolia: {
+      appID: '',
+      apiKey: '',
+      indexName: '',
+      hits: {"per_page":10},
+      labels: {"input_placeholder":"Search for Posts","hits_empty":"We didn't find any results for the search: ${query}","hits_stats":"${hits} results found in ${time} ms"}
+    },
+    localsearch: {"enable":false,"trigger":"auto","top_n_per_article":1,"unescape":false,"preload":false},
+    path: '',
+    motion: {"enable":true,"async":false,"transition":{"post_block":"fadeIn","post_header":"slideDownIn","post_body":"slideDownIn","coll_header":"slideLeftIn","sidebar":"slideUpIn"}},
+    translation: {
+      copy_button: '复制',
+      copy_success: '复制成功',
+      copy_failure: '复制失败'
+    },
+    sidebarPadding: 40
+  };
+</script>
+
+  <meta name="description" content="YARNperjob说明： 1、flink版本1.10 命令分解： 12345678910111213-d #以分离模式运行任务-m #连接到不同的JobManager地址yarn-cluster #yarn-cluster模式运行任务-p 5 #设置任务的并行度为5-yjm 1024 #JobManager Container的内存配置(MB)-ytm 2048 #TaskManager Con">
+<meta property="og:type" content="article">
+<meta property="og:title" content="flink-任务发布命令总结">
+<meta property="og:url" content="http://yoursite.com/2020/11/30/flink/flink-任务发布命令总结/index.html">
+<meta property="og:site_name" content="纪光的博客">
+<meta property="og:description" content="YARNperjob说明： 1、flink版本1.10 命令分解： 12345678910111213-d #以分离模式运行任务-m #连接到不同的JobManager地址yarn-cluster #yarn-cluster模式运行任务-p 5 #设置任务的并行度为5-yjm 1024 #JobManager Container的内存配置(MB)-ytm 2048 #TaskManager Con">
+<meta property="og:locale" content="zh-CN">
+<meta property="og:updated_time" content="2021-06-20T04:19:35.144Z">
+<meta name="twitter:card" content="summary">
+<meta name="twitter:title" content="flink-任务发布命令总结">
+<meta name="twitter:description" content="YARNperjob说明： 1、flink版本1.10 命令分解： 12345678910111213-d #以分离模式运行任务-m #连接到不同的JobManager地址yarn-cluster #yarn-cluster模式运行任务-p 5 #设置任务的并行度为5-yjm 1024 #JobManager Container的内存配置(MB)-ytm 2048 #TaskManager Con">
+  <link rel="canonical" href="http://yoursite.com/2020/11/30/flink/flink-任务发布命令总结/">
+
+
+<script id="page-configurations">
+  // https://hexo.io/docs/variables.html
+  CONFIG.page = {
+    sidebar: "",
+    isHome: false,
+    isPost: true,
+    isPage: false,
+    isArchive: false
+  };
+</script>
+
+  <title>flink-任务发布命令总结 | 纪光的博客</title>
+  
+
+
+  <script>
+    var _hmt = _hmt || [];
+    (function() {
+      var hm = document.createElement("script");
+      hm.src = "https://hm.baidu.com/hm.js?bca403b673d79e83a47dc62fea1dd605";
+      var s = document.getElementsByTagName("script")[0];
+      s.parentNode.insertBefore(hm, s);
+    })();
+  </script>
+
+
+
+
+
+
+  <noscript>
+  <style>
+  .use-motion .brand,
+  .use-motion .menu-item,
+  .sidebar-inner,
+  .use-motion .post-block,
+  .use-motion .pagination,
+  .use-motion .comments,
+  .use-motion .post-header,
+  .use-motion .post-body,
+  .use-motion .collection-header { opacity: initial; }
+
+  .use-motion .site-title,
+  .use-motion .site-subtitle {
+    opacity: initial;
+    top: initial;
+  }
+
+  .use-motion .logo-line-before i { left: initial; }
+  .use-motion .logo-line-after i { right: initial; }
+  </style>
+</noscript>
+
+</head>
+
+<body itemscope itemtype="http://schema.org/WebPage">
+  <div class="container use-motion">
+    <div class="headband"></div>
+
+    <header class="header" itemscope itemtype="http://schema.org/WPHeader">
+      <div class="header-inner"><div class="site-brand-container">
+  <div class="site-meta">
+
+    <div>
+      <a href="/" class="brand" rel="start">
+        <span class="logo-line-before"><i></i></span>
+        <span class="site-title">纪光的博客</span>
+        <span class="logo-line-after"><i></i></span>
+      </a>
+    </div>
+  </div>
+
+  <div class="site-nav-toggle">
+    <div class="toggle" aria-label="切换导航栏">
+      <span class="toggle-line toggle-line-first"></span>
+      <span class="toggle-line toggle-line-middle"></span>
+      <span class="toggle-line toggle-line-last"></span>
+    </div>
+  </div>
+</div>
+
+
+<nav class="site-nav">
+  
+  <ul id="menu" class="menu">
+      
+      
+        
+        
+        <li class="menu-item menu-item-home">
+      
+    
+
+    <a href="/" rel="section"><i class="fa fa-fw fa-home"></i>首页</a>
+
+  </li>
+      
+    
+      
+      
+        
+        
+        <li class="menu-item menu-item-categories">
+      
+    
+
+    <a href="/categories/" rel="section"><i class="fa fa-fw fa-th"></i>分类</a>
+
+  </li>
+      
+    
+      
+      
+        
+        
+        <li class="menu-item menu-item-tags">
+      
+    
+
+    <a href="/tags/" rel="section"><i class="fa fa-fw fa-tags"></i>标签</a>
+
+  </li>
+      
+    
+      
+      
+        
+        
+        <li class="menu-item menu-item-archives">
+      
+    
+
+    <a href="/archives/" rel="section"><i class="fa fa-fw fa-archive"></i>归档</a>
+
+  </li>
+      
+    
+      
+      
+        
+        
+        <li class="menu-item menu-item-about">
+      
+    
+
+    <a href="/about/" rel="section"><i class="fa fa-fw fa-user"></i>关于</a>
+
+  </li>
+      
+    
+  </ul>
+
+    
+
+</nav>
+</div>
+    </header>
+
+    
+  <div class="back-to-top">
+    <i class="fa fa-arrow-up"></i>
+    <span>0%</span>
+  </div>
+
+
+    <main class="main">
+      <div class="main-inner">
+        <div class="content-wrap">
+          <div class="content">
+            
+
+  <div class="posts-expand">
+      
+  
+  
+  <article itemscope itemtype="http://schema.org/Article" class="post-block " lang="zh-CN">
+    <link itemprop="mainEntityOfPage" href="http://yoursite.com/2020/11/30/flink/flink-任务发布命令总结/">
+
+    <span hidden itemprop="author" itemscope itemtype="http://schema.org/Person">
+      <meta itemprop="name" content="姜纪光">
+      <meta itemprop="description" content="">
+      <meta itemprop="image" content="/images/avatar.gif">
+    </span>
+
+    <span hidden itemprop="publisher" itemscope itemtype="http://schema.org/Organization">
+      <meta itemprop="name" content="纪光的博客">
+    </span>
+      <header class="post-header">
+        <h1 class="post-title" itemprop="name headline">
+          
+            flink-任务发布命令总结
+            
+
+          
+        </h1>
+
+        <div class="post-meta">
+            <span class="post-meta-item">
+              <span class="post-meta-item-icon">
+                <i class="fa fa-calendar-o"></i>
+              </span>
+              <span class="post-meta-item-text">发表于</span>
+
+              
+                
+              
+
+              <time title="创建时间：2020-11-30 17:12:42" itemprop="dateCreated datePublished" datetime="2020-11-30T17:12:42+08:00">2020-11-30</time>
+            </span>
+          
+            
+
+            
+              <span class="post-meta-item">
+                <span class="post-meta-item-icon">
+                  <i class="fa fa-calendar-check-o"></i>
+                </span>
+                <span class="post-meta-item-text">更新于</span>
+                <time title="修改时间：2021-06-20 12:19:35" itemprop="dateModified" datetime="2021-06-20T12:19:35+08:00">2021-06-20</time>
+              </span>
+            
+          
+            <span class="post-meta-item">
+              <span class="post-meta-item-icon">
+                <i class="fa fa-folder-o"></i>
+              </span>
+              <span class="post-meta-item-text">分类于</span>
+              
+                <span itemprop="about" itemscope itemtype="http://schema.org/Thing">
+                  <a href="/categories/flink/" itemprop="url" rel="index">
+                    <span itemprop="name">flink</span>
+                  </a>
+                </span>
+
+                
+                
+              
+            </span>
+          
+
+          
+            <span id="/2020/11/30/flink/flink-任务发布命令总结/" class="post-meta-item leancloud_visitors" data-flag-title="flink-任务发布命令总结" title="阅读次数">
+              <span class="post-meta-item-icon">
+                <i class="fa fa-eye"></i>
+              </span>
+              <span class="post-meta-item-text">阅读次数：</span>
+              <span class="leancloud-visitors-count"></span>
+            </span>
+          
+  
+  
+
+        </div>
+      </header>
+
+    
+    
+    
+    <div class="post-body" itemprop="articleBody">
+
+      
+        <h1 id="YARN"><a href="#YARN" class="headerlink" title="YARN"></a>YARN</h1><h2 id="perjob"><a href="#perjob" class="headerlink" title="perjob"></a>perjob</h2><p>说明：</p>
+<p>1、flink版本1.10</p>
+<p>命令分解：</p>
+<figure class="highlight shell"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br><span class="line">3</span><br><span class="line">4</span><br><span class="line">5</span><br><span class="line">6</span><br><span class="line">7</span><br><span class="line">8</span><br><span class="line">9</span><br><span class="line">10</span><br><span class="line">11</span><br><span class="line">12</span><br><span class="line">13</span><br></pre></td><td class="code"><pre><span class="line">-d #以分离模式运行任务</span><br><span class="line">-m #连接到不同的JobManager地址</span><br><span class="line">yarn-cluster #yarn-cluster模式运行任务</span><br><span class="line">-p 5 #设置任务的并行度为5</span><br><span class="line">-yjm 1024 #JobManager Container的内存配置(MB)</span><br><span class="line">-ytm 2048 #TaskManager Container的内存配置(MB)</span><br><span class="line">-ys 5 #每个TaskManager的Slot数量</span><br><span class="line">-yqu root.data.stream  #YARN队列的名称</span><br><span class="line">-ynm gapp_token_error_client #YARN上任务的名称</span><br><span class="line">-yD metrics.reporter.prom.labels #自定义监控指标</span><br><span class="line">-yD env.java.opts #指定Container JVM参数</span><br><span class="line">-c net.qutoutiao.libra.flink110.app.KafkaProducerDemo /tmp/81e801866f134fc384b3293a09ab60e5-1605774762298487566537968191214.jar #指定任务入口类和jar包</span><br><span class="line">--job.name jjg-test-1.10kafka-producer #任务名称 main参数</span><br></pre></td></tr></table></figure>
+
+<p>命令示例：</p>
+<figure class="highlight shell"><table><tr><td class="gutter"><pre><span class="line">1</span><br></pre></td><td class="code"><pre><span class="line"><span class="meta">$</span> /data/flink/prd/flink-1.10.1/bin/flink run -d -m yarn-cluster -p 5 -yjm 1024 -ytm 2048 -ys 5 -yqu root.data.stream -ynm jjg-test-1.10kafka-producer -yD metrics.reporter.prom.labels="libra_job_name=jjg-test-1.10kafka-producer;libra_job_owner=jiangjiguang@qutoutiao.net" -yD env.java.opts="-server -XX:+UseConcMarkSweepGC -XX:+UseCMSInitiatingOccupancyOnly -XX:CMSInitiatingOccupancyFraction=75 -XX:ParallelGCThreads=4 -XX:+AlwaysPreTouch -XX:NewRatio=1 -DjobName=jjg-test-1.10kafka-producer" -c net.qutoutiao.libra.flink110.app.KafkaProducerDemo /tmp/81e801866f134fc384b3293a09ab60e5-1605774762298487566537968191214.jar --job.name jjg-test-1.10kafka-producer</span><br></pre></td></tr></table></figure>
+
+<h1 id="flink1-12版本"><a href="#flink1-12版本" class="headerlink" title="flink1.12版本"></a>flink1.12版本</h1><ul>
+<li><h2 id="perjob-SQL"><a href="#perjob-SQL" class="headerlink" title="perjob SQL"></a>perjob SQL</h2></li>
+</ul>
+<p>说明：</p>
+<p>1、flink版本1.11</p>
+<p>命令分解：</p>
+<figure class="highlight shell"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br><span class="line">3</span><br><span class="line">4</span><br><span class="line">5</span><br><span class="line">6</span><br><span class="line">7</span><br><span class="line">8</span><br><span class="line">9</span><br><span class="line">10</span><br><span class="line">11</span><br><span class="line">12</span><br><span class="line">13</span><br><span class="line">14</span><br></pre></td><td class="code"><pre><span class="line">-d #以分离模式运行任务</span><br><span class="line">-m #连接到不同的JobManager地址</span><br><span class="line">yarn-cluster #yarn-cluster模式运行任务</span><br><span class="line">-p 8 #设置任务的并行度为8</span><br><span class="line">-yjm 2048 #JobManager Container的内存配置(MB)</span><br><span class="line">-ytm 3072 #TaskManager Container的内存配置(MB)</span><br><span class="line">-ys 8 #每个TaskManager的Slot数量</span><br><span class="line">-yqu root.data.stream  #YARN队列的名称</span><br><span class="line">-ynm gapp_token_error_client #YARN上任务的名称</span><br><span class="line">-yD metrics.reporter.prom.labels #自定义监控指标</span><br><span class="line">-yD env.java.opts #指定Container JVM参数</span><br><span class="line">-c com.qtt.bigdata.sqlsubmit.SqlSubmit /data/flink/prd/flink-1.11.1-sql/flink-sql-submit-1.0-SNAPSHOT.jar #指定任务入口类和jar包</span><br><span class="line">-job_name gapp_token_error_client #任务名称 main参数</span><br><span class="line">-sql #base64编码的sql内容</span><br></pre></td></tr></table></figure>
+
+<p>命令示例：</p>
+<figure class="highlight shell"><table><tr><td class="gutter"><pre><span class="line">1</span><br></pre></td><td class="code"><pre><span class="line"><span class="meta">$</span> /data/flink/prd/flink-1.11.1-sql/bin/flink run -d -m yarn-cluster -p 8 -yjm 2048 -ytm 3072 -ys 8 -yqu root.data.stream -ynm gapp_token_error_client_zhangpei -yD metrics.reporter.prom.labels="libra_job_name=gapp_token_error_client;libra_job_owner=zhangpei@qutoutiao.net" -yD env.java.opts="-server -XX:+UseConcMarkSweepGC -XX:+UseCMSInitiatingOccupancyOnly -XX:CMSInitiatingOccupancyFraction=75 -XX:ParallelGCThreads=4 -XX:+AlwaysPreTouch -XX:NewRatio=1 -DjobName=gapp_token_error_client" -c com.qtt.bigdata.sqlsubmit.SqlSubmit /data/flink/prd/flink-1.11.1-sql/flink-sql-submit-1.0-SNAPSHOT.jar -job_name gapp_token_error_client -sql H4sIAAAAAAAAAOVUwW7bRhC98yv2RjkQCUtB0rguC6gOkQiQ5UCh20Nh0KvliN6I3GV2h66dj0hOLdB7+wEBAuQQ9HOM5jM6XEqqlMh2AuSUXERq9r2dmTdvaAGZAYvcYGDRcIT8MprJC8iCDAp+ue/ZLYhwDRFyRCgrtFFvd/cT4O6XsMzue4wxR4ALEDVKrUJxBmJeaalQqjyECwSjeCFfEP3/o8AAgmrw0SROBsNxejRODwbjg3g0GiTDo/H+jbfSA8w5L6K7rJTqZmypM4gGSTqKB08TSnMQ34LnF4HQStTGUIVrNZM8tzClCipeW4juO21uwqIsQdcY9foO6gkDJDRDPi2AzflszlOpOo287BTOqZBT9jSZDMePum2Mi+bSzWCjtcqIN9PscPDkh8VZ+/ixxVRGiyY345Y9mRwdJMPDuLPj7fwm8axN51PzCgRq47OI+a4WvyX7xK7AoAQbTrXGxh1VaGkUYKxDZzJQ9TPJVR44YngW8mkvfI5oJUKoAL/f293rb7kvN7quQpm5a3JeVSnqOagUjNEmFYUkDVIHWpJRV1I4eKHzlFKkOS9BQOONtLlhCZxpU3J0SEqIelrP1gpw/8PnNdI4JNdBCdbyHIKmJ5LY0Vax/kdEmSttgOZuLASu2FYJNDWswNzwooBC2tKd9e/53s6HQxfzlCpoZ/BMTzcmWwIaKexGrOBTKOy1g3ZSkdPmcHkt5rQ6P2UPj45/GsWtA9hWC1CvVMAZ1HbZEM8y+kK0jfa+64e9++G9vbD3YLeZbu+2tqUiyyCjTdCLrmlVCsrHBLfY8fPFDGmsUqWkhd+4ta18p3mlUHcrdqHTh/hFuMs8R1J1UTThj2Vx6FbYrkfHv/qNEcmU3fXlWkVPThr8mtLLDELXCjt33HWtvu61OvdmpOVqv71fHseTeLngje/Xu/E9rrLVpke++yL7nkvHppfbK+qy5PiQ8nWWi95lw3EST34ejGhUPjscjo+T+Brz9b9N9/Vvsl++/hn6HC9uEL9qYwquBBRtdKMa6j0tbe6fRP6/f767+uf3q79ev3/zd7eV5v3Lt1ev/mhDX8rW/wHTxxHaDQkAAA==</span><br></pre></td></tr></table></figure>
+
+<h1 id="K8S"><a href="#K8S" class="headerlink" title="K8S"></a>K8S</h1>
+    </div>
+
+    
+    
+    
+        
+      
+
+      <footer class="post-footer">
+
+        
+
+          <div class="post-nav">
+            <div class="post-nav-next post-nav-item">
+              
+                <a href="/2020/11/28/k8s/k8s-组件架构图/" rel="next" title="k8s-组件架构图">
+                  <i class="fa fa-chevron-left"></i> k8s-组件架构图
+                </a>
+              
+            </div>
+
+            <span class="post-nav-divider"></span>
+
+            <div class="post-nav-prev post-nav-item">
+              
+                <a href="/2020/11/30/calcite/calcite-基本知识/" rel="prev" title="calcite-基本知识">
+                  calcite-基本知识 <i class="fa fa-chevron-right"></i>
+                </a>
+              
+            </div>
+          </div>
+        
+      </footer>
+    
+  </article>
+  
+  
+  
+
+  </div>
+
+
+          </div>
+          
+
+        </div>
+          
+  
+  <div class="toggle sidebar-toggle">
+    <span class="toggle-line toggle-line-first"></span>
+    <span class="toggle-line toggle-line-middle"></span>
+    <span class="toggle-line toggle-line-last"></span>
+  </div>
+
+  <aside class="sidebar">
+    <div class="sidebar-inner">
+        
+        
+        
+        
+      
+
+      <ul class="sidebar-nav motion-element">
+        <li class="sidebar-nav-toc">
+          文章目录
+        </li>
+        <li class="sidebar-nav-overview">
+          站点概览
+        </li>
+      </ul>
+
+      <!--noindex-->
+      <div class="post-toc-wrap sidebar-panel">
+          <div class="post-toc motion-element"><ol class="nav"><li class="nav-item nav-level-1"><a class="nav-link" href="#YARN"><span class="nav-number">1.</span> <span class="nav-text">YARN</span></a><ol class="nav-child"><li class="nav-item nav-level-2"><a class="nav-link" href="#perjob"><span class="nav-number">1.1.</span> <span class="nav-text">perjob</span></a></li></ol></li><li class="nav-item nav-level-1"><a class="nav-link" href="#flink1-12版本"><span class="nav-number">2.</span> <span class="nav-text">flink1.12版本</span></a><ol class="nav-child"><li class="nav-item nav-level-2"><a class="nav-link" href="#perjob-SQL"><span class="nav-number">2.1.</span> <span class="nav-text">perjob SQL</span></a></li></ol></li><li class="nav-item nav-level-1"><a class="nav-link" href="#K8S"><span class="nav-number">3.</span> <span class="nav-text">K8S</span></a></li></ol></div>
+        
+      </div>
+      <!--/noindex-->
+
+      <div class="site-overview-wrap sidebar-panel">
+        <div class="site-author motion-element" itemprop="author" itemscope itemtype="http://schema.org/Person">
+  <p class="site-author-name" itemprop="name">姜纪光</p>
+  <div class="site-description" itemprop="description"></div>
+</div>
+<div class="site-state-wrap motion-element">
+  <nav class="site-state">
+      <div class="site-state-item site-state-posts">
+        
+          <a href="/archives/">
+        
+          <span class="site-state-item-count">158</span>
+          <span class="site-state-item-name">日志</span>
+        </a>
+      </div>
+    
+      
+      
+      <div class="site-state-item site-state-categories">
+        
+          
+            <a href="/categories/">
+          
+        
+        <span class="site-state-item-count">26</span>
+        <span class="site-state-item-name">分类</span>
+        </a>
+      </div>
+    
+      
+      
+      <div class="site-state-item site-state-tags">
+        
+          
+            <a href="/tags/">
+          
+        
+        <span class="site-state-item-count">14</span>
+        <span class="site-state-item-name">标签</span>
+        </a>
+      </div>
+    
+  </nav>
+</div>
+
+
+
+      </div>
+
+    </div>
+  </aside>
+  <div id="sidebar-dimmer"></div>
+
+
+      </div>
+    </main>
+
+    <footer class="footer">
+      <div class="footer-inner">
+        
+
+<div class="copyright">
+  &copy; 
+  <span itemprop="copyrightYear">2021</span>
+  <span class="with-love">
+    <i class="fa fa-user"></i>
+  </span>
+  <span class="author" itemprop="copyrightHolder">姜纪光</span>
+</div>
+  <div class="powered-by">由 <a href="https://hexo.io" class="theme-link" rel="noopener" target="_blank">Hexo</a> 强力驱动 v3.9.0
+  </div>
+  <span class="post-meta-divider">|</span>
+  <div class="theme-info">
+      
+    主题 – <a href="https://mist.theme-next.org" class="theme-link" rel="noopener" target="_blank">NexT.Mist</a> v7.4.1
+  </div>
+
+        
+
+
+
+
+
+
+
+
+
+
+
+
+        
+      </div>
+    </footer>
+  </div>
+
+  
+  <script src="/lib/anime.min.js?v=3.1.0"></script>
+  <script src="/lib/velocity/velocity.min.js?v=1.2.1"></script>
+  <script src="/lib/velocity/velocity.ui.min.js?v=1.2.1"></script>
+<script src="/js/utils.js?v=7.4.1"></script><script src="/js/motion.js?v=7.4.1"></script>
+<script src="/js/schemes/muse.js?v=7.4.1"></script>
+
+<script src="/js/next-boot.js?v=7.4.1"></script>
+
+
+
+  
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+  
+
+  
+
+  
+
+
+<script>
+NexT.utils.getScript('//unpkg.com/valine/dist/Valine.min.js', () => {
+  var GUEST = ['nick', 'mail', 'link'];
+  var guest = 'nick,mail,link';
+  guest = guest.split(',').filter(item => {
+    return GUEST.includes(item);
+  });
+  new Valine({
+    el: '#comments',
+    verify: false,
+    notify: false,
+    appId: 'MIQC4jJTknc0hjNXDAiIuQ21-9Nh9j0Va',
+    appKey: 'vaiXpSQLLMglwYsVLOBLzck4',
+    placeholder: "Just go go",
+    avatar: 'mm',
+    meta: guest,
+    pageSize: '10' || 10,
+    visitor: true,
+    lang: 'zh-cn' || 'zh-cn',
+    path: location.pathname,
+    recordIP: false,
+    serverURLs: ''
+  });
+}, window.Valine);
+</script>
+
+</body>
+</html>

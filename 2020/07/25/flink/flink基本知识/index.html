@@ -1,0 +1,653 @@
+<!DOCTYPE html>
+
+
+
+
+
+<html lang="zh-CN">
+<head>
+  <meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1, maximum-scale=2">
+<meta name="theme-color" content="#222">
+<meta name="generator" content="Hexo 3.9.0">
+  <link rel="apple-touch-icon" sizes="180x180" href="/images/apple-touch-icon-next.png?v=7.4.1">
+  <link rel="icon" type="image/png" sizes="32x32" href="/images/favicon-32x32-next.png?v=7.4.1">
+  <link rel="icon" type="image/png" sizes="16x16" href="/images/favicon-16x16-next.png?v=7.4.1">
+  <link rel="mask-icon" href="/images/logo.svg?v=7.4.1" color="#222">
+
+<link rel="stylesheet" href="/css/main.css?v=7.4.1">
+
+
+<link rel="stylesheet" href="/lib/font-awesome/css/font-awesome.min.css?v=4.7.0">
+
+
+<script id="hexo-configurations">
+  var NexT = window.NexT || {};
+  var CONFIG = {
+    root: '/',
+    scheme: 'Mist',
+    version: '7.4.1',
+    exturl: false,
+    sidebar: {"position":"right","display":"hide","offset":12,"onmobile":false},
+    copycode: {"enable":false,"show_result":false,"style":null},
+    back2top: {"enable":true,"sidebar":false,"scrollpercent":false},
+    bookmark: {"enable":false,"color":"#222","save":"auto"},
+    fancybox: false,
+    mediumzoom: false,
+    lazyload: false,
+    pangu: false,
+    algolia: {
+      appID: '',
+      apiKey: '',
+      indexName: '',
+      hits: {"per_page":10},
+      labels: {"input_placeholder":"Search for Posts","hits_empty":"We didn't find any results for the search: ${query}","hits_stats":"${hits} results found in ${time} ms"}
+    },
+    localsearch: {"enable":false,"trigger":"auto","top_n_per_article":1,"unescape":false,"preload":false},
+    path: '',
+    motion: {"enable":true,"async":false,"transition":{"post_block":"fadeIn","post_header":"slideDownIn","post_body":"slideDownIn","coll_header":"slideLeftIn","sidebar":"slideUpIn"}},
+    translation: {
+      copy_button: '复制',
+      copy_success: '复制成功',
+      copy_failure: '复制失败'
+    },
+    sidebarPadding: 40
+  };
+</script>
+
+  <meta name="description" content="基本概念TransformationTransformation是指flink中所有的source、sink和中间转换的统一抽象。 部署模式Session模式 提前启动好一个集群，在这个集群中不断提交任务 所有任务共享集群资源 好处是：不需要每次创建集群是带来的resource开销， 问题是：隔离性差，一个TaskManager运行多个任务，其中一个任务导致TaskManager挂掉，会导致所有的">
+<meta property="og:type" content="article">
+<meta property="og:title" content="flink基本知识">
+<meta property="og:url" content="http://yoursite.com/2020/07/25/flink/flink基本知识/index.html">
+<meta property="og:site_name" content="纪光的博客">
+<meta property="og:description" content="基本概念TransformationTransformation是指flink中所有的source、sink和中间转换的统一抽象。 部署模式Session模式 提前启动好一个集群，在这个集群中不断提交任务 所有任务共享集群资源 好处是：不需要每次创建集群是带来的resource开销， 问题是：隔离性差，一个TaskManager运行多个任务，其中一个任务导致TaskManager挂掉，会导致所有的">
+<meta property="og:locale" content="zh-CN">
+<meta property="og:updated_time" content="2021-06-20T04:19:35.145Z">
+<meta name="twitter:card" content="summary">
+<meta name="twitter:title" content="flink基本知识">
+<meta name="twitter:description" content="基本概念TransformationTransformation是指flink中所有的source、sink和中间转换的统一抽象。 部署模式Session模式 提前启动好一个集群，在这个集群中不断提交任务 所有任务共享集群资源 好处是：不需要每次创建集群是带来的resource开销， 问题是：隔离性差，一个TaskManager运行多个任务，其中一个任务导致TaskManager挂掉，会导致所有的">
+  <link rel="canonical" href="http://yoursite.com/2020/07/25/flink/flink基本知识/">
+
+
+<script id="page-configurations">
+  // https://hexo.io/docs/variables.html
+  CONFIG.page = {
+    sidebar: "",
+    isHome: false,
+    isPost: true,
+    isPage: false,
+    isArchive: false
+  };
+</script>
+
+  <title>flink基本知识 | 纪光的博客</title>
+  
+
+
+  <script>
+    var _hmt = _hmt || [];
+    (function() {
+      var hm = document.createElement("script");
+      hm.src = "https://hm.baidu.com/hm.js?bca403b673d79e83a47dc62fea1dd605";
+      var s = document.getElementsByTagName("script")[0];
+      s.parentNode.insertBefore(hm, s);
+    })();
+  </script>
+
+
+
+
+
+
+  <noscript>
+  <style>
+  .use-motion .brand,
+  .use-motion .menu-item,
+  .sidebar-inner,
+  .use-motion .post-block,
+  .use-motion .pagination,
+  .use-motion .comments,
+  .use-motion .post-header,
+  .use-motion .post-body,
+  .use-motion .collection-header { opacity: initial; }
+
+  .use-motion .site-title,
+  .use-motion .site-subtitle {
+    opacity: initial;
+    top: initial;
+  }
+
+  .use-motion .logo-line-before i { left: initial; }
+  .use-motion .logo-line-after i { right: initial; }
+  </style>
+</noscript>
+
+</head>
+
+<body itemscope itemtype="http://schema.org/WebPage">
+  <div class="container use-motion">
+    <div class="headband"></div>
+
+    <header class="header" itemscope itemtype="http://schema.org/WPHeader">
+      <div class="header-inner"><div class="site-brand-container">
+  <div class="site-meta">
+
+    <div>
+      <a href="/" class="brand" rel="start">
+        <span class="logo-line-before"><i></i></span>
+        <span class="site-title">纪光的博客</span>
+        <span class="logo-line-after"><i></i></span>
+      </a>
+    </div>
+  </div>
+
+  <div class="site-nav-toggle">
+    <div class="toggle" aria-label="切换导航栏">
+      <span class="toggle-line toggle-line-first"></span>
+      <span class="toggle-line toggle-line-middle"></span>
+      <span class="toggle-line toggle-line-last"></span>
+    </div>
+  </div>
+</div>
+
+
+<nav class="site-nav">
+  
+  <ul id="menu" class="menu">
+      
+      
+        
+        
+        <li class="menu-item menu-item-home">
+      
+    
+
+    <a href="/" rel="section"><i class="fa fa-fw fa-home"></i>首页</a>
+
+  </li>
+      
+    
+      
+      
+        
+        
+        <li class="menu-item menu-item-categories">
+      
+    
+
+    <a href="/categories/" rel="section"><i class="fa fa-fw fa-th"></i>分类</a>
+
+  </li>
+      
+    
+      
+      
+        
+        
+        <li class="menu-item menu-item-tags">
+      
+    
+
+    <a href="/tags/" rel="section"><i class="fa fa-fw fa-tags"></i>标签</a>
+
+  </li>
+      
+    
+      
+      
+        
+        
+        <li class="menu-item menu-item-archives">
+      
+    
+
+    <a href="/archives/" rel="section"><i class="fa fa-fw fa-archive"></i>归档</a>
+
+  </li>
+      
+    
+      
+      
+        
+        
+        <li class="menu-item menu-item-about">
+      
+    
+
+    <a href="/about/" rel="section"><i class="fa fa-fw fa-user"></i>关于</a>
+
+  </li>
+      
+    
+  </ul>
+
+    
+
+</nav>
+</div>
+    </header>
+
+    
+  <div class="back-to-top">
+    <i class="fa fa-arrow-up"></i>
+    <span>0%</span>
+  </div>
+
+
+    <main class="main">
+      <div class="main-inner">
+        <div class="content-wrap">
+          <div class="content">
+            
+
+  <div class="posts-expand">
+      
+  
+  
+  <article itemscope itemtype="http://schema.org/Article" class="post-block " lang="zh-CN">
+    <link itemprop="mainEntityOfPage" href="http://yoursite.com/2020/07/25/flink/flink基本知识/">
+
+    <span hidden itemprop="author" itemscope itemtype="http://schema.org/Person">
+      <meta itemprop="name" content="姜纪光">
+      <meta itemprop="description" content="">
+      <meta itemprop="image" content="/images/avatar.gif">
+    </span>
+
+    <span hidden itemprop="publisher" itemscope itemtype="http://schema.org/Organization">
+      <meta itemprop="name" content="纪光的博客">
+    </span>
+      <header class="post-header">
+        <h1 class="post-title" itemprop="name headline">
+          
+            flink基本知识
+            
+
+          
+        </h1>
+
+        <div class="post-meta">
+            <span class="post-meta-item">
+              <span class="post-meta-item-icon">
+                <i class="fa fa-calendar-o"></i>
+              </span>
+              <span class="post-meta-item-text">发表于</span>
+
+              
+                
+              
+
+              <time title="创建时间：2020-07-25 14:16:10" itemprop="dateCreated datePublished" datetime="2020-07-25T14:16:10+08:00">2020-07-25</time>
+            </span>
+          
+            
+
+            
+              <span class="post-meta-item">
+                <span class="post-meta-item-icon">
+                  <i class="fa fa-calendar-check-o"></i>
+                </span>
+                <span class="post-meta-item-text">更新于</span>
+                <time title="修改时间：2021-06-20 12:19:35" itemprop="dateModified" datetime="2021-06-20T12:19:35+08:00">2021-06-20</time>
+              </span>
+            
+          
+            <span class="post-meta-item">
+              <span class="post-meta-item-icon">
+                <i class="fa fa-folder-o"></i>
+              </span>
+              <span class="post-meta-item-text">分类于</span>
+              
+                <span itemprop="about" itemscope itemtype="http://schema.org/Thing">
+                  <a href="/categories/flink/" itemprop="url" rel="index">
+                    <span itemprop="name">flink</span>
+                  </a>
+                </span>
+
+                
+                
+              
+            </span>
+          
+
+          
+            <span id="/2020/07/25/flink/flink基本知识/" class="post-meta-item leancloud_visitors" data-flag-title="flink基本知识" title="阅读次数">
+              <span class="post-meta-item-icon">
+                <i class="fa fa-eye"></i>
+              </span>
+              <span class="post-meta-item-text">阅读次数：</span>
+              <span class="leancloud-visitors-count"></span>
+            </span>
+          
+  
+  
+
+        </div>
+      </header>
+
+    
+    
+    
+    <div class="post-body" itemprop="articleBody">
+
+      
+        <h1 id="基本概念"><a href="#基本概念" class="headerlink" title="基本概念"></a>基本概念</h1><h2 id="Transformation"><a href="#Transformation" class="headerlink" title="Transformation"></a>Transformation</h2><p>Transformation是指flink中所有的source、sink和中间转换的统一抽象。</p>
+<h1 id="部署模式"><a href="#部署模式" class="headerlink" title="部署模式"></a>部署模式</h1><h2 id="Session模式"><a href="#Session模式" class="headerlink" title="Session模式"></a>Session模式</h2><ul>
+<li>提前启动好一个集群，在这个集群中不断提交任务</li>
+<li>所有任务共享集群资源</li>
+<li>好处是：不需要每次创建集群是带来的resource开销，</li>
+<li>问题是：隔离性差，一个TaskManager运行多个任务，其中一个任务导致TaskManager挂掉，会导致所有的任务重启；一个JobManager管理所有的任务，负载会成为瓶颈</li>
+</ul>
+<p>##Per-Job模式</p>
+<ul>
+<li>每个任务独立启动一个集群，隔离性好，每个任务有单独的JobManager管理，负载均衡</li>
+</ul>
+<p>##Application模式</p>
+<ul>
+<li><p>flink1.10版本新增的任务提交方式</p>
+</li>
+<li><p>Session和Per-Job的共同弊端是：Client端瓶颈，执行用户代码，生成Job graph，网络上传下载Jar包</p>
+</li>
+<li><p>解决思路：FLIP-85</p>
+<blockquote>
+<p>1.每个Application启动一个集群</p>
+<p>2.JobManager端执行用户代码，没有单点瓶颈</p>
+<p>3.YARN(FLINK-13938,FLINK-17632)、k8s支持</p>
+<p>   提供了远程的lib目录，可以把这些文件缓存到YARN的节点上，不必要每次的上传/下载</p>
+<p>   支持用户远程系统的Jar来创建任务，减少Jar包下载的开销   </p>
+</blockquote>
+</li>
+</ul>
+<p>#k8s和docker</p>
+<h2 id="k8s生产可用性增强"><a href="#k8s生产可用性增强" class="headerlink" title="k8s生产可用性增强"></a>k8s生产可用性增强</h2><ul>
+<li>Flink1.11版本达到生成可用的标准</li>
+<li>FLINK-14460</li>
+<li>基础功能：Node Selector、Label、Annotation、Toleration</li>
+<li>根据环境变量自动挂载Hadoop配置</li>
+</ul>
+<h2 id="Docker镜像统一"><a href="#Docker镜像统一" class="headerlink" title="Docker镜像统一"></a>Docker镜像统一</h2><ul>
+<li>FLIP-111</li>
+<li>问题：Docker资源分散、重复和不一致性问题，用户使用不便和维护成本</li>
+<li>资源统一整合到Flink-docker github项目</li>
+</ul>
+<p>#JobManager</p>
+<ul>
+<li><p>JobManager统一内存配置</p>
+</li>
+<li><p>FLIP-116: 延续FLIP49术语</p>
+</li>
+<li><p>升级：复用之前版本的配置可能导致内存参数不同，影响性能</p>
+</li>
+<li><p>FLIP-108: 增加扩展资源GPU调度支持</p>
+</li>
+<li><p>Web UI优化</p>
+<blockquote>
+<p>FLIP-103：JobManager和TaskManager的日志展示</p>
+<p>FLIP-99：支持展示更多历史Failover信息</p>
+<p>支持Thread dump</p>
+</blockquote>
+</li>
+</ul>
+<h1 id="Flink-Time-Programs"><a href="#Flink-Time-Programs" class="headerlink" title="Flink Time Programs"></a>Flink Time Programs</h1><ul>
+<li><p>Processing time </p>
+<blockquote>
+<p>不需要流和机器之间的协调，具有最好的性能和最低的延迟</p>
+</blockquote>
+</li>
+</ul>
+<ul>
+<li><p><strong>Event time</strong> 事件时间程序必须指定如何生成事件时间水印</p>
+<blockquote>
+<p>1、<em>event</em> timestamp 从每个流元数据中抽取</p>
+<p>2、必须定义水印产生的机制，水印是事件时间中进度信号的机制</p>
+<p>3、因为要处理乱序，event time 处理会有一些延迟，但是延迟是有限时间的</p>
+</blockquote>
+</li>
+<li><p><strong>watermarks</strong></p>
+<blockquote>
+<p>1、用来测量event time的处理进度</p>
+<p>2、水印作为数据流的一部分流动，并带有时间戳t，时间戳t表示没有小于等于t的数据到来了</p>
+</blockquote>
+</li>
+</ul>
+<h1 id="参考文档"><a href="#参考文档" class="headerlink" title="参考文档"></a>参考文档</h1>
+    </div>
+
+    
+    
+    
+        
+      
+
+      <footer class="post-footer">
+
+        
+
+          <div class="post-nav">
+            <div class="post-nav-next post-nav-item">
+              
+                <a href="/2020/07/24/flink/flink社区参与/" rel="next" title="flink社区参与">
+                  <i class="fa fa-chevron-left"></i> flink社区参与
+                </a>
+              
+            </div>
+
+            <span class="post-nav-divider"></span>
+
+            <div class="post-nav-prev post-nav-item">
+              
+                <a href="/2020/07/25/flink/flink指标与监控/" rel="prev" title="flink指标与监控">
+                  flink指标与监控 <i class="fa fa-chevron-right"></i>
+                </a>
+              
+            </div>
+          </div>
+        
+      </footer>
+    
+  </article>
+  
+  
+  
+
+  </div>
+
+
+          </div>
+          
+
+        </div>
+          
+  
+  <div class="toggle sidebar-toggle">
+    <span class="toggle-line toggle-line-first"></span>
+    <span class="toggle-line toggle-line-middle"></span>
+    <span class="toggle-line toggle-line-last"></span>
+  </div>
+
+  <aside class="sidebar">
+    <div class="sidebar-inner">
+        
+        
+        
+        
+      
+
+      <ul class="sidebar-nav motion-element">
+        <li class="sidebar-nav-toc">
+          文章目录
+        </li>
+        <li class="sidebar-nav-overview">
+          站点概览
+        </li>
+      </ul>
+
+      <!--noindex-->
+      <div class="post-toc-wrap sidebar-panel">
+          <div class="post-toc motion-element"><ol class="nav"><li class="nav-item nav-level-1"><a class="nav-link" href="#基本概念"><span class="nav-number">1.</span> <span class="nav-text">基本概念</span></a><ol class="nav-child"><li class="nav-item nav-level-2"><a class="nav-link" href="#Transformation"><span class="nav-number">1.1.</span> <span class="nav-text">Transformation</span></a></li></ol></li><li class="nav-item nav-level-1"><a class="nav-link" href="#部署模式"><span class="nav-number">2.</span> <span class="nav-text">部署模式</span></a><ol class="nav-child"><li class="nav-item nav-level-2"><a class="nav-link" href="#Session模式"><span class="nav-number">2.1.</span> <span class="nav-text">Session模式</span></a></li><li class="nav-item nav-level-2"><a class="nav-link" href="#k8s生产可用性增强"><span class="nav-number">2.2.</span> <span class="nav-text">k8s生产可用性增强</span></a></li><li class="nav-item nav-level-2"><a class="nav-link" href="#Docker镜像统一"><span class="nav-number">2.3.</span> <span class="nav-text">Docker镜像统一</span></a></li></ol></li><li class="nav-item nav-level-1"><a class="nav-link" href="#Flink-Time-Programs"><span class="nav-number">3.</span> <span class="nav-text">Flink Time Programs</span></a></li><li class="nav-item nav-level-1"><a class="nav-link" href="#参考文档"><span class="nav-number">4.</span> <span class="nav-text">参考文档</span></a></li></ol></div>
+        
+      </div>
+      <!--/noindex-->
+
+      <div class="site-overview-wrap sidebar-panel">
+        <div class="site-author motion-element" itemprop="author" itemscope itemtype="http://schema.org/Person">
+  <p class="site-author-name" itemprop="name">姜纪光</p>
+  <div class="site-description" itemprop="description"></div>
+</div>
+<div class="site-state-wrap motion-element">
+  <nav class="site-state">
+      <div class="site-state-item site-state-posts">
+        
+          <a href="/archives/">
+        
+          <span class="site-state-item-count">158</span>
+          <span class="site-state-item-name">日志</span>
+        </a>
+      </div>
+    
+      
+      
+      <div class="site-state-item site-state-categories">
+        
+          
+            <a href="/categories/">
+          
+        
+        <span class="site-state-item-count">26</span>
+        <span class="site-state-item-name">分类</span>
+        </a>
+      </div>
+    
+      
+      
+      <div class="site-state-item site-state-tags">
+        
+          
+            <a href="/tags/">
+          
+        
+        <span class="site-state-item-count">14</span>
+        <span class="site-state-item-name">标签</span>
+        </a>
+      </div>
+    
+  </nav>
+</div>
+
+
+
+      </div>
+
+    </div>
+  </aside>
+  <div id="sidebar-dimmer"></div>
+
+
+      </div>
+    </main>
+
+    <footer class="footer">
+      <div class="footer-inner">
+        
+
+<div class="copyright">
+  &copy; 
+  <span itemprop="copyrightYear">2021</span>
+  <span class="with-love">
+    <i class="fa fa-user"></i>
+  </span>
+  <span class="author" itemprop="copyrightHolder">姜纪光</span>
+</div>
+  <div class="powered-by">由 <a href="https://hexo.io" class="theme-link" rel="noopener" target="_blank">Hexo</a> 强力驱动 v3.9.0
+  </div>
+  <span class="post-meta-divider">|</span>
+  <div class="theme-info">
+      
+    主题 – <a href="https://mist.theme-next.org" class="theme-link" rel="noopener" target="_blank">NexT.Mist</a> v7.4.1
+  </div>
+
+        
+
+
+
+
+
+
+
+
+
+
+
+
+        
+      </div>
+    </footer>
+  </div>
+
+  
+  <script src="/lib/anime.min.js?v=3.1.0"></script>
+  <script src="/lib/velocity/velocity.min.js?v=1.2.1"></script>
+  <script src="/lib/velocity/velocity.ui.min.js?v=1.2.1"></script>
+<script src="/js/utils.js?v=7.4.1"></script><script src="/js/motion.js?v=7.4.1"></script>
+<script src="/js/schemes/muse.js?v=7.4.1"></script>
+
+<script src="/js/next-boot.js?v=7.4.1"></script>
+
+
+
+  
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+  
+
+  
+
+  
+
+
+<script>
+NexT.utils.getScript('//unpkg.com/valine/dist/Valine.min.js', () => {
+  var GUEST = ['nick', 'mail', 'link'];
+  var guest = 'nick,mail,link';
+  guest = guest.split(',').filter(item => {
+    return GUEST.includes(item);
+  });
+  new Valine({
+    el: '#comments',
+    verify: false,
+    notify: false,
+    appId: 'MIQC4jJTknc0hjNXDAiIuQ21-9Nh9j0Va',
+    appKey: 'vaiXpSQLLMglwYsVLOBLzck4',
+    placeholder: "Just go go",
+    avatar: 'mm',
+    meta: guest,
+    pageSize: '10' || 10,
+    visitor: true,
+    lang: 'zh-cn' || 'zh-cn',
+    path: location.pathname,
+    recordIP: false,
+    serverURLs: ''
+  });
+}, window.Valine);
+</script>
+
+</body>
+</html>

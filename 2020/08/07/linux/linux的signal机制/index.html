@@ -1,0 +1,762 @@
+<!DOCTYPE html>
+
+
+
+
+
+<html lang="zh-CN">
+<head>
+  <meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1, maximum-scale=2">
+<meta name="theme-color" content="#222">
+<meta name="generator" content="Hexo 3.9.0">
+  <link rel="apple-touch-icon" sizes="180x180" href="/images/apple-touch-icon-next.png?v=7.4.1">
+  <link rel="icon" type="image/png" sizes="32x32" href="/images/favicon-32x32-next.png?v=7.4.1">
+  <link rel="icon" type="image/png" sizes="16x16" href="/images/favicon-16x16-next.png?v=7.4.1">
+  <link rel="mask-icon" href="/images/logo.svg?v=7.4.1" color="#222">
+
+<link rel="stylesheet" href="/css/main.css?v=7.4.1">
+
+
+<link rel="stylesheet" href="/lib/font-awesome/css/font-awesome.min.css?v=4.7.0">
+
+
+<script id="hexo-configurations">
+  var NexT = window.NexT || {};
+  var CONFIG = {
+    root: '/',
+    scheme: 'Mist',
+    version: '7.4.1',
+    exturl: false,
+    sidebar: {"position":"right","display":"hide","offset":12,"onmobile":false},
+    copycode: {"enable":false,"show_result":false,"style":null},
+    back2top: {"enable":true,"sidebar":false,"scrollpercent":false},
+    bookmark: {"enable":false,"color":"#222","save":"auto"},
+    fancybox: false,
+    mediumzoom: false,
+    lazyload: false,
+    pangu: false,
+    algolia: {
+      appID: '',
+      apiKey: '',
+      indexName: '',
+      hits: {"per_page":10},
+      labels: {"input_placeholder":"Search for Posts","hits_empty":"We didn't find any results for the search: ${query}","hits_stats":"${hits} results found in ${time} ms"}
+    },
+    localsearch: {"enable":false,"trigger":"auto","top_n_per_article":1,"unescape":false,"preload":false},
+    path: '',
+    motion: {"enable":true,"async":false,"transition":{"post_block":"fadeIn","post_header":"slideDownIn","post_body":"slideDownIn","coll_header":"slideLeftIn","sidebar":"slideUpIn"}},
+    translation: {
+      copy_button: '复制',
+      copy_success: '复制成功',
+      copy_failure: '复制失败'
+    },
+    sidebarPadding: 40
+  };
+</script>
+
+  <meta name="description" content="基本概念 信号(signal)是一种软中断，是进程间异步通讯的一种方式。  每个信号都有一个编号和一个宏定义名称，查看方式：cat /usr/include/bits/signum.h   Linux系统共定义了64种信号，分为可靠信号和不可靠信号  不可靠信号：称为非实时信号、不支持排队，信号可能丢失，比如发送多次相同的信号, 进程只能收到一   次。取值范围：1~31 可靠信号：称为实时信号、">
+<meta property="og:type" content="article">
+<meta property="og:title" content="linux的signal机制">
+<meta property="og:url" content="http://yoursite.com/2020/08/07/linux/linux的signal机制/index.html">
+<meta property="og:site_name" content="纪光的博客">
+<meta property="og:description" content="基本概念 信号(signal)是一种软中断，是进程间异步通讯的一种方式。  每个信号都有一个编号和一个宏定义名称，查看方式：cat /usr/include/bits/signum.h   Linux系统共定义了64种信号，分为可靠信号和不可靠信号  不可靠信号：称为非实时信号、不支持排队，信号可能丢失，比如发送多次相同的信号, 进程只能收到一   次。取值范围：1~31 可靠信号：称为实时信号、">
+<meta property="og:locale" content="zh-CN">
+<meta property="og:updated_time" content="2021-06-20T04:19:35.161Z">
+<meta name="twitter:card" content="summary">
+<meta name="twitter:title" content="linux的signal机制">
+<meta name="twitter:description" content="基本概念 信号(signal)是一种软中断，是进程间异步通讯的一种方式。  每个信号都有一个编号和一个宏定义名称，查看方式：cat /usr/include/bits/signum.h   Linux系统共定义了64种信号，分为可靠信号和不可靠信号  不可靠信号：称为非实时信号、不支持排队，信号可能丢失，比如发送多次相同的信号, 进程只能收到一   次。取值范围：1~31 可靠信号：称为实时信号、">
+  <link rel="canonical" href="http://yoursite.com/2020/08/07/linux/linux的signal机制/">
+
+
+<script id="page-configurations">
+  // https://hexo.io/docs/variables.html
+  CONFIG.page = {
+    sidebar: "",
+    isHome: false,
+    isPost: true,
+    isPage: false,
+    isArchive: false
+  };
+</script>
+
+  <title>linux的signal机制 | 纪光的博客</title>
+  
+
+
+  <script>
+    var _hmt = _hmt || [];
+    (function() {
+      var hm = document.createElement("script");
+      hm.src = "https://hm.baidu.com/hm.js?bca403b673d79e83a47dc62fea1dd605";
+      var s = document.getElementsByTagName("script")[0];
+      s.parentNode.insertBefore(hm, s);
+    })();
+  </script>
+
+
+
+
+
+
+  <noscript>
+  <style>
+  .use-motion .brand,
+  .use-motion .menu-item,
+  .sidebar-inner,
+  .use-motion .post-block,
+  .use-motion .pagination,
+  .use-motion .comments,
+  .use-motion .post-header,
+  .use-motion .post-body,
+  .use-motion .collection-header { opacity: initial; }
+
+  .use-motion .site-title,
+  .use-motion .site-subtitle {
+    opacity: initial;
+    top: initial;
+  }
+
+  .use-motion .logo-line-before i { left: initial; }
+  .use-motion .logo-line-after i { right: initial; }
+  </style>
+</noscript>
+
+</head>
+
+<body itemscope itemtype="http://schema.org/WebPage">
+  <div class="container use-motion">
+    <div class="headband"></div>
+
+    <header class="header" itemscope itemtype="http://schema.org/WPHeader">
+      <div class="header-inner"><div class="site-brand-container">
+  <div class="site-meta">
+
+    <div>
+      <a href="/" class="brand" rel="start">
+        <span class="logo-line-before"><i></i></span>
+        <span class="site-title">纪光的博客</span>
+        <span class="logo-line-after"><i></i></span>
+      </a>
+    </div>
+  </div>
+
+  <div class="site-nav-toggle">
+    <div class="toggle" aria-label="切换导航栏">
+      <span class="toggle-line toggle-line-first"></span>
+      <span class="toggle-line toggle-line-middle"></span>
+      <span class="toggle-line toggle-line-last"></span>
+    </div>
+  </div>
+</div>
+
+
+<nav class="site-nav">
+  
+  <ul id="menu" class="menu">
+      
+      
+        
+        
+        <li class="menu-item menu-item-home">
+      
+    
+
+    <a href="/" rel="section"><i class="fa fa-fw fa-home"></i>首页</a>
+
+  </li>
+      
+    
+      
+      
+        
+        
+        <li class="menu-item menu-item-categories">
+      
+    
+
+    <a href="/categories/" rel="section"><i class="fa fa-fw fa-th"></i>分类</a>
+
+  </li>
+      
+    
+      
+      
+        
+        
+        <li class="menu-item menu-item-tags">
+      
+    
+
+    <a href="/tags/" rel="section"><i class="fa fa-fw fa-tags"></i>标签</a>
+
+  </li>
+      
+    
+      
+      
+        
+        
+        <li class="menu-item menu-item-archives">
+      
+    
+
+    <a href="/archives/" rel="section"><i class="fa fa-fw fa-archive"></i>归档</a>
+
+  </li>
+      
+    
+      
+      
+        
+        
+        <li class="menu-item menu-item-about">
+      
+    
+
+    <a href="/about/" rel="section"><i class="fa fa-fw fa-user"></i>关于</a>
+
+  </li>
+      
+    
+  </ul>
+
+    
+
+</nav>
+</div>
+    </header>
+
+    
+  <div class="back-to-top">
+    <i class="fa fa-arrow-up"></i>
+    <span>0%</span>
+  </div>
+
+
+    <main class="main">
+      <div class="main-inner">
+        <div class="content-wrap">
+          <div class="content">
+            
+
+  <div class="posts-expand">
+      
+  
+  
+  <article itemscope itemtype="http://schema.org/Article" class="post-block " lang="zh-CN">
+    <link itemprop="mainEntityOfPage" href="http://yoursite.com/2020/08/07/linux/linux的signal机制/">
+
+    <span hidden itemprop="author" itemscope itemtype="http://schema.org/Person">
+      <meta itemprop="name" content="姜纪光">
+      <meta itemprop="description" content="">
+      <meta itemprop="image" content="/images/avatar.gif">
+    </span>
+
+    <span hidden itemprop="publisher" itemscope itemtype="http://schema.org/Organization">
+      <meta itemprop="name" content="纪光的博客">
+    </span>
+      <header class="post-header">
+        <h1 class="post-title" itemprop="name headline">
+          
+            linux的signal机制
+            
+
+          
+        </h1>
+
+        <div class="post-meta">
+            <span class="post-meta-item">
+              <span class="post-meta-item-icon">
+                <i class="fa fa-calendar-o"></i>
+              </span>
+              <span class="post-meta-item-text">发表于</span>
+
+              
+                
+              
+
+              <time title="创建时间：2020-08-07 09:24:23" itemprop="dateCreated datePublished" datetime="2020-08-07T09:24:23+08:00">2020-08-07</time>
+            </span>
+          
+            
+
+            
+              <span class="post-meta-item">
+                <span class="post-meta-item-icon">
+                  <i class="fa fa-calendar-check-o"></i>
+                </span>
+                <span class="post-meta-item-text">更新于</span>
+                <time title="修改时间：2021-06-20 12:19:35" itemprop="dateModified" datetime="2021-06-20T12:19:35+08:00">2021-06-20</time>
+              </span>
+            
+          
+            <span class="post-meta-item">
+              <span class="post-meta-item-icon">
+                <i class="fa fa-folder-o"></i>
+              </span>
+              <span class="post-meta-item-text">分类于</span>
+              
+                <span itemprop="about" itemscope itemtype="http://schema.org/Thing">
+                  <a href="/categories/linux/" itemprop="url" rel="index">
+                    <span itemprop="name">linux</span>
+                  </a>
+                </span>
+
+                
+                
+              
+            </span>
+          
+
+          
+            <span id="/2020/08/07/linux/linux的signal机制/" class="post-meta-item leancloud_visitors" data-flag-title="linux的signal机制" title="阅读次数">
+              <span class="post-meta-item-icon">
+                <i class="fa fa-eye"></i>
+              </span>
+              <span class="post-meta-item-text">阅读次数：</span>
+              <span class="leancloud-visitors-count"></span>
+            </span>
+          
+  
+  
+
+        </div>
+      </header>
+
+    
+    
+    
+    <div class="post-body" itemprop="articleBody">
+
+      
+        <h1 id="基本概念"><a href="#基本概念" class="headerlink" title="基本概念"></a>基本概念</h1><ul>
+<li><p>信号(signal)是一种软中断，是进程间异步通讯的一种方式。</p>
+<blockquote>
+<p>每个信号都有一个编号和一个宏定义名称，查看方式：cat /usr/include/bits/signum.h</p>
+</blockquote>
+</li>
+<li><p>Linux系统共定义了64种信号，分为可靠信号和不可靠信号</p>
+<blockquote>
+<p>不可靠信号：称为非实时信号、不支持排队，信号可能丢失，比如发送多次相同的信号, 进程只能收到一   次。取值范围：1~31</p>
+<p>可靠信号：称为实时信号、支持排队，信号不会丢失，发多少次, 就可以收到多少次。取值范围：32~64</p>
+</blockquote>
+</li>
+<li><p>kill -l查看所有的signal</p>
+<blockquote>
+<p>1) SIGHUP       2) SIGINT       3) SIGQUIT      4) SIGILL       5) SIGTRAP<br> 6) SIGABRT      7) SIGBUS       8) SIGFPE       9) SIGKILL     10) SIGUSR1<br>11) SIGSEGV     12) SIGUSR2     13) SIGPIPE     14) SIGALRM     15) SIGTERM<br>16) SIGSTKFLT   17) SIGCHLD     18) SIGCONT     19) SIGSTOP     20) SIGTSTP<br>21) SIGTTIN     22) SIGTTOU     23) SIGURG      24) SIGXCPU     25) SIGXFSZ<br>26) SIGVTALRM   27) SIGPROF     28) SIGWINCH    29) SIGIO       30) SIGPWR<br>31) SIGSYS      34) SIGRTMIN    35) SIGRTMIN+1  36) SIGRTMIN+2  37) SIGRTMIN+3<br>38) SIGRTMIN+4  39) SIGRTMIN+5  40) SIGRTMIN+6  41) SIGRTMIN+7  42) SIGRTMIN+8<br>43) SIGRTMIN+9  44) SIGRTMIN+10 45) SIGRTMIN+11 46) SIGRTMIN+12 47) SIGRTMIN+13<br>48) SIGRTMIN+14 49) SIGRTMIN+15 50) SIGRTMAX-14 51) SIGRTMAX-13 52) SIGRTMAX-12<br>53) SIGRTMAX-11 54) SIGRTMAX-10 55) SIGRTMAX-9  56) SIGRTMAX-8  57) SIGRTMAX-7<br>58) SIGRTMAX-6  59) SIGRTMAX-5  60) SIGRTMAX-4  61) SIGRTMAX-3  62) SIGRTMAX-2<br>63) SIGRTMAX-1  64) SIGRTMAX</p>
+</blockquote>
+</li>
+<li><p>信号解释，cat /usr/include/bits/signum.h</p>
+<blockquote>
+<p>Fake signal：</p>
+<p>SIG_ERR ((__sighandler_t) -1)    Error return</p>
+<p>SIG_DFL ((__sighandler_t) 0)      Default action</p>
+<p>SIG_IGN ((__sighandler_t) 1)      Ignore signal</p>
+<p>Signals：</p>
+<p>SIGHUP          1       挂起/* Hangup (POSIX).  */</p>
+<p>SIGINT            2       中断/* Interrupt (ANSI).  */       可由Ctrl-C产生</p>
+<p>SIGQUIT         3       退出/* Quit (POSIX).  */</p>
+<p>SIGILL             4       非法指令/* Illegal instruction (ANSI).  */</p>
+<p>SIGTRAP         5       断点或陷阱指令/* Trace trap (POSIX).  */</p>
+<p>SIGABRT         6       abort发出的信号/* Abort (ANSI).  */</p>
+<p>SIGIOT            6       /* IOT trap (4.2 BSD).  */</p>
+<p>SIGBUS           7       非法内存访问/* BUS error (4.2 BSD).  */</p>
+<p>SIGFPE            8      浮点异常 /* Floating-point exception (ANSI).  */</p>
+<p>SIGKILL           9       kill信号（不能被拦截、忽略、处理和阻塞）/* Kill, unblockable (POSIX).  */</p>
+<p>SIGUSR1         10      用户信号1/* User-defined signal 1 (POSIX).  */</p>
+<p>SIGSEGV         11      无效内存访问/* Segmentation violation (ANSI).  */</p>
+<p>SIGUSR2         12      用户信号2/* User-defined signal 2 (POSIX).  */</p>
+<p>SIGPIPE           13      管道破损，没有读端的管道写数据/* Broken pipe (POSIX).  */</p>
+<p>SIGALRM         14      alarm发出的信号/* Alarm clock (POSIX).  */</p>
+<p>SIGTERM         15      终止信号/* Termination (ANSI).  */</p>
+<p>SIGSTKFLT       16      栈溢出/* Stack fault.  */</p>
+<p>SIGCLD          SIGCHLD /* Same as SIGCHLD (System V).  */</p>
+<p>SIGCHLD         17      子进程退出（默认忽略）/* Child status has changed (POSIX).  */</p>
+<p>SIGCONT         18      进程继续/* Continue (POSIX).  */</p>
+<p>SIGSTOP          19      进程停止（不能被忽略、处理和阻塞）/* Stop, unblockable (POSIX).  */</p>
+<p>SIGTSTP           20      进程停止/* Keyboard stop (POSIX).  */          可由Ctrl-Z产生</p>
+<p>SIGTTIN            21      进程停止，后台进程从终端读数据时/* Background read from tty (POSIX).  */</p>
+<p>SIGTTOU          22      进程停止，后台进程想终端写数据时/* Background write to tty (POSIX).  */</p>
+<p>SIGURG            23      I/O有紧急数据到达当前进程（默认忽略）/* Urgent condition on socket (4.2 BSD).  */</p>
+<p>SIGXCPU           24      进程的CPU时间片到期/* CPU limit exceeded (4.2 BSD).  */</p>
+<p>SIGXFSZ            25      文件大小的超出上限/* File size limit exceeded (4.2 BSD).  */</p>
+<p>SIGVTALRM      26      虚拟时钟超时/* Virtual alarm clock (4.2 BSD).  */</p>
+<p>SIGPROF           27      profile时钟超时/* Profiling alarm clock (4.2 BSD).  */</p>
+<p>SIGWINCH        28      窗口大小改变（默认忽略）/* Window size change (4.3 BSD, Sun).  */</p>
+<p>SIGPOLL         SIGIO   /* Pollable event occurred (System V).  */</p>
+<p>SIGIO                29      I/O相关/* I/O now possible (4.2 BSD).  */</p>
+<p>SIGPWR            30      关机（默认忽略）/* Power failure restart (System V).  */</p>
+<p>SIGSYS              31      系统调用异常/* Bad system call.  */</p>
+<p>SIGUNUSED     31</p>
+</blockquote>
+</li>
+<li><p>signal的默认处理动作</p>
+<blockquote>
+<p>Term表示终止当前进程</p>
+<p>Core表示终止当前进程并且Core Dump</p>
+<p>Ign表示忽略该信号</p>
+<p>Stop表示停止当前进程</p>
+<p>Cont表示继续执行先前停止的进程，</p>
+</blockquote>
+</li>
+</ul>
+<h1 id="信号产生"><a href="#信号产生" class="headerlink" title="信号产生"></a>信号产生</h1><p>信号的来源可分为：硬件类和软件类</p>
+<h2 id="硬件方式"><a href="#硬件方式" class="headerlink" title="硬件方式"></a>硬件方式</h2><ul>
+<li><p>用户输入</p>
+<blockquote>
+<p>ctrl-c 发送 <code>SIGINT</code> 中断信号给前台进程组中的所有进程。常用于终止正在运行的程序。<br>ctrl-z 发送 <code>SIGTSTP</code> 进程停止信号给前台进程组中的所有进程，常用于挂起一个进程。<br>ctrl-d 不是发送信号，而是表示一个特殊的二进制值，表示 EOF。<br>ctrl-\ 发送 <code>SIGQUIT</code> 退出信号给前台进程组中的所有进程，终止前台进程并生成 core 文件。</p>
+</blockquote>
+</li>
+<li><p>硬件异常</p>
+<blockquote>
+<p>由硬件检测到并通知内核、然后内核向当前进程发送适当的信号，例如：</p>
+<p>1、当前进程执行了除以0的指令，CPU的运算单元会产生异常，内核将这个异常解释为<code>SIGFPE</code>浮点异常信号发送给进程</p>
+<p>2、当前进程访问了非法内存地址，MMU会产生异常，内核将这个异常解释为<code>SIGSEGV</code>无效内存访问信号发送给进程。</p>
+</blockquote>
+</li>
+</ul>
+<h2 id="软件方式"><a href="#软件方式" class="headerlink" title="软件方式"></a>软件方式</h2><ul>
+<li><p>进程间</p>
+<blockquote>
+<p>一个进程调用<code>kill(2)</code>函数可以发送信号给另一个进程。</p>
+<p>可以用<code>kill(1)</code>命令发送信号给某个进程，<code>kill(1)</code>命令也是调用<code>kill(2)</code>函数实现的，如果不明确指定信号则发送<code>SIGTERM</code>信号，该信号的默认处理动作是终止进程。</p>
+</blockquote>
+</li>
+<li><p>编程语言</p>
+<blockquote>
+<p>kernel,使用 kill_proc_info(）等</p>
+<p>native,使用 kill() 或者raise()  等</p>
+<p>java,使用 Procees.sendSignal()等</p>
+</blockquote>
+</li>
+</ul>
+<h1 id="信号注册和注销"><a href="#信号注册和注销" class="headerlink" title="信号注册和注销"></a>信号注册和注销</h1><h2 id="信号注册"><a href="#信号注册" class="headerlink" title="信号注册"></a>信号注册</h2><p>​    在进程task_struct结构体中有一个未决信号的成员变量 <code>struct sigpending pending</code>。每个信号在进程中注册都会把信号值加入到进程的未决信号集。</p>
+<ul>
+<li>非实时信号发送给进程时，如果该信息已经在进程中注册过，不会再次注册，故信号会丢失</li>
+<li>实时信号发送给进程时，不管该信号是否在进程中注册过，都会再次注册。故信号不会丢失</li>
+</ul>
+<h2 id="信号注销"><a href="#信号注销" class="headerlink" title="信号注销"></a>信号注销</h2><ul>
+<li>非实时信号：不可重复注册，最多只有一个sigqueue结构；当该结构被释放后，把该信号从进程未决信号集中删除，则信号注销完毕</li>
+<li>实时信号：可重复注册，可能存在多个sigqueue结构；当该信号的所有sigqueue处理完毕后，把该信号从进程未决信号集中删除，则信号注销完毕</li>
+</ul>
+<h1 id="信号处理"><a href="#信号处理" class="headerlink" title="信号处理"></a>信号处理</h1><p>​    内核处理进程收到的signal是在当前进程的上下文，故进程必须是Running状态。</p>
+<p>​    当进程唤醒或者调度后获取CPU，则会从内核态转到用户态时检测是否有signal等待处理，处理完，进程会把相应的未决信号从链表中去掉。</p>
+<p>​    信号处理动作称为信号<em>递达</em>（Delivery）。信号从产生到递达之间的状态，称为信号<em>未决</em>（Pending）</p>
+<ul>
+<li><p>signal信号处理时机</p>
+<blockquote>
+<p>内核态 -&gt; signal信号处理 -&gt; 用户态</p>
+<p>在内核态，signal信号不起作用</p>
+<p>在用户态，signal所有未被屏蔽的信号都处理完毕</p>
+<p>当屏蔽信号，取消屏蔽时，会在下一次内核转用户态的过程中执行</p>
+</blockquote>
+</li>
+<li><p>处理方式</p>
+<blockquote>
+<p>默认：接收到信号后按默认的行为处理该信号，这是多数应用采取的处理方式</p>
+<p>自定义：用自定义的信号处理函数来执行特定的动作</p>
+<p>忽略：接收到信号后不做任何反应</p>
+</blockquote>
+</li>
+<li><p>信号安装</p>
+<blockquote>
+<p>进程处理某个信号前，需要先在进程中安装此信号。安装过程主要是建立信号值和进程对相应信息值的动作。</p>
+<p>信号安装函数:</p>
+<p>1、signal()：不支持信号传递信息，主要用于非实时信号安装</p>
+<p>2、sigaction()：支持信号传递信息，可用于所有信号安装</p>
+<p>函数原型：</p>
+<p>int sigaction(int signum, const struct sigaction *act, struct sigaction *oldact)</p>
+<p>1、signum：要操作的signal信号</p>
+<p>2、act：设置对signal信号的新处理方式</p>
+<p>3、oldact：原来对信号的处理方式</p>
+<p>4、返回值：0 表示成功，-1 表示有错误发生</p>
+<p>其中 sigaction结构体：</p>
+<p>1、sa_handler：信号处理函数</p>
+<p>2、sa_mask：指定信号处理程序执行过程中需要阻塞的信号</p>
+<p>3、sa_flags：标示位</p>
+<ul>
+<li>SA_RESTART：使被信号打断的syscall重新发起。</li>
+<li>SA_NOCLDSTOP：使父进程在它的子进程暂停或继续运行时不会收到 SIGCHLD 信号。</li>
+<li>SA_NOCLDWAIT：使父进程在它的子进程退出时不会收到SIGCHLD信号，这时子进程如果退出也不会成为僵 尸进程。</li>
+<li>SA_NODEFER：使对信号的屏蔽无效，即在信号处理函数执行期间仍能发出这个信号。</li>
+<li>SA_RESETHAND：信号处理之后重新设置为默认的处理方式。</li>
+<li>SA_SIGINFO：使用sa_sigaction成员而不是sa_handler作为信号处理函数</li>
+</ul>
+</blockquote>
+</li>
+<li><p>信号发送</p>
+<blockquote>
+<p>1、kill()：用于向进程或进程组发送信号</p>
+<p>2、sigqueue()：只能向一个进程发送信号，不能像进程组发送信号；主要针对实时信号提出，与sigaction()组合使用，当然也支持非实时信号的发送</p>
+<p>3、alarm()：用于调用进程指定时间后发出SIGALARM信号</p>
+<p>4、setitimer()：设置定时器，计时达到后给进程发送SIGALRM信号，功能比alarm更强大</p>
+<p>5、abort()：向进程发送SIGABORT信号，默认进程会异常退出</p>
+<p>6、raise()：用于向进程自身发送信号</p>
+</blockquote>
+</li>
+<li><p>信号函数</p>
+<blockquote>
+<p>信号集操作函数：</p>
+<p>1、sigemptyset(sigset_t *set)：信号集全部清0</p>
+<p>2、sigfillset(sigset_t *set)： 信号集全部置1，则信号集包含linux支持的64种信号</p>
+<p>3、sigaddset(sigset_t *set, int signum)：向信号集中加入signum信号</p>
+<p>4、sigdelset(sigset_t *set, int signum)：向信号集中删除signum信号</p>
+<p>5、sigismember(const sigset_t *set, int signum)：判定信号signum是否存在信号集中</p>
+<p>信号阻塞函数：</p>
+<p>1、sigprocmask(int how, const sigset_t *set, sigset_t *oldset))； 不同how参数，实现不同功能</p>
+<p>​        SIG_BLOCK：将set指向信号集中的信号，添加到进程阻塞信号集</p>
+<p>​        SIG_UNBLOCK：将set指向信号集中的信号，从进程阻塞信号集删除</p>
+<p>​        SIG_SETMASK：将set指向信号集中的信号，设置成进程阻塞信号集</p>
+<p>2、sigpending(sigset_t *set))：获取已发送到进程，却被阻塞的所有信号</p>
+<p>3、sigsuspend(const sigset_t *mask))：用mask代替进程的原有掩码，并暂停进程执行，直到收到信号再恢复原有掩码并继续执行进程</p>
+</blockquote>
+</li>
+</ul>
+<h1 id="参考文档"><a href="#参考文档" class="headerlink" title="参考文档"></a>参考文档</h1><p><a href="http://gityuan.com/2015/12/20/signal/" target="_blank" rel="noopener">Linux信号(signal)机制</a></p>
+<p><a href="http://akaedu.github.io/book/ch33s01.html" target="_blank" rel="noopener">信号</a></p>
+<p><a href="https://blog.csdn.net/melody_1016/article/details/84959962" target="_blank" rel="noopener">signal信号宏定义查看</a></p>
+<p><a href="https://www.cnblogs.com/jiangzhaowei/p/8971265.html" target="_blank" rel="noopener">Linux后台进程管理</a></p>
+<p><a href="https://www.coder.work/article/2816595" target="_blank" rel="noopener">java - CTRL-C在Java程序上不起作用</a></p>
+
+    </div>
+
+    
+    
+    
+        
+      
+
+      <footer class="post-footer">
+
+        
+
+          <div class="post-nav">
+            <div class="post-nav-next post-nav-item">
+              
+                <a href="/2020/08/06/flink/Flink从checkpoint恢复失败-EOFException/" rel="next" title="Flink从checkpoint恢复失败-EOFException">
+                  <i class="fa fa-chevron-left"></i> Flink从checkpoint恢复失败-EOFException
+                </a>
+              
+            </div>
+
+            <span class="post-nav-divider"></span>
+
+            <div class="post-nav-prev post-nav-item">
+              
+                <a href="/2020/08/07/java/java程序捕获signal实践/" rel="prev" title="java程序捕获signal实践">
+                  java程序捕获signal实践 <i class="fa fa-chevron-right"></i>
+                </a>
+              
+            </div>
+          </div>
+        
+      </footer>
+    
+  </article>
+  
+  
+  
+
+  </div>
+
+
+          </div>
+          
+
+        </div>
+          
+  
+  <div class="toggle sidebar-toggle">
+    <span class="toggle-line toggle-line-first"></span>
+    <span class="toggle-line toggle-line-middle"></span>
+    <span class="toggle-line toggle-line-last"></span>
+  </div>
+
+  <aside class="sidebar">
+    <div class="sidebar-inner">
+        
+        
+        
+        
+      
+
+      <ul class="sidebar-nav motion-element">
+        <li class="sidebar-nav-toc">
+          文章目录
+        </li>
+        <li class="sidebar-nav-overview">
+          站点概览
+        </li>
+      </ul>
+
+      <!--noindex-->
+      <div class="post-toc-wrap sidebar-panel">
+          <div class="post-toc motion-element"><ol class="nav"><li class="nav-item nav-level-1"><a class="nav-link" href="#基本概念"><span class="nav-number">1.</span> <span class="nav-text">基本概念</span></a></li><li class="nav-item nav-level-1"><a class="nav-link" href="#信号产生"><span class="nav-number">2.</span> <span class="nav-text">信号产生</span></a><ol class="nav-child"><li class="nav-item nav-level-2"><a class="nav-link" href="#硬件方式"><span class="nav-number">2.1.</span> <span class="nav-text">硬件方式</span></a></li><li class="nav-item nav-level-2"><a class="nav-link" href="#软件方式"><span class="nav-number">2.2.</span> <span class="nav-text">软件方式</span></a></li></ol></li><li class="nav-item nav-level-1"><a class="nav-link" href="#信号注册和注销"><span class="nav-number">3.</span> <span class="nav-text">信号注册和注销</span></a><ol class="nav-child"><li class="nav-item nav-level-2"><a class="nav-link" href="#信号注册"><span class="nav-number">3.1.</span> <span class="nav-text">信号注册</span></a></li><li class="nav-item nav-level-2"><a class="nav-link" href="#信号注销"><span class="nav-number">3.2.</span> <span class="nav-text">信号注销</span></a></li></ol></li><li class="nav-item nav-level-1"><a class="nav-link" href="#信号处理"><span class="nav-number">4.</span> <span class="nav-text">信号处理</span></a></li><li class="nav-item nav-level-1"><a class="nav-link" href="#参考文档"><span class="nav-number">5.</span> <span class="nav-text">参考文档</span></a></li></ol></div>
+        
+      </div>
+      <!--/noindex-->
+
+      <div class="site-overview-wrap sidebar-panel">
+        <div class="site-author motion-element" itemprop="author" itemscope itemtype="http://schema.org/Person">
+  <p class="site-author-name" itemprop="name">姜纪光</p>
+  <div class="site-description" itemprop="description"></div>
+</div>
+<div class="site-state-wrap motion-element">
+  <nav class="site-state">
+      <div class="site-state-item site-state-posts">
+        
+          <a href="/archives/">
+        
+          <span class="site-state-item-count">158</span>
+          <span class="site-state-item-name">日志</span>
+        </a>
+      </div>
+    
+      
+      
+      <div class="site-state-item site-state-categories">
+        
+          
+            <a href="/categories/">
+          
+        
+        <span class="site-state-item-count">26</span>
+        <span class="site-state-item-name">分类</span>
+        </a>
+      </div>
+    
+      
+      
+      <div class="site-state-item site-state-tags">
+        
+          
+            <a href="/tags/">
+          
+        
+        <span class="site-state-item-count">14</span>
+        <span class="site-state-item-name">标签</span>
+        </a>
+      </div>
+    
+  </nav>
+</div>
+
+
+
+      </div>
+
+    </div>
+  </aside>
+  <div id="sidebar-dimmer"></div>
+
+
+      </div>
+    </main>
+
+    <footer class="footer">
+      <div class="footer-inner">
+        
+
+<div class="copyright">
+  &copy; 
+  <span itemprop="copyrightYear">2021</span>
+  <span class="with-love">
+    <i class="fa fa-user"></i>
+  </span>
+  <span class="author" itemprop="copyrightHolder">姜纪光</span>
+</div>
+  <div class="powered-by">由 <a href="https://hexo.io" class="theme-link" rel="noopener" target="_blank">Hexo</a> 强力驱动 v3.9.0
+  </div>
+  <span class="post-meta-divider">|</span>
+  <div class="theme-info">
+      
+    主题 – <a href="https://mist.theme-next.org" class="theme-link" rel="noopener" target="_blank">NexT.Mist</a> v7.4.1
+  </div>
+
+        
+
+
+
+
+
+
+
+
+
+
+
+
+        
+      </div>
+    </footer>
+  </div>
+
+  
+  <script src="/lib/anime.min.js?v=3.1.0"></script>
+  <script src="/lib/velocity/velocity.min.js?v=1.2.1"></script>
+  <script src="/lib/velocity/velocity.ui.min.js?v=1.2.1"></script>
+<script src="/js/utils.js?v=7.4.1"></script><script src="/js/motion.js?v=7.4.1"></script>
+<script src="/js/schemes/muse.js?v=7.4.1"></script>
+
+<script src="/js/next-boot.js?v=7.4.1"></script>
+
+
+
+  
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+  
+
+  
+
+  
+
+
+<script>
+NexT.utils.getScript('//unpkg.com/valine/dist/Valine.min.js', () => {
+  var GUEST = ['nick', 'mail', 'link'];
+  var guest = 'nick,mail,link';
+  guest = guest.split(',').filter(item => {
+    return GUEST.includes(item);
+  });
+  new Valine({
+    el: '#comments',
+    verify: false,
+    notify: false,
+    appId: 'MIQC4jJTknc0hjNXDAiIuQ21-9Nh9j0Va',
+    appKey: 'vaiXpSQLLMglwYsVLOBLzck4',
+    placeholder: "Just go go",
+    avatar: 'mm',
+    meta: guest,
+    pageSize: '10' || 10,
+    visitor: true,
+    lang: 'zh-cn' || 'zh-cn',
+    path: location.pathname,
+    recordIP: false,
+    serverURLs: ''
+  });
+}, window.Valine);
+</script>
+
+</body>
+</html>

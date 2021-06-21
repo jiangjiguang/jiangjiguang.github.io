@@ -1,0 +1,608 @@
+<!DOCTYPE html>
+
+
+
+
+
+<html lang="zh-CN">
+<head>
+  <meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1, maximum-scale=2">
+<meta name="theme-color" content="#222">
+<meta name="generator" content="Hexo 3.9.0">
+  <link rel="apple-touch-icon" sizes="180x180" href="/images/apple-touch-icon-next.png?v=7.4.1">
+  <link rel="icon" type="image/png" sizes="32x32" href="/images/favicon-32x32-next.png?v=7.4.1">
+  <link rel="icon" type="image/png" sizes="16x16" href="/images/favicon-16x16-next.png?v=7.4.1">
+  <link rel="mask-icon" href="/images/logo.svg?v=7.4.1" color="#222">
+
+<link rel="stylesheet" href="/css/main.css?v=7.4.1">
+
+
+<link rel="stylesheet" href="/lib/font-awesome/css/font-awesome.min.css?v=4.7.0">
+
+
+<script id="hexo-configurations">
+  var NexT = window.NexT || {};
+  var CONFIG = {
+    root: '/',
+    scheme: 'Mist',
+    version: '7.4.1',
+    exturl: false,
+    sidebar: {"position":"right","display":"hide","offset":12,"onmobile":false},
+    copycode: {"enable":false,"show_result":false,"style":null},
+    back2top: {"enable":true,"sidebar":false,"scrollpercent":false},
+    bookmark: {"enable":false,"color":"#222","save":"auto"},
+    fancybox: false,
+    mediumzoom: false,
+    lazyload: false,
+    pangu: false,
+    algolia: {
+      appID: '',
+      apiKey: '',
+      indexName: '',
+      hits: {"per_page":10},
+      labels: {"input_placeholder":"Search for Posts","hits_empty":"We didn't find any results for the search: ${query}","hits_stats":"${hits} results found in ${time} ms"}
+    },
+    localsearch: {"enable":false,"trigger":"auto","top_n_per_article":1,"unescape":false,"preload":false},
+    path: '',
+    motion: {"enable":true,"async":false,"transition":{"post_block":"fadeIn","post_header":"slideDownIn","post_body":"slideDownIn","coll_header":"slideLeftIn","sidebar":"slideUpIn"}},
+    translation: {
+      copy_button: '复制',
+      copy_success: '复制成功',
+      copy_failure: '复制失败'
+    },
+    sidebarPadding: 40
+  };
+</script>
+
+  <meta name="description" content="参数优先级 代码中的优先级最高 代码中资源目录下配置文件的优先级次之 服务中的配置文件的优先级再次之 服务中的默认配置文件的优先级最低  HDFS的写数据流程 写数据流程：  Client通过Distributed FileSystem向NameNode请求上传文件，NameNode检查父目录、文件是否已经存在 NameNode返回可以上传 Client向NameNode请求Block的存储位置">
+<meta property="og:type" content="article">
+<meta property="og:title" content="HDFS Client">
+<meta property="og:url" content="http://yoursite.com/2020/06/23/hadoop/HDFS-Client/index.html">
+<meta property="og:site_name" content="纪光的博客">
+<meta property="og:description" content="参数优先级 代码中的优先级最高 代码中资源目录下配置文件的优先级次之 服务中的配置文件的优先级再次之 服务中的默认配置文件的优先级最低  HDFS的写数据流程 写数据流程：  Client通过Distributed FileSystem向NameNode请求上传文件，NameNode检查父目录、文件是否已经存在 NameNode返回可以上传 Client向NameNode请求Block的存储位置">
+<meta property="og:locale" content="zh-CN">
+<meta property="og:image" content="http://yoursite.com/images/hadoop/HDFS%E5%86%99%E6%B5%81%E7%A8%8B.png">
+<meta property="og:image" content="http://yoursite.com/images/hadoop/HDFS%E8%AF%BB%E6%B5%81%E7%A8%8B.png">
+<meta property="og:updated_time" content="2021-06-20T04:19:35.148Z">
+<meta name="twitter:card" content="summary">
+<meta name="twitter:title" content="HDFS Client">
+<meta name="twitter:description" content="参数优先级 代码中的优先级最高 代码中资源目录下配置文件的优先级次之 服务中的配置文件的优先级再次之 服务中的默认配置文件的优先级最低  HDFS的写数据流程 写数据流程：  Client通过Distributed FileSystem向NameNode请求上传文件，NameNode检查父目录、文件是否已经存在 NameNode返回可以上传 Client向NameNode请求Block的存储位置">
+<meta name="twitter:image" content="http://yoursite.com/images/hadoop/HDFS%E5%86%99%E6%B5%81%E7%A8%8B.png">
+  <link rel="canonical" href="http://yoursite.com/2020/06/23/hadoop/HDFS-Client/">
+
+
+<script id="page-configurations">
+  // https://hexo.io/docs/variables.html
+  CONFIG.page = {
+    sidebar: "",
+    isHome: false,
+    isPost: true,
+    isPage: false,
+    isArchive: false
+  };
+</script>
+
+  <title>HDFS Client | 纪光的博客</title>
+  
+
+
+  <script>
+    var _hmt = _hmt || [];
+    (function() {
+      var hm = document.createElement("script");
+      hm.src = "https://hm.baidu.com/hm.js?bca403b673d79e83a47dc62fea1dd605";
+      var s = document.getElementsByTagName("script")[0];
+      s.parentNode.insertBefore(hm, s);
+    })();
+  </script>
+
+
+
+
+
+
+  <noscript>
+  <style>
+  .use-motion .brand,
+  .use-motion .menu-item,
+  .sidebar-inner,
+  .use-motion .post-block,
+  .use-motion .pagination,
+  .use-motion .comments,
+  .use-motion .post-header,
+  .use-motion .post-body,
+  .use-motion .collection-header { opacity: initial; }
+
+  .use-motion .site-title,
+  .use-motion .site-subtitle {
+    opacity: initial;
+    top: initial;
+  }
+
+  .use-motion .logo-line-before i { left: initial; }
+  .use-motion .logo-line-after i { right: initial; }
+  </style>
+</noscript>
+
+</head>
+
+<body itemscope itemtype="http://schema.org/WebPage">
+  <div class="container use-motion">
+    <div class="headband"></div>
+
+    <header class="header" itemscope itemtype="http://schema.org/WPHeader">
+      <div class="header-inner"><div class="site-brand-container">
+  <div class="site-meta">
+
+    <div>
+      <a href="/" class="brand" rel="start">
+        <span class="logo-line-before"><i></i></span>
+        <span class="site-title">纪光的博客</span>
+        <span class="logo-line-after"><i></i></span>
+      </a>
+    </div>
+  </div>
+
+  <div class="site-nav-toggle">
+    <div class="toggle" aria-label="切换导航栏">
+      <span class="toggle-line toggle-line-first"></span>
+      <span class="toggle-line toggle-line-middle"></span>
+      <span class="toggle-line toggle-line-last"></span>
+    </div>
+  </div>
+</div>
+
+
+<nav class="site-nav">
+  
+  <ul id="menu" class="menu">
+      
+      
+        
+        
+        <li class="menu-item menu-item-home">
+      
+    
+
+    <a href="/" rel="section"><i class="fa fa-fw fa-home"></i>首页</a>
+
+  </li>
+      
+    
+      
+      
+        
+        
+        <li class="menu-item menu-item-categories">
+      
+    
+
+    <a href="/categories/" rel="section"><i class="fa fa-fw fa-th"></i>分类</a>
+
+  </li>
+      
+    
+      
+      
+        
+        
+        <li class="menu-item menu-item-tags">
+      
+    
+
+    <a href="/tags/" rel="section"><i class="fa fa-fw fa-tags"></i>标签</a>
+
+  </li>
+      
+    
+      
+      
+        
+        
+        <li class="menu-item menu-item-archives">
+      
+    
+
+    <a href="/archives/" rel="section"><i class="fa fa-fw fa-archive"></i>归档</a>
+
+  </li>
+      
+    
+      
+      
+        
+        
+        <li class="menu-item menu-item-about">
+      
+    
+
+    <a href="/about/" rel="section"><i class="fa fa-fw fa-user"></i>关于</a>
+
+  </li>
+      
+    
+  </ul>
+
+    
+
+</nav>
+</div>
+    </header>
+
+    
+  <div class="back-to-top">
+    <i class="fa fa-arrow-up"></i>
+    <span>0%</span>
+  </div>
+
+
+    <main class="main">
+      <div class="main-inner">
+        <div class="content-wrap">
+          <div class="content">
+            
+
+  <div class="posts-expand">
+      
+  
+  
+  <article itemscope itemtype="http://schema.org/Article" class="post-block " lang="zh-CN">
+    <link itemprop="mainEntityOfPage" href="http://yoursite.com/2020/06/23/hadoop/HDFS-Client/">
+
+    <span hidden itemprop="author" itemscope itemtype="http://schema.org/Person">
+      <meta itemprop="name" content="姜纪光">
+      <meta itemprop="description" content="">
+      <meta itemprop="image" content="/images/avatar.gif">
+    </span>
+
+    <span hidden itemprop="publisher" itemscope itemtype="http://schema.org/Organization">
+      <meta itemprop="name" content="纪光的博客">
+    </span>
+      <header class="post-header">
+        <h1 class="post-title" itemprop="name headline">
+          
+            HDFS Client
+            
+
+          
+        </h1>
+
+        <div class="post-meta">
+            <span class="post-meta-item">
+              <span class="post-meta-item-icon">
+                <i class="fa fa-calendar-o"></i>
+              </span>
+              <span class="post-meta-item-text">发表于</span>
+
+              
+                
+              
+
+              <time title="创建时间：2020-06-23 10:47:44" itemprop="dateCreated datePublished" datetime="2020-06-23T10:47:44+08:00">2020-06-23</time>
+            </span>
+          
+            
+
+            
+              <span class="post-meta-item">
+                <span class="post-meta-item-icon">
+                  <i class="fa fa-calendar-check-o"></i>
+                </span>
+                <span class="post-meta-item-text">更新于</span>
+                <time title="修改时间：2021-06-20 12:19:35" itemprop="dateModified" datetime="2021-06-20T12:19:35+08:00">2021-06-20</time>
+              </span>
+            
+          
+            <span class="post-meta-item">
+              <span class="post-meta-item-icon">
+                <i class="fa fa-folder-o"></i>
+              </span>
+              <span class="post-meta-item-text">分类于</span>
+              
+                <span itemprop="about" itemscope itemtype="http://schema.org/Thing">
+                  <a href="/categories/hadoop/" itemprop="url" rel="index">
+                    <span itemprop="name">hadoop</span>
+                  </a>
+                </span>
+
+                
+                
+              
+            </span>
+          
+
+          
+            <span id="/2020/06/23/hadoop/HDFS-Client/" class="post-meta-item leancloud_visitors" data-flag-title="HDFS Client" title="阅读次数">
+              <span class="post-meta-item-icon">
+                <i class="fa fa-eye"></i>
+              </span>
+              <span class="post-meta-item-text">阅读次数：</span>
+              <span class="leancloud-visitors-count"></span>
+            </span>
+          
+  
+  
+
+        </div>
+      </header>
+
+    
+    
+    
+    <div class="post-body" itemprop="articleBody">
+
+      
+        <h1 id="参数优先级"><a href="#参数优先级" class="headerlink" title="参数优先级"></a>参数优先级</h1><ul>
+<li>代码中的优先级最高</li>
+<li>代码中资源目录下配置文件的优先级次之</li>
+<li>服务中的配置文件的优先级再次之</li>
+<li>服务中的默认配置文件的优先级最低</li>
+</ul>
+<h1 id="HDFS的写数据流程"><a href="#HDFS的写数据流程" class="headerlink" title="HDFS的写数据流程"></a>HDFS的写数据流程</h1><p><img src="/images/hadoop/HDFS%E5%86%99%E6%B5%81%E7%A8%8B.png" alt></p>
+<p>写数据流程：</p>
+<ul>
+<li>Client通过Distributed FileSystem向NameNode请求上传文件，NameNode检查父目录、文件是否已经存在</li>
+<li>NameNode返回可以上传</li>
+<li>Client向NameNode请求Block的存储位置</li>
+<li>NameNode通过计算选择距离近的节点，返回给Client</li>
+<li>Client通过FSDataOutputStream和相关的DataNode建立通讯管道</li>
+<li>DataNode应答Client</li>
+<li>Client以Packet为单位向DataNode1传递Block，DataNode1收到后放到本地内存，然后传给DataNode2、DataNode2传递给DataNode3，DataNode1每传递一个Packet就会放到应答队列等待应答。</li>
+</ul>
+<p>DataNode是先写入内存然后在落盘。</p>
+<h2 id="节点距离计算"><a href="#节点距离计算" class="headerlink" title="节点距离计算"></a>节点距离计算</h2><p>NameNode选择DataNode的因素：</p>
+<ul>
+<li>距离近</li>
+<li>负载低</li>
+</ul>
+<p>节点距离：两个节点到达最近的共同祖先的距离总和。</p>
+<h2 id="副本存储节点选择"><a href="#副本存储节点选择" class="headerlink" title="副本存储节点选择"></a>副本存储节点选择</h2><ul>
+<li>第一个副本在Client所在的节点上，如果Client在集群外，则随机选一个节点</li>
+<li>第二个副本和第一个副本位于相同机架，随机节点</li>
+<li>第三个副本位于不同机架，随机节点</li>
+</ul>
+<h1 id="HDFS的读数据流程"><a href="#HDFS的读数据流程" class="headerlink" title="HDFS的读数据流程"></a>HDFS的读数据流程</h1><p><img src="/images/hadoop/HDFS%E8%AF%BB%E6%B5%81%E7%A8%8B.png" alt></p>
+<p>当Client读取不同DataNode上的数据块时，时穿行读取的。</p>
+
+    </div>
+
+    
+    
+    
+        
+      
+
+      <footer class="post-footer">
+
+        
+
+          <div class="post-nav">
+            <div class="post-nav-next post-nav-item">
+              
+                <a href="/2020/06/23/hadoop/HDFS-Shell/" rel="next" title="HDFS Shell操作">
+                  <i class="fa fa-chevron-left"></i> HDFS Shell操作
+                </a>
+              
+            </div>
+
+            <span class="post-nav-divider"></span>
+
+            <div class="post-nav-prev post-nav-item">
+              
+                <a href="/2020/06/24/hadoop/hdfs-site最佳实践/" rel="prev" title="hdfs-site最佳实践">
+                  hdfs-site最佳实践 <i class="fa fa-chevron-right"></i>
+                </a>
+              
+            </div>
+          </div>
+        
+      </footer>
+    
+  </article>
+  
+  
+  
+
+  </div>
+
+
+          </div>
+          
+
+        </div>
+          
+  
+  <div class="toggle sidebar-toggle">
+    <span class="toggle-line toggle-line-first"></span>
+    <span class="toggle-line toggle-line-middle"></span>
+    <span class="toggle-line toggle-line-last"></span>
+  </div>
+
+  <aside class="sidebar">
+    <div class="sidebar-inner">
+        
+        
+        
+        
+      
+
+      <ul class="sidebar-nav motion-element">
+        <li class="sidebar-nav-toc">
+          文章目录
+        </li>
+        <li class="sidebar-nav-overview">
+          站点概览
+        </li>
+      </ul>
+
+      <!--noindex-->
+      <div class="post-toc-wrap sidebar-panel">
+          <div class="post-toc motion-element"><ol class="nav"><li class="nav-item nav-level-1"><a class="nav-link" href="#参数优先级"><span class="nav-number">1.</span> <span class="nav-text">参数优先级</span></a></li><li class="nav-item nav-level-1"><a class="nav-link" href="#HDFS的写数据流程"><span class="nav-number">2.</span> <span class="nav-text">HDFS的写数据流程</span></a><ol class="nav-child"><li class="nav-item nav-level-2"><a class="nav-link" href="#节点距离计算"><span class="nav-number">2.1.</span> <span class="nav-text">节点距离计算</span></a></li><li class="nav-item nav-level-2"><a class="nav-link" href="#副本存储节点选择"><span class="nav-number">2.2.</span> <span class="nav-text">副本存储节点选择</span></a></li></ol></li><li class="nav-item nav-level-1"><a class="nav-link" href="#HDFS的读数据流程"><span class="nav-number">3.</span> <span class="nav-text">HDFS的读数据流程</span></a></li></ol></div>
+        
+      </div>
+      <!--/noindex-->
+
+      <div class="site-overview-wrap sidebar-panel">
+        <div class="site-author motion-element" itemprop="author" itemscope itemtype="http://schema.org/Person">
+  <p class="site-author-name" itemprop="name">姜纪光</p>
+  <div class="site-description" itemprop="description"></div>
+</div>
+<div class="site-state-wrap motion-element">
+  <nav class="site-state">
+      <div class="site-state-item site-state-posts">
+        
+          <a href="/archives/">
+        
+          <span class="site-state-item-count">158</span>
+          <span class="site-state-item-name">日志</span>
+        </a>
+      </div>
+    
+      
+      
+      <div class="site-state-item site-state-categories">
+        
+          
+            <a href="/categories/">
+          
+        
+        <span class="site-state-item-count">26</span>
+        <span class="site-state-item-name">分类</span>
+        </a>
+      </div>
+    
+      
+      
+      <div class="site-state-item site-state-tags">
+        
+          
+            <a href="/tags/">
+          
+        
+        <span class="site-state-item-count">14</span>
+        <span class="site-state-item-name">标签</span>
+        </a>
+      </div>
+    
+  </nav>
+</div>
+
+
+
+      </div>
+
+    </div>
+  </aside>
+  <div id="sidebar-dimmer"></div>
+
+
+      </div>
+    </main>
+
+    <footer class="footer">
+      <div class="footer-inner">
+        
+
+<div class="copyright">
+  &copy; 
+  <span itemprop="copyrightYear">2021</span>
+  <span class="with-love">
+    <i class="fa fa-user"></i>
+  </span>
+  <span class="author" itemprop="copyrightHolder">姜纪光</span>
+</div>
+  <div class="powered-by">由 <a href="https://hexo.io" class="theme-link" rel="noopener" target="_blank">Hexo</a> 强力驱动 v3.9.0
+  </div>
+  <span class="post-meta-divider">|</span>
+  <div class="theme-info">
+      
+    主题 – <a href="https://mist.theme-next.org" class="theme-link" rel="noopener" target="_blank">NexT.Mist</a> v7.4.1
+  </div>
+
+        
+
+
+
+
+
+
+
+
+
+
+
+
+        
+      </div>
+    </footer>
+  </div>
+
+  
+  <script src="/lib/anime.min.js?v=3.1.0"></script>
+  <script src="/lib/velocity/velocity.min.js?v=1.2.1"></script>
+  <script src="/lib/velocity/velocity.ui.min.js?v=1.2.1"></script>
+<script src="/js/utils.js?v=7.4.1"></script><script src="/js/motion.js?v=7.4.1"></script>
+<script src="/js/schemes/muse.js?v=7.4.1"></script>
+
+<script src="/js/next-boot.js?v=7.4.1"></script>
+
+
+
+  
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+  
+
+  
+
+  
+
+
+<script>
+NexT.utils.getScript('//unpkg.com/valine/dist/Valine.min.js', () => {
+  var GUEST = ['nick', 'mail', 'link'];
+  var guest = 'nick,mail,link';
+  guest = guest.split(',').filter(item => {
+    return GUEST.includes(item);
+  });
+  new Valine({
+    el: '#comments',
+    verify: false,
+    notify: false,
+    appId: 'MIQC4jJTknc0hjNXDAiIuQ21-9Nh9j0Va',
+    appKey: 'vaiXpSQLLMglwYsVLOBLzck4',
+    placeholder: "Just go go",
+    avatar: 'mm',
+    meta: guest,
+    pageSize: '10' || 10,
+    visitor: true,
+    lang: 'zh-cn' || 'zh-cn',
+    path: location.pathname,
+    recordIP: false,
+    serverURLs: ''
+  });
+}, window.Valine);
+</script>
+
+</body>
+</html>

@@ -1,0 +1,635 @@
+<!DOCTYPE html>
+
+
+
+
+
+<html lang="zh-CN">
+<head>
+  <meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1, maximum-scale=2">
+<meta name="theme-color" content="#222">
+<meta name="generator" content="Hexo 3.9.0">
+  <link rel="apple-touch-icon" sizes="180x180" href="/images/apple-touch-icon-next.png?v=7.4.1">
+  <link rel="icon" type="image/png" sizes="32x32" href="/images/favicon-32x32-next.png?v=7.4.1">
+  <link rel="icon" type="image/png" sizes="16x16" href="/images/favicon-16x16-next.png?v=7.4.1">
+  <link rel="mask-icon" href="/images/logo.svg?v=7.4.1" color="#222">
+
+<link rel="stylesheet" href="/css/main.css?v=7.4.1">
+
+
+<link rel="stylesheet" href="/lib/font-awesome/css/font-awesome.min.css?v=4.7.0">
+
+
+<script id="hexo-configurations">
+  var NexT = window.NexT || {};
+  var CONFIG = {
+    root: '/',
+    scheme: 'Mist',
+    version: '7.4.1',
+    exturl: false,
+    sidebar: {"position":"right","display":"hide","offset":12,"onmobile":false},
+    copycode: {"enable":false,"show_result":false,"style":null},
+    back2top: {"enable":true,"sidebar":false,"scrollpercent":false},
+    bookmark: {"enable":false,"color":"#222","save":"auto"},
+    fancybox: false,
+    mediumzoom: false,
+    lazyload: false,
+    pangu: false,
+    algolia: {
+      appID: '',
+      apiKey: '',
+      indexName: '',
+      hits: {"per_page":10},
+      labels: {"input_placeholder":"Search for Posts","hits_empty":"We didn't find any results for the search: ${query}","hits_stats":"${hits} results found in ${time} ms"}
+    },
+    localsearch: {"enable":false,"trigger":"auto","top_n_per_article":1,"unescape":false,"preload":false},
+    path: '',
+    motion: {"enable":true,"async":false,"transition":{"post_block":"fadeIn","post_header":"slideDownIn","post_body":"slideDownIn","coll_header":"slideLeftIn","sidebar":"slideUpIn"}},
+    translation: {
+      copy_button: '复制',
+      copy_success: '复制成功',
+      copy_failure: '复制失败'
+    },
+    sidebarPadding: 40
+  };
+</script>
+
+  <meta name="description" content="元数据表结构VERSION存储Hive版本的元数据表，该表比较简单，但是很重要。如果该表出现问题，根本进入不了Hive-Cli。比如该表不存在，当启动Hive-Cli时候，就会报错”Table ‘hive.version’ doesn’t exist”。 Hive数据库相关的元数据表(DBS、DATABASE_PARAMS)###DBS 该表存储Hive中所有数据库的基本信息。 DB_ID：数据库">
+<meta property="og:type" content="article">
+<meta property="og:title" content="hive元数据metastore">
+<meta property="og:url" content="http://yoursite.com/2020/07/20/hadoop/Hive元数据/index.html">
+<meta property="og:site_name" content="纪光的博客">
+<meta property="og:description" content="元数据表结构VERSION存储Hive版本的元数据表，该表比较简单，但是很重要。如果该表出现问题，根本进入不了Hive-Cli。比如该表不存在，当启动Hive-Cli时候，就会报错”Table ‘hive.version’ doesn’t exist”。 Hive数据库相关的元数据表(DBS、DATABASE_PARAMS)###DBS 该表存储Hive中所有数据库的基本信息。 DB_ID：数据库">
+<meta property="og:locale" content="zh-CN">
+<meta property="og:updated_time" content="2021-06-20T04:19:35.149Z">
+<meta name="twitter:card" content="summary">
+<meta name="twitter:title" content="hive元数据metastore">
+<meta name="twitter:description" content="元数据表结构VERSION存储Hive版本的元数据表，该表比较简单，但是很重要。如果该表出现问题，根本进入不了Hive-Cli。比如该表不存在，当启动Hive-Cli时候，就会报错”Table ‘hive.version’ doesn’t exist”。 Hive数据库相关的元数据表(DBS、DATABASE_PARAMS)###DBS 该表存储Hive中所有数据库的基本信息。 DB_ID：数据库">
+  <link rel="canonical" href="http://yoursite.com/2020/07/20/hadoop/Hive元数据/">
+
+
+<script id="page-configurations">
+  // https://hexo.io/docs/variables.html
+  CONFIG.page = {
+    sidebar: "",
+    isHome: false,
+    isPost: true,
+    isPage: false,
+    isArchive: false
+  };
+</script>
+
+  <title>hive元数据metastore | 纪光的博客</title>
+  
+
+
+  <script>
+    var _hmt = _hmt || [];
+    (function() {
+      var hm = document.createElement("script");
+      hm.src = "https://hm.baidu.com/hm.js?bca403b673d79e83a47dc62fea1dd605";
+      var s = document.getElementsByTagName("script")[0];
+      s.parentNode.insertBefore(hm, s);
+    })();
+  </script>
+
+
+
+
+
+
+  <noscript>
+  <style>
+  .use-motion .brand,
+  .use-motion .menu-item,
+  .sidebar-inner,
+  .use-motion .post-block,
+  .use-motion .pagination,
+  .use-motion .comments,
+  .use-motion .post-header,
+  .use-motion .post-body,
+  .use-motion .collection-header { opacity: initial; }
+
+  .use-motion .site-title,
+  .use-motion .site-subtitle {
+    opacity: initial;
+    top: initial;
+  }
+
+  .use-motion .logo-line-before i { left: initial; }
+  .use-motion .logo-line-after i { right: initial; }
+  </style>
+</noscript>
+
+</head>
+
+<body itemscope itemtype="http://schema.org/WebPage">
+  <div class="container use-motion">
+    <div class="headband"></div>
+
+    <header class="header" itemscope itemtype="http://schema.org/WPHeader">
+      <div class="header-inner"><div class="site-brand-container">
+  <div class="site-meta">
+
+    <div>
+      <a href="/" class="brand" rel="start">
+        <span class="logo-line-before"><i></i></span>
+        <span class="site-title">纪光的博客</span>
+        <span class="logo-line-after"><i></i></span>
+      </a>
+    </div>
+  </div>
+
+  <div class="site-nav-toggle">
+    <div class="toggle" aria-label="切换导航栏">
+      <span class="toggle-line toggle-line-first"></span>
+      <span class="toggle-line toggle-line-middle"></span>
+      <span class="toggle-line toggle-line-last"></span>
+    </div>
+  </div>
+</div>
+
+
+<nav class="site-nav">
+  
+  <ul id="menu" class="menu">
+      
+      
+        
+        
+        <li class="menu-item menu-item-home">
+      
+    
+
+    <a href="/" rel="section"><i class="fa fa-fw fa-home"></i>首页</a>
+
+  </li>
+      
+    
+      
+      
+        
+        
+        <li class="menu-item menu-item-categories">
+      
+    
+
+    <a href="/categories/" rel="section"><i class="fa fa-fw fa-th"></i>分类</a>
+
+  </li>
+      
+    
+      
+      
+        
+        
+        <li class="menu-item menu-item-tags">
+      
+    
+
+    <a href="/tags/" rel="section"><i class="fa fa-fw fa-tags"></i>标签</a>
+
+  </li>
+      
+    
+      
+      
+        
+        
+        <li class="menu-item menu-item-archives">
+      
+    
+
+    <a href="/archives/" rel="section"><i class="fa fa-fw fa-archive"></i>归档</a>
+
+  </li>
+      
+    
+      
+      
+        
+        
+        <li class="menu-item menu-item-about">
+      
+    
+
+    <a href="/about/" rel="section"><i class="fa fa-fw fa-user"></i>关于</a>
+
+  </li>
+      
+    
+  </ul>
+
+    
+
+</nav>
+</div>
+    </header>
+
+    
+  <div class="back-to-top">
+    <i class="fa fa-arrow-up"></i>
+    <span>0%</span>
+  </div>
+
+
+    <main class="main">
+      <div class="main-inner">
+        <div class="content-wrap">
+          <div class="content">
+            
+
+  <div class="posts-expand">
+      
+  
+  
+  <article itemscope itemtype="http://schema.org/Article" class="post-block " lang="zh-CN">
+    <link itemprop="mainEntityOfPage" href="http://yoursite.com/2020/07/20/hadoop/Hive元数据/">
+
+    <span hidden itemprop="author" itemscope itemtype="http://schema.org/Person">
+      <meta itemprop="name" content="姜纪光">
+      <meta itemprop="description" content="">
+      <meta itemprop="image" content="/images/avatar.gif">
+    </span>
+
+    <span hidden itemprop="publisher" itemscope itemtype="http://schema.org/Organization">
+      <meta itemprop="name" content="纪光的博客">
+    </span>
+      <header class="post-header">
+        <h1 class="post-title" itemprop="name headline">
+          
+            hive元数据metastore
+            
+
+          
+        </h1>
+
+        <div class="post-meta">
+            <span class="post-meta-item">
+              <span class="post-meta-item-icon">
+                <i class="fa fa-calendar-o"></i>
+              </span>
+              <span class="post-meta-item-text">发表于</span>
+
+              
+                
+              
+
+              <time title="创建时间：2020-07-20 17:43:21" itemprop="dateCreated datePublished" datetime="2020-07-20T17:43:21+08:00">2020-07-20</time>
+            </span>
+          
+            
+
+            
+              <span class="post-meta-item">
+                <span class="post-meta-item-icon">
+                  <i class="fa fa-calendar-check-o"></i>
+                </span>
+                <span class="post-meta-item-text">更新于</span>
+                <time title="修改时间：2021-06-20 12:19:35" itemprop="dateModified" datetime="2021-06-20T12:19:35+08:00">2021-06-20</time>
+              </span>
+            
+          
+            <span class="post-meta-item">
+              <span class="post-meta-item-icon">
+                <i class="fa fa-folder-o"></i>
+              </span>
+              <span class="post-meta-item-text">分类于</span>
+              
+                <span itemprop="about" itemscope itemtype="http://schema.org/Thing">
+                  <a href="/categories/hadoop/" itemprop="url" rel="index">
+                    <span itemprop="name">hadoop</span>
+                  </a>
+                </span>
+
+                
+                
+              
+            </span>
+          
+
+          
+            <span id="/2020/07/20/hadoop/Hive元数据/" class="post-meta-item leancloud_visitors" data-flag-title="hive元数据metastore" title="阅读次数">
+              <span class="post-meta-item-icon">
+                <i class="fa fa-eye"></i>
+              </span>
+              <span class="post-meta-item-text">阅读次数：</span>
+              <span class="leancloud-visitors-count"></span>
+            </span>
+          
+  
+  
+
+        </div>
+      </header>
+
+    
+    
+    
+    <div class="post-body" itemprop="articleBody">
+
+      
+        <h1 id="元数据表结构"><a href="#元数据表结构" class="headerlink" title="元数据表结构"></a>元数据表结构</h1><h2 id="VERSION"><a href="#VERSION" class="headerlink" title="VERSION"></a>VERSION</h2><p>存储Hive版本的元数据表，该表比较简单，但是很重要。如果该表出现问题，根本进入不了Hive-Cli。比如该表不存在，当启动Hive-Cli时候，就会报错”Table ‘hive.version’ doesn’t exist”。</p>
+<h2 id="Hive数据库相关的元数据表-DBS、DATABASE-PARAMS"><a href="#Hive数据库相关的元数据表-DBS、DATABASE-PARAMS" class="headerlink" title="Hive数据库相关的元数据表(DBS、DATABASE_PARAMS)"></a>Hive数据库相关的元数据表(DBS、DATABASE_PARAMS)</h2><p>###DBS</p>
+<p>该表存储Hive中所有数据库的基本信息。</p>
+<p>DB_ID：数据库ID</p>
+<p>###DATABASE_PARAMS</p>
+<p>该表存储数据库的相关参数，</p>
+<p>在CREATE DATABASE时候用WITH DBPROPERTIES(property_name=property_value, …)指定的参数</p>
+<h2 id="Hive表和视图相关的元数据表"><a href="#Hive表和视图相关的元数据表" class="headerlink" title="Hive表和视图相关的元数据表"></a>Hive表和视图相关的元数据表</h2><p>主要有TBLS、TABLE_PARAMS、TBL_PRIVS，这三张表通过TBL_ID关联。</p>
+<p>###TBLS</p>
+<p>该表中存储Hive表，视图，索引表的基本信息</p>
+<p>TBL_ID：表ID</p>
+<p>###TABLE_PARAMS</p>
+<p>该表存储表/视图的属性信息</p>
+<p>###TBL_PRIVS</p>
+<p>该表存储表/视图的授权信息</p>
+<p>TBL_GRANT_ID：授权ID</p>
+<p>##Hive文件存储信息相关的元数据表</p>
+<p>​    主要涉及SDS、SD_PARAMS、SERDES、SERDE_PARAMS，由于HDFS支持的文件格式很多，而建Hive表时候也可以指定各种文件格式，Hive在将HQL解析成MapReduce时候，需要知道去哪里，使用哪种格式去读写HDFS文件，而这些信息就保存在这几张表中。</p>
+<h3 id="SDS"><a href="#SDS" class="headerlink" title="SDS"></a>SDS</h3><p>​    该表保存文件存储的基本信息，如INPUT_FORMAT、OUTPUT_FORMAT、是否压缩等。</p>
+<p>TBLS表中的SD_ID与该表关联，可以获取Hive表的存储信息。</p>
+<p>SD_ID：存储信息ID</p>
+<p>CD_ID：字段信息ID   对应CDS表</p>
+<p>SERDE_ID：序列化类ID  对应SERDES表</p>
+<h3 id="SD-PARAMS"><a href="#SD-PARAMS" class="headerlink" title="SD_PARAMS"></a>SD_PARAMS</h3><p>​    该表存储Hive存储的属性信息，在创建表时候使用STORED BY ‘storage.handler.class.name’ [WITH SERDEPROPERTIES (…)指定。</p>
+<h3 id="SERDES"><a href="#SERDES" class="headerlink" title="SERDES"></a>SERDES</h3><p>​    该表存储序列化使用的类信息</p>
+<h3 id="SERDE-PARAMS"><a href="#SERDE-PARAMS" class="headerlink" title="SERDE_PARAMS"></a>SERDE_PARAMS</h3><p>​    该表存储序列化的一些属性、格式信息，比如:行、列分隔符</p>
+<h2 id="Hive表字段相关的元数据表"><a href="#Hive表字段相关的元数据表" class="headerlink" title="Hive表字段相关的元数据表"></a>Hive表字段相关的元数据表</h2><h3 id="COLUMNS-V2"><a href="#COLUMNS-V2" class="headerlink" title="COLUMNS_V2"></a>COLUMNS_V2</h3><p>​    该表存储表对应的字段信息</p>
+<p>​    CD_ID：字段信息ID</p>
+<h2 id="Hive表分分区相关的元数据表"><a href="#Hive表分分区相关的元数据表" class="headerlink" title="Hive表分分区相关的元数据表"></a>Hive表分分区相关的元数据表</h2><p>​     主要涉及PARTITIONS、PARTITION_KEYS、PARTITION_KEY_VALS、PARTITION_PARAMS</p>
+<h3 id="PARTITIONS"><a href="#PARTITIONS" class="headerlink" title="PARTITIONS"></a>PARTITIONS</h3><p>​    该表存储表分区的基本信息</p>
+<p>​    PART_ID：分区ID</p>
+<h3 id="PARTITION-KEYS"><a href="#PARTITION-KEYS" class="headerlink" title="PARTITION_KEYS"></a>PARTITION_KEYS</h3><p>​    该表存储分区的字段信息</p>
+<h3 id="PARTITION-KEY-VALS"><a href="#PARTITION-KEY-VALS" class="headerlink" title="PARTITION_KEY_VALS"></a>PARTITION_KEY_VALS</h3><p>​    该表存储分区字段值</p>
+<h3 id="PARTITION-PARAMS"><a href="#PARTITION-PARAMS" class="headerlink" title="PARTITION_PARAMS"></a>PARTITION_PARAMS</h3><p>​    该表存储分区的属性信息</p>
+<p>##其它表</p>
+<p>DB_PRIVS</p>
+<p>数据库权限信息表。通过GRANT语句对数据库授权后，将会在这里存储。</p>
+<p>IDXS</p>
+<p>索引表，存储Hive索引相关的元数据</p>
+<p>INDEX_PARAMS</p>
+<p>索引相关的属性信息</p>
+<p>TBL_COL_STATS</p>
+<p>表字段的统计信息。使用ANALYZE语句对表字段分析后记录在这里</p>
+<p>TBL_COL_PRIVS</p>
+<p>表字段的授权信息</p>
+<p>PART_PRIVS</p>
+<p>分区的授权信息</p>
+<p>PART_COL_PRIVS</p>
+<p>分区字段的权限信息</p>
+<p>PART_COL_STATS</p>
+<p>分区字段的统计信息</p>
+<p>FUNCS</p>
+<p>用户注册的函数信息</p>
+<p>FUNC_RU</p>
+<p>用户注册函数的资源信息</p>
+<h1 id="参考文档"><a href="#参考文档" class="headerlink" title="参考文档"></a>参考文档</h1><p><a href="https://mp.weixin.qq.com/s?__biz=MzA3ODUxMzQxMA==&mid=2663993556&idx=1&sn=0e5291bd63426d747f32a7fd05128caa&scene=21#wechat_redirect" target="_blank" rel="noopener">Hive元数据表结构详解</a></p>
+<p><a href="https://www.cnblogs.com/bonelee/p/12441622.html" target="_blank" rel="noopener">Hive基本架构和原理</a></p>
+<p><a href="https://blog.csdn.net/qq_40990732/article/details/80914873" target="_blank" rel="noopener">Hive Metastore原理及配置</a></p>
+<p><a href="https://cloud.tencent.com/developer/news/362488" target="_blank" rel="noopener">Hive架构和工作原理</a></p>
+<p><a href="https://blog.csdn.net/m0_37534613/article/details/55258928" target="_blank" rel="noopener">Hive分桶之BUCKET详解</a></p>
+<p><a href="https://blog.csdn.net/qq_26803795/article/details/105205702?utm_medium=distribute.pc_relevant_t0.none-task-blog-BlogCommendFromMachineLearnPai2-1.nonecase&depth_1-utm_source=distribute.pc_relevant_t0.none-task-blog-BlogCommendFromMachineLearnPai2-1.nonecase" target="_blank" rel="noopener">一文彻底学会hive分桶表（实战详解）</a></p>
+
+    </div>
+
+    
+    
+    
+        
+      
+
+      <footer class="post-footer">
+
+        
+
+          <div class="post-nav">
+            <div class="post-nav-next post-nav-item">
+              
+                <a href="/2020/07/20/tools/git实践/" rel="next" title="git实践">
+                  <i class="fa fa-chevron-left"></i> git实践
+                </a>
+              
+            </div>
+
+            <span class="post-nav-divider"></span>
+
+            <div class="post-nav-prev post-nav-item">
+              
+                <a href="/2020/07/21/prometheus/Prometheus学习笔记/" rel="prev" title="Prometheus学习笔记">
+                  Prometheus学习笔记 <i class="fa fa-chevron-right"></i>
+                </a>
+              
+            </div>
+          </div>
+        
+      </footer>
+    
+  </article>
+  
+  
+  
+
+  </div>
+
+
+          </div>
+          
+
+        </div>
+          
+  
+  <div class="toggle sidebar-toggle">
+    <span class="toggle-line toggle-line-first"></span>
+    <span class="toggle-line toggle-line-middle"></span>
+    <span class="toggle-line toggle-line-last"></span>
+  </div>
+
+  <aside class="sidebar">
+    <div class="sidebar-inner">
+        
+        
+        
+        
+      
+
+      <ul class="sidebar-nav motion-element">
+        <li class="sidebar-nav-toc">
+          文章目录
+        </li>
+        <li class="sidebar-nav-overview">
+          站点概览
+        </li>
+      </ul>
+
+      <!--noindex-->
+      <div class="post-toc-wrap sidebar-panel">
+          <div class="post-toc motion-element"><ol class="nav"><li class="nav-item nav-level-1"><a class="nav-link" href="#元数据表结构"><span class="nav-number">1.</span> <span class="nav-text">元数据表结构</span></a><ol class="nav-child"><li class="nav-item nav-level-2"><a class="nav-link" href="#VERSION"><span class="nav-number">1.1.</span> <span class="nav-text">VERSION</span></a></li><li class="nav-item nav-level-2"><a class="nav-link" href="#Hive数据库相关的元数据表-DBS、DATABASE-PARAMS"><span class="nav-number">1.2.</span> <span class="nav-text">Hive数据库相关的元数据表(DBS、DATABASE_PARAMS)</span></a></li><li class="nav-item nav-level-2"><a class="nav-link" href="#Hive表和视图相关的元数据表"><span class="nav-number">1.3.</span> <span class="nav-text">Hive表和视图相关的元数据表</span></a><ol class="nav-child"><li class="nav-item nav-level-3"><a class="nav-link" href="#SDS"><span class="nav-number">1.3.1.</span> <span class="nav-text">SDS</span></a></li><li class="nav-item nav-level-3"><a class="nav-link" href="#SD-PARAMS"><span class="nav-number">1.3.2.</span> <span class="nav-text">SD_PARAMS</span></a></li><li class="nav-item nav-level-3"><a class="nav-link" href="#SERDES"><span class="nav-number">1.3.3.</span> <span class="nav-text">SERDES</span></a></li><li class="nav-item nav-level-3"><a class="nav-link" href="#SERDE-PARAMS"><span class="nav-number">1.3.4.</span> <span class="nav-text">SERDE_PARAMS</span></a></li></ol></li><li class="nav-item nav-level-2"><a class="nav-link" href="#Hive表字段相关的元数据表"><span class="nav-number">1.4.</span> <span class="nav-text">Hive表字段相关的元数据表</span></a><ol class="nav-child"><li class="nav-item nav-level-3"><a class="nav-link" href="#COLUMNS-V2"><span class="nav-number">1.4.1.</span> <span class="nav-text">COLUMNS_V2</span></a></li></ol></li><li class="nav-item nav-level-2"><a class="nav-link" href="#Hive表分分区相关的元数据表"><span class="nav-number">1.5.</span> <span class="nav-text">Hive表分分区相关的元数据表</span></a><ol class="nav-child"><li class="nav-item nav-level-3"><a class="nav-link" href="#PARTITIONS"><span class="nav-number">1.5.1.</span> <span class="nav-text">PARTITIONS</span></a></li><li class="nav-item nav-level-3"><a class="nav-link" href="#PARTITION-KEYS"><span class="nav-number">1.5.2.</span> <span class="nav-text">PARTITION_KEYS</span></a></li><li class="nav-item nav-level-3"><a class="nav-link" href="#PARTITION-KEY-VALS"><span class="nav-number">1.5.3.</span> <span class="nav-text">PARTITION_KEY_VALS</span></a></li><li class="nav-item nav-level-3"><a class="nav-link" href="#PARTITION-PARAMS"><span class="nav-number">1.5.4.</span> <span class="nav-text">PARTITION_PARAMS</span></a></li></ol></li></ol></li><li class="nav-item nav-level-1"><a class="nav-link" href="#参考文档"><span class="nav-number">2.</span> <span class="nav-text">参考文档</span></a></li></ol></div>
+        
+      </div>
+      <!--/noindex-->
+
+      <div class="site-overview-wrap sidebar-panel">
+        <div class="site-author motion-element" itemprop="author" itemscope itemtype="http://schema.org/Person">
+  <p class="site-author-name" itemprop="name">姜纪光</p>
+  <div class="site-description" itemprop="description"></div>
+</div>
+<div class="site-state-wrap motion-element">
+  <nav class="site-state">
+      <div class="site-state-item site-state-posts">
+        
+          <a href="/archives/">
+        
+          <span class="site-state-item-count">158</span>
+          <span class="site-state-item-name">日志</span>
+        </a>
+      </div>
+    
+      
+      
+      <div class="site-state-item site-state-categories">
+        
+          
+            <a href="/categories/">
+          
+        
+        <span class="site-state-item-count">26</span>
+        <span class="site-state-item-name">分类</span>
+        </a>
+      </div>
+    
+      
+      
+      <div class="site-state-item site-state-tags">
+        
+          
+            <a href="/tags/">
+          
+        
+        <span class="site-state-item-count">14</span>
+        <span class="site-state-item-name">标签</span>
+        </a>
+      </div>
+    
+  </nav>
+</div>
+
+
+
+      </div>
+
+    </div>
+  </aside>
+  <div id="sidebar-dimmer"></div>
+
+
+      </div>
+    </main>
+
+    <footer class="footer">
+      <div class="footer-inner">
+        
+
+<div class="copyright">
+  &copy; 
+  <span itemprop="copyrightYear">2021</span>
+  <span class="with-love">
+    <i class="fa fa-user"></i>
+  </span>
+  <span class="author" itemprop="copyrightHolder">姜纪光</span>
+</div>
+  <div class="powered-by">由 <a href="https://hexo.io" class="theme-link" rel="noopener" target="_blank">Hexo</a> 强力驱动 v3.9.0
+  </div>
+  <span class="post-meta-divider">|</span>
+  <div class="theme-info">
+      
+    主题 – <a href="https://mist.theme-next.org" class="theme-link" rel="noopener" target="_blank">NexT.Mist</a> v7.4.1
+  </div>
+
+        
+
+
+
+
+
+
+
+
+
+
+
+
+        
+      </div>
+    </footer>
+  </div>
+
+  
+  <script src="/lib/anime.min.js?v=3.1.0"></script>
+  <script src="/lib/velocity/velocity.min.js?v=1.2.1"></script>
+  <script src="/lib/velocity/velocity.ui.min.js?v=1.2.1"></script>
+<script src="/js/utils.js?v=7.4.1"></script><script src="/js/motion.js?v=7.4.1"></script>
+<script src="/js/schemes/muse.js?v=7.4.1"></script>
+
+<script src="/js/next-boot.js?v=7.4.1"></script>
+
+
+
+  
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+  
+
+  
+
+  
+
+
+<script>
+NexT.utils.getScript('//unpkg.com/valine/dist/Valine.min.js', () => {
+  var GUEST = ['nick', 'mail', 'link'];
+  var guest = 'nick,mail,link';
+  guest = guest.split(',').filter(item => {
+    return GUEST.includes(item);
+  });
+  new Valine({
+    el: '#comments',
+    verify: false,
+    notify: false,
+    appId: 'MIQC4jJTknc0hjNXDAiIuQ21-9Nh9j0Va',
+    appKey: 'vaiXpSQLLMglwYsVLOBLzck4',
+    placeholder: "Just go go",
+    avatar: 'mm',
+    meta: guest,
+    pageSize: '10' || 10,
+    visitor: true,
+    lang: 'zh-cn' || 'zh-cn',
+    path: location.pathname,
+    recordIP: false,
+    serverURLs: ''
+  });
+}, window.Valine);
+</script>
+
+</body>
+</html>

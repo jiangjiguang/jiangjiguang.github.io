@@ -1,0 +1,675 @@
+<!DOCTYPE html>
+
+
+
+
+
+<html lang="zh-CN">
+<head>
+  <meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1, maximum-scale=2">
+<meta name="theme-color" content="#222">
+<meta name="generator" content="Hexo 3.9.0">
+  <link rel="apple-touch-icon" sizes="180x180" href="/images/apple-touch-icon-next.png?v=7.4.1">
+  <link rel="icon" type="image/png" sizes="32x32" href="/images/favicon-32x32-next.png?v=7.4.1">
+  <link rel="icon" type="image/png" sizes="16x16" href="/images/favicon-16x16-next.png?v=7.4.1">
+  <link rel="mask-icon" href="/images/logo.svg?v=7.4.1" color="#222">
+
+<link rel="stylesheet" href="/css/main.css?v=7.4.1">
+
+
+<link rel="stylesheet" href="/lib/font-awesome/css/font-awesome.min.css?v=4.7.0">
+
+
+<script id="hexo-configurations">
+  var NexT = window.NexT || {};
+  var CONFIG = {
+    root: '/',
+    scheme: 'Mist',
+    version: '7.4.1',
+    exturl: false,
+    sidebar: {"position":"right","display":"hide","offset":12,"onmobile":false},
+    copycode: {"enable":false,"show_result":false,"style":null},
+    back2top: {"enable":true,"sidebar":false,"scrollpercent":false},
+    bookmark: {"enable":false,"color":"#222","save":"auto"},
+    fancybox: false,
+    mediumzoom: false,
+    lazyload: false,
+    pangu: false,
+    algolia: {
+      appID: '',
+      apiKey: '',
+      indexName: '',
+      hits: {"per_page":10},
+      labels: {"input_placeholder":"Search for Posts","hits_empty":"We didn't find any results for the search: ${query}","hits_stats":"${hits} results found in ${time} ms"}
+    },
+    localsearch: {"enable":false,"trigger":"auto","top_n_per_article":1,"unescape":false,"preload":false},
+    path: '',
+    motion: {"enable":true,"async":false,"transition":{"post_block":"fadeIn","post_header":"slideDownIn","post_body":"slideDownIn","coll_header":"slideLeftIn","sidebar":"slideUpIn"}},
+    translation: {
+      copy_button: '复制',
+      copy_success: '复制成功',
+      copy_failure: '复制失败'
+    },
+    sidebarPadding: 40
+  };
+</script>
+
+  <meta name="description" content="基本概念 topic  主题是一个逻辑概念，消息以主题为单位进行归类，消费者订阅主题并进行消费。 主题可以分为多个分区，一个分区只属于单个主题，同一主题不同分区包含的消息是不同的。   partition  分区在存储层面可以看做一个可追加的日志文件， 消息被追加到分区日志文件时会分配一个特定的偏移量（offset） offset是消息在分区中的唯一标识，用来保证消息在分区内的顺序性，但是不能跨分">
+<meta property="og:type" content="article">
+<meta property="og:title" content="kafka基本知识">
+<meta property="og:url" content="http://yoursite.com/2020/10/21/kafka/kafka基本知识/index.html">
+<meta property="og:site_name" content="纪光的博客">
+<meta property="og:description" content="基本概念 topic  主题是一个逻辑概念，消息以主题为单位进行归类，消费者订阅主题并进行消费。 主题可以分为多个分区，一个分区只属于单个主题，同一主题不同分区包含的消息是不同的。   partition  分区在存储层面可以看做一个可追加的日志文件， 消息被追加到分区日志文件时会分配一个特定的偏移量（offset） offset是消息在分区中的唯一标识，用来保证消息在分区内的顺序性，但是不能跨分">
+<meta property="og:locale" content="zh-CN">
+<meta property="og:updated_time" content="2021-06-20T04:19:35.159Z">
+<meta name="twitter:card" content="summary">
+<meta name="twitter:title" content="kafka基本知识">
+<meta name="twitter:description" content="基本概念 topic  主题是一个逻辑概念，消息以主题为单位进行归类，消费者订阅主题并进行消费。 主题可以分为多个分区，一个分区只属于单个主题，同一主题不同分区包含的消息是不同的。   partition  分区在存储层面可以看做一个可追加的日志文件， 消息被追加到分区日志文件时会分配一个特定的偏移量（offset） offset是消息在分区中的唯一标识，用来保证消息在分区内的顺序性，但是不能跨分">
+  <link rel="canonical" href="http://yoursite.com/2020/10/21/kafka/kafka基本知识/">
+
+
+<script id="page-configurations">
+  // https://hexo.io/docs/variables.html
+  CONFIG.page = {
+    sidebar: "",
+    isHome: false,
+    isPost: true,
+    isPage: false,
+    isArchive: false
+  };
+</script>
+
+  <title>kafka基本知识 | 纪光的博客</title>
+  
+
+
+  <script>
+    var _hmt = _hmt || [];
+    (function() {
+      var hm = document.createElement("script");
+      hm.src = "https://hm.baidu.com/hm.js?bca403b673d79e83a47dc62fea1dd605";
+      var s = document.getElementsByTagName("script")[0];
+      s.parentNode.insertBefore(hm, s);
+    })();
+  </script>
+
+
+
+
+
+
+  <noscript>
+  <style>
+  .use-motion .brand,
+  .use-motion .menu-item,
+  .sidebar-inner,
+  .use-motion .post-block,
+  .use-motion .pagination,
+  .use-motion .comments,
+  .use-motion .post-header,
+  .use-motion .post-body,
+  .use-motion .collection-header { opacity: initial; }
+
+  .use-motion .site-title,
+  .use-motion .site-subtitle {
+    opacity: initial;
+    top: initial;
+  }
+
+  .use-motion .logo-line-before i { left: initial; }
+  .use-motion .logo-line-after i { right: initial; }
+  </style>
+</noscript>
+
+</head>
+
+<body itemscope itemtype="http://schema.org/WebPage">
+  <div class="container use-motion">
+    <div class="headband"></div>
+
+    <header class="header" itemscope itemtype="http://schema.org/WPHeader">
+      <div class="header-inner"><div class="site-brand-container">
+  <div class="site-meta">
+
+    <div>
+      <a href="/" class="brand" rel="start">
+        <span class="logo-line-before"><i></i></span>
+        <span class="site-title">纪光的博客</span>
+        <span class="logo-line-after"><i></i></span>
+      </a>
+    </div>
+  </div>
+
+  <div class="site-nav-toggle">
+    <div class="toggle" aria-label="切换导航栏">
+      <span class="toggle-line toggle-line-first"></span>
+      <span class="toggle-line toggle-line-middle"></span>
+      <span class="toggle-line toggle-line-last"></span>
+    </div>
+  </div>
+</div>
+
+
+<nav class="site-nav">
+  
+  <ul id="menu" class="menu">
+      
+      
+        
+        
+        <li class="menu-item menu-item-home">
+      
+    
+
+    <a href="/" rel="section"><i class="fa fa-fw fa-home"></i>首页</a>
+
+  </li>
+      
+    
+      
+      
+        
+        
+        <li class="menu-item menu-item-categories">
+      
+    
+
+    <a href="/categories/" rel="section"><i class="fa fa-fw fa-th"></i>分类</a>
+
+  </li>
+      
+    
+      
+      
+        
+        
+        <li class="menu-item menu-item-tags">
+      
+    
+
+    <a href="/tags/" rel="section"><i class="fa fa-fw fa-tags"></i>标签</a>
+
+  </li>
+      
+    
+      
+      
+        
+        
+        <li class="menu-item menu-item-archives">
+      
+    
+
+    <a href="/archives/" rel="section"><i class="fa fa-fw fa-archive"></i>归档</a>
+
+  </li>
+      
+    
+      
+      
+        
+        
+        <li class="menu-item menu-item-about">
+      
+    
+
+    <a href="/about/" rel="section"><i class="fa fa-fw fa-user"></i>关于</a>
+
+  </li>
+      
+    
+  </ul>
+
+    
+
+</nav>
+</div>
+    </header>
+
+    
+  <div class="back-to-top">
+    <i class="fa fa-arrow-up"></i>
+    <span>0%</span>
+  </div>
+
+
+    <main class="main">
+      <div class="main-inner">
+        <div class="content-wrap">
+          <div class="content">
+            
+
+  <div class="posts-expand">
+      
+  
+  
+  <article itemscope itemtype="http://schema.org/Article" class="post-block " lang="zh-CN">
+    <link itemprop="mainEntityOfPage" href="http://yoursite.com/2020/10/21/kafka/kafka基本知识/">
+
+    <span hidden itemprop="author" itemscope itemtype="http://schema.org/Person">
+      <meta itemprop="name" content="姜纪光">
+      <meta itemprop="description" content="">
+      <meta itemprop="image" content="/images/avatar.gif">
+    </span>
+
+    <span hidden itemprop="publisher" itemscope itemtype="http://schema.org/Organization">
+      <meta itemprop="name" content="纪光的博客">
+    </span>
+      <header class="post-header">
+        <h1 class="post-title" itemprop="name headline">
+          
+            kafka基本知识
+            
+
+          
+        </h1>
+
+        <div class="post-meta">
+            <span class="post-meta-item">
+              <span class="post-meta-item-icon">
+                <i class="fa fa-calendar-o"></i>
+              </span>
+              <span class="post-meta-item-text">发表于</span>
+
+              
+                
+              
+
+              <time title="创建时间：2020-10-21 10:10:49" itemprop="dateCreated datePublished" datetime="2020-10-21T10:10:49+08:00">2020-10-21</time>
+            </span>
+          
+            
+
+            
+              <span class="post-meta-item">
+                <span class="post-meta-item-icon">
+                  <i class="fa fa-calendar-check-o"></i>
+                </span>
+                <span class="post-meta-item-text">更新于</span>
+                <time title="修改时间：2021-06-20 12:19:35" itemprop="dateModified" datetime="2021-06-20T12:19:35+08:00">2021-06-20</time>
+              </span>
+            
+          
+            <span class="post-meta-item">
+              <span class="post-meta-item-icon">
+                <i class="fa fa-folder-o"></i>
+              </span>
+              <span class="post-meta-item-text">分类于</span>
+              
+                <span itemprop="about" itemscope itemtype="http://schema.org/Thing">
+                  <a href="/categories/kafka/" itemprop="url" rel="index">
+                    <span itemprop="name">kafka</span>
+                  </a>
+                </span>
+
+                
+                
+              
+            </span>
+          
+
+          
+            <span id="/2020/10/21/kafka/kafka基本知识/" class="post-meta-item leancloud_visitors" data-flag-title="kafka基本知识" title="阅读次数">
+              <span class="post-meta-item-icon">
+                <i class="fa fa-eye"></i>
+              </span>
+              <span class="post-meta-item-text">阅读次数：</span>
+              <span class="leancloud-visitors-count"></span>
+            </span>
+          
+  
+  
+
+        </div>
+      </header>
+
+    
+    
+    
+    <div class="post-body" itemprop="articleBody">
+
+      
+        <h1 id="基本概念"><a href="#基本概念" class="headerlink" title="基本概念"></a>基本概念</h1><ul>
+<li><p>topic</p>
+<blockquote>
+<p>主题是一个逻辑概念，消息以主题为单位进行归类，消费者订阅主题并进行消费。</p>
+<p>主题可以分为多个分区，一个分区只属于单个主题，同一主题不同分区包含的消息是不同的。</p>
+</blockquote>
+</li>
+<li><p>partition</p>
+<blockquote>
+<p>分区在存储层面可以看做一个可追加的日志文件，</p>
+<p>消息被追加到分区日志文件时会分配一个特定的偏移量（offset）</p>
+<p>offset是消息在分区中的唯一标识，用来保证消息在分区内的顺序性，但是不能跨分区</p>
+<p>kafka保证的是分区有序而不是主题有序</p>
+<p>每个分区包含多个副本（Replica），可以提高容灾能力</p>
+</blockquote>
+</li>
+<li><p>replica</p>
+<blockquote>
+<p>同一分区不同副本保存的是相同的消息，但是同一时刻，副本之间并非完全一样</p>
+<p>副本之间是<code>一主多从</code>的关系，leader副本负责读写请求，follower副本只负责与leader副本的消息同步</p>
+</blockquote>
+</li>
+<li><p>AR(Assigned Replicas)</p>
+<blockquote>
+<p>分区中所有副本的统称。</p>
+<p>leader副本负责维护和跟踪ISR集合中所有follower副本的滞后状态，当落后太多时从ISR中剔除，</p>
+<p>如果OSR中有副本追上leader副本，那么就会从OSR中移到ISR中。</p>
+<p>默认情况下，当leader副本失效，只有ISR中的副本才能有资格成为新leader副本。</p>
+</blockquote>
+</li>
+<li><p>ISR(In-Sync Replicas)</p>
+<blockquote>
+<p>所有与leader副本保持<code>一定程度</code>同步的副本（包括leader副本）组成ISR.</p>
+<p>ISR集合是AR集合中的一个子集。</p>
+<p><code>一定程度的同步</code>是指可忍受的滞后范围，可以通过参数配置。</p>
+<p>使用这种ISR的方式有效地权衡了数据可靠性和性能之间的关系。</p>
+</blockquote>
+</li>
+<li><p>OSR(Out-of-Sync Replicas)</p>
+<blockquote>
+<p>与leader副本同步滞后过多的副本（不包括leader副本）组成OSR。</p>
+</blockquote>
+</li>
+<li><p>HW(High Watermark)</p>
+<blockquote>
+<p>俗称高水位，标识了一个特定的消息偏移量（offset），消费者只能拉取到这个offset（不包括）之前的消息。</p>
+</blockquote>
+</li>
+<li><p>LEO(Log End Offset)</p>
+<blockquote>
+<p>标识当前日志文件中下一条待写入消息的offset。</p>
+<p>LEO的大小相当于当前日志分区中最后一条消息的offset值加1。</p>
+<p><code>ISR集合中每个副本都会维护自身的LEO，其中最小的LEO即为分区的HW。</code>就是最多能消费到ISR集合中最小的HW。</p>
+</blockquote>
+</li>
+</ul>
+<h1 id="kafka体系结构"><a href="#kafka体系结构" class="headerlink" title="kafka体系结构"></a>kafka体系结构</h1><ul>
+<li><p>zookeeper</p>
+<blockquote>
+<p>用来管理集群元数据、控制器的选举等操作</p>
+</blockquote>
+</li>
+<li><p>producer</p>
+<blockquote>
+<p>产生消息，并发送到broker</p>
+<p>消息被发到broker之前，根据分区规则选择存储到具体分区。</p>
+<p>消息在通过send方法发往broker的过程中，可能经过拦截器（Interceptor），序列化器（Serializer），和分区器（Partitioner）。</p>
+<p>生产者客户端是与具体的broker节点建立连接，直接向具体的broker节点发送消息，不关心消息属于哪个分区。</p>
+<p>KafkaProducer是线程安全的。</p>
+</blockquote>
+</li>
+<li><p>broker</p>
+<blockquote>
+<p>负责将收到的消息存储到磁盘中</p>
+</blockquote>
+</li>
+<li><p>consumer</p>
+<blockquote>
+<p>负责从broker订阅并消费消息。</p>
+<p>KafkaConsumer是非线程安全的，</p>
+<p>多线程的实现方式有多种：</p>
+<p>1、线程封闭，即为每个线程实例化一个KafkaConsumer对象，一个线程可以消费同一个消费组的一个或者多个分区中的消息，这种方式受限于分区个数。</p>
+<p>2、多个线程同时消费一个分区，通过assign和seek方法实现，但是对于位移提交和顺序控制会变得非常复杂，一般不推荐使用。</p>
+</blockquote>
+</li>
+<li><p>分区器</p>
+<blockquote>
+<p>分区器的作用就是为消息分配分区。</p>
+<p>如果消息ProducerRecord中指定了partition字段，就不需要分区器，partition字段代表的就是分区号。</p>
+<p>如果消息中没有指定partition字段，就需要分区器，根据key字段来计算partition的值。</p>
+</blockquote>
+</li>
+<li><p>元数据</p>
+<blockquote>
+<p>元数据是指kafka集群的元数据，记录了集群中的主题，主题分区，每个分区的leader副本分配的节点，follower副本分配的节点，哪些副本在AR IST OSR集合中。</p>
+<p>InFlightRequests缓存了生产者客户端已经发出但是还没有收到相应请求。从中可以获得leastLoadedNode，即Node节点中负载最小的一个Node。</p>
+<p>选择leastLoadedNode发送请求可以使消息尽快发出</p>
+</blockquote>
+</li>
+</ul>
+<h1 id="参考文档"><a href="#参考文档" class="headerlink" title="参考文档"></a>参考文档</h1><p><a href>深入理解Kafka核心设计与实践原理</a></p>
+
+    </div>
+
+    
+    
+    
+        
+      
+
+      <footer class="post-footer">
+
+        
+
+          <div class="post-nav">
+            <div class="post-nav-next post-nav-item">
+              
+                <a href="/2020/10/20/flink/两个任务消费kafka-topic和group-id相同-导致重复消费数据/" rel="next" title="两个任务消费kafka,topic和group.id相同,导致重复消费数据">
+                  <i class="fa fa-chevron-left"></i> 两个任务消费kafka,topic和group.id相同,导致重复消费数据
+                </a>
+              
+            </div>
+
+            <span class="post-nav-divider"></span>
+
+            <div class="post-nav-prev post-nav-item">
+              
+                <a href="/2020/10/21/kafka/kafka客户端/" rel="prev" title="kafka客户端">
+                  kafka客户端 <i class="fa fa-chevron-right"></i>
+                </a>
+              
+            </div>
+          </div>
+        
+      </footer>
+    
+  </article>
+  
+  
+  
+
+  </div>
+
+
+          </div>
+          
+
+        </div>
+          
+  
+  <div class="toggle sidebar-toggle">
+    <span class="toggle-line toggle-line-first"></span>
+    <span class="toggle-line toggle-line-middle"></span>
+    <span class="toggle-line toggle-line-last"></span>
+  </div>
+
+  <aside class="sidebar">
+    <div class="sidebar-inner">
+        
+        
+        
+        
+      
+
+      <ul class="sidebar-nav motion-element">
+        <li class="sidebar-nav-toc">
+          文章目录
+        </li>
+        <li class="sidebar-nav-overview">
+          站点概览
+        </li>
+      </ul>
+
+      <!--noindex-->
+      <div class="post-toc-wrap sidebar-panel">
+          <div class="post-toc motion-element"><ol class="nav"><li class="nav-item nav-level-1"><a class="nav-link" href="#基本概念"><span class="nav-number">1.</span> <span class="nav-text">基本概念</span></a></li><li class="nav-item nav-level-1"><a class="nav-link" href="#kafka体系结构"><span class="nav-number">2.</span> <span class="nav-text">kafka体系结构</span></a></li><li class="nav-item nav-level-1"><a class="nav-link" href="#参考文档"><span class="nav-number">3.</span> <span class="nav-text">参考文档</span></a></li></ol></div>
+        
+      </div>
+      <!--/noindex-->
+
+      <div class="site-overview-wrap sidebar-panel">
+        <div class="site-author motion-element" itemprop="author" itemscope itemtype="http://schema.org/Person">
+  <p class="site-author-name" itemprop="name">姜纪光</p>
+  <div class="site-description" itemprop="description"></div>
+</div>
+<div class="site-state-wrap motion-element">
+  <nav class="site-state">
+      <div class="site-state-item site-state-posts">
+        
+          <a href="/archives/">
+        
+          <span class="site-state-item-count">158</span>
+          <span class="site-state-item-name">日志</span>
+        </a>
+      </div>
+    
+      
+      
+      <div class="site-state-item site-state-categories">
+        
+          
+            <a href="/categories/">
+          
+        
+        <span class="site-state-item-count">26</span>
+        <span class="site-state-item-name">分类</span>
+        </a>
+      </div>
+    
+      
+      
+      <div class="site-state-item site-state-tags">
+        
+          
+            <a href="/tags/">
+          
+        
+        <span class="site-state-item-count">14</span>
+        <span class="site-state-item-name">标签</span>
+        </a>
+      </div>
+    
+  </nav>
+</div>
+
+
+
+      </div>
+
+    </div>
+  </aside>
+  <div id="sidebar-dimmer"></div>
+
+
+      </div>
+    </main>
+
+    <footer class="footer">
+      <div class="footer-inner">
+        
+
+<div class="copyright">
+  &copy; 
+  <span itemprop="copyrightYear">2021</span>
+  <span class="with-love">
+    <i class="fa fa-user"></i>
+  </span>
+  <span class="author" itemprop="copyrightHolder">姜纪光</span>
+</div>
+  <div class="powered-by">由 <a href="https://hexo.io" class="theme-link" rel="noopener" target="_blank">Hexo</a> 强力驱动 v3.9.0
+  </div>
+  <span class="post-meta-divider">|</span>
+  <div class="theme-info">
+      
+    主题 – <a href="https://mist.theme-next.org" class="theme-link" rel="noopener" target="_blank">NexT.Mist</a> v7.4.1
+  </div>
+
+        
+
+
+
+
+
+
+
+
+
+
+
+
+        
+      </div>
+    </footer>
+  </div>
+
+  
+  <script src="/lib/anime.min.js?v=3.1.0"></script>
+  <script src="/lib/velocity/velocity.min.js?v=1.2.1"></script>
+  <script src="/lib/velocity/velocity.ui.min.js?v=1.2.1"></script>
+<script src="/js/utils.js?v=7.4.1"></script><script src="/js/motion.js?v=7.4.1"></script>
+<script src="/js/schemes/muse.js?v=7.4.1"></script>
+
+<script src="/js/next-boot.js?v=7.4.1"></script>
+
+
+
+  
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+  
+
+  
+
+  
+
+
+<script>
+NexT.utils.getScript('//unpkg.com/valine/dist/Valine.min.js', () => {
+  var GUEST = ['nick', 'mail', 'link'];
+  var guest = 'nick,mail,link';
+  guest = guest.split(',').filter(item => {
+    return GUEST.includes(item);
+  });
+  new Valine({
+    el: '#comments',
+    verify: false,
+    notify: false,
+    appId: 'MIQC4jJTknc0hjNXDAiIuQ21-9Nh9j0Va',
+    appKey: 'vaiXpSQLLMglwYsVLOBLzck4',
+    placeholder: "Just go go",
+    avatar: 'mm',
+    meta: guest,
+    pageSize: '10' || 10,
+    visitor: true,
+    lang: 'zh-cn' || 'zh-cn',
+    path: location.pathname,
+    recordIP: false,
+    serverURLs: ''
+  });
+}, window.Valine);
+</script>
+
+</body>
+</html>

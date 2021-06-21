@@ -1,0 +1,646 @@
+<!DOCTYPE html>
+
+
+
+
+
+<html lang="zh-CN">
+<head>
+  <meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1, maximum-scale=2">
+<meta name="theme-color" content="#222">
+<meta name="generator" content="Hexo 3.9.0">
+  <link rel="apple-touch-icon" sizes="180x180" href="/images/apple-touch-icon-next.png?v=7.4.1">
+  <link rel="icon" type="image/png" sizes="32x32" href="/images/favicon-32x32-next.png?v=7.4.1">
+  <link rel="icon" type="image/png" sizes="16x16" href="/images/favicon-16x16-next.png?v=7.4.1">
+  <link rel="mask-icon" href="/images/logo.svg?v=7.4.1" color="#222">
+
+<link rel="stylesheet" href="/css/main.css?v=7.4.1">
+
+
+<link rel="stylesheet" href="/lib/font-awesome/css/font-awesome.min.css?v=4.7.0">
+
+
+<script id="hexo-configurations">
+  var NexT = window.NexT || {};
+  var CONFIG = {
+    root: '/',
+    scheme: 'Mist',
+    version: '7.4.1',
+    exturl: false,
+    sidebar: {"position":"right","display":"hide","offset":12,"onmobile":false},
+    copycode: {"enable":false,"show_result":false,"style":null},
+    back2top: {"enable":true,"sidebar":false,"scrollpercent":false},
+    bookmark: {"enable":false,"color":"#222","save":"auto"},
+    fancybox: false,
+    mediumzoom: false,
+    lazyload: false,
+    pangu: false,
+    algolia: {
+      appID: '',
+      apiKey: '',
+      indexName: '',
+      hits: {"per_page":10},
+      labels: {"input_placeholder":"Search for Posts","hits_empty":"We didn't find any results for the search: ${query}","hits_stats":"${hits} results found in ${time} ms"}
+    },
+    localsearch: {"enable":false,"trigger":"auto","top_n_per_article":1,"unescape":false,"preload":false},
+    path: '',
+    motion: {"enable":true,"async":false,"transition":{"post_block":"fadeIn","post_header":"slideDownIn","post_body":"slideDownIn","coll_header":"slideLeftIn","sidebar":"slideUpIn"}},
+    translation: {
+      copy_button: '复制',
+      copy_success: '复制成功',
+      copy_failure: '复制失败'
+    },
+    sidebarPadding: 40
+  };
+</script>
+
+  <meta name="description" content="基本概念主存也称为物理内存，是计算机的数据存储区域。通常是动态随机访问内存（DRAM） 虚拟内存 是一个抽象概念 大多数虚拟内存是以页的方式实现的 它向每个进程和内核提供巨大的、线性的并且私有的地址空间 它简化了软件开发，把物理内存的分配交给操作系统管理 支持多任务，因为虚拟地址空间被设计成分离的，并且可以超额订购 进程的地址空间由虚拟内存子系统映射到主内存和物理交换设备，内核按需在它们之间移动内">
+<meta name="keywords" content="内存">
+<meta property="og:type" content="article">
+<meta property="og:title" content="内存探究">
+<meta property="og:url" content="http://yoursite.com/2020/09/08/linux/内存探究/index.html">
+<meta property="og:site_name" content="纪光的博客">
+<meta property="og:description" content="基本概念主存也称为物理内存，是计算机的数据存储区域。通常是动态随机访问内存（DRAM） 虚拟内存 是一个抽象概念 大多数虚拟内存是以页的方式实现的 它向每个进程和内核提供巨大的、线性的并且私有的地址空间 它简化了软件开发，把物理内存的分配交给操作系统管理 支持多任务，因为虚拟地址空间被设计成分离的，并且可以超额订购 进程的地址空间由虚拟内存子系统映射到主内存和物理交换设备，内核按需在它们之间移动内">
+<meta property="og:locale" content="zh-CN">
+<meta property="og:updated_time" content="2021-06-20T04:19:35.162Z">
+<meta name="twitter:card" content="summary">
+<meta name="twitter:title" content="内存探究">
+<meta name="twitter:description" content="基本概念主存也称为物理内存，是计算机的数据存储区域。通常是动态随机访问内存（DRAM） 虚拟内存 是一个抽象概念 大多数虚拟内存是以页的方式实现的 它向每个进程和内核提供巨大的、线性的并且私有的地址空间 它简化了软件开发，把物理内存的分配交给操作系统管理 支持多任务，因为虚拟地址空间被设计成分离的，并且可以超额订购 进程的地址空间由虚拟内存子系统映射到主内存和物理交换设备，内核按需在它们之间移动内">
+  <link rel="canonical" href="http://yoursite.com/2020/09/08/linux/内存探究/">
+
+
+<script id="page-configurations">
+  // https://hexo.io/docs/variables.html
+  CONFIG.page = {
+    sidebar: "",
+    isHome: false,
+    isPost: true,
+    isPage: false,
+    isArchive: false
+  };
+</script>
+
+  <title>内存探究 | 纪光的博客</title>
+  
+
+
+  <script>
+    var _hmt = _hmt || [];
+    (function() {
+      var hm = document.createElement("script");
+      hm.src = "https://hm.baidu.com/hm.js?bca403b673d79e83a47dc62fea1dd605";
+      var s = document.getElementsByTagName("script")[0];
+      s.parentNode.insertBefore(hm, s);
+    })();
+  </script>
+
+
+
+
+
+
+  <noscript>
+  <style>
+  .use-motion .brand,
+  .use-motion .menu-item,
+  .sidebar-inner,
+  .use-motion .post-block,
+  .use-motion .pagination,
+  .use-motion .comments,
+  .use-motion .post-header,
+  .use-motion .post-body,
+  .use-motion .collection-header { opacity: initial; }
+
+  .use-motion .site-title,
+  .use-motion .site-subtitle {
+    opacity: initial;
+    top: initial;
+  }
+
+  .use-motion .logo-line-before i { left: initial; }
+  .use-motion .logo-line-after i { right: initial; }
+  </style>
+</noscript>
+
+</head>
+
+<body itemscope itemtype="http://schema.org/WebPage">
+  <div class="container use-motion">
+    <div class="headband"></div>
+
+    <header class="header" itemscope itemtype="http://schema.org/WPHeader">
+      <div class="header-inner"><div class="site-brand-container">
+  <div class="site-meta">
+
+    <div>
+      <a href="/" class="brand" rel="start">
+        <span class="logo-line-before"><i></i></span>
+        <span class="site-title">纪光的博客</span>
+        <span class="logo-line-after"><i></i></span>
+      </a>
+    </div>
+  </div>
+
+  <div class="site-nav-toggle">
+    <div class="toggle" aria-label="切换导航栏">
+      <span class="toggle-line toggle-line-first"></span>
+      <span class="toggle-line toggle-line-middle"></span>
+      <span class="toggle-line toggle-line-last"></span>
+    </div>
+  </div>
+</div>
+
+
+<nav class="site-nav">
+  
+  <ul id="menu" class="menu">
+      
+      
+        
+        
+        <li class="menu-item menu-item-home">
+      
+    
+
+    <a href="/" rel="section"><i class="fa fa-fw fa-home"></i>首页</a>
+
+  </li>
+      
+    
+      
+      
+        
+        
+        <li class="menu-item menu-item-categories">
+      
+    
+
+    <a href="/categories/" rel="section"><i class="fa fa-fw fa-th"></i>分类</a>
+
+  </li>
+      
+    
+      
+      
+        
+        
+        <li class="menu-item menu-item-tags">
+      
+    
+
+    <a href="/tags/" rel="section"><i class="fa fa-fw fa-tags"></i>标签</a>
+
+  </li>
+      
+    
+      
+      
+        
+        
+        <li class="menu-item menu-item-archives">
+      
+    
+
+    <a href="/archives/" rel="section"><i class="fa fa-fw fa-archive"></i>归档</a>
+
+  </li>
+      
+    
+      
+      
+        
+        
+        <li class="menu-item menu-item-about">
+      
+    
+
+    <a href="/about/" rel="section"><i class="fa fa-fw fa-user"></i>关于</a>
+
+  </li>
+      
+    
+  </ul>
+
+    
+
+</nav>
+</div>
+    </header>
+
+    
+  <div class="back-to-top">
+    <i class="fa fa-arrow-up"></i>
+    <span>0%</span>
+  </div>
+
+
+    <main class="main">
+      <div class="main-inner">
+        <div class="content-wrap">
+          <div class="content">
+            
+
+  <div class="posts-expand">
+      
+  
+  
+  <article itemscope itemtype="http://schema.org/Article" class="post-block " lang="zh-CN">
+    <link itemprop="mainEntityOfPage" href="http://yoursite.com/2020/09/08/linux/内存探究/">
+
+    <span hidden itemprop="author" itemscope itemtype="http://schema.org/Person">
+      <meta itemprop="name" content="姜纪光">
+      <meta itemprop="description" content="">
+      <meta itemprop="image" content="/images/avatar.gif">
+    </span>
+
+    <span hidden itemprop="publisher" itemscope itemtype="http://schema.org/Organization">
+      <meta itemprop="name" content="纪光的博客">
+    </span>
+      <header class="post-header">
+        <h1 class="post-title" itemprop="name headline">
+          
+            内存探究
+            
+
+          
+        </h1>
+
+        <div class="post-meta">
+            <span class="post-meta-item">
+              <span class="post-meta-item-icon">
+                <i class="fa fa-calendar-o"></i>
+              </span>
+              <span class="post-meta-item-text">发表于</span>
+
+              
+                
+              
+
+              <time title="创建时间：2020-09-08 09:36:10" itemprop="dateCreated datePublished" datetime="2020-09-08T09:36:10+08:00">2020-09-08</time>
+            </span>
+          
+            
+
+            
+              <span class="post-meta-item">
+                <span class="post-meta-item-icon">
+                  <i class="fa fa-calendar-check-o"></i>
+                </span>
+                <span class="post-meta-item-text">更新于</span>
+                <time title="修改时间：2021-06-20 12:19:35" itemprop="dateModified" datetime="2021-06-20T12:19:35+08:00">2021-06-20</time>
+              </span>
+            
+          
+            <span class="post-meta-item">
+              <span class="post-meta-item-icon">
+                <i class="fa fa-folder-o"></i>
+              </span>
+              <span class="post-meta-item-text">分类于</span>
+              
+                <span itemprop="about" itemscope itemtype="http://schema.org/Thing">
+                  <a href="/categories/linux/" itemprop="url" rel="index">
+                    <span itemprop="name">linux</span>
+                  </a>
+                </span>
+
+                
+                
+              
+            </span>
+          
+
+          
+            <span id="/2020/09/08/linux/内存探究/" class="post-meta-item leancloud_visitors" data-flag-title="内存探究" title="阅读次数">
+              <span class="post-meta-item-icon">
+                <i class="fa fa-eye"></i>
+              </span>
+              <span class="post-meta-item-text">阅读次数：</span>
+              <span class="leancloud-visitors-count"></span>
+            </span>
+          
+  
+  
+
+        </div>
+      </header>
+
+    
+    
+    
+    <div class="post-body" itemprop="articleBody">
+
+      
+        <h1 id="基本概念"><a href="#基本概念" class="headerlink" title="基本概念"></a>基本概念</h1><h2 id="主存"><a href="#主存" class="headerlink" title="主存"></a>主存</h2><p>也称为物理内存，是计算机的数据存储区域。通常是动态随机访问内存（DRAM）</p>
+<h2 id="虚拟内存"><a href="#虚拟内存" class="headerlink" title="虚拟内存"></a>虚拟内存</h2><ul>
+<li>是一个抽象概念</li>
+<li>大多数虚拟内存是以页的方式实现的</li>
+<li>它向每个进程和内核提供巨大的、线性的并且私有的地址空间</li>
+<li>它简化了软件开发，把物理内存的分配交给操作系统管理</li>
+<li>支持多任务，因为虚拟地址空间被设计成分离的，并且可以超额订购</li>
+<li>进程的地址空间由虚拟内存子系统映射到主内存和物理交换设备，内核按需在它们之间移动内存页，称为交换</li>
+</ul>
+<h2 id="常驻内存"><a href="#常驻内存" class="headerlink" title="常驻内存"></a>常驻内存</h2><p>当前处于主存中的内存</p>
+<h2 id="匿名内存"><a href="#匿名内存" class="headerlink" title="匿名内存"></a>匿名内存</h2><p>无文件系统位置或路径名的内存，包括进程地址空间的工作数据，称为堆。</p>
+<h2 id="地址空间"><a href="#地址空间" class="headerlink" title="地址空间"></a>地址空间</h2><p>内存上下文，每个进程和内核都有对应的虚拟地址空间</p>
+<h2 id="段"><a href="#段" class="headerlink" title="段"></a>段</h2><p>标记为特殊用途的一块内存区域，例如用来存储可执行或者可写的页</p>
+<h2 id="页"><a href="#页" class="headerlink" title="页"></a>页</h2><p>操作系统和CPU使用的内存单位。它一直以来是4KB或者8KB。允许多种页大小以支持更大的页面尺寸</p>
+<h2 id="缺页"><a href="#缺页" class="headerlink" title="缺页"></a>缺页</h2><p>无效的内存访问，使用按需虚拟内存时，这是正常事件</p>
+<h2 id="换页"><a href="#换页" class="headerlink" title="换页"></a>换页</h2><ul>
+<li>换页是将页换入和调出主存，分为称为页面换入和页面换出</li>
+<li>由于页的尺寸较小，换页是精确管理和释放主存的手段</li>
+<li>有两种类型的换页：文件系统换页和匿名换页</li>
+</ul>
+<h3 id="文件系统换页"><a href="#文件系统换页" class="headerlink" title="文件系统换页"></a>文件系统换页</h3><ul>
+<li>文件系统换页由读写位于内存中的映射文件页引发，对于使用文件内存映射（mmap()）的应用程序和使用了页缓存的文件系统，这是正常行为。是<strong>好的</strong>换页。</li>
+</ul>
+<h3 id="匿名换页"><a href="#匿名换页" class="headerlink" title="匿名换页"></a>匿名换页</h3><ul>
+<li>匿名换页牵涉进程的私有数据：进程堆和栈</li>
+<li>被称为匿名是由于它在操作系统中缺乏有名字的地址</li>
+<li>匿名页面换出要求迁移数据到物理交换设备或者交换文件，linux称为swapping</li>
+<li>匿名换页拖累性能，是<strong>坏</strong>的换页</li>
+</ul>
+<h2 id="按需换页"><a href="#按需换页" class="headerlink" title="按需换页"></a>按需换页</h2><ul>
+<li><p>是指支持按需换页的操作系统将虚拟内存按需映射到物理内存</p>
+</li>
+<li><p>把CPU创建映射的开销推迟到实际需要或访问时，而不是在初次分配这部分内存时</p>
+</li>
+<li><p>当访问一个尚未从虚拟映射到物理内存的页时，会发生缺页</p>
+</li>
+<li><p>如果这个映射可以由内存中其它的页满足，称为轻微缺页</p>
+</li>
+<li><p>需要访问存储设备的缺页，称为严重缺页</p>
+</li>
+<li><p>虚拟内存和按需换页的结果是任何虚拟内存也可能处于如下的一个状态：</p>
+<blockquote>
+<p>A. 未分配</p>
+<p>B. 也分配，未映射</p>
+<p>C. 已分配，已映射到主存（RAM）</p>
+<p>D. 已分配，已映射到物理交换空间（磁盘）</p>
+</blockquote>
+</li>
+<li><p>常驻集合大小（RSS）：已分配的主存页（C）大小</p>
+</li>
+<li><p>虚拟内存大小：所有已分配的区域（B+C+D）</p>
+</li>
+</ul>
+<h2 id="过度提交"><a href="#过度提交" class="headerlink" title="过度提交"></a>过度提交</h2><ul>
+<li>是指允许分配超过物理内存和交换设置的总和</li>
+<li>依赖于按需换页以及应用程序通常不会使用分配给他们的大部分内存</li>
+<li>linux可以用可调参数配置过度提交</li>
+<li>过度提交的后果取决于内核如何管理内存压力</li>
+</ul>
+<h1 id="性能调优"><a href="#性能调优" class="headerlink" title="性能调优"></a>性能调优</h1><h1 id="特别说明"><a href="#特别说明" class="headerlink" title="特别说明"></a>特别说明</h1><h2 id="nice值"><a href="#nice值" class="headerlink" title="nice值"></a>nice值</h2><p>​     进程特性nice值允许进程间接的影响内核调度算法。所谓nice就是指对其他进程的谦让程度，显然比0越小就越不谦让，比0越大就越谦让。顾名思义，越谦让的君子在CPU调度过程中占用CPU的时间会越少，反之不谦让的进程相比较可能占用更多的CPU时间。因此字符’&lt;’表示此进程可能在调度过程中获得优势。</p>
+<h2 id="缺页-1"><a href="#缺页-1" class="headerlink" title="缺页"></a>缺页</h2><p>​    操作系统管理内存的基本单元是4KB大小的页框，当进程访问尚未有物理内存建立页表映射关系的虚拟内存地址值时，会产生一次缺页异常。在缺页异常处理过程中会为虚拟内存页分配一个物理内存页并建立映射。所以每一次缺页异常就会分配4096（4kb）字节的物理内存，这样rss和minflt的比值当然就是4了。如果分配之后又有释放，后面再次分配，会使这个比值逐步小于4。如果这个比值过于小，那我们就有充足理由怀疑用户程序代码在内存管理上存在重大问题</p>
+<h1 id="参考文档"><a href="#参考文档" class="headerlink" title="参考文档"></a>参考文档</h1><p><a href>性能之巅</a></p>
+
+    </div>
+
+    
+    
+    
+        
+      
+
+      <footer class="post-footer">
+          
+            
+          
+          <div class="post-tags">
+            
+              <a href="/tags/内存/" rel="tag"># 内存</a>
+            
+          </div>
+        
+
+        
+
+          <div class="post-nav">
+            <div class="post-nav-next post-nav-item">
+              
+                <a href="/2020/09/07/java/GC基础知识/" rel="next" title="GC基础知识">
+                  <i class="fa fa-chevron-left"></i> GC基础知识
+                </a>
+              
+            </div>
+
+            <span class="post-nav-divider"></span>
+
+            <div class="post-nav-prev post-nav-item">
+              
+                <a href="/2020/09/08/flink/Flink任务发布流程解析/" rel="prev" title="Flink任务发布流程解析">
+                  Flink任务发布流程解析 <i class="fa fa-chevron-right"></i>
+                </a>
+              
+            </div>
+          </div>
+        
+      </footer>
+    
+  </article>
+  
+  
+  
+
+  </div>
+
+
+          </div>
+          
+
+        </div>
+          
+  
+  <div class="toggle sidebar-toggle">
+    <span class="toggle-line toggle-line-first"></span>
+    <span class="toggle-line toggle-line-middle"></span>
+    <span class="toggle-line toggle-line-last"></span>
+  </div>
+
+  <aside class="sidebar">
+    <div class="sidebar-inner">
+        
+        
+        
+        
+      
+
+      <ul class="sidebar-nav motion-element">
+        <li class="sidebar-nav-toc">
+          文章目录
+        </li>
+        <li class="sidebar-nav-overview">
+          站点概览
+        </li>
+      </ul>
+
+      <!--noindex-->
+      <div class="post-toc-wrap sidebar-panel">
+          <div class="post-toc motion-element"><ol class="nav"><li class="nav-item nav-level-1"><a class="nav-link" href="#基本概念"><span class="nav-number">1.</span> <span class="nav-text">基本概念</span></a><ol class="nav-child"><li class="nav-item nav-level-2"><a class="nav-link" href="#主存"><span class="nav-number">1.1.</span> <span class="nav-text">主存</span></a></li><li class="nav-item nav-level-2"><a class="nav-link" href="#虚拟内存"><span class="nav-number">1.2.</span> <span class="nav-text">虚拟内存</span></a></li><li class="nav-item nav-level-2"><a class="nav-link" href="#常驻内存"><span class="nav-number">1.3.</span> <span class="nav-text">常驻内存</span></a></li><li class="nav-item nav-level-2"><a class="nav-link" href="#匿名内存"><span class="nav-number">1.4.</span> <span class="nav-text">匿名内存</span></a></li><li class="nav-item nav-level-2"><a class="nav-link" href="#地址空间"><span class="nav-number">1.5.</span> <span class="nav-text">地址空间</span></a></li><li class="nav-item nav-level-2"><a class="nav-link" href="#段"><span class="nav-number">1.6.</span> <span class="nav-text">段</span></a></li><li class="nav-item nav-level-2"><a class="nav-link" href="#页"><span class="nav-number">1.7.</span> <span class="nav-text">页</span></a></li><li class="nav-item nav-level-2"><a class="nav-link" href="#缺页"><span class="nav-number">1.8.</span> <span class="nav-text">缺页</span></a></li><li class="nav-item nav-level-2"><a class="nav-link" href="#换页"><span class="nav-number">1.9.</span> <span class="nav-text">换页</span></a><ol class="nav-child"><li class="nav-item nav-level-3"><a class="nav-link" href="#文件系统换页"><span class="nav-number">1.9.1.</span> <span class="nav-text">文件系统换页</span></a></li><li class="nav-item nav-level-3"><a class="nav-link" href="#匿名换页"><span class="nav-number">1.9.2.</span> <span class="nav-text">匿名换页</span></a></li></ol></li><li class="nav-item nav-level-2"><a class="nav-link" href="#按需换页"><span class="nav-number">1.10.</span> <span class="nav-text">按需换页</span></a></li><li class="nav-item nav-level-2"><a class="nav-link" href="#过度提交"><span class="nav-number">1.11.</span> <span class="nav-text">过度提交</span></a></li></ol></li><li class="nav-item nav-level-1"><a class="nav-link" href="#性能调优"><span class="nav-number">2.</span> <span class="nav-text">性能调优</span></a></li><li class="nav-item nav-level-1"><a class="nav-link" href="#特别说明"><span class="nav-number">3.</span> <span class="nav-text">特别说明</span></a><ol class="nav-child"><li class="nav-item nav-level-2"><a class="nav-link" href="#nice值"><span class="nav-number">3.1.</span> <span class="nav-text">nice值</span></a></li><li class="nav-item nav-level-2"><a class="nav-link" href="#缺页-1"><span class="nav-number">3.2.</span> <span class="nav-text">缺页</span></a></li></ol></li><li class="nav-item nav-level-1"><a class="nav-link" href="#参考文档"><span class="nav-number">4.</span> <span class="nav-text">参考文档</span></a></li></ol></div>
+        
+      </div>
+      <!--/noindex-->
+
+      <div class="site-overview-wrap sidebar-panel">
+        <div class="site-author motion-element" itemprop="author" itemscope itemtype="http://schema.org/Person">
+  <p class="site-author-name" itemprop="name">姜纪光</p>
+  <div class="site-description" itemprop="description"></div>
+</div>
+<div class="site-state-wrap motion-element">
+  <nav class="site-state">
+      <div class="site-state-item site-state-posts">
+        
+          <a href="/archives/">
+        
+          <span class="site-state-item-count">158</span>
+          <span class="site-state-item-name">日志</span>
+        </a>
+      </div>
+    
+      
+      
+      <div class="site-state-item site-state-categories">
+        
+          
+            <a href="/categories/">
+          
+        
+        <span class="site-state-item-count">26</span>
+        <span class="site-state-item-name">分类</span>
+        </a>
+      </div>
+    
+      
+      
+      <div class="site-state-item site-state-tags">
+        
+          
+            <a href="/tags/">
+          
+        
+        <span class="site-state-item-count">14</span>
+        <span class="site-state-item-name">标签</span>
+        </a>
+      </div>
+    
+  </nav>
+</div>
+
+
+
+      </div>
+
+    </div>
+  </aside>
+  <div id="sidebar-dimmer"></div>
+
+
+      </div>
+    </main>
+
+    <footer class="footer">
+      <div class="footer-inner">
+        
+
+<div class="copyright">
+  &copy; 
+  <span itemprop="copyrightYear">2021</span>
+  <span class="with-love">
+    <i class="fa fa-user"></i>
+  </span>
+  <span class="author" itemprop="copyrightHolder">姜纪光</span>
+</div>
+  <div class="powered-by">由 <a href="https://hexo.io" class="theme-link" rel="noopener" target="_blank">Hexo</a> 强力驱动 v3.9.0
+  </div>
+  <span class="post-meta-divider">|</span>
+  <div class="theme-info">
+      
+    主题 – <a href="https://mist.theme-next.org" class="theme-link" rel="noopener" target="_blank">NexT.Mist</a> v7.4.1
+  </div>
+
+        
+
+
+
+
+
+
+
+
+
+
+
+
+        
+      </div>
+    </footer>
+  </div>
+
+  
+  <script src="/lib/anime.min.js?v=3.1.0"></script>
+  <script src="/lib/velocity/velocity.min.js?v=1.2.1"></script>
+  <script src="/lib/velocity/velocity.ui.min.js?v=1.2.1"></script>
+<script src="/js/utils.js?v=7.4.1"></script><script src="/js/motion.js?v=7.4.1"></script>
+<script src="/js/schemes/muse.js?v=7.4.1"></script>
+
+<script src="/js/next-boot.js?v=7.4.1"></script>
+
+
+
+  
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+  
+
+  
+
+  
+
+
+<script>
+NexT.utils.getScript('//unpkg.com/valine/dist/Valine.min.js', () => {
+  var GUEST = ['nick', 'mail', 'link'];
+  var guest = 'nick,mail,link';
+  guest = guest.split(',').filter(item => {
+    return GUEST.includes(item);
+  });
+  new Valine({
+    el: '#comments',
+    verify: false,
+    notify: false,
+    appId: 'MIQC4jJTknc0hjNXDAiIuQ21-9Nh9j0Va',
+    appKey: 'vaiXpSQLLMglwYsVLOBLzck4',
+    placeholder: "Just go go",
+    avatar: 'mm',
+    meta: guest,
+    pageSize: '10' || 10,
+    visitor: true,
+    lang: 'zh-cn' || 'zh-cn',
+    path: location.pathname,
+    recordIP: false,
+    serverURLs: ''
+  });
+}, window.Valine);
+</script>
+
+</body>
+</html>

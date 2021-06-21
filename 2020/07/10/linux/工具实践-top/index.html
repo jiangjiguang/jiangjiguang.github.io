@@ -1,0 +1,625 @@
+<!DOCTYPE html>
+
+
+
+
+
+<html lang="zh-CN">
+<head>
+  <meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1, maximum-scale=2">
+<meta name="theme-color" content="#222">
+<meta name="generator" content="Hexo 3.9.0">
+  <link rel="apple-touch-icon" sizes="180x180" href="/images/apple-touch-icon-next.png?v=7.4.1">
+  <link rel="icon" type="image/png" sizes="32x32" href="/images/favicon-32x32-next.png?v=7.4.1">
+  <link rel="icon" type="image/png" sizes="16x16" href="/images/favicon-16x16-next.png?v=7.4.1">
+  <link rel="mask-icon" href="/images/logo.svg?v=7.4.1" color="#222">
+
+<link rel="stylesheet" href="/css/main.css?v=7.4.1">
+
+
+<link rel="stylesheet" href="/lib/font-awesome/css/font-awesome.min.css?v=4.7.0">
+
+
+<script id="hexo-configurations">
+  var NexT = window.NexT || {};
+  var CONFIG = {
+    root: '/',
+    scheme: 'Mist',
+    version: '7.4.1',
+    exturl: false,
+    sidebar: {"position":"right","display":"hide","offset":12,"onmobile":false},
+    copycode: {"enable":false,"show_result":false,"style":null},
+    back2top: {"enable":true,"sidebar":false,"scrollpercent":false},
+    bookmark: {"enable":false,"color":"#222","save":"auto"},
+    fancybox: false,
+    mediumzoom: false,
+    lazyload: false,
+    pangu: false,
+    algolia: {
+      appID: '',
+      apiKey: '',
+      indexName: '',
+      hits: {"per_page":10},
+      labels: {"input_placeholder":"Search for Posts","hits_empty":"We didn't find any results for the search: ${query}","hits_stats":"${hits} results found in ${time} ms"}
+    },
+    localsearch: {"enable":false,"trigger":"auto","top_n_per_article":1,"unescape":false,"preload":false},
+    path: '',
+    motion: {"enable":true,"async":false,"transition":{"post_block":"fadeIn","post_header":"slideDownIn","post_body":"slideDownIn","coll_header":"slideLeftIn","sidebar":"slideUpIn"}},
+    translation: {
+      copy_button: '复制',
+      copy_success: '复制成功',
+      copy_failure: '复制失败'
+    },
+    sidebarPadding: 40
+  };
+</script>
+
+  <meta name="description" content="最佳使用top使用按键和用户交互  h 显示命令帮助信息 f  add/remove/order/sort 列 R 切换正序/倒序排序  常用命令  显示进程的所有线程：top -H -p   命令简介​    top能够实时显示系统中各个进程的资源占用状况。是一个动态过程，即可以通过用户按键来不断刷新当前状态。 ​    下面介绍参数结果的具体含义：    信息统计区分为五行，第一行：  当前时">
+<meta property="og:type" content="article">
+<meta property="og:title" content="工具实践-top">
+<meta property="og:url" content="http://yoursite.com/2020/07/10/linux/工具实践-top/index.html">
+<meta property="og:site_name" content="纪光的博客">
+<meta property="og:description" content="最佳使用top使用按键和用户交互  h 显示命令帮助信息 f  add/remove/order/sort 列 R 切换正序/倒序排序  常用命令  显示进程的所有线程：top -H -p   命令简介​    top能够实时显示系统中各个进程的资源占用状况。是一个动态过程，即可以通过用户按键来不断刷新当前状态。 ​    下面介绍参数结果的具体含义：    信息统计区分为五行，第一行：  当前时">
+<meta property="og:locale" content="zh-CN">
+<meta property="og:image" content="http://yoursite.com/images/linux/tools-top.png">
+<meta property="og:updated_time" content="2021-06-20T04:19:35.163Z">
+<meta name="twitter:card" content="summary">
+<meta name="twitter:title" content="工具实践-top">
+<meta name="twitter:description" content="最佳使用top使用按键和用户交互  h 显示命令帮助信息 f  add/remove/order/sort 列 R 切换正序/倒序排序  常用命令  显示进程的所有线程：top -H -p   命令简介​    top能够实时显示系统中各个进程的资源占用状况。是一个动态过程，即可以通过用户按键来不断刷新当前状态。 ​    下面介绍参数结果的具体含义：    信息统计区分为五行，第一行：  当前时">
+<meta name="twitter:image" content="http://yoursite.com/images/linux/tools-top.png">
+  <link rel="canonical" href="http://yoursite.com/2020/07/10/linux/工具实践-top/">
+
+
+<script id="page-configurations">
+  // https://hexo.io/docs/variables.html
+  CONFIG.page = {
+    sidebar: "",
+    isHome: false,
+    isPost: true,
+    isPage: false,
+    isArchive: false
+  };
+</script>
+
+  <title>工具实践-top | 纪光的博客</title>
+  
+
+
+  <script>
+    var _hmt = _hmt || [];
+    (function() {
+      var hm = document.createElement("script");
+      hm.src = "https://hm.baidu.com/hm.js?bca403b673d79e83a47dc62fea1dd605";
+      var s = document.getElementsByTagName("script")[0];
+      s.parentNode.insertBefore(hm, s);
+    })();
+  </script>
+
+
+
+
+
+
+  <noscript>
+  <style>
+  .use-motion .brand,
+  .use-motion .menu-item,
+  .sidebar-inner,
+  .use-motion .post-block,
+  .use-motion .pagination,
+  .use-motion .comments,
+  .use-motion .post-header,
+  .use-motion .post-body,
+  .use-motion .collection-header { opacity: initial; }
+
+  .use-motion .site-title,
+  .use-motion .site-subtitle {
+    opacity: initial;
+    top: initial;
+  }
+
+  .use-motion .logo-line-before i { left: initial; }
+  .use-motion .logo-line-after i { right: initial; }
+  </style>
+</noscript>
+
+</head>
+
+<body itemscope itemtype="http://schema.org/WebPage">
+  <div class="container use-motion">
+    <div class="headband"></div>
+
+    <header class="header" itemscope itemtype="http://schema.org/WPHeader">
+      <div class="header-inner"><div class="site-brand-container">
+  <div class="site-meta">
+
+    <div>
+      <a href="/" class="brand" rel="start">
+        <span class="logo-line-before"><i></i></span>
+        <span class="site-title">纪光的博客</span>
+        <span class="logo-line-after"><i></i></span>
+      </a>
+    </div>
+  </div>
+
+  <div class="site-nav-toggle">
+    <div class="toggle" aria-label="切换导航栏">
+      <span class="toggle-line toggle-line-first"></span>
+      <span class="toggle-line toggle-line-middle"></span>
+      <span class="toggle-line toggle-line-last"></span>
+    </div>
+  </div>
+</div>
+
+
+<nav class="site-nav">
+  
+  <ul id="menu" class="menu">
+      
+      
+        
+        
+        <li class="menu-item menu-item-home">
+      
+    
+
+    <a href="/" rel="section"><i class="fa fa-fw fa-home"></i>首页</a>
+
+  </li>
+      
+    
+      
+      
+        
+        
+        <li class="menu-item menu-item-categories">
+      
+    
+
+    <a href="/categories/" rel="section"><i class="fa fa-fw fa-th"></i>分类</a>
+
+  </li>
+      
+    
+      
+      
+        
+        
+        <li class="menu-item menu-item-tags">
+      
+    
+
+    <a href="/tags/" rel="section"><i class="fa fa-fw fa-tags"></i>标签</a>
+
+  </li>
+      
+    
+      
+      
+        
+        
+        <li class="menu-item menu-item-archives">
+      
+    
+
+    <a href="/archives/" rel="section"><i class="fa fa-fw fa-archive"></i>归档</a>
+
+  </li>
+      
+    
+      
+      
+        
+        
+        <li class="menu-item menu-item-about">
+      
+    
+
+    <a href="/about/" rel="section"><i class="fa fa-fw fa-user"></i>关于</a>
+
+  </li>
+      
+    
+  </ul>
+
+    
+
+</nav>
+</div>
+    </header>
+
+    
+  <div class="back-to-top">
+    <i class="fa fa-arrow-up"></i>
+    <span>0%</span>
+  </div>
+
+
+    <main class="main">
+      <div class="main-inner">
+        <div class="content-wrap">
+          <div class="content">
+            
+
+  <div class="posts-expand">
+      
+  
+  
+  <article itemscope itemtype="http://schema.org/Article" class="post-block " lang="zh-CN">
+    <link itemprop="mainEntityOfPage" href="http://yoursite.com/2020/07/10/linux/工具实践-top/">
+
+    <span hidden itemprop="author" itemscope itemtype="http://schema.org/Person">
+      <meta itemprop="name" content="姜纪光">
+      <meta itemprop="description" content="">
+      <meta itemprop="image" content="/images/avatar.gif">
+    </span>
+
+    <span hidden itemprop="publisher" itemscope itemtype="http://schema.org/Organization">
+      <meta itemprop="name" content="纪光的博客">
+    </span>
+      <header class="post-header">
+        <h1 class="post-title" itemprop="name headline">
+          
+            工具实践-top
+            
+
+          
+        </h1>
+
+        <div class="post-meta">
+            <span class="post-meta-item">
+              <span class="post-meta-item-icon">
+                <i class="fa fa-calendar-o"></i>
+              </span>
+              <span class="post-meta-item-text">发表于</span>
+
+              
+                
+              
+
+              <time title="创建时间：2020-07-10 11:20:40" itemprop="dateCreated datePublished" datetime="2020-07-10T11:20:40+08:00">2020-07-10</time>
+            </span>
+          
+            
+
+            
+              <span class="post-meta-item">
+                <span class="post-meta-item-icon">
+                  <i class="fa fa-calendar-check-o"></i>
+                </span>
+                <span class="post-meta-item-text">更新于</span>
+                <time title="修改时间：2021-06-20 12:19:35" itemprop="dateModified" datetime="2021-06-20T12:19:35+08:00">2021-06-20</time>
+              </span>
+            
+          
+            <span class="post-meta-item">
+              <span class="post-meta-item-icon">
+                <i class="fa fa-folder-o"></i>
+              </span>
+              <span class="post-meta-item-text">分类于</span>
+              
+                <span itemprop="about" itemscope itemtype="http://schema.org/Thing">
+                  <a href="/categories/linux/" itemprop="url" rel="index">
+                    <span itemprop="name">linux</span>
+                  </a>
+                </span>
+
+                
+                
+              
+            </span>
+          
+
+          
+            <span id="/2020/07/10/linux/工具实践-top/" class="post-meta-item leancloud_visitors" data-flag-title="工具实践-top" title="阅读次数">
+              <span class="post-meta-item-icon">
+                <i class="fa fa-eye"></i>
+              </span>
+              <span class="post-meta-item-text">阅读次数：</span>
+              <span class="leancloud-visitors-count"></span>
+            </span>
+          
+  
+  
+
+        </div>
+      </header>
+
+    
+    
+    
+    <div class="post-body" itemprop="articleBody">
+
+      
+        <h1 id="最佳使用"><a href="#最佳使用" class="headerlink" title="最佳使用"></a>最佳使用</h1><p>top使用按键和用户交互</p>
+<blockquote>
+<p>h 显示命令帮助信息</p>
+<p>f  add/remove/order/sort 列</p>
+<p>R 切换正序/倒序排序</p>
+</blockquote>
+<p>常用命令</p>
+<blockquote>
+<p>显示进程的所有线程：top -H -p <pid></pid></p>
+</blockquote>
+<h1 id="命令简介"><a href="#命令简介" class="headerlink" title="命令简介"></a>命令简介</h1><p>​    top能够实时显示系统中各个进程的资源占用状况。是一个动态过程，即可以通过用户按键来不断刷新当前状态。</p>
+<p>​    下面介绍参数结果的具体含义：</p>
+<blockquote>
+<p><img src="/images/linux/tools-top.png" alt></p>
+</blockquote>
+<p>信息统计区分为五行，第一行：</p>
+<blockquote>
+<p>当前时间、系统运行时间、当前登录用户数、系统负载，三个数值分别为 1分钟、5分钟、15分钟前到现在的平均值。</p>
+</blockquote>
+<p>第二行：</p>
+<blockquote>
+<p>total 进程总数，running 正在运行的进程数，sleeping 睡眠的进程数，stopped 停止的进程数，zombie 僵尸进程数</p>
+</blockquote>
+<p>第三行：</p>
+<blockquote>
+<p>us 用户空间占用CPU百分比，sy 内核空间占用CPU百分比，</p>
+<p>ni 用户进程空间内改变过优先级的进程占用CPU百分比，id 空闲CPU百分比，</p>
+<p>wa 等待输入输出的CPU时间百分比，hi 硬件CPU中断占用百分比</p>
+<p>si 软中断占用百分比，st 虚拟机占用百分比</p>
+</blockquote>
+<p>第四行 内存KB：</p>
+<blockquote>
+<p>total    物理内存总量</p>
+<p>free    空闲内存总量</p>
+<p>used    已使用的物理内存总量</p>
+<p>buffers    用作内核缓存的内存量</p>
+</blockquote>
+<p>第五行 交换去KB</p>
+<blockquote>
+<p>total    交换区总量</p>
+<p>free    空闲交换区总量</p>
+<p>used    使用的交换区总量</p>
+<p>cached    缓冲的交换区总量,内存中的内容被换出到交换区，而后又被换入到内存，但使用过的交换区尚未被覆盖，该数值即为这些内容已存在于内存中的交换区的大小,相应的内存再次被换出时可不必再对交换区写入。</p>
+</blockquote>
+<p>进程信息统计区个列的含义：</p>
+<blockquote>
+<p>PID     进程id<br>PPID    父进程id<br>RUSER   Real user name<br>UID     进程所有者的用户id<br>USER    进程所有者的用户名<br>GROUP   进程所有者的组名<br>TTY     启动进程的终端名。不是从终端启动的进程则显示为 ?<br>PR      优先级<br>NI      nice值。负值表示高优先级，正值表示低优先级<br>P       最后使用的CPU，仅在多CPU环境下有意义<br>%CPU    上次更新到现在的CPU时间占用百分比<br>TIME    进程使用的CPU时间总计，单位秒<br>TIME+   进程使用的CPU时间总计，单位1/100秒<br>%MEM    进程使用的物理内存百分比<br>VIRT    进程使用的虚拟内存总量，单位kb。VIRT=SWAP+RES<br>SWAP    进程使用的虚拟内存中，被换出的大小，单位kb。<br>RES     进程使用的、未被换出的物理内存大小，单位kb。RES=CODE+DATA<br>CODE    可执行代码占用的物理内存大小，单位kb<br>DATA    可执行代码以外的部分(数据段+栈)占用的物理内存大小，单位kb<br>SHR     共享内存大小，单位kb<br>nFLT    页面错误次数<br>nDRT    最后一次写入到现在，被修改过的页面数。<br>S       进程状态(D=不可中断的睡眠状态,R=运行,S=睡眠,T=跟踪/停止,Z=僵尸进程)<br>x    COMMAND 命令名/命令行<br>y    WCHAN   若该进程在睡眠，则显示睡眠中的系统函数名<br>z    Flags   任务标志，参考 sched.h</p>
+</blockquote>
+<h1 id="参考文档"><a href="#参考文档" class="headerlink" title="参考文档"></a>参考文档</h1><p><a href="https://www.cnblogs.com/ggjucheng/archive/2012/01/08/2316399.html" target="_blank" rel="noopener"><a href="https://www.cnblogs.com/ggjucheng/archive/2012/01/08/2316399.html" target="_blank" rel="noopener">linux的top命令参数详解</a></a></p>
+
+    </div>
+
+    
+    
+    
+        
+      
+
+      <footer class="post-footer">
+
+        
+
+          <div class="post-nav">
+            <div class="post-nav-next post-nav-item">
+              
+                <a href="/2020/07/10/flink/flink问题排查-Connection-unexpectedly-closed-by-remote-task-manager/" rel="next" title="flink问题排查-Connection unexpectedly closed by remote task manager">
+                  <i class="fa fa-chevron-left"></i> flink问题排查-Connection unexpectedly closed by remote task manager
+                </a>
+              
+            </div>
+
+            <span class="post-nav-divider"></span>
+
+            <div class="post-nav-prev post-nav-item">
+              
+                <a href="/2020/07/10/linux/工具实践-printf/" rel="prev" title="工具实践-printf">
+                  工具实践-printf <i class="fa fa-chevron-right"></i>
+                </a>
+              
+            </div>
+          </div>
+        
+      </footer>
+    
+  </article>
+  
+  
+  
+
+  </div>
+
+
+          </div>
+          
+
+        </div>
+          
+  
+  <div class="toggle sidebar-toggle">
+    <span class="toggle-line toggle-line-first"></span>
+    <span class="toggle-line toggle-line-middle"></span>
+    <span class="toggle-line toggle-line-last"></span>
+  </div>
+
+  <aside class="sidebar">
+    <div class="sidebar-inner">
+        
+        
+        
+        
+      
+
+      <ul class="sidebar-nav motion-element">
+        <li class="sidebar-nav-toc">
+          文章目录
+        </li>
+        <li class="sidebar-nav-overview">
+          站点概览
+        </li>
+      </ul>
+
+      <!--noindex-->
+      <div class="post-toc-wrap sidebar-panel">
+          <div class="post-toc motion-element"><ol class="nav"><li class="nav-item nav-level-1"><a class="nav-link" href="#最佳使用"><span class="nav-number">1.</span> <span class="nav-text">最佳使用</span></a></li><li class="nav-item nav-level-1"><a class="nav-link" href="#命令简介"><span class="nav-number">2.</span> <span class="nav-text">命令简介</span></a></li><li class="nav-item nav-level-1"><a class="nav-link" href="#参考文档"><span class="nav-number">3.</span> <span class="nav-text">参考文档</span></a></li></ol></div>
+        
+      </div>
+      <!--/noindex-->
+
+      <div class="site-overview-wrap sidebar-panel">
+        <div class="site-author motion-element" itemprop="author" itemscope itemtype="http://schema.org/Person">
+  <p class="site-author-name" itemprop="name">姜纪光</p>
+  <div class="site-description" itemprop="description"></div>
+</div>
+<div class="site-state-wrap motion-element">
+  <nav class="site-state">
+      <div class="site-state-item site-state-posts">
+        
+          <a href="/archives/">
+        
+          <span class="site-state-item-count">158</span>
+          <span class="site-state-item-name">日志</span>
+        </a>
+      </div>
+    
+      
+      
+      <div class="site-state-item site-state-categories">
+        
+          
+            <a href="/categories/">
+          
+        
+        <span class="site-state-item-count">26</span>
+        <span class="site-state-item-name">分类</span>
+        </a>
+      </div>
+    
+      
+      
+      <div class="site-state-item site-state-tags">
+        
+          
+            <a href="/tags/">
+          
+        
+        <span class="site-state-item-count">14</span>
+        <span class="site-state-item-name">标签</span>
+        </a>
+      </div>
+    
+  </nav>
+</div>
+
+
+
+      </div>
+
+    </div>
+  </aside>
+  <div id="sidebar-dimmer"></div>
+
+
+      </div>
+    </main>
+
+    <footer class="footer">
+      <div class="footer-inner">
+        
+
+<div class="copyright">
+  &copy; 
+  <span itemprop="copyrightYear">2021</span>
+  <span class="with-love">
+    <i class="fa fa-user"></i>
+  </span>
+  <span class="author" itemprop="copyrightHolder">姜纪光</span>
+</div>
+  <div class="powered-by">由 <a href="https://hexo.io" class="theme-link" rel="noopener" target="_blank">Hexo</a> 强力驱动 v3.9.0
+  </div>
+  <span class="post-meta-divider">|</span>
+  <div class="theme-info">
+      
+    主题 – <a href="https://mist.theme-next.org" class="theme-link" rel="noopener" target="_blank">NexT.Mist</a> v7.4.1
+  </div>
+
+        
+
+
+
+
+
+
+
+
+
+
+
+
+        
+      </div>
+    </footer>
+  </div>
+
+  
+  <script src="/lib/anime.min.js?v=3.1.0"></script>
+  <script src="/lib/velocity/velocity.min.js?v=1.2.1"></script>
+  <script src="/lib/velocity/velocity.ui.min.js?v=1.2.1"></script>
+<script src="/js/utils.js?v=7.4.1"></script><script src="/js/motion.js?v=7.4.1"></script>
+<script src="/js/schemes/muse.js?v=7.4.1"></script>
+
+<script src="/js/next-boot.js?v=7.4.1"></script>
+
+
+
+  
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+  
+
+  
+
+  
+
+
+<script>
+NexT.utils.getScript('//unpkg.com/valine/dist/Valine.min.js', () => {
+  var GUEST = ['nick', 'mail', 'link'];
+  var guest = 'nick,mail,link';
+  guest = guest.split(',').filter(item => {
+    return GUEST.includes(item);
+  });
+  new Valine({
+    el: '#comments',
+    verify: false,
+    notify: false,
+    appId: 'MIQC4jJTknc0hjNXDAiIuQ21-9Nh9j0Va',
+    appKey: 'vaiXpSQLLMglwYsVLOBLzck4',
+    placeholder: "Just go go",
+    avatar: 'mm',
+    meta: guest,
+    pageSize: '10' || 10,
+    visitor: true,
+    lang: 'zh-cn' || 'zh-cn',
+    path: location.pathname,
+    recordIP: false,
+    serverURLs: ''
+  });
+}, window.Valine);
+</script>
+
+</body>
+</html>

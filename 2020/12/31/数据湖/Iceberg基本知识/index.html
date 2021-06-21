@@ -1,0 +1,659 @@
+<!DOCTYPE html>
+
+
+
+
+
+<html lang="zh-CN">
+<head>
+  <meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1, maximum-scale=2">
+<meta name="theme-color" content="#222">
+<meta name="generator" content="Hexo 3.9.0">
+  <link rel="apple-touch-icon" sizes="180x180" href="/images/apple-touch-icon-next.png?v=7.4.1">
+  <link rel="icon" type="image/png" sizes="32x32" href="/images/favicon-32x32-next.png?v=7.4.1">
+  <link rel="icon" type="image/png" sizes="16x16" href="/images/favicon-16x16-next.png?v=7.4.1">
+  <link rel="mask-icon" href="/images/logo.svg?v=7.4.1" color="#222">
+
+<link rel="stylesheet" href="/css/main.css?v=7.4.1">
+
+
+<link rel="stylesheet" href="/lib/font-awesome/css/font-awesome.min.css?v=4.7.0">
+
+
+<script id="hexo-configurations">
+  var NexT = window.NexT || {};
+  var CONFIG = {
+    root: '/',
+    scheme: 'Mist',
+    version: '7.4.1',
+    exturl: false,
+    sidebar: {"position":"right","display":"hide","offset":12,"onmobile":false},
+    copycode: {"enable":false,"show_result":false,"style":null},
+    back2top: {"enable":true,"sidebar":false,"scrollpercent":false},
+    bookmark: {"enable":false,"color":"#222","save":"auto"},
+    fancybox: false,
+    mediumzoom: false,
+    lazyload: false,
+    pangu: false,
+    algolia: {
+      appID: '',
+      apiKey: '',
+      indexName: '',
+      hits: {"per_page":10},
+      labels: {"input_placeholder":"Search for Posts","hits_empty":"We didn't find any results for the search: ${query}","hits_stats":"${hits} results found in ${time} ms"}
+    },
+    localsearch: {"enable":false,"trigger":"auto","top_n_per_article":1,"unescape":false,"preload":false},
+    path: '',
+    motion: {"enable":true,"async":false,"transition":{"post_block":"fadeIn","post_header":"slideDownIn","post_body":"slideDownIn","coll_header":"slideLeftIn","sidebar":"slideUpIn"}},
+    translation: {
+      copy_button: '复制',
+      copy_success: '复制成功',
+      copy_failure: '复制失败'
+    },
+    sidebarPadding: 40
+  };
+</script>
+
+  <meta name="description" content="简介 Iceberg是一种可伸缩的表存储格式，用于大型数据集分析  Table 演变，  1、可以演变表的schema 2、可以演变表的分区布局Schema演变    Table Evolution Iceberg内在支持表演变  Schema evolution  Add：向表或嵌套结构中添加新列 Drop：从表或嵌套结构中移除已存在的列 Rename：重命名嵌套结构中的现有列或字段 Updat">
+<meta property="og:type" content="article">
+<meta property="og:title" content="Iceberg基本知识">
+<meta property="og:url" content="http://yoursite.com/2020/12/31/数据湖/Iceberg基本知识/index.html">
+<meta property="og:site_name" content="纪光的博客">
+<meta property="og:description" content="简介 Iceberg是一种可伸缩的表存储格式，用于大型数据集分析  Table 演变，  1、可以演变表的schema 2、可以演变表的分区布局Schema演变    Table Evolution Iceberg内在支持表演变  Schema evolution  Add：向表或嵌套结构中添加新列 Drop：从表或嵌套结构中移除已存在的列 Rename：重命名嵌套结构中的现有列或字段 Updat">
+<meta property="og:locale" content="zh-CN">
+<meta property="og:updated_time" content="2021-06-20T04:19:35.173Z">
+<meta name="twitter:card" content="summary">
+<meta name="twitter:title" content="Iceberg基本知识">
+<meta name="twitter:description" content="简介 Iceberg是一种可伸缩的表存储格式，用于大型数据集分析  Table 演变，  1、可以演变表的schema 2、可以演变表的分区布局Schema演变    Table Evolution Iceberg内在支持表演变  Schema evolution  Add：向表或嵌套结构中添加新列 Drop：从表或嵌套结构中移除已存在的列 Rename：重命名嵌套结构中的现有列或字段 Updat">
+  <link rel="canonical" href="http://yoursite.com/2020/12/31/数据湖/Iceberg基本知识/">
+
+
+<script id="page-configurations">
+  // https://hexo.io/docs/variables.html
+  CONFIG.page = {
+    sidebar: "",
+    isHome: false,
+    isPost: true,
+    isPage: false,
+    isArchive: false
+  };
+</script>
+
+  <title>Iceberg基本知识 | 纪光的博客</title>
+  
+
+
+  <script>
+    var _hmt = _hmt || [];
+    (function() {
+      var hm = document.createElement("script");
+      hm.src = "https://hm.baidu.com/hm.js?bca403b673d79e83a47dc62fea1dd605";
+      var s = document.getElementsByTagName("script")[0];
+      s.parentNode.insertBefore(hm, s);
+    })();
+  </script>
+
+
+
+
+
+
+  <noscript>
+  <style>
+  .use-motion .brand,
+  .use-motion .menu-item,
+  .sidebar-inner,
+  .use-motion .post-block,
+  .use-motion .pagination,
+  .use-motion .comments,
+  .use-motion .post-header,
+  .use-motion .post-body,
+  .use-motion .collection-header { opacity: initial; }
+
+  .use-motion .site-title,
+  .use-motion .site-subtitle {
+    opacity: initial;
+    top: initial;
+  }
+
+  .use-motion .logo-line-before i { left: initial; }
+  .use-motion .logo-line-after i { right: initial; }
+  </style>
+</noscript>
+
+</head>
+
+<body itemscope itemtype="http://schema.org/WebPage">
+  <div class="container use-motion">
+    <div class="headband"></div>
+
+    <header class="header" itemscope itemtype="http://schema.org/WPHeader">
+      <div class="header-inner"><div class="site-brand-container">
+  <div class="site-meta">
+
+    <div>
+      <a href="/" class="brand" rel="start">
+        <span class="logo-line-before"><i></i></span>
+        <span class="site-title">纪光的博客</span>
+        <span class="logo-line-after"><i></i></span>
+      </a>
+    </div>
+  </div>
+
+  <div class="site-nav-toggle">
+    <div class="toggle" aria-label="切换导航栏">
+      <span class="toggle-line toggle-line-first"></span>
+      <span class="toggle-line toggle-line-middle"></span>
+      <span class="toggle-line toggle-line-last"></span>
+    </div>
+  </div>
+</div>
+
+
+<nav class="site-nav">
+  
+  <ul id="menu" class="menu">
+      
+      
+        
+        
+        <li class="menu-item menu-item-home">
+      
+    
+
+    <a href="/" rel="section"><i class="fa fa-fw fa-home"></i>首页</a>
+
+  </li>
+      
+    
+      
+      
+        
+        
+        <li class="menu-item menu-item-categories">
+      
+    
+
+    <a href="/categories/" rel="section"><i class="fa fa-fw fa-th"></i>分类</a>
+
+  </li>
+      
+    
+      
+      
+        
+        
+        <li class="menu-item menu-item-tags">
+      
+    
+
+    <a href="/tags/" rel="section"><i class="fa fa-fw fa-tags"></i>标签</a>
+
+  </li>
+      
+    
+      
+      
+        
+        
+        <li class="menu-item menu-item-archives">
+      
+    
+
+    <a href="/archives/" rel="section"><i class="fa fa-fw fa-archive"></i>归档</a>
+
+  </li>
+      
+    
+      
+      
+        
+        
+        <li class="menu-item menu-item-about">
+      
+    
+
+    <a href="/about/" rel="section"><i class="fa fa-fw fa-user"></i>关于</a>
+
+  </li>
+      
+    
+  </ul>
+
+    
+
+</nav>
+</div>
+    </header>
+
+    
+  <div class="back-to-top">
+    <i class="fa fa-arrow-up"></i>
+    <span>0%</span>
+  </div>
+
+
+    <main class="main">
+      <div class="main-inner">
+        <div class="content-wrap">
+          <div class="content">
+            
+
+  <div class="posts-expand">
+      
+  
+  
+  <article itemscope itemtype="http://schema.org/Article" class="post-block " lang="zh-CN">
+    <link itemprop="mainEntityOfPage" href="http://yoursite.com/2020/12/31/数据湖/Iceberg基本知识/">
+
+    <span hidden itemprop="author" itemscope itemtype="http://schema.org/Person">
+      <meta itemprop="name" content="姜纪光">
+      <meta itemprop="description" content="">
+      <meta itemprop="image" content="/images/avatar.gif">
+    </span>
+
+    <span hidden itemprop="publisher" itemscope itemtype="http://schema.org/Organization">
+      <meta itemprop="name" content="纪光的博客">
+    </span>
+      <header class="post-header">
+        <h1 class="post-title" itemprop="name headline">
+          
+            Iceberg基本知识
+            
+
+          
+        </h1>
+
+        <div class="post-meta">
+            <span class="post-meta-item">
+              <span class="post-meta-item-icon">
+                <i class="fa fa-calendar-o"></i>
+              </span>
+              <span class="post-meta-item-text">发表于</span>
+
+              
+                
+              
+
+              <time title="创建时间：2020-12-31 15:11:42" itemprop="dateCreated datePublished" datetime="2020-12-31T15:11:42+08:00">2020-12-31</time>
+            </span>
+          
+            
+
+            
+              <span class="post-meta-item">
+                <span class="post-meta-item-icon">
+                  <i class="fa fa-calendar-check-o"></i>
+                </span>
+                <span class="post-meta-item-text">更新于</span>
+                <time title="修改时间：2021-06-20 12:19:35" itemprop="dateModified" datetime="2021-06-20T12:19:35+08:00">2021-06-20</time>
+              </span>
+            
+          
+            <span class="post-meta-item">
+              <span class="post-meta-item-icon">
+                <i class="fa fa-folder-o"></i>
+              </span>
+              <span class="post-meta-item-text">分类于</span>
+              
+                <span itemprop="about" itemscope itemtype="http://schema.org/Thing">
+                  <a href="/categories/iceberg/" itemprop="url" rel="index">
+                    <span itemprop="name">iceberg</span>
+                  </a>
+                </span>
+
+                
+                
+              
+            </span>
+          
+
+          
+            <span id="/2020/12/31/数据湖/Iceberg基本知识/" class="post-meta-item leancloud_visitors" data-flag-title="Iceberg基本知识" title="阅读次数">
+              <span class="post-meta-item-icon">
+                <i class="fa fa-eye"></i>
+              </span>
+              <span class="post-meta-item-text">阅读次数：</span>
+              <span class="leancloud-visitors-count"></span>
+            </span>
+          
+  
+  
+
+        </div>
+      </header>
+
+    
+    
+    
+    <div class="post-body" itemprop="articleBody">
+
+      
+        <h1 id="简介"><a href="#简介" class="headerlink" title="简介"></a>简介</h1><ul>
+<li><p>Iceberg是一种可伸缩的表存储格式，用于大型数据集分析</p>
+</li>
+<li><p>Table 演变，</p>
+<blockquote>
+<p>1、可以演变表的schema</p>
+<p>2、可以演变表的分区布局Schema演变</p>
+</blockquote>
+</li>
+</ul>
+<h2 id="Table-Evolution"><a href="#Table-Evolution" class="headerlink" title="Table Evolution"></a>Table Evolution</h2><ul>
+<li><p>Iceberg内在支持表演变</p>
+</li>
+<li><p>Schema evolution</p>
+<blockquote>
+<p><strong>Add</strong>：向表或嵌套结构中添加新列</p>
+<p><strong>Drop</strong>：从表或嵌套结构中移除已存在的列</p>
+<p><strong>Rename</strong>：重命名嵌套结构中的现有列或字段</p>
+<p><strong>Update</strong>：widen the type of a column, struct field, map key, map value, or list element</p>
+<p><strong>Reorder</strong>：更改嵌套结构中列或字段的顺序</p>
+</blockquote>
+</li>
+</ul>
+<h2 id="Partitioning"><a href="#Partitioning" class="headerlink" title="Partitioning"></a>Partitioning</h2><ul>
+<li><p>在hive中分区字段是被显示声明并且作为一列的，缺点</p>
+<blockquote>
+<p>1、字段之间不存在关联</p>
+<p>2、hive不能验证分区字段的值的正确性</p>
+<p>3、在查询期间，分区字段是不能被改变的</p>
+</blockquote>
+</li>
+<li><p>Iceberg隐藏了分区字段</p>
+<blockquote>
+<p>1、iceberg的分区字段由其它字段转换而来</p>
+<p>2、iceberg并不保存分区字段</p>
+<p>3、iceberg的查询不再依赖物理分区布局</p>
+</blockquote>
+</li>
+</ul>
+<h2 id="Time-travel"><a href="#Time-travel" class="headerlink" title="Time travel"></a>Time travel</h2><ul>
+<li>使用相同的table snapshot复用查询，并且容易检查改变</li>
+</ul>
+<h2 id="Version-rollback"><a href="#Version-rollback" class="headerlink" title="Version rollback"></a>Version rollback</h2><ul>
+<li>允许用户通过将表重置为良好状态来快速纠正问题</li>
+</ul>
+<h2 id="Scan-planning"><a href="#Scan-planning" class="headerlink" title="Scan planning"></a>Scan planning</h2><ul>
+<li><p>是指在表中查找查询所需文件的过程</p>
+</li>
+<li><p>planning适合单节点</p>
+</li>
+<li><p>Metadata filtering：Iceberg使用两层metadata来追踪快照中的文件</p>
+<blockquote>
+<p>1、<strong>Manifest files</strong>：存储数据文件列表，以及每个数据文件的分区数据和列级统计数据</p>
+<p>2、<strong>manifest list</strong>：存储manifests文件的快照列表，以及每个分区字段的值的范围</p>
+</blockquote>
+</li>
+<li><p>scan planning过程</p>
+<blockquote>
+<p>1、在manifest list中通过分区值的范围过滤manifests文件</p>
+<p>2、读取manifest，获取数据文件</p>
+</blockquote>
+</li>
+<li><p>Data filtering</p>
+<blockquote>
+<p>1、planning期间，查询谓词将自动转换为分区数据上的谓词，并首先应用于过滤数据文件。</p>
+</blockquote>
+</li>
+</ul>
+<h1 id="Hive存在的问题"><a href="#Hive存在的问题" class="headerlink" title="Hive存在的问题"></a>Hive存在的问题</h1><ul>
+<li><p>表状态在两个地方存储</p>
+<blockquote>
+<p>1、在hive metastore中存储分区</p>
+<p>2、在文件系统中存储文件</p>
+</blockquote>
+</li>
+<li><p>Bucketing is defined by Hive’s (Java) hash implementation</p>
+</li>
+<li><p>Non-ACID layout’s， only atomic operation is add partition</p>
+</li>
+<li><p><strong>Requires atomic move of objects in file system</strong></p>
+</li>
+<li><p>Still requires directory listing to plan jobs</p>
+</li>
+</ul>
+<h1 id="参考文档"><a href="#参考文档" class="headerlink" title="参考文档"></a>参考文档</h1><p><a href="https://www.iteblog.com/archives/series/apache-iceberg-tutorial/" target="_blank" rel="noopener">过往记忆iceberg</a></p>
+
+    </div>
+
+    
+    
+    
+        
+      
+
+      <footer class="post-footer">
+
+        
+
+          <div class="post-nav">
+            <div class="post-nav-next post-nav-item">
+              
+                <a href="/2020/12/30/flink/Flink-Batch/" rel="next" title="Flink-Batch">
+                  <i class="fa fa-chevron-left"></i> Flink-Batch
+                </a>
+              
+            </div>
+
+            <span class="post-nav-divider"></span>
+
+            <div class="post-nav-prev post-nav-item">
+              
+                <a href="/2021/01/04/java/设计模式/" rel="prev" title="设计模式">
+                  设计模式 <i class="fa fa-chevron-right"></i>
+                </a>
+              
+            </div>
+          </div>
+        
+      </footer>
+    
+  </article>
+  
+  
+  
+
+  </div>
+
+
+          </div>
+          
+
+        </div>
+          
+  
+  <div class="toggle sidebar-toggle">
+    <span class="toggle-line toggle-line-first"></span>
+    <span class="toggle-line toggle-line-middle"></span>
+    <span class="toggle-line toggle-line-last"></span>
+  </div>
+
+  <aside class="sidebar">
+    <div class="sidebar-inner">
+        
+        
+        
+        
+      
+
+      <ul class="sidebar-nav motion-element">
+        <li class="sidebar-nav-toc">
+          文章目录
+        </li>
+        <li class="sidebar-nav-overview">
+          站点概览
+        </li>
+      </ul>
+
+      <!--noindex-->
+      <div class="post-toc-wrap sidebar-panel">
+          <div class="post-toc motion-element"><ol class="nav"><li class="nav-item nav-level-1"><a class="nav-link" href="#简介"><span class="nav-number">1.</span> <span class="nav-text">简介</span></a><ol class="nav-child"><li class="nav-item nav-level-2"><a class="nav-link" href="#Table-Evolution"><span class="nav-number">1.1.</span> <span class="nav-text">Table Evolution</span></a></li><li class="nav-item nav-level-2"><a class="nav-link" href="#Partitioning"><span class="nav-number">1.2.</span> <span class="nav-text">Partitioning</span></a></li><li class="nav-item nav-level-2"><a class="nav-link" href="#Time-travel"><span class="nav-number">1.3.</span> <span class="nav-text">Time travel</span></a></li><li class="nav-item nav-level-2"><a class="nav-link" href="#Version-rollback"><span class="nav-number">1.4.</span> <span class="nav-text">Version rollback</span></a></li><li class="nav-item nav-level-2"><a class="nav-link" href="#Scan-planning"><span class="nav-number">1.5.</span> <span class="nav-text">Scan planning</span></a></li></ol></li><li class="nav-item nav-level-1"><a class="nav-link" href="#Hive存在的问题"><span class="nav-number">2.</span> <span class="nav-text">Hive存在的问题</span></a></li><li class="nav-item nav-level-1"><a class="nav-link" href="#参考文档"><span class="nav-number">3.</span> <span class="nav-text">参考文档</span></a></li></ol></div>
+        
+      </div>
+      <!--/noindex-->
+
+      <div class="site-overview-wrap sidebar-panel">
+        <div class="site-author motion-element" itemprop="author" itemscope itemtype="http://schema.org/Person">
+  <p class="site-author-name" itemprop="name">姜纪光</p>
+  <div class="site-description" itemprop="description"></div>
+</div>
+<div class="site-state-wrap motion-element">
+  <nav class="site-state">
+      <div class="site-state-item site-state-posts">
+        
+          <a href="/archives/">
+        
+          <span class="site-state-item-count">158</span>
+          <span class="site-state-item-name">日志</span>
+        </a>
+      </div>
+    
+      
+      
+      <div class="site-state-item site-state-categories">
+        
+          
+            <a href="/categories/">
+          
+        
+        <span class="site-state-item-count">26</span>
+        <span class="site-state-item-name">分类</span>
+        </a>
+      </div>
+    
+      
+      
+      <div class="site-state-item site-state-tags">
+        
+          
+            <a href="/tags/">
+          
+        
+        <span class="site-state-item-count">14</span>
+        <span class="site-state-item-name">标签</span>
+        </a>
+      </div>
+    
+  </nav>
+</div>
+
+
+
+      </div>
+
+    </div>
+  </aside>
+  <div id="sidebar-dimmer"></div>
+
+
+      </div>
+    </main>
+
+    <footer class="footer">
+      <div class="footer-inner">
+        
+
+<div class="copyright">
+  &copy; 
+  <span itemprop="copyrightYear">2021</span>
+  <span class="with-love">
+    <i class="fa fa-user"></i>
+  </span>
+  <span class="author" itemprop="copyrightHolder">姜纪光</span>
+</div>
+  <div class="powered-by">由 <a href="https://hexo.io" class="theme-link" rel="noopener" target="_blank">Hexo</a> 强力驱动 v3.9.0
+  </div>
+  <span class="post-meta-divider">|</span>
+  <div class="theme-info">
+      
+    主题 – <a href="https://mist.theme-next.org" class="theme-link" rel="noopener" target="_blank">NexT.Mist</a> v7.4.1
+  </div>
+
+        
+
+
+
+
+
+
+
+
+
+
+
+
+        
+      </div>
+    </footer>
+  </div>
+
+  
+  <script src="/lib/anime.min.js?v=3.1.0"></script>
+  <script src="/lib/velocity/velocity.min.js?v=1.2.1"></script>
+  <script src="/lib/velocity/velocity.ui.min.js?v=1.2.1"></script>
+<script src="/js/utils.js?v=7.4.1"></script><script src="/js/motion.js?v=7.4.1"></script>
+<script src="/js/schemes/muse.js?v=7.4.1"></script>
+
+<script src="/js/next-boot.js?v=7.4.1"></script>
+
+
+
+  
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+  
+
+  
+
+  
+
+
+<script>
+NexT.utils.getScript('//unpkg.com/valine/dist/Valine.min.js', () => {
+  var GUEST = ['nick', 'mail', 'link'];
+  var guest = 'nick,mail,link';
+  guest = guest.split(',').filter(item => {
+    return GUEST.includes(item);
+  });
+  new Valine({
+    el: '#comments',
+    verify: false,
+    notify: false,
+    appId: 'MIQC4jJTknc0hjNXDAiIuQ21-9Nh9j0Va',
+    appKey: 'vaiXpSQLLMglwYsVLOBLzck4',
+    placeholder: "Just go go",
+    avatar: 'mm',
+    meta: guest,
+    pageSize: '10' || 10,
+    visitor: true,
+    lang: 'zh-cn' || 'zh-cn',
+    path: location.pathname,
+    recordIP: false,
+    serverURLs: ''
+  });
+}, window.Valine);
+</script>
+
+</body>
+</html>

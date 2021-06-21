@@ -1,0 +1,838 @@
+<!DOCTYPE html>
+
+
+
+
+
+<html lang="zh-CN">
+<head>
+  <meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1, maximum-scale=2">
+<meta name="theme-color" content="#222">
+<meta name="generator" content="Hexo 3.9.0">
+  <link rel="apple-touch-icon" sizes="180x180" href="/images/apple-touch-icon-next.png?v=7.4.1">
+  <link rel="icon" type="image/png" sizes="32x32" href="/images/favicon-32x32-next.png?v=7.4.1">
+  <link rel="icon" type="image/png" sizes="16x16" href="/images/favicon-16x16-next.png?v=7.4.1">
+  <link rel="mask-icon" href="/images/logo.svg?v=7.4.1" color="#222">
+
+<link rel="stylesheet" href="/css/main.css?v=7.4.1">
+
+
+<link rel="stylesheet" href="/lib/font-awesome/css/font-awesome.min.css?v=4.7.0">
+
+
+<script id="hexo-configurations">
+  var NexT = window.NexT || {};
+  var CONFIG = {
+    root: '/',
+    scheme: 'Mist',
+    version: '7.4.1',
+    exturl: false,
+    sidebar: {"position":"right","display":"hide","offset":12,"onmobile":false},
+    copycode: {"enable":false,"show_result":false,"style":null},
+    back2top: {"enable":true,"sidebar":false,"scrollpercent":false},
+    bookmark: {"enable":false,"color":"#222","save":"auto"},
+    fancybox: false,
+    mediumzoom: false,
+    lazyload: false,
+    pangu: false,
+    algolia: {
+      appID: '',
+      apiKey: '',
+      indexName: '',
+      hits: {"per_page":10},
+      labels: {"input_placeholder":"Search for Posts","hits_empty":"We didn't find any results for the search: ${query}","hits_stats":"${hits} results found in ${time} ms"}
+    },
+    localsearch: {"enable":false,"trigger":"auto","top_n_per_article":1,"unescape":false,"preload":false},
+    path: '',
+    motion: {"enable":true,"async":false,"transition":{"post_block":"fadeIn","post_header":"slideDownIn","post_body":"slideDownIn","coll_header":"slideLeftIn","sidebar":"slideUpIn"}},
+    translation: {
+      copy_button: '复制',
+      copy_success: '复制成功',
+      copy_failure: '复制失败'
+    },
+    sidebarPadding: 40
+  };
+</script>
+
+  <meta name="description" content="内存模型内存概览   Total Process Memory TaskExecutor的总内存，和TM内存一致  由三部分组成  Flink Total Memory + JVM Metaspace + JVM Overhead     内存设置参数  taskmanager.memory.process.size 不建议显示设置    Total Flink Memory TaskExecut">
+<meta name="keywords" content="Flink知识">
+<meta property="og:type" content="article">
+<meta property="og:title" content="Flink内存解析(Flink1.10)">
+<meta property="og:url" content="http://yoursite.com/2020/08/23/flink/Flink内存解析/index.html">
+<meta property="og:site_name" content="纪光的博客">
+<meta property="og:description" content="内存模型内存概览   Total Process Memory TaskExecutor的总内存，和TM内存一致  由三部分组成  Flink Total Memory + JVM Metaspace + JVM Overhead     内存设置参数  taskmanager.memory.process.size 不建议显示设置    Total Flink Memory TaskExecut">
+<meta property="og:locale" content="zh-CN">
+<meta property="og:image" content="http://yoursite.com/images/flink/%E5%86%85%E5%AD%98%E6%A8%A1%E5%9E%8B.png">
+<meta property="og:image" content="http://yoursite.com/images/flink/TaskMemory.png">
+<meta property="og:image" content="http://yoursite.com/images/flink/FrameworkTaskOff-HeapMemory.png">
+<meta property="og:updated_time" content="2021-06-20T04:19:35.142Z">
+<meta name="twitter:card" content="summary">
+<meta name="twitter:title" content="Flink内存解析(Flink1.10)">
+<meta name="twitter:description" content="内存模型内存概览   Total Process Memory TaskExecutor的总内存，和TM内存一致  由三部分组成  Flink Total Memory + JVM Metaspace + JVM Overhead     内存设置参数  taskmanager.memory.process.size 不建议显示设置    Total Flink Memory TaskExecut">
+<meta name="twitter:image" content="http://yoursite.com/images/flink/%E5%86%85%E5%AD%98%E6%A8%A1%E5%9E%8B.png">
+  <link rel="canonical" href="http://yoursite.com/2020/08/23/flink/Flink内存解析/">
+
+
+<script id="page-configurations">
+  // https://hexo.io/docs/variables.html
+  CONFIG.page = {
+    sidebar: "",
+    isHome: false,
+    isPost: true,
+    isPage: false,
+    isArchive: false
+  };
+</script>
+
+  <title>Flink内存解析(Flink1.10) | 纪光的博客</title>
+  
+
+
+  <script>
+    var _hmt = _hmt || [];
+    (function() {
+      var hm = document.createElement("script");
+      hm.src = "https://hm.baidu.com/hm.js?bca403b673d79e83a47dc62fea1dd605";
+      var s = document.getElementsByTagName("script")[0];
+      s.parentNode.insertBefore(hm, s);
+    })();
+  </script>
+
+
+
+
+
+
+  <noscript>
+  <style>
+  .use-motion .brand,
+  .use-motion .menu-item,
+  .sidebar-inner,
+  .use-motion .post-block,
+  .use-motion .pagination,
+  .use-motion .comments,
+  .use-motion .post-header,
+  .use-motion .post-body,
+  .use-motion .collection-header { opacity: initial; }
+
+  .use-motion .site-title,
+  .use-motion .site-subtitle {
+    opacity: initial;
+    top: initial;
+  }
+
+  .use-motion .logo-line-before i { left: initial; }
+  .use-motion .logo-line-after i { right: initial; }
+  </style>
+</noscript>
+
+</head>
+
+<body itemscope itemtype="http://schema.org/WebPage">
+  <div class="container use-motion">
+    <div class="headband"></div>
+
+    <header class="header" itemscope itemtype="http://schema.org/WPHeader">
+      <div class="header-inner"><div class="site-brand-container">
+  <div class="site-meta">
+
+    <div>
+      <a href="/" class="brand" rel="start">
+        <span class="logo-line-before"><i></i></span>
+        <span class="site-title">纪光的博客</span>
+        <span class="logo-line-after"><i></i></span>
+      </a>
+    </div>
+  </div>
+
+  <div class="site-nav-toggle">
+    <div class="toggle" aria-label="切换导航栏">
+      <span class="toggle-line toggle-line-first"></span>
+      <span class="toggle-line toggle-line-middle"></span>
+      <span class="toggle-line toggle-line-last"></span>
+    </div>
+  </div>
+</div>
+
+
+<nav class="site-nav">
+  
+  <ul id="menu" class="menu">
+      
+      
+        
+        
+        <li class="menu-item menu-item-home">
+      
+    
+
+    <a href="/" rel="section"><i class="fa fa-fw fa-home"></i>首页</a>
+
+  </li>
+      
+    
+      
+      
+        
+        
+        <li class="menu-item menu-item-categories">
+      
+    
+
+    <a href="/categories/" rel="section"><i class="fa fa-fw fa-th"></i>分类</a>
+
+  </li>
+      
+    
+      
+      
+        
+        
+        <li class="menu-item menu-item-tags">
+      
+    
+
+    <a href="/tags/" rel="section"><i class="fa fa-fw fa-tags"></i>标签</a>
+
+  </li>
+      
+    
+      
+      
+        
+        
+        <li class="menu-item menu-item-archives">
+      
+    
+
+    <a href="/archives/" rel="section"><i class="fa fa-fw fa-archive"></i>归档</a>
+
+  </li>
+      
+    
+      
+      
+        
+        
+        <li class="menu-item menu-item-about">
+      
+    
+
+    <a href="/about/" rel="section"><i class="fa fa-fw fa-user"></i>关于</a>
+
+  </li>
+      
+    
+  </ul>
+
+    
+
+</nav>
+</div>
+    </header>
+
+    
+  <div class="back-to-top">
+    <i class="fa fa-arrow-up"></i>
+    <span>0%</span>
+  </div>
+
+
+    <main class="main">
+      <div class="main-inner">
+        <div class="content-wrap">
+          <div class="content">
+            
+
+  <div class="posts-expand">
+      
+  
+  
+  <article itemscope itemtype="http://schema.org/Article" class="post-block " lang="zh-CN">
+    <link itemprop="mainEntityOfPage" href="http://yoursite.com/2020/08/23/flink/Flink内存解析/">
+
+    <span hidden itemprop="author" itemscope itemtype="http://schema.org/Person">
+      <meta itemprop="name" content="姜纪光">
+      <meta itemprop="description" content="">
+      <meta itemprop="image" content="/images/avatar.gif">
+    </span>
+
+    <span hidden itemprop="publisher" itemscope itemtype="http://schema.org/Organization">
+      <meta itemprop="name" content="纪光的博客">
+    </span>
+      <header class="post-header">
+        <h1 class="post-title" itemprop="name headline">
+          
+            Flink内存解析(Flink1.10)
+            
+
+          
+        </h1>
+
+        <div class="post-meta">
+            <span class="post-meta-item">
+              <span class="post-meta-item-icon">
+                <i class="fa fa-calendar-o"></i>
+              </span>
+              <span class="post-meta-item-text">发表于</span>
+
+              
+                
+              
+
+              <time title="创建时间：2020-08-23 09:14:55" itemprop="dateCreated datePublished" datetime="2020-08-23T09:14:55+08:00">2020-08-23</time>
+            </span>
+          
+            
+
+            
+              <span class="post-meta-item">
+                <span class="post-meta-item-icon">
+                  <i class="fa fa-calendar-check-o"></i>
+                </span>
+                <span class="post-meta-item-text">更新于</span>
+                <time title="修改时间：2021-06-20 12:19:35" itemprop="dateModified" datetime="2021-06-20T12:19:35+08:00">2021-06-20</time>
+              </span>
+            
+          
+            <span class="post-meta-item">
+              <span class="post-meta-item-icon">
+                <i class="fa fa-folder-o"></i>
+              </span>
+              <span class="post-meta-item-text">分类于</span>
+              
+                <span itemprop="about" itemscope itemtype="http://schema.org/Thing">
+                  <a href="/categories/flink/" itemprop="url" rel="index">
+                    <span itemprop="name">flink</span>
+                  </a>
+                </span>
+
+                
+                
+              
+            </span>
+          
+
+          
+            <span id="/2020/08/23/flink/Flink内存解析/" class="post-meta-item leancloud_visitors" data-flag-title="Flink内存解析(Flink1.10)" title="阅读次数">
+              <span class="post-meta-item-icon">
+                <i class="fa fa-eye"></i>
+              </span>
+              <span class="post-meta-item-text">阅读次数：</span>
+              <span class="leancloud-visitors-count"></span>
+            </span>
+          
+  
+  
+
+        </div>
+      </header>
+
+    
+    
+    
+    <div class="post-body" itemprop="articleBody">
+
+      
+        <h1 id="内存模型"><a href="#内存模型" class="headerlink" title="内存模型"></a>内存模型</h1><h2 id="内存概览"><a href="#内存概览" class="headerlink" title="内存概览"></a>内存概览</h2><p><img src="/images/flink/%E5%86%85%E5%AD%98%E6%A8%A1%E5%9E%8B.png" alt="内存模型"></p>
+<p><img src="/images/flink/TaskMemory.png" alt="TaskMemory"></p>
+<p><img src="/images/flink/FrameworkTaskOff-HeapMemory.png" alt="Off-Heap"></p>
+<h2 id="Total-Process-Memory"><a href="#Total-Process-Memory" class="headerlink" title="Total Process Memory"></a>Total Process Memory</h2><ul>
+<li><p>TaskExecutor的总内存，和TM内存一致</p>
+</li>
+<li><p>由三部分组成</p>
+<blockquote>
+<p>Flink Total Memory + JVM Metaspace + JVM Overhead</p>
+</blockquote>
+</li>
+</ul>
+<ul>
+<li><p>内存设置参数</p>
+<blockquote>
+<p>taskmanager.memory.process.size</p>
+<p>不建议显示设置</p>
+</blockquote>
+</li>
+</ul>
+<h2 id="Total-Flink-Memory"><a href="#Total-Flink-Memory" class="headerlink" title="Total Flink Memory"></a>Total Flink Memory</h2><ul>
+<li><p>TaskExecutors中Flink任务使用的总内存</p>
+</li>
+<li><p>由以下部分组成</p>
+<blockquote>
+<p>Framework Heap（Heap）</p>
+<p>Framework Off-Heap（Direct + Native）</p>
+<p>Task Heap（Heap）</p>
+<p>Task Off-Heap（Direct + Native）</p>
+<p>Managed（Native）</p>
+<p>Network（Direct）</p>
+</blockquote>
+</li>
+</ul>
+<ul>
+<li><p>设置参数</p>
+<blockquote>
+<p>taskmanager.memory.flink.size</p>
+<p>不建议显示设置</p>
+</blockquote>
+</li>
+</ul>
+<h2 id="Task-Heap"><a href="#Task-Heap" class="headerlink" title="Task Heap"></a>Task Heap</h2><ul>
+<li><p>TaskExecutors的heap内存大小，task使用</p>
+</li>
+<li><p>配置参数</p>
+<blockquote>
+<p>taskmanager.memory.task.heap.size</p>
+<p>如果没有显示配置，那么就等于</p>
+<p>Total Flink Memory - Framework Heap - Task Off-Heap -  Managed Memory - Network </p>
+</blockquote>
+</li>
+</ul>
+<h2 id="Task-Off-Heap"><a href="#Task-Off-Heap" class="headerlink" title="Task Off-Heap"></a>Task Off-Heap</h2><ul>
+<li><p>TaskExecutors的off-head内存大小</p>
+</li>
+<li><p>配置参数</p>
+<blockquote>
+<p>taskmanager.memory.task.off-heap.size</p>
+<p>默认值是零</p>
+</blockquote>
+</li>
+</ul>
+<h2 id="Framework-Memory"><a href="#Framework-Memory" class="headerlink" title="Framework Memory"></a>Framework Memory</h2><ul>
+<li><p>Heap    Direct &amp; Native</p>
+</li>
+<li><p>Framework是TaskManager维度的，不计入Slot资源</p>
+</li>
+<li><p>分为Framework Heap 和 Framework Off-Heap</p>
+</li>
+<li><p>设置参数</p>
+<blockquote>
+<p>Framework Heap：taskmanager.memory.framework.heap.size  默认值：128MB  </p>
+<p>Framework Off-Heap：taskmanager.memory.framework.off-heap.size  默认值：128MB</p>
+<p>如果没有充分理由，不要更改内存选项，在诸如Hadoop等Flink的依赖中，可能需要更多的direct或native内存</p>
+</blockquote>
+</li>
+<li><p>说明</p>
+<blockquote>
+<p>堆总用量限制：-Xmx=Framework Heap + Task Heap</p>
+<p>非堆总用量限制：-XX:MaxDirectMemorySize= Framework Off-Heap + Off-Task Heap + Network</p>
+<p>无隔离：没有在Slot和Framework 之间做隔离，后续版本：动态切割Slot资源</p>
+<p><a href="https://cwiki.apache.org/confluence/display/FLINK/FLIP-56:+Dynamic+Slot+Allocation" target="_blank" rel="noopener">FLIP-56:+Dynamic+Slot+Allocation</a></p>
+</blockquote>
+</li>
+</ul>
+<h2 id="Network-Memory"><a href="#Network-Memory" class="headerlink" title="Network Memory"></a>Network Memory</h2><ul>
+<li><p>属于Direct Memory</p>
+</li>
+<li><p>在配置大小后，集群启动后直接申请，不会释放，实际上是个常量</p>
+</li>
+<li><p>用于上下游算子的 数据传输缓冲</p>
+</li>
+<li><p>设置参数</p>
+<blockquote>
+<p>taskmanager.memory.network.min        默认值：64MB    Explicit  </p>
+<p>taskmanager.memory.network.max       默认值：1GB       Explicit  </p>
+<p>taskmanager.memory.network.fraction 默认值：0.1（Total Flink Memory ）  Implicit</p>
+<p>在满足min和max的条件下，设置为fraction，否则就是min或max的值</p>
+</blockquote>
+</li>
+<li><p>特点</p>
+<blockquote>
+<p>同一TaskExecutor的个Slot之间没有隔离</p>
+<p>由作业拓扑决定量，不足会导致运行失败，多了也用不到</p>
+</blockquote>
+</li>
+</ul>
+<ul>
+<li><p>计算公式</p>
+<blockquote>
+<p>Network Memory = (inputBuffers + outputBuffers) * bufferSize(32KB)</p>
+<p>inputBuffers = remoteChannels * buffersPerChannel(2) + gates * buffersPerGates(8)</p>
+<p>​      remoteChannels = 不在当前TM的上游Subtask(Physical Graph Vertex)数量</p>
+<p>​      gates = 上游Task(Logical Graph VerTex)数量</p>
+<p>outputBuffers = subpartitions + 1</p>
+<p>​    subpartitions = 下游Subtask(Physical Graph Vertex)数量</p>
+</blockquote>
+</li>
+</ul>
+<h2 id="Managed-Memory"><a href="#Managed-Memory" class="headerlink" title="Managed Memory"></a>Managed Memory</h2><ul>
+<li><p>托管内存是 Native Memory，即 不会受到JVM heap  或者Direct 大小的限制</p>
+</li>
+<li><p>主要用来排序，哈希表，中间结果的缓存和RocksDB状态后端</p>
+</li>
+<li><p>设置参数</p>
+<blockquote>
+<p>taskmanager.memory.managed.size         默认值：None</p>
+<p>taskmanager.memory.managed.fraction  默认值：0.4（Total Flink Memory ）</p>
+<p>当任务是无状态的或者使用MemoryStateBackend or FsStateBackend状态后端时，设置托管内存为零，以确保为用户代码使用的堆分配更多内存</p>
+</blockquote>
+</li>
+<li><p>特点：</p>
+<blockquote>
+<p>各个Slot之间严格隔离</p>
+<p>多点少点都能跑，与性能挂钩</p>
+</blockquote>
+</li>
+<li><p>RocksDB内存限制</p>
+<blockquote>
+<p>state.backend.rocksdb.memory.managed：默认为true，</p>
+<p>设置RocksDB使用的内存大小为Managed Memory，目的是防止容器内存超用，而被YARN杀掉</p>
+</blockquote>
+</li>
+</ul>
+<h2 id="JVM-Metaspace"><a href="#JVM-Metaspace" class="headerlink" title="JVM Metaspace"></a>JVM Metaspace</h2><ul>
+<li><p>Metaspace内存类型</p>
+</li>
+<li><p>Explicit</p>
+</li>
+<li><p>用来存储JVM类的元数据</p>
+</li>
+<li><p>设置参数</p>
+<blockquote>
+<p>taskmanager.memory.jvm-metaspace.size  默认值：256 mb</p>
+<p>用量上限受JVM严格控制：-XX:MaxMetaspaceSize</p>
+</blockquote>
+</li>
+</ul>
+<h2 id="JVM-Overhead"><a href="#JVM-Overhead" class="headerlink" title="JVM Overhead"></a>JVM Overhead</h2><ul>
+<li><p>是native memory，不是direct memory</p>
+<blockquote>
+<p>当Flink计算max direct memory size parameter时，不会计算在内</p>
+</blockquote>
+</li>
+<li><p>Explicit  Range&amp; Implicit Fraction</p>
+</li>
+<li><p>用来存储 thread stack space, compile cache</p>
+</li>
+</ul>
+<ul>
+<li><p>设置参数</p>
+<blockquote>
+<p>taskmanager.memory.jvm-overhead.min         默认值：192 mb</p>
+<p>taskmanager.memory.jvm-overhead.max        默认值：1 gb</p>
+<p>taskmanager.memory.jvm-overhead.fraction  默认值：0.1（Total Process Memory）</p>
+</blockquote>
+</li>
+</ul>
+<h2 id="Direct-Memory"><a href="#Direct-Memory" class="headerlink" title="Direct Memory"></a>Direct Memory</h2><ul>
+<li>包括：Framework Off-Heap（部分） + Task Off-Heap（部分） + Network </li>
+<li>用量上限受JVM严格控制：-XX:MaxDirectMemorySize</li>
+<li>达到上线时触发GC</li>
+</ul>
+<h2 id="Native-Memory"><a href="#Native-Memory" class="headerlink" title="Native Memory"></a>Native Memory</h2><ul>
+<li><p>包括</p>
+<blockquote>
+<p>Framework Off-Heap（部分）</p>
+<p>Task Off-Heap（部分）</p>
+<p>Managed Memory </p>
+<p>JVM Overhead</p>
+</blockquote>
+</li>
+<li><p>用量上限不受JVM严格控制</p>
+<blockquote>
+<p>但是Managed Memory用量上限受Flink严格控制</p>
+</blockquote>
+</li>
+</ul>
+<h2 id="Off-Heap-Memory"><a href="#Off-Heap-Memory" class="headerlink" title="Off-Heap Memory"></a>Off-Heap Memory</h2><ul>
+<li><p>包括Framework Off-Heap Memory 和Task Off-Heap Memory</p>
+</li>
+<li><p>两种Off-Heap内存设置，都包含了Direct和Native内存</p>
+<blockquote>
+<p>用户无需理解Direct/Native内存的区别并分别配置</p>
+<p>无法严格控制Direct内存用量，可能导致超用</p>
+<p>绝大多数情况下，只需要少量Native内存，FullGC时释放不需要的Direct内存</p>
+<p>如果需要大量的Native内存，可以考虑增大JVM Overhead</p>
+</blockquote>
+</li>
+</ul>
+<h1 id="参数配置"><a href="#参数配置" class="headerlink" title="参数配置"></a>参数配置</h1><ul>
+<li><p>Explicit</p>
+<blockquote>
+<p>Size, Min/Max</p>
+<p>严格保证（包括默认值）</p>
+<p>配置不当可能引发冲突</p>
+</blockquote>
+</li>
+</ul>
+<ul>
+<li><p>Implicit</p>
+<blockquote>
+<p>Fraction</p>
+<p>非严格保证</p>
+<p>存在冲突时优先保证Explicit的配置</p>
+</blockquote>
+</li>
+<li><p>避免配置冲突</p>
+<blockquote>
+<p>1.以下3项至少配置一项，不建议配置两项及以上：</p>
+<p>  Total Process</p>
+<p>  Total Flink</p>
+<p>  Task Heap &amp; Managed</p>
+<p>2.至少一个内存部分或总内存大小是Implicit</p>
+</blockquote>
+</li>
+</ul>
+<h1 id="JVM参数源码解析"><a href="#JVM参数源码解析" class="headerlink" title="JVM参数源码解析"></a>JVM参数源码解析</h1><p>flink升级到1.10后，内存管理和配置有很大的更改，下面进行具体的分析</p>
+<ul>
+<li><p>显示配置task堆内存和托管内存大小</p>
+<figure class="highlight shell"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br><span class="line">3</span><br><span class="line">4</span><br><span class="line">5</span><br><span class="line">6</span><br><span class="line">7</span><br><span class="line">8</span><br><span class="line">9</span><br><span class="line">10</span><br><span class="line">11</span><br><span class="line">12</span><br><span class="line">13</span><br><span class="line">14</span><br><span class="line">15</span><br><span class="line">16</span><br><span class="line">17</span><br><span class="line">18</span><br><span class="line">19</span><br><span class="line">20</span><br><span class="line">21</span><br><span class="line">22</span><br><span class="line">23</span><br><span class="line">24</span><br><span class="line">25</span><br><span class="line">26</span><br><span class="line">27</span><br><span class="line">28</span><br><span class="line">29</span><br><span class="line">30</span><br><span class="line">31</span><br><span class="line">32</span><br><span class="line">33</span><br><span class="line">34</span><br><span class="line">35</span><br><span class="line">36</span><br><span class="line">37</span><br><span class="line">38</span><br></pre></td><td class="code"><pre><span class="line">显示配置：taskmanager.memory.task.heap.size 和 taskmanager.memory.managed.size</span><br><span class="line">  计算其它部分内存：</span><br><span class="line">  taskmanager.memory.framework.heap.size=128m</span><br><span class="line">  taskmanager.memory.framework.off-heap.size=128m</span><br><span class="line">  taskmanager.memory.task.off-heap.size=0</span><br><span class="line">  非网络内存=taskmanager.memory.framework.heap.size </span><br><span class="line">             + taskmanager.memory.framework.off-heap.size </span><br><span class="line">             + taskmanager.memory.task.heap.size</span><br><span class="line">             + taskmanager.memory.task.off-heap.size</span><br><span class="line">             + taskmanager.memory.managed.size</span><br><span class="line"></span><br><span class="line">  若显示配置: taskmanager.memory.flink.size</span><br><span class="line">    则非网络内存 &lt;= taskmanager.memory.flink.size</span><br><span class="line">     那么网络内存 =taskmanager.memory.flink.size - 非网络内存</span><br><span class="line">     检查网络内存 满足 最大值(1gb) 最小值(64m) 和 taskmanager.memory.flink.size * 0.1</span><br><span class="line">  若没有显示配置，</span><br><span class="line">    那么网路内存 &gt; max = max; &lt; min = min; = 比例</span><br><span class="line">  taskmanager.memory.jvm-metaspace.size=256m</span><br><span class="line">  若显示配置: taskmanager.memory.process.size</span><br><span class="line">   overhead= taskmanager.memory.process.size </span><br><span class="line">			  - taskmanager.memory.flink.size </span><br><span class="line">			  - taskmanager.memory.jvm-metaspace.size</span><br><span class="line">   </span><br><span class="line">  最后结果：</span><br><span class="line">  		this.cpuCores = cpuCores;</span><br><span class="line">		this.frameworkHeapSize = frameworkHeapSize;</span><br><span class="line">		this.frameworkOffHeapMemorySize = frameworkOffHeapSize;</span><br><span class="line">		this.taskHeapSize = taskHeapSize;</span><br><span class="line">		this.taskOffHeapSize = taskOffHeapSize;</span><br><span class="line">		this.networkMemSize = networkMemSize;</span><br><span class="line">		this.managedMemorySize = managedMemorySize;</span><br><span class="line">		this.jvmMetaspaceSize = jvmMetaspaceSize;</span><br><span class="line">		this.jvmOverheadSize = jvmOverheadSize;</span><br><span class="line">若显示配置: taskmanager.memory.flink.size</span><br><span class="line"></span><br><span class="line">若显示配置: taskmanager.memory.process.size</span><br><span class="line">  计算其它内存部分: taskmanager.memory.jvm-metaspace.size=256m</span><br><span class="line">  根据比例抽取: overhead</span><br></pre></td></tr></table></figure>
+
+<p>​</p>
+</li>
+</ul>
+<h1 id="参考文档"><a href="#参考文档" class="headerlink" title="参考文档"></a>参考文档</h1><p><a href="https://www.bilibili.com/video/BV1At4y1U7vH/" target="_blank" rel="noopener">Flink TaskExecutor 内存管理与配置</a></p>
+<p><a href="https://cwiki.apache.org/confluence/display/FLINK/FLIP-49%3A+Unified+Memory+Configuration+for+TaskExecutors" target="_blank" rel="noopener">FLIP-49: Unified Memory Configuration for TaskExecutors</a></p>
+<p><a href="https://docs.google.com/spreadsheets/d/1mJaMkMPfDJJ-w6nMXALYmTc4XxiV30P5U7DzgwLkSoE/edit#gid=0" target="_blank" rel="noopener">Memory calculations</a></p>
+<p><a href="https://github.com/KarmaGYZ/flink-memory-calculator" target="_blank" rel="noopener">flink-memory-calculator</a></p>
+
+    </div>
+
+    
+    
+    
+        
+      
+
+      <footer class="post-footer">
+          
+            
+          
+          <div class="post-tags">
+            
+              <a href="/tags/Flink知识/" rel="tag"># Flink知识</a>
+            
+          </div>
+        
+
+        
+
+          <div class="post-nav">
+            <div class="post-nav-next post-nav-item">
+              
+                <a href="/2020/08/17/java/Java锁知识/" rel="next" title="Java锁知识">
+                  <i class="fa fa-chevron-left"></i> Java锁知识
+                </a>
+              
+            </div>
+
+            <span class="post-nav-divider"></span>
+
+            <div class="post-nav-prev post-nav-item">
+              
+                <a href="/2020/08/26/flink/Flink获取所有Source和Sink信息/" rel="prev" title="Flink获取所有Source和Sink信息">
+                  Flink获取所有Source和Sink信息 <i class="fa fa-chevron-right"></i>
+                </a>
+              
+            </div>
+          </div>
+        
+      </footer>
+    
+  </article>
+  
+  
+  
+
+  </div>
+
+
+          </div>
+          
+
+        </div>
+          
+  
+  <div class="toggle sidebar-toggle">
+    <span class="toggle-line toggle-line-first"></span>
+    <span class="toggle-line toggle-line-middle"></span>
+    <span class="toggle-line toggle-line-last"></span>
+  </div>
+
+  <aside class="sidebar">
+    <div class="sidebar-inner">
+        
+        
+        
+        
+      
+
+      <ul class="sidebar-nav motion-element">
+        <li class="sidebar-nav-toc">
+          文章目录
+        </li>
+        <li class="sidebar-nav-overview">
+          站点概览
+        </li>
+      </ul>
+
+      <!--noindex-->
+      <div class="post-toc-wrap sidebar-panel">
+          <div class="post-toc motion-element"><ol class="nav"><li class="nav-item nav-level-1"><a class="nav-link" href="#内存模型"><span class="nav-number">1.</span> <span class="nav-text">内存模型</span></a><ol class="nav-child"><li class="nav-item nav-level-2"><a class="nav-link" href="#内存概览"><span class="nav-number">1.1.</span> <span class="nav-text">内存概览</span></a></li><li class="nav-item nav-level-2"><a class="nav-link" href="#Total-Process-Memory"><span class="nav-number">1.2.</span> <span class="nav-text">Total Process Memory</span></a></li><li class="nav-item nav-level-2"><a class="nav-link" href="#Total-Flink-Memory"><span class="nav-number">1.3.</span> <span class="nav-text">Total Flink Memory</span></a></li><li class="nav-item nav-level-2"><a class="nav-link" href="#Task-Heap"><span class="nav-number">1.4.</span> <span class="nav-text">Task Heap</span></a></li><li class="nav-item nav-level-2"><a class="nav-link" href="#Task-Off-Heap"><span class="nav-number">1.5.</span> <span class="nav-text">Task Off-Heap</span></a></li><li class="nav-item nav-level-2"><a class="nav-link" href="#Framework-Memory"><span class="nav-number">1.6.</span> <span class="nav-text">Framework Memory</span></a></li><li class="nav-item nav-level-2"><a class="nav-link" href="#Network-Memory"><span class="nav-number">1.7.</span> <span class="nav-text">Network Memory</span></a></li><li class="nav-item nav-level-2"><a class="nav-link" href="#Managed-Memory"><span class="nav-number">1.8.</span> <span class="nav-text">Managed Memory</span></a></li><li class="nav-item nav-level-2"><a class="nav-link" href="#JVM-Metaspace"><span class="nav-number">1.9.</span> <span class="nav-text">JVM Metaspace</span></a></li><li class="nav-item nav-level-2"><a class="nav-link" href="#JVM-Overhead"><span class="nav-number">1.10.</span> <span class="nav-text">JVM Overhead</span></a></li><li class="nav-item nav-level-2"><a class="nav-link" href="#Direct-Memory"><span class="nav-number">1.11.</span> <span class="nav-text">Direct Memory</span></a></li><li class="nav-item nav-level-2"><a class="nav-link" href="#Native-Memory"><span class="nav-number">1.12.</span> <span class="nav-text">Native Memory</span></a></li><li class="nav-item nav-level-2"><a class="nav-link" href="#Off-Heap-Memory"><span class="nav-number">1.13.</span> <span class="nav-text">Off-Heap Memory</span></a></li></ol></li><li class="nav-item nav-level-1"><a class="nav-link" href="#参数配置"><span class="nav-number">2.</span> <span class="nav-text">参数配置</span></a></li><li class="nav-item nav-level-1"><a class="nav-link" href="#JVM参数源码解析"><span class="nav-number">3.</span> <span class="nav-text">JVM参数源码解析</span></a></li><li class="nav-item nav-level-1"><a class="nav-link" href="#参考文档"><span class="nav-number">4.</span> <span class="nav-text">参考文档</span></a></li></ol></div>
+        
+      </div>
+      <!--/noindex-->
+
+      <div class="site-overview-wrap sidebar-panel">
+        <div class="site-author motion-element" itemprop="author" itemscope itemtype="http://schema.org/Person">
+  <p class="site-author-name" itemprop="name">姜纪光</p>
+  <div class="site-description" itemprop="description"></div>
+</div>
+<div class="site-state-wrap motion-element">
+  <nav class="site-state">
+      <div class="site-state-item site-state-posts">
+        
+          <a href="/archives/">
+        
+          <span class="site-state-item-count">158</span>
+          <span class="site-state-item-name">日志</span>
+        </a>
+      </div>
+    
+      
+      
+      <div class="site-state-item site-state-categories">
+        
+          
+            <a href="/categories/">
+          
+        
+        <span class="site-state-item-count">26</span>
+        <span class="site-state-item-name">分类</span>
+        </a>
+      </div>
+    
+      
+      
+      <div class="site-state-item site-state-tags">
+        
+          
+            <a href="/tags/">
+          
+        
+        <span class="site-state-item-count">14</span>
+        <span class="site-state-item-name">标签</span>
+        </a>
+      </div>
+    
+  </nav>
+</div>
+
+
+
+      </div>
+
+    </div>
+  </aside>
+  <div id="sidebar-dimmer"></div>
+
+
+      </div>
+    </main>
+
+    <footer class="footer">
+      <div class="footer-inner">
+        
+
+<div class="copyright">
+  &copy; 
+  <span itemprop="copyrightYear">2021</span>
+  <span class="with-love">
+    <i class="fa fa-user"></i>
+  </span>
+  <span class="author" itemprop="copyrightHolder">姜纪光</span>
+</div>
+  <div class="powered-by">由 <a href="https://hexo.io" class="theme-link" rel="noopener" target="_blank">Hexo</a> 强力驱动 v3.9.0
+  </div>
+  <span class="post-meta-divider">|</span>
+  <div class="theme-info">
+      
+    主题 – <a href="https://mist.theme-next.org" class="theme-link" rel="noopener" target="_blank">NexT.Mist</a> v7.4.1
+  </div>
+
+        
+
+
+
+
+
+
+
+
+
+
+
+
+        
+      </div>
+    </footer>
+  </div>
+
+  
+  <script src="/lib/anime.min.js?v=3.1.0"></script>
+  <script src="/lib/velocity/velocity.min.js?v=1.2.1"></script>
+  <script src="/lib/velocity/velocity.ui.min.js?v=1.2.1"></script>
+<script src="/js/utils.js?v=7.4.1"></script><script src="/js/motion.js?v=7.4.1"></script>
+<script src="/js/schemes/muse.js?v=7.4.1"></script>
+
+<script src="/js/next-boot.js?v=7.4.1"></script>
+
+
+
+  
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+  
+
+  
+
+  
+
+
+<script>
+NexT.utils.getScript('//unpkg.com/valine/dist/Valine.min.js', () => {
+  var GUEST = ['nick', 'mail', 'link'];
+  var guest = 'nick,mail,link';
+  guest = guest.split(',').filter(item => {
+    return GUEST.includes(item);
+  });
+  new Valine({
+    el: '#comments',
+    verify: false,
+    notify: false,
+    appId: 'MIQC4jJTknc0hjNXDAiIuQ21-9Nh9j0Va',
+    appKey: 'vaiXpSQLLMglwYsVLOBLzck4',
+    placeholder: "Just go go",
+    avatar: 'mm',
+    meta: guest,
+    pageSize: '10' || 10,
+    visitor: true,
+    lang: 'zh-cn' || 'zh-cn',
+    path: location.pathname,
+    recordIP: false,
+    serverURLs: ''
+  });
+}, window.Valine);
+</script>
+
+</body>
+</html>
